@@ -1,0 +1,55 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <script src="base64.js"  type="text/javascript"> </script> 
+  <script src="data.js" type="text/javascript"> </script> 
+  <script src="colormaps.js" type="text/javascript"> </script> 
+</head>
+
+
+<body>
+<p>bitmap test</p>
+<div id="canvasdiv"> </div>
+
+
+
+<script type="text/javascript">
+
+
+// https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
+  
+
+  console.log("init:",width,height);
+  var c=document.createElement("canvas");
+  c.setAttribute("id", "c");
+  c.setAttribute("width", width);
+  c.setAttribute("height", width);
+  document.getElementById('canvasdiv').appendChild(c);
+   
+  var ctx = c.getContext('2d');  
+  console.time("start")
+
+var delta=maxval-minval;
+// first, create a new ImageData to contain our pixels
+var imgData = ctx.createImageData(width, height); // width x height
+var mapdata = imgData.data;
+var val=0;
+var color=[];
+
+// copy img byte-per-byte into our ImageData
+for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
+    val=data[j];
+    indexval=~~((val-minval)/(delta)*255);    
+    color=colormap[indexval];
+
+    mapdata[i] =  color[0];  // imgd[i];
+    mapdata[i+1] = color[1];  // imgd[i];
+    mapdata[i+2] = color[2];  // imgd[i];
+    mapdata[i+3] = 0xff; //i & 0x3f;  // imgd[i];
+}
+//console.log(data);
+console.timeEnd("timing foo")
+// now we can draw our imagedata onto the canvas
+ctx.putImageData(imgData, 0, 0);
+  </script>
+</body>
+</html>
