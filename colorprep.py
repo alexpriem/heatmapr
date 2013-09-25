@@ -301,7 +301,7 @@ def write_headers (f,maps):
     
     
 maps={}
-f=open("colormaps.js","w")
+f=open("js/colormaps.js","w")
 maps.update(write_colormap(f,'gray',gray))
 maps.update(write_colormap(f,'coolwarm',coolwarm,))
 maps.update(write_colormap(f,'blue',blue))

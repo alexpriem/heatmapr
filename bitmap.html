@@ -1,14 +1,23 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-  <script src="base64.js"  type="text/javascript"> </script> 
-  <script src="data.js" type="text/javascript"> </script> 
-  <script src="colormaps.js" type="text/javascript"> </script> 
+  <LINK href="css/style.css" rel="stylesheet" type="text/css">
+  <script src="lib/jquery-2.0.3.min.js"  type="text/javascript"> </script> 
+  <script src="lib/base64.js"  type="text/javascript"> </script> 
+  <script src="js/data.js" type="text/javascript"> </script> 
+  <script src="js/colormaps.js" type="text/javascript"> </script> 
+  <script src="js/ui.js" type="text/javascript"> </script> 
 
 </head>
 
 
 <body>
 <p>bitmap test</p>
+<div id="controls">
+<ul id="sel_colormap">
+</ul>
+<ul id="sel_size">
+</ul>
+</div>
 <div id="canvasdiv"> </div>
 
 
@@ -18,16 +27,27 @@
 
 // https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
   
-
   console.log("init:",width,height);
   var c=document.createElement("canvas");
   c.setAttribute("id", "c");
   c.setAttribute("width", width);
   c.setAttribute("height", width);
   document.getElementById('canvasdiv').appendChild(c);
-   
+  
+
+
   var ctx = c.getContext('2d');  
+
+  console.log(colormaps);
+  init_colormaps();
+  init_sizes();
+
+  $('.sizename').bind('onclick',click_size);
+  $('.sizename').click(click_size);
   console.time("start")
+
+
+
 
 var delta=maxval-minval;
 // first, create a new ImageData to contain our pixels

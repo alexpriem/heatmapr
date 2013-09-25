@@ -1,12 +1,12 @@
 import math
 
 
-width=500
-height=500
+width=250
+height=250
 minval=0;
 maxval=int(math.sqrt(height*height/4+width*width/4)+5);
 
-f=open("data.js","w")
+f=open("js/data.js","w")
 f.write("""
 var width=%(width)s;
 var height=%(height)s;
