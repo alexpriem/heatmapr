@@ -80,6 +80,7 @@ table {
 	font-size: 15px;
 	font-size-adjust: none;	
 	font-weight: normal;	
+	padding-left:5px;
 }
 
 .sizename {
@@ -89,6 +90,7 @@ table {
 	font-size: 15px;
 	font-size-adjust: none;	
 	font-weight: normal;	
+	padding-left:5px;
 }
 
 .hover_selectie {
