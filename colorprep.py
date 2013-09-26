@@ -278,7 +278,7 @@ for c in range(0,len(coolwarm_raw),4):
 
 gray=[]
 for i in range (0,256):
-    gray.append([i,0,0])
+    gray.append([i,i,i])
 
 red=[]
 for i in range (0,256):
@@ -290,7 +290,7 @@ for i in range (0,256):
 
 green=[]
 for i in range (0,256):
-    green.append([i,i,i])
+    green.append([0,i,0])
 
 
 def write_headers (f,maps):

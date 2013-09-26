@@ -11,14 +11,14 @@
 
 
 <body>
-<p>bitmap test</p>
-<div id="controls">
+<p>Heatmap:</p>
+<div id="controls" class="leftbox">
 <ul id="sel_colormap">
 </ul>
-<ul id="sel_size">
+<ul id="sel_size" class="selbox">
 </ul>
 </div>
-<div id="canvasdiv"> </div>
+<div id="canvasdiv" class="rightbox"> </div>
 
 
 
@@ -57,16 +57,7 @@ var val=0;
 var color=[];
 
 // copy img byte-per-byte into our ImageData
-for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
-    val=data[j];
-    indexval=~~((val-minval)/(delta)*255);    
-    color=coolwarm[indexval];
-
-    mapdata[i] =  color[0];  // imgd[i];
-    mapdata[i+1] = color[1];  // imgd[i];
-    mapdata[i+2] = color[2];  // imgd[i];
-    mapdata[i+3] = 0xff; //i & 0x3f;  // imgd[i];
-}
+resize();
 //console.log(data);
 console.timeEnd("timing foo")
 // now we can draw our imagedata onto the canvas
