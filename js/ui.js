@@ -140,3 +140,84 @@ function init_sizes() {
    $('.sizename').on('mouseout ',leave_selectie);
  // console.log("initsize");
 }
+
+
+
+  function draw_axes () {
+
+
+  var xScale=d3.scale.linear();
+  var yScale=d3.scale.linear();
+  xScale.range([0,width]); 
+  xScale.domain([xmin,xmax]);
+  yScale.domain([ymax,ymin]);
+  yScale.range([0,height]); 
+
+  var xAxis=d3.svg.axis();
+  var yAxis=d3.svg.axis();  
+  xAxis.scale(xScale)       
+       .orient("bottom");
+  yAxis.scale(yScale)       
+       .orient("left");
+
+  //console.log(chart);
+  chart.append("g")
+        .attr("class","xaxis")
+        .attr("transform","translate(50,"+(height+25)+")")
+        .call(xAxis);
+  chart.append("g")
+        .attr("class","yaxis")
+        .attr("transform","translate(50,25)")
+        .call(yAxis);        
+}
+
+
+
+function draw_colormap () {
+
+console.log("colormap", colormap.length);
+
+var step=4;
+var barlength=height/3;
+var barstep=(barlength/colormap.length);
+console.log(barlength, barstep);
+chart.append("rect")
+	.attr("x",width+75)
+	.attr("y",25+10)
+	.attr("width",20)
+	.attr("height",barlength)
+	.style("fill","none")
+	.style("stroke","black")
+	.style("stroke-width","1px");
+  
+ for (i=0; i<colormap.length; i+=step) {
+ 	color=colormap[i];
+chart.append("rect")
+	.attr("x",width+75)
+	.attr("y",25+10+barlength-barstep*i)
+	.attr("width",20)
+	.attr("height",barstep*(step+1))
+	.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+	.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+	.style("stroke-width","1px");
+
+ }
+
+
+  var colorScale=d3.scale.linear();
+  colorScale.domain([maxval,minval]);
+  colorScale.range([0,barlength]); 
+
+  var colorAxis=d3.svg.axis();  
+  colorAxis.scale(colorScale)       
+       .orient("left");
+
+  scalepos=width+75;
+  chart.append("g")
+        .attr("class","yaxis")
+        .attr("transform","translate("+scalepos+",35)")
+        .call(colorAxis);        
+
+
+ 
+}

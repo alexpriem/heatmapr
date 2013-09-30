@@ -39,8 +39,8 @@
   c.setAttribute("width", width);
   c.setAttribute("height", width);
   var s=document.getElementById("heatmap_svg");
-  s.setAttribute("width", width+50);
-  s.setAttribute("height", width+50);
+  s.setAttribute("width", width+100);
+  s.setAttribute("height", height+100);
   
 
   var ctx = c.getContext('2d');  
@@ -48,40 +48,27 @@
 
 
 
-  console.log(colormaps);
+  //console.log(colormaps);
   init_colormaps();
   init_sizes();
 
 
+
+
+
+
   var chart = d3.select("#heatmap_svg");
-  var xScale=d3.scale.linear();
-  var yScale=d3.scale.linear();
-  xScale.range([0,width]); 
-  xScale.domain([xmin,xmax]);
-  yScale.domain([ymax,ymin]);
-  yScale.range([0,height]); 
 
-  var xAxis=d3.svg.axis();
-  var yAxis=d3.svg.axis();  
-  xAxis.scale(xScale)       
-       .orient("bottom");
-  yAxis.scale(yScale)       
-       .orient("left");
-
-  console.log(chart);
-  chart.append("g")
-        .attr("class","xaxis")
-        .attr("transform","translate(50,"+(height)+")")
-        .call(xAxis);
-  chart.append("g")
-        .attr("class","yaxis")
-        .attr("transform","translate(50,0)")
-        .call(yAxis);        
-  console.log(chart);
+  
+  //console.log(chart);
 
   $('.sizename').bind('onclick',click_size);
   $('.sizename').click(click_size);
   console.time("start")
+
+
+
+
 
 
 
@@ -95,6 +82,10 @@ var color=[];
 
 // copy img byte-per-byte into our ImageData
 resize();
+draw_axes ();
+draw_colormap();
+
+
 //console.log(data);
 console.timeEnd("timing foo")
 // now we can draw our imagedata onto the canvas
