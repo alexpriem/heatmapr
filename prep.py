@@ -6,6 +6,13 @@ height=250
 minval=0;
 maxval=int(math.sqrt(height*height/4+width*width/4)+5);
 
+
+xmin=10
+xmax=20
+
+ymin=20
+ymax=50
+
 f=open("js/data.js","w")
 f.write("""
 var width=%(width)s;
@@ -13,6 +20,12 @@ var height=%(height)s;
 
 var minval=%(minval)s;
 var maxval=%(maxval)s;
+
+var xmin=%(xmin)s;
+var xmax=%(xmax)s;
+
+var ymin=%(ymin)s;
+var ymax=%(ymax)s;
 
 var data=[
 """ % locals())

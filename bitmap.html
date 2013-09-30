@@ -2,6 +2,7 @@
 <head>
   <LINK href="css/style.css" rel="stylesheet" type="text/css">
   <script src="lib/jquery-2.0.3.min.js"  type="text/javascript"> </script> 
+    <script src="lib/d3.v3.min.js"  type="text/javascript"> </script> 
   <script src="lib/base64.js"  type="text/javascript"> </script> 
   <script src="js/data.js" type="text/javascript"> </script> 
   <script src="js/colormaps.js" type="text/javascript"> </script> 
@@ -18,7 +19,13 @@
 <ul id="sel_size" class="selbox">
 </ul>
 </div>
-<div id="canvasdiv" class="rightbox"> </div>
+<div class="rightbox">
+<div id="canvasdiv" class="rightbox"> 
+  <canvas id="heatmap_canvas"> </canvas>
+  <svg id="heatmap_svg"> </svg>
+</div>
+
+</div>
 
 
 
@@ -28,19 +35,49 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
   
   console.log("init:",width,height);
-  var c=document.createElement("canvas");
-  c.setAttribute("id", "c");
+  var c=document.getElementById("heatmap_canvas");
   c.setAttribute("width", width);
   c.setAttribute("height", width);
-  document.getElementById('canvasdiv').appendChild(c);
+  var s=document.getElementById("heatmap_svg");
+  s.setAttribute("width", width+50);
+  s.setAttribute("height", width+50);
+  
+
+  var ctx = c.getContext('2d');  
   
 
 
-  var ctx = c.getContext('2d');  
 
   console.log(colormaps);
   init_colormaps();
   init_sizes();
+
+
+  var chart = d3.select("#heatmap_svg");
+  var xScale=d3.scale.linear();
+  var yScale=d3.scale.linear();
+  xScale.range([0,width]); 
+  xScale.domain([xmin,xmax]);
+  yScale.domain([ymax,ymin]);
+  yScale.range([0,height]); 
+
+  var xAxis=d3.svg.axis();
+  var yAxis=d3.svg.axis();  
+  xAxis.scale(xScale)       
+       .orient("bottom");
+  yAxis.scale(yScale)       
+       .orient("left");
+
+  console.log(chart);
+  chart.append("g")
+        .attr("class","xaxis")
+        .attr("transform","translate(50,"+(height)+")")
+        .call(xAxis);
+  chart.append("g")
+        .attr("class","yaxis")
+        .attr("transform","translate(50,0)")
+        .call(yAxis);        
+  console.log(chart);
 
   $('.sizename').bind('onclick',click_size);
   $('.sizename').click(click_size);
