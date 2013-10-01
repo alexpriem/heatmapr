@@ -1,5 +1,5 @@
 
-var colormapname='';
+var colormapname='blue';
 var size=1;
 var transform='linear';
 
@@ -7,9 +7,11 @@ var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
 
 	colormap=colormaps[colormapname];
-	console.log('colormap',colormapname);
-	console.log('colormap',colormap);
+	colormaplength=colormap.length-1;
+	console.log('click_colormap',colormapname,  colormaplength);
+	//console.log('click_colormap',colormap);
 	draw_heatmap();
+	draw_colormap();
 	return false;
 }
 
@@ -32,6 +34,8 @@ $('.colormapname').on('mouseout ',leave_selectie);
  
  for (colormapname in colormaps)  break;
  colormap=colormaps[colormapname];
+ colormaplength=colormap.length-1;
+ console.log('init_colormap:',colormapname,colormaplength);
 }
 
 
@@ -45,14 +49,28 @@ function draw_heatmap() {
 	    	if (transform=='sqrt') {
 				val=Math.sqrt(val);
 	    	}
-			if (transform=='log') {
-				val=Math.log(val);
+			if (transform=='log2') {
+				if (val>0) {
+					val=Math.log(val);
+				} else { 
+					val=0;
+				}
 	    	}
 			if (transform=='log10') {
-				val=Math.log(val)/Math.LN10;
+				if (val>0) {
+					val=Math.log(val)/Math.LN10;
+				} else { 
+					val=0;
+				}
 	    	}
 
-	    	indexval=~~((val-tminval)/(tdelta)*255);  
+
+	    	indexval=~~((val-tminval)/(tdelta)*colormaplength);  
+	    	if ((indexval<0) || (indexval>colormaplength)){
+				console.log('crash:negval,tminval,delta:',val, tminval,tdelta)
+				if (indexval<0) indexval=0;
+				if (indexval>colormaplength) indexval=colormaplength;
+			}
 	    	color=colormap[indexval];
 
 	    	mapdata[i] =  color[0];  // imgd[i];
@@ -72,7 +90,7 @@ function draw_heatmap() {
 	var newdata=[]
 	var newdata2=[]
 
-	console.log(height, width, size, typeof(height), typeof(width), typeof(size));
+	console.log('hwsize:',height, width, size);
 	for (var i=0; i<height; i+=size) {
 		for (var j=0; j<width; j+=size) {		
 			val=0;
@@ -84,11 +102,43 @@ function draw_heatmap() {
 					}
 				}				//cy
 			
-			val=val/(cx*cy); // XXX weg?
-			newdata.push(ptr);
+			
 
-			indexval=~~((val-minval)/(delta)*255);    
-    		color=colormap[indexval];			
+	    	if (transform=='sqrt') {
+				val=Math.sqrt(val);
+	    	}
+			if (transform=='log2') {
+				if (val>0) {
+					val=Math.log(val);
+				} else { 
+					val=0;
+				}
+	    	}
+			if (transform=='log10') {
+				if (val>0) {
+					val=Math.log(val)/Math.LN10;
+				} else { 
+					val=0;
+				}
+	    	}
+
+	    	//val=val/(size*size); //  wil je dit wel?
+			newdata.push(ptr);
+			indexval=~~((val-tminval)/(tdelta)*colormaplength);  		
+			if ((indexval<0) || (indexval>colormaplength)){
+				console.log('crash:negval,tminval,delta:',val, tminval,tdelta)
+				if (indexval<0) indexval=0;
+				if (indexval>colormaplength) indexval=colormaplength;
+			}
+			
+			try {
+    			color=colormap[indexval];			
+    		}
+    		catch(err) {
+    			console.log('halted, indexval:',indexval);
+    			return;
+    		}
+
 			for (cx=0; cx<size; cx++) {
 				for (cy=0; cy<size; cy++) {
 					ptr=((i+cy)*width+j+cx)*4;
@@ -165,19 +215,30 @@ var click_transform=function click_size (evt) {
 		tminval=minval;
 	}
 	if (transform=='sqrt') {
-		tmaxval=maxval;
-		tminval=minval;
+		tmaxval=Math.sqrt(maxval);
+		tminval=Math.sqrt(minval);
 	}
 	if (transform=='log') {
-		tmaxval=maxval;
-		tminval=minval;
+		tmaxval=Math.log(maxval);
+		if (tminval>0) {
+			tminval=Math.log(minval);
+			}
+		else {
+			tminval=0;
+		}
 	}
 	if (transform=='log10') {
-		tmaxval=maxval;
-		tminval=minval;
+		tmaxval=Math.log(maxval)/Math.LN10;		
+		if (tminval>0) {
+			tminval=Math.log(minval)/Math.LN10;
+			}
+		else {
+			tminval=0;
+		}
+
 	}
 	tdelta=tmaxval-tminval;
-	console.log(transform, tmaxval, tminval);
+	console.log(transform, tminval, tmaxval);
 	draw_heatmap();
 	return false;
 }
@@ -226,13 +287,15 @@ function init_transforms() {
 
 function draw_colormap () {
 
-console.log("colormap", colormap.length);
+console.log("draw_colormap", colormaplength);
 
+$('.colormap').remove();
 var step=4;
 var barlength=height/3;
-var barstep=(barlength/colormap.length);
+var barstep=(barlength/colormaplength);
 console.log(barlength, barstep);
 chart.append("rect")
+	.attr("class","colormap")
 	.attr("x",width+75)
 	.attr("y",25+10)
 	.attr("width",20)
@@ -243,14 +306,15 @@ chart.append("rect")
   
  for (i=0; i<colormap.length; i+=step) {
  	color=colormap[i];
-chart.append("rect")
-	.attr("x",width+75)
-	.attr("y",25+10+barlength-barstep*i)
-	.attr("width",20)
-	.attr("height",barstep*(step+1))
-	.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-	.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
-	.style("stroke-width","1px");
+	chart.append("rect")
+		.attr("class","colormap")
+		.attr("x",width+75)
+		.attr("y",25+10+barlength-barstep*i)
+		.attr("width",20)
+		.attr("height",barstep*(step+1))
+		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+		.style("stroke-width","1px");
 
  }
 
@@ -265,7 +329,7 @@ chart.append("rect")
 
   scalepos=width+75;
   chart.append("g")
-        .attr("class","yaxis")
+        .attr("class","yaxis colormap")
         .attr("transform","translate("+scalepos+",35)")
         .call(colorAxis);        
 
