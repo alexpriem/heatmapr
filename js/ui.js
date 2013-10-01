@@ -1,5 +1,7 @@
 
 var colormapname='';
+var size=1;
+var transform='linear';
 
 var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
@@ -7,7 +9,7 @@ var click_colormap=function click_colormap (evt) {
 	colormap=colormaps[colormapname];
 	console.log('colormap',colormapname);
 	console.log('colormap',colormap);
-	resize();
+	draw_heatmap();
 	return false;
 }
 
@@ -34,24 +36,35 @@ $('.colormapname').on('mouseout ',leave_selectie);
 
 
 
-function resize() {
+function draw_heatmap() {
 
-if (num==1) {
-	for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
-    	val=data[j];
-    	indexval=~~((val-minval)/(delta)*255);    
-    	color=colormap[indexval];
+	console.log("draw_heatmap:",size, colormapname,transform);
+	if (size==1) {
+		for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
+	    	val=data[j];
+	    	if (transform=='sqrt') {
+				val=Math.sqrt(val);
+	    	}
+			if (transform=='log') {
+				val=Math.log(val);
+	    	}
+			if (transform=='log10') {
+				val=Math.log(val)/Math.LN10;
+	    	}
 
-    	mapdata[i] =  color[0];  // imgd[i];
-    	mapdata[i+1] = color[1];  // imgd[i];
-    	mapdata[i+2] = color[2];  // imgd[i];
-    	mapdata[i+3] = 0xff; //i & 0x3f;  // imgd[i];
+	    	indexval=~~((val-tminval)/(tdelta)*255);  
+	    	color=colormap[indexval];
+
+	    	mapdata[i] =  color[0];  // imgd[i];
+	    	mapdata[i+1] = color[1];  // imgd[i];
+	    	mapdata[i+2] = color[2];  // imgd[i];
+	    	mapdata[i+3] = 0xff; //i & 0x3f;  // imgd[i];
+		}
+		ctx.putImageData(imgData, 0, 0);
+		return;
 	}
-	ctx.putImageData(imgData, 0, 0);
-	return;
-}
 
-console.log("resize:",num);
+
 	var val=0;
 	var cx=0;
 	var cy=0;
@@ -59,14 +72,14 @@ console.log("resize:",num);
 	var newdata=[]
 	var newdata2=[]
 
-	console.log(height, width, num, typeof(height), typeof(width), typeof(num));
-	for (var i=0; i<height; i+=num) {
-		for (var j=0; j<width; j+=num) {		
+	console.log(height, width, size, typeof(height), typeof(width), typeof(size));
+	for (var i=0; i<height; i+=size) {
+		for (var j=0; j<width; j+=size) {		
 			val=0;
 
 			ptr=i*width+j;			
-			for (cx=0; cx<num; cx++) {
-				for (cy=0; cy<num; cy++) {
+			for (cx=0; cx<size; cx++) {
+				for (cy=0; cy<size; cy++) {
 					val+=data[ptr+cx+cy*width];
 					}
 				}				//cy
@@ -76,8 +89,8 @@ console.log("resize:",num);
 
 			indexval=~~((val-minval)/(delta)*255);    
     		color=colormap[indexval];			
-			for (cx=0; cx<num; cx++) {
-				for (cy=0; cy<num; cy++) {
+			for (cx=0; cx<size; cx++) {
+				for (cy=0; cy<size; cy++) {
 					ptr=((i+cy)*width+j+cx)*4;
 					newdata2.push(ptr);
 			    	mapdata[ptr] =  color[0]; //color[2];  // imgd[i];
@@ -88,7 +101,7 @@ console.log("resize:",num);
 			}  //cy
 		} //j
 	}	//i
-console.log("done");
+console.log("done drawing:",size,colormapname,transform);
 
 	/*
 	for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
@@ -113,8 +126,8 @@ var leave_selectie=function enter_selectie (evt) {
 
 
 var click_size=function click_size (evt) {
-	num=parseInt($(this).attr('data-size'));
-	resize();
+	size=parseInt($(this).attr('data-size'));
+	draw_heatmap();
 	return false;
 }
 
@@ -124,23 +137,61 @@ function init_sizes() {
 		
 
 	html+='<li class="sizename" data-size="1">'+width+"x"+height+'</li>';
-	numtable=[2,5,10,20,50,100,200,500,1000,2000,5000];
+	sizetable=[2,5,10,20,50,100,200,500,1000,2000,5000];
 	j=0;
-	num=numtable[0];
-	while ((width/num>9) && (height/num)>9) {		
-		html+='<li class="sizename" data-size="'+num+'">'+Math.floor(width/num)+"x"+Math.floor(height/num)+'</li>';
+	size=sizetable[0];
+	while ((width/size>9) && (height/size)>9) {		
+		html+='<li class="sizename" data-size="'+size+'">'+Math.floor(width/size)+"x"+Math.floor(height/size)+'</li>';
 		j++;
-		num=numtable[j];		
+		size=sizetable[j];		
 	}
-	num=1;
+	size=1;
 	$('#sel_size').html(html);
 	
-  $('.sizename').on('click',click_size);
+   $('.sizename').on('click',click_size);
    $('.sizename').on('mouseenter ',enter_selectie);
    $('.sizename').on('mouseout ',leave_selectie);
  // console.log("initsize");
 }
 
+
+
+var click_transform=function click_size (evt) {
+
+	transform=$(this).attr('data-transform');
+	console.log("click_transform:", transform);	
+	if (transform=='linear') {
+		tmaxval=maxval;
+		tminval=minval;
+	}
+	if (transform=='sqrt') {
+		tmaxval=maxval;
+		tminval=minval;
+	}
+	if (transform=='log') {
+		tmaxval=maxval;
+		tminval=minval;
+	}
+	if (transform=='log10') {
+		tmaxval=maxval;
+		tminval=minval;
+	}
+	tdelta=tmaxval-tminval;
+	console.log(transform, tmaxval, tminval);
+	draw_heatmap();
+	return false;
+}
+
+
+function init_transforms() {
+ 	$('.transformname').on('click',click_transform);
+ 	$('.transformname').on('mouseenter ',enter_selectie);
+  	$('.transformname').on('mouseout ',leave_selectie);
+  	transform='linear';
+  	tmaxval=maxval;
+  	tminval=minval;
+  	tdelta=tmaxval-tminval;
+}
 
 
   function draw_axes () {

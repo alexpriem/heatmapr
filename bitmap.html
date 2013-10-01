@@ -18,6 +18,14 @@
 </ul>
 <ul id="sel_size" class="selbox">
 </ul>
+<ul id="sel_transform" class="selbox">
+  <li class="sel_heading"> Transform: </li>
+  <li class="transformname" data-transform="linear"> linear</li>
+  <li class="transformname" data-transform="sqrt"> sqrt</li>
+  <li class="transformname" data-transform="log2"> log2</li>
+  <li class="transformname" data-transform="log10"> log10</li>  
+</ul>
+
 </div>
 <div class="rightbox">
 <div id="canvasdiv" class="rightbox"> 
@@ -51,7 +59,7 @@
   //console.log(colormaps);
   init_colormaps();
   init_sizes();
-
+  init_transforms();
 
 
 
@@ -61,9 +69,6 @@
 
   
   //console.log(chart);
-
-  $('.sizename').bind('onclick',click_size);
-  $('.sizename').click(click_size);
   console.time("start")
 
 
@@ -81,7 +86,7 @@ var val=0;
 var color=[];
 
 // copy img byte-per-byte into our ImageData
-resize();
+draw_heatmap();
 draw_axes ();
 draw_colormap();
 
