@@ -2,6 +2,9 @@
 var colormapname='blue';
 var size=1;
 var transform='linear';
+var crashnr=0;
+
+var histmax=0;
 
 var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
@@ -40,8 +43,92 @@ $('.colormapname').on('mouseout ',leave_selectie);
 
 
 
+
+
+function calc_heatmap () {
+
+
+	newdata=[];	
+	hist=new Array(colormap.length);
+	for (i=0; i<hist.length; i++) {
+		hist[i]=0;
+	}
+	console.log('calc_heatmap',size);
+	for (var i=0; i<height; i+=size) {
+		for (var j=0; j<width; j+=size) {		
+			val=0;
+
+			ptr=i*width+j;
+			if (size==1) val=data[ptr];
+			if (size>1) {
+				for (cx=0; cx<size; cx++) {
+					for (cy=0; cy<size; cy++) {
+						val+=data[ptr+cx+cy*width];
+						}
+					}				//cy
+			}  // size >1
+			
+
+	    	if (transform=='sqrt') {
+				val=Math.sqrt(val);
+	    	}
+			if (transform=='log2') {
+				if (val>0) {
+					val=Math.log(val);
+				} else { 
+					val=0;
+				}
+	    	}
+			if (transform=='log10') {
+				if (val>0) {
+					val=Math.log(val)/Math.LN10;
+				} else { 
+					val=0;
+				}
+	    	}
+	    
+			newdata.push(ptr);
+			indexval=~~((val-tminval)/(tdelta)*colormaplength);  		
+
+			
+
+			if ((indexval<0) || (indexval>colormaplength)){
+				if (crashnr<10)
+					console.log('crash:negval,tminval,delta:',val, tminval,tdelta);
+				crashnr++;
+
+				if (indexval<0) indexval=0;
+				if (indexval>colormaplength) indexval=colormaplength;
+			}
+
+			indexval=parseInt(indexval);
+			hist[indexval]++;
+			try {
+    			color=colormap[indexval];			
+    		}
+    		catch(err) {
+    			console.log('halted, indexval:',indexval);
+    			return;
+    		}
+
+		} //j
+	}	//i
+
+
+	histmax=0;
+	for (i=0; i<hist.length; i++) 
+		if (hist[i]>histmax) histmax=hist[i];
+ 
+console.log('hist:',hist);
+}
+
+
+
 function draw_heatmap() {
 
+
+	calc_heatmap();
+	draw_histogram();
 	console.log("draw_heatmap:",size, colormapname,transform);
 	if (size==1) {
 		for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
@@ -67,7 +154,9 @@ function draw_heatmap() {
 
 	    	indexval=~~((val-tminval)/(tdelta)*colormaplength);  
 	    	if ((indexval<0) || (indexval>colormaplength)){
-				console.log('crash:negval,tminval,delta:',val, tminval,tdelta)
+	    		if (crashnr<10)
+					console.log('crash:negval,tminval,delta:',val, tminval,tdelta)
+				crashnr++;
 				if (indexval<0) indexval=0;
 				if (indexval>colormaplength) indexval=colormaplength;
 			}
@@ -325,9 +414,9 @@ chart.append("rect")
 
   var colorAxis=d3.svg.axis();  
   colorAxis.scale(colorScale)       
-       .orient("left");
+       .orient("right");
 
-  scalepos=width+75;
+  scalepos=width+95;
   chart.append("g")
         .attr("class","yaxis colormap")
         .attr("transform","translate("+scalepos+",35)")
@@ -335,4 +424,26 @@ chart.append("rect")
 
 
  
+}
+
+
+
+function draw_histogram () {
+
+console.log("draw_histogram:", histmax, colormaplength);
+
+$('.hist_2d').remove();
+for (i=0; i<hist.length; i++) {
+ 	color=colormap[i];
+	chart.append("rect")
+		.attr("class","hist_2d")
+		.attr("x",width+75+i)
+		.attr("y",height-(hist[i]/histmax)*0.4*height)
+		.attr("width",1)
+		.attr("height",(hist[i]/histmax)*0.4*height)
+		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+		.style("stroke-width","1px");
+ }
+
 }
