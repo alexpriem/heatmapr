@@ -58,18 +58,45 @@ $('.colormapname').slice(0,1).addClass('active_selectie');
 
 function calc_heatmap () {
 
+	console.log("calc_heatmap: invx, invy, invxy, inv_grad:",inv_x, inv_y, inv_xy, inv_grad);
 
 	newdata=[];	
 	hist=new Array(colormap.length);
 	for (i=0; i<hist.length; i++) {
 		hist[i]=0;
 	}
+
+	if (inv_y==0) {
+		min_y=0;
+		max_y=height;
+		dir_y=1;
+	} else {
+		min_y=height;
+		max_y=0;
+		dir_y=-1;
+	}
+
+	if (inv_x==0) {
+		min_x=0;
+		max_x=width;
+		dir_x=size;
+	} else {
+		min_x=width;
+		max_x=0;
+		dir_x=-size;
+	}
+
+
+
 	console.log('calc_heatmap',size);
-	for (var i=0; i<height; i+=size) {
-		for (var j=0; j<width; j+=size) {		
+	for (var loop_i=0,i=min_y; loop_i<height; loop_i++,i+=dir_y) {
+		for (var loop_j=0, j=min_x; loop_j<width;  loop_j+=size, j+=dir_x) {		
 			val=0;
 
-			ptr=i*width+j;
+			if (inv_xy) 
+				ptr=j*height+i;
+			else
+				ptr=i*width+j;
 			if (size==1) val=data[ptr];
 			if (size>1) {
 				for (cx=0; cx<size; cx++) {
@@ -110,15 +137,19 @@ function calc_heatmap () {
 			}
 
 			indexval=parseInt(indexval);
-			newdata.push(indexval+1);
 			hist[indexval]++;
+			if (inv_grad) {
+				indexval=colormaplength-indexval;
+			}
+			newdata.push(indexval);
+			
 		} //j
 //		console.log("i:",i);
 	}	//i
 
 
 	histmax=0;
-	for (i=0; i<hist.length; i++) 
+	for (i=1; i<hist.length; i++) 
 		if (hist[i]>histmax) histmax=hist[i];
  
 console.log('hist:',hist);
@@ -368,7 +399,7 @@ function draw_histogram () {
 console.log("draw_histogram:", histmax, colormaplength);
 
 $('.hist_2d').remove();
-for (i=0; i<hist.length; i++) {
+for (i=1; i<hist.length; i++) {
  	color=colormap[i];
 	chart.append("rect")
 		.attr("class","hist_2d")
