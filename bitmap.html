@@ -57,10 +57,6 @@
   
   var ctx = c.getContext('2d');  
   
-
-
-
-  //console.log(colormaps);
   init_colormaps();
   init_sizes();
   init_gradient_transforms();
@@ -71,10 +67,10 @@
 
   var chart = d3.select("#heatmap_svg");
 
-  
-  //console.log(chart);
-  console.time("start")
-
+ console.clear(); 
+  console.log("ok");
+  console.profile("start");
+  console.log("ok2");
 
 
 
@@ -85,6 +81,7 @@
 var delta=maxval-minval;
 // first, create a new ImageData to contain our pixels
 var imgData = ctx.createImageData(width, height); // width x height
+var backbuffer= new Uint8ClampedArray (width*height);
 var mapdata = imgData.data;
 var val=0;
 var color=[];
@@ -96,7 +93,7 @@ draw_colormap();
 
 
 //console.log(data);
-console.timeEnd("timing foo")
+console.profileEnd("timing");
 // now we can draw our imagedata onto the canvas
 ctx.putImageData(imgData, 0, 0);
   </script>

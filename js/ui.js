@@ -10,7 +10,7 @@ var inv_x=0;
 var inv_y=0;
 var inv_xy=0;
 var inv_grad=0;
-var newdata=[];
+
 
 var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
@@ -19,7 +19,7 @@ var click_colormap=function click_colormap (evt) {
 	colormaplength=colormap.length-1;
 
 	console.log('click_colormap',colormapname,  colormaplength);
-	$('.transformname ').removeClass('active_selectie');
+	$('.colormapname ').removeClass('active_selectie');
 	$(this).addClass('active_selectie');
 
 	//console.log('click_colormap',colormap);
@@ -60,37 +60,16 @@ function calc_heatmap () {
 
 	console.log("calc_heatmap: invx, invy, invxy, inv_grad:",inv_x, inv_y, inv_xy, inv_grad);
 
-	newdata=[];	
+	
 	hist=new Array(colormap.length);
 	for (i=0; i<hist.length; i++) {
 		hist[i]=0;
 	}
 
-	if (inv_y==0) {
-		min_y=0;
-		max_y=height;
-		dir_y=1;
-	} else {
-		min_y=height;
-		max_y=0;
-		dir_y=-1;
-	}
-
-	if (inv_x==0) {
-		min_x=0;
-		max_x=width;
-		dir_x=size;
-	} else {
-		min_x=width;
-		max_x=0;
-		dir_x=-size;
-	}
-
-
 
 	console.log('calc_heatmap',size);
-	for (var loop_i=0,i=min_y; loop_i<height; loop_i++,i+=dir_y) {
-		for (var loop_j=0, j=min_x; loop_j<width;  loop_j+=size, j+=dir_x) {		
+	for (var i=0; i<height; i++) {
+		for (var j=0; j<width;  j+=size) {		
 			val=0;
 
 			if (inv_xy) 
@@ -125,8 +104,7 @@ function calc_heatmap () {
 				}
 	    	}
 	    			
-			indexval=~~((val-tminval)/(tdelta)*colormaplength);  		
-			
+			indexval=~~((val-tminval)/(tdelta)*colormaplength);  					
 			if ((indexval<0) || (indexval>=colormaplength)){
 				if (crashnr<10)
 					console.log('crash:indexval, negval,tminval,delta:',indexval, val, tminval,tdelta);
@@ -141,7 +119,28 @@ function calc_heatmap () {
 			if (inv_grad) {
 				indexval=colormaplength-indexval;
 			}
-			newdata.push(indexval);
+
+			if (inv_y) {
+				ptr=(height-i)*width; 
+			} else {
+				ptr=i*width;
+			}
+
+			if (inv_x) {
+				ptr+=width-j;
+			} else {
+				ptr+=j;
+			}
+
+			backbuffer[ptr]=indexval;
+			if (size>1) {
+				for (cx=0; cx<size; cx++) {
+					for (cy=0; cy<size; cy++) {
+						backbuffer[ptr+cy*width+cx]=indexval;
+						}
+					}				//cy
+			}  // size >1
+			
 			
 		} //j
 //		console.log("i:",i);
@@ -153,8 +152,8 @@ function calc_heatmap () {
 		if (hist[i]>histmax) histmax=hist[i];
  
 console.log('hist:',hist);
-//console.log('hist2:',newdata);
-console.log("calc_heatmap, len:",newdata.length);
+//console.log('hist2:',backbuffer);
+console.log("calc_heatmap, len:",backbuffer.length);
 }
 
 
@@ -162,28 +161,19 @@ console.log("calc_heatmap, len:",newdata.length);
 function draw_heatmap() {
 
 	console.log("draw_heatmap:",size, colormapname,transform);
-
 	calc_heatmap();
 	draw_histogram();	
 	var indexval=0;
 	var color=[];
-	console.log("draw_heatmap:",newdata.length);
-	for (i=0,j=0; i<newdata.length; i++,j+=4) {
-			indexval=newdata[i];
-			if (indexval<0) { console.log ("zero:",indexval);}
-			if (indexval>255) { console.log ("255:",indexval); }
+	console.log("draw_heatmap:",backbuffer.length);
+	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
+			indexval=backbuffer[i];
 			color=colormap[indexval];
-			try {
-	    		color=colormap[indexval];
-	    	} catch (err) {
-	    		console.log('crash:',indexval); 
-	    	}
-
 	    	mapdata[j] =  color[0];  // imgd[i];
 	    	mapdata[j+1] = color[1];  //i & 0xff; //color[1];  // imgd[i];
 	    	mapdata[j+2] = color[2];  // imgd[i];
 	    	mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
-		}
+		}	
 	console.log('putdata');
 	ctx.putImageData(imgData, 0, 0);		 
 
@@ -200,7 +190,7 @@ var leave_selectie=function enter_selectie (evt) {
 
 var click_size=function click_size (evt) {
 	size=parseInt($(this).attr('data-size'));
-	$('.transformname ').removeClass('active_selectie');
+	$('.sizename ').removeClass('active_selectie');
 	$(this).addClass('active_selectie');	
 	draw_heatmap();
 	return false;
