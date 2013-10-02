@@ -3,7 +3,7 @@
   <LINK href="css/style.css" rel="stylesheet" type="text/css">
   <script src="lib/jquery-2.0.3.min.js"  type="text/javascript"> </script> 
     <script src="lib/d3.v3.min.js"  type="text/javascript"> </script> 
-  <script src="js/data2.js" type="text/javascript"> </script> 
+  <script src="js/data.js" type="text/javascript"> </script> 
   <script src="js/colormaps.js" type="text/javascript"> </script> 
   <script src="js/ui.js" type="text/javascript"> </script> 
 
@@ -24,7 +24,13 @@
   <li class="transformname" data-transform="log2"> log2</li>
   <li class="transformname" data-transform="log10"> log10</li>  
 </ul>
-
+<ul id="sel_swap" class="selbox">
+  <li class="sel_heading"> Inversions:</li>
+  <li class="swapname" id="inv_x"> invert X </li>
+  <li class="swapname" id="inv_y"> invert Y </li>
+  <li class="swapname" id="inv_xy"> swap X/Y </li>
+  <li class="swapname" id="inv_grad" > invert gradient</li>
+</ul>
 </div>
 <div class="rightbox">
 <div id="canvasdiv" class="rightbox"> 
@@ -57,8 +63,8 @@
   //console.log(colormaps);
   init_colormaps();
   init_sizes();
-  init_transforms();
-
+  init_gradient_transforms();
+  init_data_transforms();
 
 
 

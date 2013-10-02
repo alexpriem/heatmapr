@@ -1,4 +1,4 @@
-
+	
 var colormapname='blue';
 var size=1;
 var transform='linear';
@@ -6,12 +6,22 @@ var crashnr=0;
 
 var histmax=0;
 
+var inv_x=0;
+var inv_y=0;
+var inv_xy=0;
+var inv_grad=0;
+var newdata=[];
+
 var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
-
+	
 	colormap=colormaps[colormapname];
 	colormaplength=colormap.length-1;
+
 	console.log('click_colormap',colormapname,  colormaplength);
+	$('.transformname ').removeClass('active_selectie');
+	$(this).addClass('active_selectie');
+
 	//console.log('click_colormap',colormap);
 	draw_heatmap();
 	draw_colormap();
@@ -23,7 +33,7 @@ var click_colormap=function click_colormap (evt) {
 function init_colormaps()
 {
 
-var html='<li class="sel_heading"> colormaps </li>';
+var html='<li class="sel_heading"> Colormaps: </li>';
 for (var key in colormaps) {
   if (colormaps.hasOwnProperty(key)) {
     html+='<li class="colormapname" data-colormap="'+key+'">'+key+'</li>';
@@ -34,7 +44,8 @@ $('#sel_colormap').html(html);
 $('.colormapname').on('click',click_colormap);
 $('.colormapname').on('mouseenter ',enter_selectie);
 $('.colormapname').on('mouseout ',leave_selectie);
- 
+
+$('.colormapname').slice(0,1).addClass('active_selectie');
  for (colormapname in colormaps)  break;
  colormap=colormaps[colormapname];
  colormaplength=colormap.length-1;
@@ -86,32 +97,23 @@ function calc_heatmap () {
 					val=0;
 				}
 	    	}
-	    
-			newdata.push(ptr);
+	    			
 			indexval=~~((val-tminval)/(tdelta)*colormaplength);  		
-
 			
-
-			if ((indexval<0) || (indexval>colormaplength)){
+			if ((indexval<0) || (indexval>=colormaplength)){
 				if (crashnr<10)
-					console.log('crash:negval,tminval,delta:',val, tminval,tdelta);
+					console.log('crash:indexval, negval,tminval,delta:',indexval, val, tminval,tdelta);
 				crashnr++;
 
 				if (indexval<0) indexval=0;
-				if (indexval>colormaplength) indexval=colormaplength;
+				if (indexval>=colormaplength) indexval=colormaplength-2;
 			}
 
 			indexval=parseInt(indexval);
+			newdata.push(indexval+1);
 			hist[indexval]++;
-			try {
-    			color=colormap[indexval];			
-    		}
-    		catch(err) {
-    			console.log('halted, indexval:',indexval);
-    			return;
-    		}
-
 		} //j
+//		console.log("i:",i);
 	}	//i
 
 
@@ -120,138 +122,39 @@ function calc_heatmap () {
 		if (hist[i]>histmax) histmax=hist[i];
  
 console.log('hist:',hist);
+//console.log('hist2:',newdata);
+console.log("calc_heatmap, len:",newdata.length);
 }
 
 
 
 function draw_heatmap() {
 
+	console.log("draw_heatmap:",size, colormapname,transform);
 
 	calc_heatmap();
-	draw_histogram();
-	console.log("draw_heatmap:",size, colormapname,transform);
-	if (size==1) {
-		for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
-	    	val=data[j];
-	    	if (transform=='sqrt') {
-				val=Math.sqrt(val);
-	    	}
-			if (transform=='log2') {
-				if (val>0) {
-					val=Math.log(val);
-				} else { 
-					val=0;
-				}
-	    	}
-			if (transform=='log10') {
-				if (val>0) {
-					val=Math.log(val)/Math.LN10;
-				} else { 
-					val=0;
-				}
-	    	}
-
-
-	    	indexval=~~((val-tminval)/(tdelta)*colormaplength);  
-	    	if ((indexval<0) || (indexval>colormaplength)){
-	    		if (crashnr<10)
-					console.log('crash:negval,tminval,delta:',val, tminval,tdelta)
-				crashnr++;
-				if (indexval<0) indexval=0;
-				if (indexval>colormaplength) indexval=colormaplength;
-			}
-	    	color=colormap[indexval];
-
-	    	mapdata[i] =  color[0];  // imgd[i];
-	    	mapdata[i+1] = color[1];  // imgd[i];
-	    	mapdata[i+2] = color[2];  // imgd[i];
-	    	mapdata[i+3] = 0xff; //i & 0x3f;  // imgd[i];
-		}
-		ctx.putImageData(imgData, 0, 0);
-		return;
-	}
-
-
-	var val=0;
-	var cx=0;
-	var cy=0;
-	var ptr=0;
-	var newdata=[]
-	var newdata2=[]
-
-	console.log('hwsize:',height, width, size);
-	for (var i=0; i<height; i+=size) {
-		for (var j=0; j<width; j+=size) {		
-			val=0;
-
-			ptr=i*width+j;			
-			for (cx=0; cx<size; cx++) {
-				for (cy=0; cy<size; cy++) {
-					val+=data[ptr+cx+cy*width];
-					}
-				}				//cy
-			
-			
-
-	    	if (transform=='sqrt') {
-				val=Math.sqrt(val);
-	    	}
-			if (transform=='log2') {
-				if (val>0) {
-					val=Math.log(val);
-				} else { 
-					val=0;
-				}
-	    	}
-			if (transform=='log10') {
-				if (val>0) {
-					val=Math.log(val)/Math.LN10;
-				} else { 
-					val=0;
-				}
-	    	}
-
-	    	//val=val/(size*size); //  wil je dit wel?
-			newdata.push(ptr);
-			indexval=~~((val-tminval)/(tdelta)*colormaplength);  		
-			if ((indexval<0) || (indexval>colormaplength)){
-				console.log('crash:negval,tminval,delta:',val, tminval,tdelta)
-				if (indexval<0) indexval=0;
-				if (indexval>colormaplength) indexval=colormaplength;
-			}
-			
+	draw_histogram();	
+	var indexval=0;
+	var color=[];
+	console.log("draw_heatmap:",newdata.length);
+	for (i=0,j=0; i<newdata.length; i++,j+=4) {
+			indexval=newdata[i];
+			if (indexval<0) { console.log ("zero:",indexval);}
+			if (indexval>255) { console.log ("255:",indexval); }
+			color=colormap[indexval];
 			try {
-    			color=colormap[indexval];			
-    		}
-    		catch(err) {
-    			console.log('halted, indexval:',indexval);
-    			return;
-    		}
+	    		color=colormap[indexval];
+	    	} catch (err) {
+	    		console.log('crash:',indexval); 
+	    	}
 
-			for (cx=0; cx<size; cx++) {
-				for (cy=0; cy<size; cy++) {
-					ptr=((i+cy)*width+j+cx)*4;
-					newdata2.push(ptr);
-			    	mapdata[ptr] =  color[0]; //color[2];  // imgd[i];
-    				mapdata[ptr+1] = color[1];  // imgd[i];
-    				mapdata[ptr+2] = color[2];  // imgd[i];
-    				mapdata[ptr+3] = 0xff; //i & 0x3f;  // imgd[i];
-				} //cx
-			}  //cy
-		} //j
-	}	//i
-console.log("done drawing:",size,colormapname,transform);
-
-	/*
-	for (var i = 0,j=0, len = height * width * 4; i < len; i+=4,j+=1) {
-    mapdata[i] = 80;
-    mapdata[i+1] = 80;
-    mapdata[i+2] = 80;
-    mapdata[i+3] = 0xff; //i & 0x3f;  // imgd[i];
-}*/
-
-//console.log(data);
-ctx.putImageData(imgData, 0, 0);
+	    	mapdata[j] =  color[0];  // imgd[i];
+	    	mapdata[j+1] = color[1];  //i & 0xff; //color[1];  // imgd[i];
+	    	mapdata[j+2] = color[2];  // imgd[i];
+	    	mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
+		}
+	console.log('putdata');
+	ctx.putImageData(imgData, 0, 0);		 
 
 }
 
@@ -266,6 +169,8 @@ var leave_selectie=function enter_selectie (evt) {
 
 var click_size=function click_size (evt) {
 	size=parseInt($(this).attr('data-size'));
+	$('.transformname ').removeClass('active_selectie');
+	$(this).addClass('active_selectie');	
 	draw_heatmap();
 	return false;
 }
@@ -286,7 +191,8 @@ function init_sizes() {
 	}
 	size=1;
 	$('#sel_size').html(html);
-	
+
+   $('.sizename').slice(0,1).addClass('active_selectie');	
    $('.sizename').on('click',click_size);
    $('.sizename').on('mouseenter ',enter_selectie);
    $('.sizename').on('mouseout ',leave_selectie);
@@ -298,6 +204,9 @@ function init_sizes() {
 var click_transform=function click_size (evt) {
 
 	transform=$(this).attr('data-transform');
+	$('.transformname ').removeClass('active_selectie');
+	$(this).addClass('active_selectie');
+
 	console.log("click_transform:", transform);	
 	if (transform=='linear') {
 		tmaxval=maxval;
@@ -333,14 +242,40 @@ var click_transform=function click_size (evt) {
 }
 
 
-function init_transforms() {
+function init_gradient_transforms() {
  	$('.transformname').on('click',click_transform);
  	$('.transformname').on('mouseenter ',enter_selectie);
   	$('.transformname').on('mouseout ',leave_selectie);
+  	$('.transformname').slice(0,1).addClass('active_selectie');	
   	transform='linear';
   	tmaxval=maxval;
   	tminval=minval;
   	tdelta=tmaxval-tminval;
+}
+
+
+
+function click_data_transform () {
+
+	var id=$(this).attr('id');
+	if (id=='inv_x') {inv_x=1-inv_x; var state=inv_x;}
+	if (id=='inv_y') {inv_y=1-inv_y; var state=inv_y;}
+	if (id=='inv_xy') {inv_xy=1-inv_xy; var state=inv_xy;}
+	if (id=='inv_grad') {inv_grad=1-inv_grad;	var state=inv_grad;}
+
+	if (state) {
+		$(this).addClass('active_selectie');
+	} else {
+		$(this).removeClass('active_selectie');
+	}
+	draw_heatmap();
+}
+
+
+function init_data_transforms() {
+ 	$('.swapname').on('click',click_data_transform);
+ 	$('.swapname').on('mouseenter ',enter_selectie);
+  	$('.swapname').on('mouseout ',leave_selectie);  	
 }
 
 
