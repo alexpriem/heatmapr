@@ -510,8 +510,8 @@ function update_hist_x_y (evt) {
 			.attr("y",height-(val/max)*0.25*height)
 			.attr("width",1)
 			.attr("height",(val/max)*0.25*height)
-			.style("fill","rgb(80,80,80)")
-			.style("stroke","rgb(80,80,80)")
+			.style("fill","rgb(8,8,130)")
+			.style("stroke","rgb(8,8,130)")
 			
 			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
@@ -533,15 +533,15 @@ for (i=0; i<height; i++) {
 			.attr("y",height-(val/max)*0.25*height-0.3*height)
 			.attr("width",1)
 			.attr("height",(val/max)*0.25*height)
-			.style("fill","rgb(80,80,80)")
-			.style("stroke","rgb(80,80,80)")
+			.style("fill","rgb(130,8,8)")
+			.style("stroke","rgb(130,8,8)")
 			
 			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			.style("stroke-width","1px");
 		 }
 
-
+  
 
   var xScale=d3.scale.linear();
   var yScale=d3.scale.linear();
@@ -571,9 +571,25 @@ for (i=0; i<height; i++) {
         .attr("transform","translate("+offsetx+","+offsety+")")
         .call(xAxis);        
 
-	}
+	
+
+ chart.append("svg:line")
+ 	.attr("class","hist_x")
+    .attr("x1", 50)
+    .attr("y1", y+25)
+    .attr("x2", width+50)
+    .attr("y2", y+25)
+    .style("stroke", "rgb(130,8,8)");
 
 
+ 	chart.append("svg:line")
+ 	.attr("class","hist_y")
+    .attr("x1", x+50)
+    .attr("y1", 25)
+    .attr("x2", x+50)
+    .attr("y2", width+25)
+    .style("stroke", "rgb(8,8,130)");    
+}
 function init_hist_xy () {
 
 	console.log('init_hist');
