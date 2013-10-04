@@ -282,15 +282,15 @@ for i in range (0,256):
 
 red=[]
 for i in range (0,256):
-    red.append([0,i,0])
+    red.append([256-i,i,i])
 
 blue=[]
 for i in range (0,256):
-    blue.append([0,0,i])
+    blue.append([256-i,256-i,255])
 
 green=[]
 for i in range (0,256):
-    green.append([0,i,0])
+    green.append([i,256-i,i])
 
 
 def write_headers (f,maps):

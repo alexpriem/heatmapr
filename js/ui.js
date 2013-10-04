@@ -1,14 +1,14 @@
 	
 var colormapname='blue';
 var size=1;
-var transform='linear';
+var transform='log10';
 var crashnr=0;
 
 var histmax=0;
 
 var inv_x=0;
-var inv_y=0;
-var inv_xy=0;
+var inv_y=1;
+var inv_xy=1;
 var inv_grad=0;
 
 
@@ -46,7 +46,7 @@ $('.colormapname').on('mouseenter ',enter_selectie);
 $('.colormapname').on('mouseout ',leave_selectie);
 
 $('.colormapname').slice(0,1).addClass('active_selectie');
- for (colormapname in colormaps)  break;
+ //for (colormapname in colormaps)  break;
  colormap=colormaps[colormapname];
  colormaplength=colormap.length-1;
  console.log('init_colormap:',colormapname,colormaplength);
@@ -103,6 +103,7 @@ function calc_heatmap () {
 					val=0;
 				}
 	    	}
+	    			
 	    			
 			indexval=~~((val-tminval)/(tdelta)*colormaplength);  					
 			if ((indexval<0) || (indexval>=colormaplength)){
@@ -389,6 +390,8 @@ function draw_histogram () {
 console.log("draw_histogram:", histmax, colormaplength);
 
 $('.hist_2d').remove();
+$('.hist_x').remove();
+$('.hist_y').remove();
 for (i=1; i<hist.length; i++) {
  	color=colormap[i];
 	chart.append("rect")
@@ -402,4 +405,178 @@ for (i=1; i<hist.length; i++) {
 		.style("stroke-width","1px");
  }
 
+
+  var xScale=d3.scale.linear();  
+  xScale.range([0,hist.length]); 
+  xScale.domain([0,histmax]);
+  
+  var xyAxis=d3.svg.axis();  
+  xyAxis.scale(xScale)   
+  		.ticks(5)    
+       .orient("bottom");
+  //console.log(chart);
+  offsetx=width+75;
+  offsety=height;
+
+  chart.append("g")
+        .attr("class","xaxis hist_2d")
+        .attr("transform","translate("+offsetx+","+offsety+")")
+        .call(xyAxis);
+}
+
+
+
+function init_manipulation () {
+
+	$('#sharpen').on('click',sharpen);
+	$('#denoise').on('click',denoise);
+	$('#pointilize').on('click',pointilize);	
+	$('#edge').on('click',edge);
+	$('#blur').on('click',blurfast);
+	$('#lighten').on('click',lighten);
+	
+	$('.man').on('mouseenter ',enter_selectie);
+  	$('.man').on('mouseout ',leave_selectie);
+}
+
+function denoise () {
+	console.log("denoise");
+	var img= document.getElementById("heatmap_canvas");
+	var newimg=Pixastic.process(img,"removenoise",{});
+	console.log('newimg', newimg);
+}
+
+
+function sharpen () {
+	console.log("sharpen");
+	var img= document.getElementById("heatmap_canvas");
+	var newimg=Pixastic.process(img,"sharpen",{amount:0.5});
+}
+
+
+
+function pointilize () {
+	console.log("pointilize");
+	var img= document.getElementById("heatmap_canvas");
+	var newimg=Pixastic.process(img, "pointillize", {radius:5, density:1.5, noise:1.0, transparent:false});
+}
+
+function edge () {
+	console.log("edge");
+	var img= document.getElementById("heatmap_canvas");
+	var newimg=Pixastic.process(img, "edges", {mono:true,invert:true});
+}
+
+function blurfast () {
+	console.log("blurfast");
+	var img= document.getElementById("heatmap_canvas");
+	var newimg=Pixastic.process(img, "blurfast", {amount:0.5});
+}
+
+
+function lighten () {
+	console.log("lighten");
+	var img= document.getElementById("heatmap_canvas");
+	var newimg=Pixastic.process(img, "lighten", {amount:0.5});
+}
+
+
+
+
+function update_hist_x_y (evt) {
+
+	console.log("update_hist_x_y");	
+	x=parseInt(evt.pageX-$(this).position().left-50);
+	y=parseInt(height-(evt.pageY-$(this).position().top-25));
+	console.log(x, y);
+	if ((x<0) || (y<0) || (x>width) || (y>height)) return;
+	
+	$('.hist_2d').remove();
+	$('.hist_x').remove();
+	$('.hist_y').remove();
+
+	max=0;
+	for (i=0; i<width; i++) { 		
+		val=data[y*height+i];
+		if (val>max) max=val;
+	}
+
+	for (i=0; i<width; i++) { 	
+	 	val=data[y*height+i];
+	 	color=colormap[val];
+		chart.append("rect")
+			.attr("class","hist_x")
+			.attr("x",width+75+i)
+			.attr("y",height-(val/max)*0.25*height)
+			.attr("width",1)
+			.attr("height",(val/max)*0.25*height)
+			.style("fill","rgb(80,80,80)")
+			.style("stroke","rgb(80,80,80)")
+			
+			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+			.style("stroke-width","1px");
+		 }
+
+max=0;
+for (i=0; i<height; i++) { 	
+	 	val=data[i*width+x];
+	 	if (val>max) max=val;
+	 }
+	
+for (i=0; i<height; i++) { 	
+	 	val=data[i*width+x];
+	 	color=colormap[val];
+		chart.append("rect")
+			.attr("class","hist_y")
+			.attr("x",width+75+i)
+			.attr("y",height-(val/max)*0.25*height-0.3*height)
+			.attr("width",1)
+			.attr("height",(val/max)*0.25*height)
+			.style("fill","rgb(80,80,80)")
+			.style("stroke","rgb(80,80,80)")
+			
+			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+			.style("stroke-width","1px");
+		 }
+
+
+
+  var xScale=d3.scale.linear();
+  var yScale=d3.scale.linear();
+  xScale.range([0,width]); 
+  xScale.domain([xmin,xmax]);
+  yScale.domain([ymax,ymin]);
+  yScale.range([0,height]); 
+
+  var xAxis=d3.svg.axis();
+  var yAxis=d3.svg.axis();  
+  xAxis.scale(xScale)       
+       .orient("bottom");
+  yAxis.scale(yScale)       
+       .orient("bottom");
+
+  //console.log(chart);
+  offsetx=width+75;
+  offsety=height;
+
+  chart.append("g")
+        .attr("class","yaxis hist_x")
+        .attr("transform","translate("+offsetx+","+offsety+")")
+        .call(yAxis);
+  offsety=0.7*height;
+  chart.append("g")
+        .attr("class","xaxis hist_y")
+        .attr("transform","translate("+offsetx+","+offsety+")")
+        .call(xAxis);        
+
+	}
+
+
+function init_hist_xy () {
+
+	console.log('init_hist');
+	 $("#heatmap_svg").on('click',update_hist_x_y);
+	// $("#heatmap_svg").on('mousedown',update_hist_x_y);
 }
