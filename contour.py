@@ -60,145 +60,47 @@ class contour:
         
 
         if xcol=='leeftijd':
-            s="""
-            IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'selectie') AND type in (N'U'))
-            DROP TABLE selectie
-
-            select  {{xcol}}=round(datediff(day,{{xcol}},'20120101')/365.0*{{xfactorinv}},0)/{{xfactorinv}}, 
-                    {{ycol}}=round({{ycol}}/{{yfactor}},0)* {{yfactor}}
-                    {% if selcol %}
-                     , {{selcol}} 
-                    {% endif %}    
-                    into selectie
-                    from {{tabel}}""" 
-            
+            s="template_date_1"                     
         else:
-            s="""
-            IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'selectie') AND type in (N'U'))
-            DROP TABLE selectie
-
-            select  {{xcol}}=round({{xcol}}/ {{xfactor}},0)* {{xfactor}}, 
-                    {{ycol}}=round({{ycol}}/ {{yfactor}},0)* {{yfactor}}
-                    {% if selcol %}
-                     , {{selcol}} 
-                    {% endif %}
-                    into selectie
-                    from {{tabel}}""" 
+            s="""template_int_1
+            """ 
 
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)
 
                 
-        s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'selectie2') AND type in (N'U'))
-        DROP TABLE selectie2
-
-        select {{xcol}},
-                {{ycol}},
-                {% if selcol %}
-                {{selcol}},
-                {% endif %}
-                num=count(*)
-                into selectie2
-                from selectie
-                group by {{xcol}}, {{ycol}}
-                {% if selcol %}
-                , rollup({{selcol}})
-                {% endif %}
-        """ 
+        s="template2"
 
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)
 
 
-        s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'xas') AND type in (N'U'))
-        DROP TABLE xas
-
-        select distinct {{xcol}}=number * {{xfactor}}
-              into xas
-              from numbers
-            where number>({{xmin}} / {{xfactor}}) and number<=({{xmax}} / {{xfactor}})
-        """  
+        s="xas"
 
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)
-        s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'yas') AND type in (N'U'))
-        DROP TABLE yas
-
-        select distinct {{ycol}}=number* {{yfactor}}
-                into yas
-                from numbers
-                where number>({{ymin}}  / {{yfactor}}) and number<=({{ymax}} / {{yfactor}})
-        """
+        s="yas"
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)
 
         if selcol!='':
-            s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'sel') AND type in (N'U'))
-        DROP TABLE sel;
-
-        select distinct {{selcol}} into sel from selectie2"""    
+            s="sel"    
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)    
         
 
 
-        if selcol=='':
-            s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'xy') AND type in (N'U'))
-        DROP TABLE xy
-
-        select a.*, b.*
-                into xy
-                from xas a
-                cross join yas b            
-        """ 
-        else:
-            s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'xy') AND type in (N'U'))
-        DROP TABLE xy
-
-        select a.*, b.*--, c.*
-                into xy 
-                from xas a
-                cross join yas b            
-             --   cross join sel c
-        """     
+        s="crossjoin"        
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)
       #  hnd.execute(s)
 
 
-        s="""
-        IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'contourtab') AND type in (N'U'))
-        DROP TABLE contourtab
-
-        select a.{{xcol}},
-                a.{{ycol}},
-                {% if selcol %}
-                b.{{selcol}},
-                {% endif %}
-                num=isnull(b.num,0)
-                into contourtab
-                from xy a
-                left join selectie2  b
-                on a.{{xcol}}=b.{{xcol}} and a.{{ycol}}=b.{{ycol}}
-                {% if selcol %}
-                and a.{{selcol}}=b.{{selcol}}
-                {% endif %}
-        """     
+        s="prep_contourtab"
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)        
 
-        s="""{% if selcol %} 
-            create clustered index i1 on  contourtab( {{selcol}}, {{xcol}}, {{ycol}})    
-            {% else %}
-            create clustered index i1 on  contourtab( {{xcol}}, {{ycol}})    
-            {% endif %}
-        """
+        s="index.sql" 
         sql=Template(s).render(locals())
         run_sql (dbc,hnd, sql, print_sql, exec_sql)
 
