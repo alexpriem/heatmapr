@@ -5,7 +5,7 @@ select  a.{{xcol}},
         {% if selcol %}
         b.{{selcol}},
         {% endif %}
-        num=isnull(b.num,0)
+        coalesce(b.num,0) as num
         into contourtab
         from xy a
         left join selectie2  b

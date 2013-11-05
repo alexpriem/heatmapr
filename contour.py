@@ -1,7 +1,7 @@
 import pyodbc
 import argparse
 from jinja2 import Environment, Template
-from heatmapr.db import db
+import db
 
 
 
@@ -12,11 +12,15 @@ class contour:
         pass
 
 
+    def setup_numbers (self):
+        f=open("numbers.csv","w")
+        for num in range(10000):
+            f.write("%d\n" % num)
+        f.close()
+        
+                    
 
-
-    def run_contour (dbc, hnd, args):
-        server=args['server']
-        database=args['database']
+    def run_contour (self, db_obj, args):
         tabel=args['tabel']
         x=args['x'].split(',')
         if len(x)!=4:
@@ -29,15 +33,17 @@ class contour:
 
 
         debuglvl=args.get('debug','')
-        exec_sql=True
-        print_sql=False
-        print debuglvl
+        db_obj.exec_sql=True
+        db_obj.print_sql=True #False
+        #print debuglvl
         if debuglvl=='1':
-            exec_sql=True
-            print_sql=True
+            db_obj.exec_sql=True
+            db_obj.print_sql=True
         if debuglvl=='2':
-            exec_sql=False
-            print_sql=True
+            db_obj.exec_sql=False
+            db_obj.print_sql=True
+
+        
         
         selcol=args.get('sel','')
         #selcol=','+sel
@@ -50,65 +56,41 @@ class contour:
         ymax=int(ymax)
         ypixels=int(ypixels)
 
-
         xfactor= (xmax-xmin)/ (1.0*xpixels)
         yfactor= (ymax-ymin)/ (1.0*ypixels)
         xfactorinv= (1.0*xpixels)/(xmax-xmin)
         yfactorinv= (1.0*ypixels)/(ymax-ymin)
 
-
+        self.setup_numbers()
         
-
         if xcol=='leeftijd':
-            s="template_date_1"                     
+            s="01_template1_date"                     
         else:
-            s="""template_int_1
-            """ 
+            s="01_template1_int"
+            
+        sqltemplates=[
+            "00_setup_numbers",
+            s,
+            "02_template2",
+            "03_xas",
+            "04_yas",
+            "05_crossjoin",
+            "06_prep_contourtab",
+            "07_index"]
+        if args['dbtype']=='mssql':
+            postfix='_mssql.sql'
+        if args['dbtype']=='psql':
+            postfix='_psql.sql'
 
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
-
-                
-        s="template2"
-
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
+        for t in sqltemplates:        
+            s=open("templates/"+t+postfix).read()
+            sql=Template(s).render(locals())
+            print sql
+            db_obj.run_sql (sql)        
 
 
-        s="xas"
-
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
-        s="yas"
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
-
-        if selcol!='':
-            s="sel"    
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)    
+    def dump_data  (self, db_obj, args):
         
-
-
-        s="crossjoin"        
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
-      #  hnd.execute(s)
-
-
-        s="prep_contourtab"
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)        
-
-        s="index.sql" 
-        sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
-
-
-
-
-
-    def dump_data  (dbc, hnd, args):
         x=args['x'].split(',')
         if len(x)!=4:
             raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
@@ -151,8 +133,8 @@ class contour:
             order by 3, 1, 2"""
 
         sql=Template(s).render(locals())
-        run_sql (dbc,hnd, sql, print_sql, exec_sql)
-        rows=hnd.fetchall()
+        db_obj.run_sql (sql)
+        rows=db_obj.hnd.fetchall()
 
       #  rows=rows[10]
         prevx=None
@@ -195,7 +177,8 @@ class contour:
 
         f.close();
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+parser = argparse.ArgumentParser(description='generate javascript contourdata from db.')
+parser.add_argument('-dbt','--dbtype', dest='dbtype',  help='set databasetype: psql/mssql', required=True)
 parser.add_argument('-s','--server', dest='server', 
                     help='set server', required=True)
 parser.add_argument('-db','--database', dest='database',  help='set database', required=True)
@@ -203,14 +186,19 @@ parser.add_argument('-t','--tabel', dest='tabel',  help='set tabel', required=Tr
 parser.add_argument('-x', dest='x',  help='set xaxis', required=True)
 parser.add_argument('-y', dest='y',  help='set yaxis', required=True)
 parser.add_argument('-o', dest='outfile',  help='set outfile', required=True)
+parser.add_argument('-u', dest='username',  help='set username', required=False)
+parser.add_argument('-p', dest='password',  help='set password', required=False)
 parser.add_argument('-sel', dest='sel',  help='set selection', required=False)
 parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do not execute sql', required=False)
 
 args=vars(parser.parse_args())
-server=args['server']
-database=args['database']
 
-dbc, hnd=open_server(server, database)
-run_contour(dbc, hnd, args)
-dump_data (dbc, hnd, args)
+
+args['driver']='PostgreSQL ODBC Driver(ANSI)'
+db_obj=db.dbconnection(args)
+
+c=contour()
+
+c.run_contour(db_obj, args)
+c.dump_data (db_obj, args)
 

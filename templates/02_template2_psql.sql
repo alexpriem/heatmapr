@@ -5,7 +5,7 @@ select {{xcol}},
        {% if selcol %}
        {{selcol}},
        {% endif %}
-       num=count(*)
+       count(*) as num
 into selectie2
 from selectie
 group by {{xcol}}, {{ycol}}

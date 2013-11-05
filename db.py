@@ -9,7 +9,10 @@ class dbconnection:
 
         
     def open_server (self, metadict):
-        s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;uid=%(username)s;pwd=%(password)s' % metadict        
+        if metadict.get('username') is not None:
+            s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;uid=%(username)s;pwd=%(password)s' % metadict
+        else:
+            s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s' % metadict
         dbc = pyodbc.connect(s)     # open a database connection
         dbc.autocommit=True
         hnd=dbc.cursor()

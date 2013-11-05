@@ -1,4 +1,6 @@
-DROP TABLE if exists selectie;
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'selectie') AND type in (N'U'))
+DROP TABLE selectie
+
 
 select  {{xcol}}=round({{xcol}}/ {{xfactor}},0)* {{xfactor}}, 
         {{ycol}}=round({{ycol}}/ {{yfactor}},0)* {{yfactor}}
@@ -6,4 +8,4 @@ select  {{xcol}}=round({{xcol}}/ {{xfactor}},0)* {{xfactor}},
         , {{selcol}} 
         {% endif %}
 into selectie
-from {{tabel}};
+from {{tabel}}
