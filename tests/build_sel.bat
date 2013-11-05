@@ -1,0 +1,10 @@
+python create_table.py bar_horiz.txt
+python in.py bar_horiz.txt
+python create_table.py bar_horiz2.txt
+python in.py bar_horiz2.txt
+python create_table.py bar_vert.txt
+python in.py bar_vert.txt
+python create_table.py bar__abc.txt
+python in.py bar_a_horiz.txt
+python in.py bar_b_horiz2.txt
+python in.py bar_c_vert.txt
