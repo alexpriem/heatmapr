@@ -7,8 +7,8 @@ var crashnr=0;
 var histmax=0;
 
 var inv_x=0;
-var inv_y=1;
-var inv_xy=1;
+var inv_y=0;
+var inv_xy=0;
 var inv_grad=0;
 
 
@@ -68,19 +68,19 @@ function calc_heatmap () {
 
 
 	console.log('calc_heatmap',size);
-	for (var i=0; i<height; i++) {
-		for (var j=0; j<width;  j+=size) {		
+	for (var i=0; i<imgheight; i++) {
+		for (var j=0; j<imgwidth;  j+=size) {		
 			val=0;
 
 			if (inv_xy) 
-				ptr=j*height+i;
+				ptr=j*imgheight+i;
 			else
-				ptr=i*width+j;
+				ptr=i*imgwidth+j;
 			if (size==1) val=data[ptr];
 			if (size>1) {
 				for (cx=0; cx<size; cx++) {
 					for (cy=0; cy<size; cy++) {
-						val+=data[ptr+cx+cy*width];
+						val+=data[ptr+cx+cy*imgwidth];
 						}
 					}				//cy
 			}  // size >1
@@ -105,10 +105,10 @@ function calc_heatmap () {
 	    	}
 	    			
 	    			
-			indexval=~~((val-tminval)/(tdelta)*colormaplength);  					
+			indexval=~~((val-tgradmin)/(tdelta)*colormaplength);  					
 			if ((indexval<0) || (indexval>=colormaplength)){
 				if (crashnr<10)
-					console.log('crash:indexval, negval,tminval,delta:',indexval, val, tminval,tdelta);
+					console.log('crash:indexval, negval,tgradmin,delta:',indexval, val, tgradmin,tdelta);
 				crashnr++;
 
 				if (indexval<0) indexval=0;
@@ -122,13 +122,13 @@ function calc_heatmap () {
 			}
 
 			if (inv_y) {
-				ptr=(height-i)*width; 
+				ptr=(imgheight-i)*imgwidth; 
 			} else {
-				ptr=i*width;
+				ptr=i*imgwidth;
 			}
 
 			if (inv_x) {
-				ptr+=width-j;
+				ptr+=imgwidth-j;
 			} else {
 				ptr+=j;
 			}
@@ -137,7 +137,7 @@ function calc_heatmap () {
 			if (size>1) {
 				for (cx=0; cx<size; cx++) {
 					for (cy=0; cy<size; cy++) {
-						backbuffer[ptr+cy*width+cx]=indexval;
+						backbuffer[ptr+cy*imgwidth+cx]=indexval;
 						}
 					}				//cy
 			}  // size >1
@@ -163,7 +163,7 @@ function draw_heatmap() {
 
 	console.log("draw_heatmap:",size, colormapname,transform);
 	calc_heatmap();
-	draw_histogram();	
+	//draw_histogram();	
 	var indexval=0;
 	var color=[];
 	console.log("draw_heatmap:",backbuffer.length);
@@ -202,12 +202,12 @@ function init_sizes() {
 	var html='<li class="sel_heading"> Sizes:</li>';
 		
 
-	html+='<li class="sizename" data-size="1">'+width+"x"+height+'</li>';
+	html+='<li class="sizename" data-size="1">'+imgwidth+"x"+imgheight+'</li>';
 	sizetable=[2,5,10,20,50,100,200,500,1000,2000,5000];
 	j=0;
 	size=sizetable[0];
-	while ((width/size>9) && (height/size)>9) {		
-		html+='<li class="sizename" data-size="'+size+'">'+Math.floor(width/size)+"x"+Math.floor(height/size)+'</li>';
+	while ((imgwidth/size>9) && (imgheight/size)>9) {		
+		html+='<li class="sizename" data-size="'+size+'">'+Math.floor(imgwidth/size)+"x"+Math.floor(imgheight/size)+'</li>';
 		j++;
 		size=sizetable[j];		
 	}
@@ -231,34 +231,34 @@ var click_transform=function click_size (evt) {
 
 	console.log("click_transform:", transform);	
 	if (transform=='linear') {
-		tmaxval=maxval;
-		tminval=minval;
+		tgradmax=gradmax;
+		tgradmin=gradmin;
 	}
 	if (transform=='sqrt') {
-		tmaxval=Math.sqrt(maxval);
-		tminval=Math.sqrt(minval);
+		tgradmax=Math.sqrt(gradmax);
+		tgradmin=Math.sqrt(gradmin);
 	}
 	if (transform=='log') {
-		tmaxval=Math.log(maxval);
-		if (tminval>0) {
-			tminval=Math.log(minval);
+		tgradmax=Math.log(gradmax);
+		if (tgradmin>0) {
+			tgradmin=Math.log(gradmin);
 			}
 		else {
-			tminval=0;
+			tgradmin=0;
 		}
 	}
 	if (transform=='log10') {
-		tmaxval=Math.log(maxval)/Math.LN10;		
-		if (tminval>0) {
-			tminval=Math.log(minval)/Math.LN10;
+		tgradmax=Math.log(gradmax)/Math.LN10;		
+		if (tgradmin>0) {
+			tgradmin=Math.log(gradmin)/Math.LN10;
 			}
 		else {
-			tminval=0;
+			tgradmin=0;
 		}
 
 	}
-	tdelta=tmaxval-tminval;
-	console.log(transform, tminval, tmaxval);
+	tdelta=tgradmax-tgradmin;
+	console.log(transform, tgradmin, tgradmax);
 	draw_heatmap();
 	return false;
 }
@@ -270,9 +270,9 @@ function init_gradient_transforms() {
   	$('.transformname').on('mouseout ',leave_selectie);
   	$('.transformname').slice(0,1).addClass('active_selectie');	
   	transform='linear';
-  	tmaxval=maxval;
-  	tminval=minval;
-  	tdelta=tmaxval-tminval;
+  	tgradmax=gradmax;
+  	tgradmin=gradmin;
+  	tdelta=tgradmax-tgradmin;
 }
 
 
@@ -306,10 +306,10 @@ function init_data_transforms() {
 
   var xScale=d3.scale.linear();
   var yScale=d3.scale.linear();
-  xScale.range([0,width]); 
+  xScale.range([0,imgwidth]); 
   xScale.domain([xmin,xmax]);
   yScale.domain([ymax,ymin]);
-  yScale.range([0,height]); 
+  yScale.range([0,imgheight]); 
 
   var xAxis=d3.svg.axis();
   var yAxis=d3.svg.axis();  
@@ -321,7 +321,7 @@ function init_data_transforms() {
   //console.log(chart);
   chart.append("g")
         .attr("class","xaxis")
-        .attr("transform","translate(50,"+(height+25)+")")
+        .attr("transform","translate(50,"+(imgheight+25)+")")
         .call(xAxis);
   chart.append("g")
         .attr("class","yaxis")
@@ -337,12 +337,12 @@ console.log("draw_colormap", colormaplength);
 
 $('.colormap').remove();
 var step=4;
-var barlength=height/3;
+var barlength=imgheight/3;
 var barstep=(barlength/colormaplength);
 console.log(barlength, barstep);
 chart.append("rect")
 	.attr("class","colormap")
-	.attr("x",width+75)
+	.attr("x",imgwidth+75)
 	.attr("y",25+10)
 	.attr("width",20)
 	.attr("height",barlength)
@@ -354,7 +354,7 @@ chart.append("rect")
  	color=colormap[i];
 	chart.append("rect")
 		.attr("class","colormap")
-		.attr("x",width+75)
+		.attr("x",imgwidth+75)
 		.attr("y",25+10+barlength-barstep*i)
 		.attr("width",20)
 		.attr("height",barstep*(step+1))
@@ -366,14 +366,14 @@ chart.append("rect")
 
 
   var colorScale=d3.scale.linear();
-  colorScale.domain([maxval,minval]);
+  colorScale.domain([gradmax,gradmin]);
   colorScale.range([0,barlength]); 
 
   var colorAxis=d3.svg.axis();  
   colorAxis.scale(colorScale)       
        .orient("right");
 
-  scalepos=width+95;
+  scalepos=imgwidth+95;
   chart.append("g")
         .attr("class","yaxis colormap")
         .attr("transform","translate("+scalepos+",35)")
@@ -396,10 +396,10 @@ for (i=1; i<hist.length; i++) {
  	color=colormap[i];
 	chart.append("rect")
 		.attr("class","hist_2d")
-		.attr("x",width+75+i)
-		.attr("y",height-(hist[i]/histmax)*0.4*height)
+		.attr("x",imgwidth+75+i)
+		.attr("y",imgheight-(hist[i]/histmax)*0.4*imgheight)
 		.attr("width",1)
-		.attr("height",(hist[i]/histmax)*0.4*height)
+		.attr("height",(hist[i]/histmax)*0.4*imgheight)
 		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke-width","1px");
@@ -415,8 +415,8 @@ for (i=1; i<hist.length; i++) {
   		.ticks(5)    
        .orient("bottom");
   //console.log(chart);
-  offsetx=width+75;
-  offsety=height;
+  offsetx=imgwidth+75;
+  offsety=imgheight;
 
   chart.append("g")
         .attr("class","xaxis hist_2d")
@@ -487,29 +487,29 @@ function update_hist_x_y (evt) {
 
 	console.log("update_hist_x_y");	
 	x=parseInt(evt.pageX-$(this).position().left-50);
-	y=parseInt(height-(evt.pageY-$(this).position().top-25));
+	y=parseInt(imgheight-(evt.pageY-$(this).position().top-25));
 	console.log(x, y);
-	if ((x<0) || (y<0) || (x>width) || (y>height)) return;
+	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) return;
 	
 	$('.hist_2d').remove();
 	$('.hist_x').remove();
 	$('.hist_y').remove();
 
 	max=0;
-	for (i=0; i<width; i++) { 		
-		val=data[y*height+i];
+	for (i=0; i<imgwidth; i++) { 		
+		val=data[y*imgheight+i];
 		if (val>max) max=val;
 	}
 
-	for (i=0; i<width; i++) { 	
-	 	val=data[y*height+i];
+	for (i=0; i<imgwidth; i++) { 	
+	 	val=data[y*imgheight+i];
 	 	color=colormap[val];
 		chart.append("rect")
 			.attr("class","hist_x")
-			.attr("x",width+75+i)
-			.attr("y",height-(val/max)*0.25*height)
+			.attr("x",imgwidth+75+i)
+			.attr("y",imgheight-(val/max)*0.25*imgheight)
 			.attr("width",1)
-			.attr("height",(val/max)*0.25*height)
+			.attr("height",(val/max)*0.25*imgheight)
 			.style("fill","rgb(8,8,130)")
 			.style("stroke","rgb(8,8,130)")
 			
@@ -519,20 +519,20 @@ function update_hist_x_y (evt) {
 		 }
 
 max=0;
-for (i=0; i<height; i++) { 	
-	 	val=data[i*width+x];
+for (i=0; i<imgheight; i++) { 	
+	 	val=data[i*imgwidth+x];
 	 	if (val>max) max=val;
 	 }
 	
-for (i=0; i<height; i++) { 	
-	 	val=data[i*width+x];
+for (i=0; i<imgheight; i++) { 	
+	 	val=data[i*imgwidth+x];
 	 	color=colormap[val];
 		chart.append("rect")
 			.attr("class","hist_y")
-			.attr("x",width+75+i)
-			.attr("y",height-(val/max)*0.25*height-0.3*height)
+			.attr("x",imgwidth+75+i)
+			.attr("y",imgheight-(val/max)*0.25*imgheight-0.3*imgheight)
 			.attr("width",1)
-			.attr("height",(val/max)*0.25*height)
+			.attr("height",(val/max)*0.25*imgheight)
 			.style("fill","rgb(130,8,8)")
 			.style("stroke","rgb(130,8,8)")
 			
@@ -545,10 +545,10 @@ for (i=0; i<height; i++) {
 
   var xScale=d3.scale.linear();
   var yScale=d3.scale.linear();
-  xScale.range([0,width]); 
+  xScale.range([0,imgwidth]); 
   xScale.domain([xmin,xmax]);
   yScale.domain([ymax,ymin]);
-  yScale.range([0,height]); 
+  yScale.range([0,imgheight]); 
 
   var xAxis=d3.svg.axis();
   var yAxis=d3.svg.axis();  
@@ -558,14 +558,14 @@ for (i=0; i<height; i++) {
        .orient("bottom");
 
   //console.log(chart);
-  offsetx=width+75;
-  offsety=height;
+  offsetx=imgwidth+75;
+  offsety=imgheight;
 
   chart.append("g")
         .attr("class","yaxis hist_x")
         .attr("transform","translate("+offsetx+","+offsety+")")
         .call(yAxis);
-  offsety=0.7*height;
+  offsety=0.7*imgheight;
   chart.append("g")
         .attr("class","xaxis hist_y")
         .attr("transform","translate("+offsetx+","+offsety+")")
@@ -587,7 +587,7 @@ for (i=0; i<height; i++) {
     .attr("x1", x+50)
     .attr("y1", 25)
     .attr("x2", x+50)
-    .attr("y2", width+25)
+    .attr("y2", imgwidth+25)
     .style("stroke", "rgb(8,8,130)");    
 }
 function init_hist_xy () {

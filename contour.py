@@ -81,11 +81,11 @@ class contour:
             postfix='_mssql.sql'
         if args['dbtype']=='psql':
             postfix='_psql.sql'
+        self.postfix=postfix
 
         for t in sqltemplates:        
             s=open("templates/"+t+postfix).read()
-            sql=Template(s).render(locals())
-            print sql
+            sql=Template(s).render(locals())            
             db_obj.run_sql (sql)        
 
 
@@ -112,69 +112,62 @@ class contour:
         yfactor= (ymax-ymin)/ (1.0*ypixels)
         outfile=args['outfile']
 
-
-        debuglvl=args.get('debug','')
-        exec_sql=True
-        print_sql=False
-        if debuglvl=='1':
-            exec_sql=True
-            print_sql=True
-        if debuglvl=='2':
-            exec_sql=False
-            print_sql=True
-
-        s="""select {{xcol}}, 
-                    {{ycol}}, 
-                    {% if selcol %}
-                    {{selcol}},
-                    {% endif %}
-                    num
-            from contourtab
-            order by 3, 1, 2"""
-
+        s=open("templates/10_dumpdata"+self.postfix).read()
+        
         sql=Template(s).render(locals())
         db_obj.run_sql (sql)
         rows=db_obj.hnd.fetchall()
+      
+        f=open("js/data.js","w")        
+        f.write("var data=[")
 
-      #  rows=rows[10]
-        prevx=None
-        prevy=None
+        gradmin=rows[0][0]
+        gradmax=rows[0][0]
+        prevx=None            
+        #firstrow=True
         s=''
-    #    f=open(outfile,'w')
-        width=xpixels;
-        height=ypixels;
-        
-        f=open("js/data.js","w")
-        f.write("""
-        var width={{width}};
-        var height={{height}};
-        
-        var data=[""" % locals())
-        
-
-        minval=rows[0][0]
-        maxval=rows[0][0]
-
-        firstrow=True
-        for row in rows:        
-            y=row[0]        
-            if prevy is not None and y>prevy:
-                if firstrow==True:
-                    f.write(s[1:]+'\n')
-                    firstrow=False
+        for row in rows:
+            print row[0],row[1],row[2]
+            x=row[1]        
+            if prevx is not None and x>prevx:         
                 f.write(s+'\n')
                 s=''
-            s+=",%d" % row[2]
-            if row[2]<minval:
-                minval=row[2]
-            if row[2]>maxval:
-                maxval=row[2]        
-            prevy=y                    
-        f.write(s+'];\n')
-
-        f.write("var minval=%(minval)s;\n" % locals())
-        f.write("var maxval=%(maxval)s;\n" % locals())
-
+            s+="%d," % row[2]
+            if row[2]<gradmin:
+                gradmin=row[2]
+            if row[2]>gradmax:
+                gradmax=row[2]        
+            prevx=x                    
+        f.write(s[:-1]+'];\n\n')
+        
+        if args['gradmax'] is None:
+            args['gradmax']=gradmax
+        if args['xlabel'] is None:
+            args['xlabel']=xcol
+        if args['ylabel'] is None:
+            args['ylabel']=ycol            
+        args['xmin']=xmin
+        args['ymin']=ymin
+        args['xmax']=xmax
+        args['ymax']=ymax
+        
+        
+        vlist=['gradmin','gradmax',
+               'xmin','xmax',
+               'ymin','ymax',
+               'imgwidth','imgheight',
+               'xlabel','ylabel','title']
+        for k in vlist:
+            v=args[k]
+            try:
+                v2=int(v)
+            except:
+                if v2 is None:
+                    v=''                    
+                f.write('var %s="%s";\n' % (k,v))
+            else:
+                f.write("var %s=%s;\n" % (k,v))
+        
         f.close();
 
 parser = argparse.ArgumentParser(description='generate javascript contourdata from db.')
@@ -182,12 +175,23 @@ parser.add_argument('-dbt','--dbtype', dest='dbtype',  help='set databasetype: p
 parser.add_argument('-s','--server', dest='server', 
                     help='set server', required=True)
 parser.add_argument('-db','--database', dest='database',  help='set database', required=True)
-parser.add_argument('-t','--tabel', dest='tabel',  help='set tabel', required=True)
-parser.add_argument('-x', dest='x',  help='set xaxis', required=True)
-parser.add_argument('-y', dest='y',  help='set yaxis', required=True)
-parser.add_argument('-o', dest='outfile',  help='set outfile', required=True)
 parser.add_argument('-u', dest='username',  help='set username', required=False)
 parser.add_argument('-p', dest='password',  help='set password', required=False)
+parser.add_argument('-t','--tabel', dest='tabel',  help='set tabel', required=True)
+
+parser.add_argument('-x', dest='x',  help='define xaxis:columnname, min, max, steps', required=True)
+parser.add_argument('-y', dest='y',  help='define yaxis:columnname, min, max, steps', required=True)
+parser.add_argument('-gradmin', dest='gradmin',  help='define minimum gradient, default 0', required=False, default=0)
+parser.add_argument('-gradmax', dest='gradmax',  help='define maximum gradient, default max value in heatmap', required=False)
+
+parser.add_argument('-imgwidth', dest='imgwidth',  help='set img width (default 500)', required=False, default=500)
+parser.add_argument('-imgheight', dest='imgheight',  help='set img height (default 500)', required=False, default=500)
+
+parser.add_argument('-xlabel', dest='xlabel',  help='set xlabel; default x variable', required=False)
+parser.add_argument('-ylabel', dest='ylabel',  help='set ylabel; default y variable', required=False)
+parser.add_argument('-title', dest='title',  help='set title', required=False)
+
+parser.add_argument('-o', dest='outfile',  help='set outfile', required=True)
 parser.add_argument('-sel', dest='sel',  help='set selection', required=False)
 parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do not execute sql', required=False)
 

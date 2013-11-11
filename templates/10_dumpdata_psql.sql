@@ -5,4 +5,4 @@ select {{xcol}},
         {% endif %}
         num
 	from contourtab
-    order by 3, 1, 2;
+    order by {{ycol}}, {{xcol}};

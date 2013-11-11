@@ -44,8 +44,8 @@
 </div>
 <div class="rightbox">
 <div id="canvasdiv" class="rightbox"> 
-  <canvas id="heatmap_canvas"> </canvas>
-  <svg id="heatmap_svg"> </svg>
+  <canvas id="heatmap_canvas" > </canvas>
+  <svg id="heatmap_svg" > </svg>
 </div>
 
 </div>
@@ -57,13 +57,13 @@
 
 // https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
   
-  console.log("init:",width,height);
+  console.log("init:",imgwidth,imgheight);
   var c=document.getElementById("heatmap_canvas");
-  c.setAttribute("width", width);
-  c.setAttribute("height", width);
+  c.setAttribute("width", imgwidth);
+  c.setAttribute("height", imgwidth);
   var s=document.getElementById("heatmap_svg");
-  s.setAttribute("width", width*2+100);
-  s.setAttribute("height", height+100);
+  s.setAttribute("width", imgwidth*2+100);
+  s.setAttribute("height", imgheight+100);
   
   var ctx = c.getContext('2d');  
   
@@ -72,6 +72,7 @@
   init_gradient_transforms();
   init_data_transforms();
   init_manipulation();
+  //init_databuffers();
 
 
 
@@ -82,11 +83,11 @@
    //console.profile("start");
 
 
-var delta=maxval-minval;
+var graddelta=gradmax-gradmin;
 // first, create a new ImageData to contain our pixels
-var imgData = ctx.createImageData(width, height); // width x height
+var imgData = ctx.createImageData(imgwidth, imgheight); // width x height
 //var backbuffer= new Uint8ClampedArray (width*height);
-var backbuffer= new Uint8Array  (width*height);
+var backbuffer= new Uint8Array  (imgwidth*imgheight);
 var mapdata = imgData.data;
 var val=0;
 var color=[];
@@ -94,7 +95,7 @@ var color=[];
 // copy img byte-per-byte into our ImageData
 draw_heatmap();
 draw_axes ();
-draw_colormap();
+//draw_colormap();
 
 
 //console.log(data);
