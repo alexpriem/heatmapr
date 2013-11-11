@@ -65,12 +65,13 @@ ytype=meta['xtype']
 seltype=meta['seltype']
 
 #print len(lines[0].strip().split(','))
-ypixels=len(lines)
+ypixels=len(lines)-1
 xpixels=len(lines[1].split(','))-1
 ystep=(ymax-ymin)/(ypixels*1.0)
 xstep=(xmax-xmin)/(xpixels*1.0)
 
 #print xmin,xmax,xstep
+#print ymin,ymax,ystep
 
 header=meta['xcol']+','+meta['ycol']
 if meta.has_key('selcol'):
