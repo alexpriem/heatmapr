@@ -4,4 +4,4 @@ DROP TABLE xas
 select distinct {{xcol}}=number * {{xfactor}}
               into xas
 	from numbers
-	where number>({{xmin}} / {{xfactor}}) and number<=({{xmax}} / {{xfactor}})
+	where number>=({{xmin}} / {{xfactor}}) and number<({{xmax}} / {{xfactor}})
