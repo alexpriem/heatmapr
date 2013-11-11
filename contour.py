@@ -127,7 +127,7 @@ class contour:
         #firstrow=True
         s=''
         for row in rows:
-            print row[0],row[1],row[2]
+           # print row[0],row[1],row[2]
             x=row[1]        
             if prevx is not None and x>prevx:         
                 f.write(s+'\n')
@@ -150,12 +150,14 @@ class contour:
         args['ymin']=ymin
         args['xmax']=xmax
         args['ymax']=ymax
-        
+        args['xpixels']=xpixels
+        args['ypixels']=ypixels
         
         vlist=['gradmin','gradmax',
                'xmin','xmax',
                'ymin','ymax',
-               'imgwidth','imgheight',
+               'xpixels','ypixels',
+               'imgwidth','imgheight',               
                'xlabel','ylabel','title']
         for k in vlist:
             v=args[k]

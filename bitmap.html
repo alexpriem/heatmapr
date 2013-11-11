@@ -1,5 +1,7 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
   <LINK href="css/style.css" rel="stylesheet" type="text/css">
   <script src="lib/jquery-2.0.3.min.js"  type="text/javascript"> </script> 
     <script src="lib/d3.v3.min.js"  type="text/javascript"> </script> 
@@ -72,25 +74,14 @@
   init_gradient_transforms();
   init_data_transforms();
   init_manipulation();
-  //init_databuffers();
+  init_databuffers();
 
 
 
-
-  var chart = d3.select("#heatmap_svg");
-
- console.clear(); 
+ //console.clear(); 
    //console.profile("start");
 
 
-var graddelta=gradmax-gradmin;
-// first, create a new ImageData to contain our pixels
-var imgData = ctx.createImageData(imgwidth, imgheight); // width x height
-//var backbuffer= new Uint8ClampedArray (width*height);
-var backbuffer= new Uint8Array  (imgwidth*imgheight);
-var mapdata = imgData.data;
-var val=0;
-var color=[];
 
 // copy img byte-per-byte into our ImageData
 draw_heatmap();
@@ -102,10 +93,10 @@ draw_axes ();
 //console.profileEnd("timing");
 // now we can draw our imagedata onto the canvas
 
-console.clear();
+//console.clear();
 //$('#heatmap_canvas').pixastic('emboss');
 
-  init_hist_xy();
+init_hist_xy();
 Pixastic.debug=true;
 
 

@@ -1,4 +1,5 @@
-	
+
+/* settings */	
 var colormapname='blue';
 var size=1;
 var transform='log10';
@@ -10,6 +11,35 @@ var inv_x=0;
 var inv_y=0;
 var inv_xy=0;
 var inv_grad=0;
+
+/* storage */
+
+var val=0;
+var color=[];
+var chart;
+var backbuffer, transposebuf;
+var imgData, mapdata;
+var graddelta=gradmax-gradmin;
+var xpix2img=parseInt(imgwidth/xpixels);
+var ypix2img=parseInt(imgheight/ypixels);
+if ((xpixels>0) && (ypixels>0)) {
+	var realimgwidth=xpixels*xpix2img;
+	var realimgheight=ypixels*ypix2img;
+} else {
+
+}
+
+function init_databuffers () {
+
+chart = d3.select("#heatmap_svg");
+
+// first, create a new ImageData to contain our pixels
+imgData = ctx.createImageData(imgwidth, imgheight); // width x height
+//var backbuffer= new Uint8ClampedArray (width*height);
+transposebuffer= new Uint8Array  (xpixels*ypixels);
+backbuffer= new Uint8Array  (imgwidth*imgheight);
+mapdata = imgData.data;
+}
 
 
 var click_colormap=function click_colormap (evt) {
@@ -68,19 +98,19 @@ function calc_heatmap () {
 
 
 	console.log('calc_heatmap',size);
-	for (var i=0; i<imgheight; i++) {
-		for (var j=0; j<imgwidth;  j+=size) {		
+	var ptr2=0;
+	for (var i=0; i<ypixels; i+=size) {
+		for (var j=0; j<xpixels;  j+=size) {		
 			val=0;
-
 			if (inv_xy) 
-				ptr=j*imgheight+i;
+				ptr=j*ypixels+i;
 			else
-				ptr=i*imgwidth+j;
+				ptr=i*xpixels+j;
 			if (size==1) val=data[ptr];
 			if (size>1) {
 				for (cx=0; cx<size; cx++) {
 					for (cy=0; cy<size; cy++) {
-						val+=data[ptr+cx+cy*imgwidth];
+						val+=data[ptr+cx+cy*xpixels];
 						}
 					}				//cy
 			}  // size >1
@@ -121,36 +151,40 @@ function calc_heatmap () {
 				indexval=colormaplength-indexval;
 			}
 
-			if (inv_y) {
-				ptr=(imgheight-i)*imgwidth; 
-			} else {
-				ptr=i*imgwidth;
-			}
-
-			if (inv_x) {
-				ptr+=imgwidth-j;
-			} else {
-				ptr+=j;
-			}
-
-			backbuffer[ptr]=indexval;
-			if (size>1) {
-				for (cx=0; cx<size; cx++) {
-					for (cy=0; cy<size; cy++) {
-						backbuffer[ptr+cy*imgwidth+cx]=indexval;
-						}
-					}				//cy
-			}  // size >1
-			
-			
+			ptr2++;			
+			transposebuffer[ptr2]=indexval;			
 		} //j
 //		console.log("i:",i);
 	}	//i
 
 
 	histmax=0;
-	for (i=1; i<hist.length; i++) 
-		if (hist[i]>histmax) histmax=hist[i];
+	
+	console.log("goforit")
+	var line=0;
+	for (i=0; i<imgwidth*imgheight; i++) {
+		backbuffer[i]=0;
+	}
+	xstep=xpix2img*size;
+	ystep=ypix2img*size;
+	ptr=-xstep; // whut?
+	for (i=0; i<ptr2; i++)	{	
+		val=transposebuffer[i];
+		if (line==0) {console.log("val=",val);}
+		for (cy=0; cy<ystep; cy++) {
+			for (cx=0; cx<xstep; cx++) {			
+				backbuffer[ptr+cy*imgwidth+cx]=val;
+				}
+			}
+		ptr+=xstep;
+		line+=xstep;		
+		if (line>=imgwidth) {			
+			ptr-=line;
+			ptr+=ystep*imgwidth;			
+			line=0;
+		}
+	}			//cy
+	
  
 console.log('hist:',hist);
 //console.log('hist2:',backbuffer);
@@ -163,6 +197,7 @@ function draw_heatmap() {
 
 	console.log("draw_heatmap:",size, colormapname,transform);
 	calc_heatmap();
+
 	//draw_histogram();	
 	var indexval=0;
 	var color=[];
@@ -202,12 +237,12 @@ function init_sizes() {
 	var html='<li class="sel_heading"> Sizes:</li>';
 		
 
-	html+='<li class="sizename" data-size="1">'+imgwidth+"x"+imgheight+'</li>';
+	html+='<li class="sizename" data-size="1">'+xpixels+"x"+ypixels+'</li>';
 	sizetable=[2,5,10,20,50,100,200,500,1000,2000,5000];
 	j=0;
 	size=sizetable[0];
-	while ((imgwidth/size>9) && (imgheight/size)>9) {		
-		html+='<li class="sizename" data-size="'+size+'">'+Math.floor(imgwidth/size)+"x"+Math.floor(imgheight/size)+'</li>';
+	while ((xpixels/size>9) && (ypixels/size)>9) {		
+		html+='<li class="sizename" data-size="'+size+'">'+Math.floor(xpixels/size)+"x"+Math.floor(ypixels/size)+'</li>';
 		j++;
 		size=sizetable[j];		
 	}
@@ -577,7 +612,7 @@ for (i=0; i<imgheight; i++) {
  	.attr("class","hist_x")
     .attr("x1", 50)
     .attr("y1", y+25)
-    .attr("x2", width+50)
+    .attr("x2",imgwidth+50)
     .attr("y2", y+25)
     .style("stroke", "rgb(130,8,8)");
 
@@ -593,6 +628,6 @@ for (i=0; i<imgheight; i++) {
 function init_hist_xy () {
 
 	console.log('init_hist');
-	 $("#heatmap_svg").on('click',update_hist_x_y);
+	 //$("#heatmap_svg").on('click',update_hist_x_y);
 	// $("#heatmap_svg").on('mousedown',update_hist_x_y);
 }
