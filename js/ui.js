@@ -461,9 +461,7 @@ $('.hist_x').remove();
 $('.hist_y').remove();
 for (i=1; i<hist.length; i++) {
  	color=colormap[i];
- 	console.log(imgwidth+75+i, histmax, imgheight-(hist[i]/histmax)*0.4*imgheight);
-
-	chart.append("rect")
+ 	chart.append("rect")
 		.attr("class","hist_2d")
 		.attr("x",imgwidth+75+i)
 		.attr("y",imgheight-(hist[i]/histmax)*0.4*imgheight)
@@ -557,7 +555,7 @@ function update_hist_x_y (evt) {
 
 	console.log("update_hist_x_y");	
 	x=parseInt(evt.pageX-$(this).position().left-50);
-	y=parseInt(imgheight-(evt.pageY-$(this).position().top-25));
+	y=parseInt(evt.pageY-$(this).position().top-25);
 	console.log(x, y);
 	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) return;
 	
@@ -567,17 +565,20 @@ function update_hist_x_y (evt) {
 
 	max=0;
 	for (i=0; i<imgwidth; i++) { 		
-		val=data[y*imgheight+i];
+		val=backbuffer[y*imgheight+i];
 		if (val>max) max=val;
 	}
 
+	console.log(max);
+	
 	for (i=0; i<imgwidth; i++) { 	
-	 	val=data[y*imgheight+i];
+	 	val=backbuffer[y*imgheight+i];	 		 	
+
 	 	color=colormap[val];
 		chart.append("rect")
-			.attr("class","hist_x")
+			.attr("class","hist_y")
 			.attr("x",imgwidth+75+i)
-			.attr("y",imgheight-(val/max)*0.25*imgheight)
+			.attr("y",parseInt(imgheight-(val/max)*0.25*imgheight))
 			.attr("width",1)
 			.attr("height",(val/max)*0.25*imgheight)
 			.style("fill","rgb(8,8,130)")
@@ -588,15 +589,15 @@ function update_hist_x_y (evt) {
 			.style("stroke-width","1px");
 		 }
 
-
+		
 max=0;
 for (i=0; i<imgheight; i++) { 	
-	 	val=data[i*imgwidth+x];
+	 	val=backbuffer[i*imgwidth+x];
 	 	if (val>max) max=val;
 	 }
 	
 for (i=0; i<imgheight; i++) { 	
-	 	val=data[i*imgwidth+x];
+	 	val=backbuffer[i*imgwidth+x];
 	 	color=colormap[val];
 		chart.append("rect")
 			.attr("class","hist_y")
@@ -618,7 +619,7 @@ for (i=0; i<imgheight; i++) {
   var yScale=d3.scale.linear();
   xScale.range([0,imgwidth]); 
   xScale.domain([xmin,xmax]);
-  yScale.domain([ymax,ymin]);
+  yScale.domain([ymin,ymax]);
   yScale.range([0,imgheight]); 
 
   var xAxis=d3.svg.axis();
@@ -685,6 +686,6 @@ for (i=0; i<imgheight; i++) {
 function init_hist_xy () {
 
 	console.log('init_hist');
-	//$("#heatmap_svg").on('click',update_hist_x_y);
+	$("#heatmap_svg").on('click',update_hist_x_y);
 	//$("#heatmap_svg").on('mousedown',update_hist_x_y);
 }
