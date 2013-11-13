@@ -159,7 +159,9 @@ function calc_heatmap () {
 
 
 	histmax=0;
-	
+	for (i=0; i<hist.length; i++) 
+		if (hist[i]>histmax) histmax=hist[i];
+
 	console.log("goforit")
 	var line=0;
 	for (i=0; i<imgwidth*imgheight; i++) {
@@ -198,7 +200,7 @@ function draw_heatmap() {
 	console.log("draw_heatmap:",size, colormapname,transform);
 	calc_heatmap();
 
-	//draw_histogram();	
+	draw_histogram();	
 	var indexval=0;
 	var color=[];
 	console.log("draw_heatmap:",backbuffer.length);
@@ -362,6 +364,36 @@ function init_data_transforms() {
         .attr("class","yaxis")
         .attr("transform","translate(50,25)")
         .call(yAxis);        
+
+  chart.append("text")      // text label for the x axis
+  		.attr("class","xaxis")
+        .attr("x", imgwidth/2 )
+        .attr("y",  imgheight+70 )
+        .style("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "bold")
+        .text(xlabel);
+  chart.append("text")      // text label for the x axis
+    	.attr("class","yaxis")
+        .attr("x", 0 )
+        .attr("y", 0)
+        .attr("font-family", "sans-serif")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "bold")        
+        .attr("transform","translate(10,"+(imgheight/2)+")rotate(270)")
+        .style("text-anchor", "middle")
+        .text(ylabel);
+  chart.append("text")      // text label for the x axis
+    	.attr("class","yaxis")
+        .attr("x", imgwidth/2+50 )
+        .attr("y", 15)
+        .attr("font-family", "sans-serif")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "bold")         
+        .style("text-anchor", "middle")
+        .text(title);
+
 }
 
 
@@ -429,6 +461,8 @@ $('.hist_x').remove();
 $('.hist_y').remove();
 for (i=1; i<hist.length; i++) {
  	color=colormap[i];
+ 	console.log(imgwidth+75+i, histmax, imgheight-(hist[i]/histmax)*0.4*imgheight);
+
 	chart.append("rect")
 		.attr("class","hist_2d")
 		.attr("x",imgwidth+75+i)
@@ -438,6 +472,7 @@ for (i=1; i<hist.length; i++) {
 		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke-width","1px");
+		
  }
 
 
@@ -553,6 +588,7 @@ function update_hist_x_y (evt) {
 			.style("stroke-width","1px");
 		 }
 
+
 max=0;
 for (i=0; i<imgheight; i++) { 	
 	 	val=data[i*imgwidth+x];
@@ -601,12 +637,33 @@ for (i=0; i<imgheight; i++) {
         .attr("transform","translate("+offsetx+","+offsety+")")
         .call(yAxis);
   offsety=0.7*imgheight;
+
   chart.append("g")
         .attr("class","xaxis hist_y")
-        .attr("transform","translate("+offsetx+","+offsety+")")
+        .attr("transform","translate("+offsetx+","+offsety+")")        
         .call(xAxis);        
 
-	
+/*
+  chart.append("text")      // text label for the x axis
+  		.attr("class","xaxis")
+        .attr("x", x+50 )
+        .attr("y",  25 )
+        .style("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "bold")
+        .text(xlabel);
+  chart.append("text")      // text label for the x axis
+    	.attr("class","yaxis")
+        .attr("x", 50 )
+        .attr("y", y+25)
+        .attr("font-family", "sans-serif")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "bold")        
+        .attr("transform","translate(10,"+(imgheight/2)+")rotate(270)")
+        .style("text-anchor", "middle")
+        .text(ylabel);
+*/	
 
  chart.append("svg:line")
  	.attr("class","hist_x")
@@ -628,6 +685,6 @@ for (i=0; i<imgheight; i++) {
 function init_hist_xy () {
 
 	console.log('init_hist');
-	 //$("#heatmap_svg").on('click',update_hist_x_y);
-	// $("#heatmap_svg").on('mousedown',update_hist_x_y);
+	//$("#heatmap_svg").on('click',update_hist_x_y);
+	//$("#heatmap_svg").on('mousedown',update_hist_x_y);
 }
