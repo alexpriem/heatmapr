@@ -1,8 +1,38 @@
 import pyodbc
 import argparse
 from jinja2 import Environment, Template
-import db
 
+
+class dbconnection:
+    def __init__ (self,metadict):
+        self.print_sql=True
+        self.exec_sql=True
+        self.open_server(metadict)
+
+        
+    def open_server (self, metadict):
+        if metadict.get('username') is not None:
+            s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;uid=%(username)s;pwd=%(password)s' % metadict
+        else:
+            s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s' % metadict
+        dbc = pyodbc.connect(s)     # open a database connection
+        dbc.autocommit=True
+        hnd=dbc.cursor()
+        self.dbc=dbc
+        self.hnd=hnd
+        self.driver=metadict['driver']
+        self.server=metadict['server']
+        self.database=metadict['database']
+        return dbc, hnd
+
+
+    def run_sql (self, sql):        
+        if self.print_sql:
+            print sql
+  
+        if self.exec_sql:            
+            self.hnd.execute(sql)
+            self.dbc.commit()
 
 
 
@@ -112,14 +142,14 @@ class contour:
         yfactor= (ymax-ymin)/ (1.0*ypixels)
         outfile=args['outfile']
 
-        s=open("templates/10_dumpdata"+self.postfix).read()
+        sql_tmpl=open("templates/10_dumpdata"+self.postfix).read()
         
-        sql=Template(s).render(locals())
+        sql=Template(sql_tmpl).render(locals())
         db_obj.run_sql (sql)
         rows=db_obj.hnd.fetchall()
-      
-        f=open("js/data.js","w")        
-        f.write("var data=[")
+
+               
+        js="var data=["
 
         gradmin=rows[0][0]
         gradmax=rows[0][0]
@@ -130,7 +160,7 @@ class contour:
            # print row[0],row[1],row[2]
             x=row[1]        
             if prevx is not None and x>prevx:         
-                f.write(s+'\n')
+                js+=s+'\n'
                 s=''
             s+="%d," % row[2]
             if row[2]<gradmin:
@@ -138,7 +168,7 @@ class contour:
             if row[2]>gradmax:
                 gradmax=row[2]        
             prevx=x                    
-        f.write(s[:-1]+'];\n\n')
+        js+=s[:-1]+'];\n\n'
         
         if args['gradmax'] is None:
             args['gradmax']=gradmax
@@ -166,11 +196,55 @@ class contour:
             except:
                 if v2 is None:
                     v=''                    
-                f.write('var %s="%s";\n' % (k,v))
+                js+='var %s="%s";\n' % (k,v)
             else:
-                f.write("var %s=%s;\n" % (k,v))
+                js+="var %s=%s;\n" % (k,v)
         
-        f.close();
+        return js
+
+
+    def write_data (self, js,args):
+
+        outfile=args['outfile']        
+        if args['dump_js']:
+            f=open(outfile+'.js','w')
+            f.write(js)
+            f.close()
+        if args['dump_html']:
+            html=open ("bitmap.html",'r').read()
+            
+            g=open(outfile+'.html','w')
+            cssfrags=html.split('<link href="')
+            g.write(cssfrags[0])
+            for cssfrag in cssfrags[1:]:
+                cssfile=cssfrag.split('"')
+               # print cssfile[0]
+                g.write('\n<style>\n')
+                css=open(cssfile[0],"r").read()
+                g.write(css)
+                g.write('\n</style>\n')
+
+            g.write('\n<script type="text/javascript">\n')            
+            g.write(js)
+            g.write('\n</script>\n')
+            
+            jsfrags=html.split('script src="')            
+            for jsfrag in jsfrags[1:]:
+                jsfile=jsfrag.split('"')
+              #  print jsfile[0]
+                g.write('\n<script type="text/javascript">\n')
+                js=open(jsfile[0],'r').read()    
+                g.write(js)
+                g.write('\n</script>\n')
+
+            body=html.split("<body>")
+
+            g.write("</head>\n")
+            g.write("<body>\n")
+            g.write(body[1])
+            g.close()
+
+
 
 parser = argparse.ArgumentParser(description='generate javascript contourdata from db.')
 parser.add_argument('-dbt','--dbtype', dest='dbtype',  help='set databasetype: psql/mssql', required=True)
@@ -194,6 +268,10 @@ parser.add_argument('-ylabel', dest='ylabel',  help='set ylabel; default y varia
 parser.add_argument('-title', dest='title',  help='set title', required=False)
 
 parser.add_argument('-o', dest='outfile',  help='set outfile', required=True)
+parser.add_argument('-html', dest='dump_html',  help='html output', required=False, default=True, action='store_true')
+parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=False, action='store_false')
+parser.add_argument('-js', dest='dump_js',  help='javascript ouput', required=False, default=False, action='store_true')
+parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')
 parser.add_argument('-sel', dest='sel',  help='set selection', required=False)
 parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do not execute sql', required=False)
 
@@ -201,10 +279,11 @@ args=vars(parser.parse_args())
 
 
 args['driver']='PostgreSQL ODBC Driver(ANSI)'
-db_obj=db.dbconnection(args)
+db_obj=dbconnection(args)
 
 c=contour()
 
 c.run_contour(db_obj, args)
-c.dump_data (db_obj, args)
+js=c.dump_data (db_obj, args)
+c.write_data(js, args)
 
