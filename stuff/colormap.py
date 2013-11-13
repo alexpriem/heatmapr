@@ -2,26 +2,26 @@ from pylab import *
 from numpy import outer
 import sys
 
-rc('text', usetex=False)
-a=outer(arange(0,1,0.01),ones(10))
-figure(figsize=(10,5))
-subplots_adjust(top=0.8,bottom=0.05,left=0.01,right=0.99)
-maps=[m for m in cm.datad if not m.endswith("_r")]
-maps.sort()
-l=len(maps)+1
+def write_colormap (f, name, cmap):
+    f.write("var %(name)s=[" % locals())
+    colormap = cmap(np.arange(255))
+    f.write('\n\t,'.join(['[%d,%d,%d]' % (col[0]*255,col[1]*255,col[2]*255) for col in colormap]))
+    f.write("];\n\n");
+    return {name:colormap}
+ 
+    
+def write_js_colormap ():
+    colmaps=[m for m in cm.datad if not m.endswith("_r")]    
+    maps={}
+    f=open("colormaps.js","w")    
+    maps.update(write_colormap(f,'terrain',get_cmap('terrain',255)))
+    maps.update(write_colormap(f,'prism',get_cmap('prism',255)))
 
-for i, m in enumerate(maps):
-    print i,m
+    # header uitschrijven
+    s=["'%s':%s" % (mapname,mapname) for mapname in maps.keys()]
+    s="\n\t,".join(s)
+    f.write("var colormaps={\n\t"+s+"};")
+    f.close()    
 
-N=256
-cmap=get_cmap('terrain',255)
-vals = cmap(np.arange(10))
-print vals
-sys.exit()
-
-for i, m in enumerate(maps):
-    subplot(1,l,i+1)
-    axis("off")
-    imshow(a,aspect='auto',cmap=get_cmap(m),origin="lower")
-    title(m,rotation=90,fontsize=10)
-savefig("colormaps.png",dpi=100,facecolor='gray')
+            
+write_js_colormap ()

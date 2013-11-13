@@ -216,8 +216,11 @@ class contour:
             g=open(outfile+'.html','w')
             cssfrags=html.split('<link href="')
             g.write(cssfrags[0])
+            cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]            
+
             for cssfrag in cssfrags[1:]:
                 cssfile=cssfrag.split('"')
+                
                # print cssfile[0]
                 g.write('\n<style>\n')
                 css=open(cssfile[0],"r").read()
