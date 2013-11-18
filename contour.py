@@ -14,7 +14,10 @@ class dbconnection:
         if metadict.get('username') is not None:
             s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;uid=%(username)s;pwd=%(password)s' % metadict
         else:
-            s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s' % metadict
+            if metadict.get('dbtype')=='mssql':
+                s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;Trusted_Connection=Yes;' % metadict
+            else:
+                s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s' % metadict
         dbc = pyodbc.connect(s)     # open a database connection
         dbc.autocommit=True
         hnd=dbc.cursor()
@@ -251,8 +254,7 @@ class contour:
 
 parser = argparse.ArgumentParser(description='generate javascript contourdata from db.')
 parser.add_argument('-dbt','--dbtype', dest='dbtype',  help='set databasetype: psql/mssql', required=True)
-parser.add_argument('-s','--server', dest='server', 
-                    help='set server', required=True)
+parser.add_argument('-s','--server', dest='server', help='set server', required=True)
 parser.add_argument('-db','--database', dest='database',  help='set database', required=True)
 parser.add_argument('-u', dest='username',  help='set username', required=False)
 parser.add_argument('-p', dest='password',  help='set password', required=False)
@@ -280,8 +282,11 @@ parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do
 
 args=vars(parser.parse_args())
 
+if args['dbtype']=='mssql':
+    args['driver']='SQL Server'
+if args['dbtype']=='psql':
+    args['driver']='PostgreSQL ODBC Driver(ANSI)'
 
-args['driver']='PostgreSQL ODBC Driver(ANSI)'
 db_obj=dbconnection(args)
 
 c=contour()
