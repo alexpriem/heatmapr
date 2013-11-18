@@ -1,15 +1,16 @@
 
 /* settings */	
-var colormapname='blue';
+var colormapname='coolwarm';
 var size=1;
 var transform='log10';
 var crashnr=0;
+var skipzero=true;
 
 var histmax=0;
 
 var inv_x=0;
-var inv_y=0;
-var inv_xy=0;
+var inv_y=1;
+var inv_xy=1;
 var inv_grad=0;
 
 /* storage */
@@ -166,7 +167,7 @@ function calc_heatmap () {
 
 		indexval=~~((val-tgradmin)/(tdelta)*colormaplength);  					
 		if ((indexval<0) || (indexval>=colormaplength)){
-			if (crashnr<10)
+			if (crashnr<10) 
 				console.log('crash:indexval, negval,tgradmin,delta:',indexval, val, tgradmin,tdelta);
 			crashnr++;
 
@@ -235,11 +236,19 @@ function draw_heatmap() {
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 			indexval=backbuffer[i];
-			color=colormap[indexval];
-	    	mapdata[j] =  color[0];  // imgd[i];
-	    	mapdata[j+1] = color[1];  //i & 0xff; //color[1];  // imgd[i];
-	    	mapdata[j+2] = color[2];  // imgd[i];
-	    	mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
+			if ((indexval!=0) || (!skipzero)) {
+				color=colormap[indexval];
+	    		mapdata[j] =  color[0];  // imgd[i];
+	    		mapdata[j+1] = color[1];  //i & 0xff; //color[1];  // imgd[i];
+	    		mapdata[j+2] = color[2];  // imgd[i];
+	    		mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
+			} else {
+				mapdata[j] =  0xff;  // imgd[i];
+	    		mapdata[j+1] = 0xff;  //i & 0xff; //color[1];  // imgd[i];
+	    		mapdata[j+2] = 0xff;  // imgd[i];
+	    		mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
+	    	}
+
 		}	
 	console.log('putdata');
 	ctx.putImageData(imgData, 0, 0);		 
@@ -629,7 +638,7 @@ for (i=0; i<imgheight; i++) {
 	 	color=colormap[val];
 		chart.append("rect")
 			.attr("class","hist_y")
-			.attr("x",imgwidth+75+i)
+			.attr("x",2*imgwidth+75-i)
 			.attr("y",imgheight-(val/max)*0.25*imgheight-0.3*imgheight)
 			.attr("width",1)
 			.attr("height",(val/max)*0.25*imgheight)
@@ -646,9 +655,9 @@ for (i=0; i<imgheight; i++) {
   var xScale=d3.scale.linear();
   var yScale=d3.scale.linear();
   xScale.range([0,imgwidth]); 
-  xScale.domain([xmin,xmax]);
-  yScale.domain([ymin,ymax]);
-  yScale.range([0,imgheight]); 
+  xScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
+  yScale.domain([xmin,xmax]);
+  yScale.range([0,imgwidth]); 
 
   var xAxis=d3.svg.axis();
   var yAxis=d3.svg.axis();  
@@ -676,7 +685,7 @@ for (i=0; i<imgheight; i++) {
   chart.append("text")      // text label for the x axis
   		.attr("class","xaxis")
         .attr("x",  1.5*imgwidth+50 )
-        .attr("y",  imgheight-120 )
+        .attr("y",  imgheight+35 )
         .style("text-anchor", "middle")
         .attr("font-family", "sans-serif")
   		.attr("font-size", "16px")
@@ -685,7 +694,7 @@ for (i=0; i<imgheight; i++) {
   chart.append("text")      // text label for the x axis
     	.attr("class","yaxis")
         .attr("x", 1.5*imgwidth+50 )
-        .attr("y", imgheight+35 )
+        .attr("y", imgheight-120 )
         .attr("font-family", "sans-serif")
   		.attr("font-size", "16px")
   		.attr("font-weight", "bold")                
@@ -699,7 +708,7 @@ for (i=0; i<imgheight; i++) {
     .attr("y1", y+25)
     .attr("x2",imgwidth+50)
     .attr("y2", y+25)
-    .style("stroke", "rgb(130,8,8)");
+    .style("stroke", "rgb(8,8,130)");
 
 
  	chart.append("svg:line")
@@ -708,7 +717,7 @@ for (i=0; i<imgheight; i++) {
     .attr("y1", 25)
     .attr("x2", x+50)
     .attr("y2", imgwidth+25)
-    .style("stroke", "rgb(8,8,130)");    
+    .style("stroke", "rgb(130,8,8)");    
 }
 function init_hist_xy () {
 
