@@ -172,6 +172,16 @@ class contour:
                 gradmax=row[2]        
             prevx=x                    
         js+=s[:-1]+'];\n\n'
+
+        
+        args['xmin']=xmin
+        args['ymin']=ymin
+        args['xmax']=xmax
+        args['ymax']=ymax
+        args['xpixels']=xpixels
+        args['ypixels']=ypixels
+        args['datamin']=datamin
+        args['datamax']=datamax
         
         if args['gradmax'] is None:
             args['gradmax']=gradmax
@@ -179,14 +189,9 @@ class contour:
             args['xlabel']=xcol
         if args['ylabel'] is None:
             args['ylabel']=ycol            
-        args['xmin']=xmin
-        args['ymin']=ymin
-        args['xmax']=xmax
-        args['ymax']=ymax
-        args['xpixels']=xpixels
-        args['ypixels']=ypixels
         
         vlist=['gradmin','gradmax',
+               'datamin','datamax',
                'xmin','xmax',
                'ymin','ymax',
                'xpixels','ypixels',

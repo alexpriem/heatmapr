@@ -51,6 +51,8 @@ var data=[4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 
 var gradmin=0;
 var gradmax=25;
+var datamin=0;
+var datamax=25;
 var xmin=0;
 var xmax=100;
 var ymin=0;

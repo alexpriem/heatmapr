@@ -470,8 +470,22 @@ chart.append("rect")
  }
 
 
-  var colorScale=d3.scale.linear();
-  colorScale.domain([tgradmax,tgradmin]);
+  if (transform=='linear') {
+	var colorScale=d3.scale.linear();
+  }  
+  if (transform=='log10') {  	
+  	var colorScale=d3.scale.log();
+  }
+  if (transform=='log2') {
+  	var colorScale=d3.scale.log().base(2);
+  }
+  if (transform=='sqrt') {
+  	var colorScale=d3.scale.pow().exponent(0.5);
+  }
+
+   console.log('Colorscale, domain',datamin, datamax);
+   console.log('Colorscale, domain',tgradmin, tgradmax);
+  colorScale.domain([datamax,datamin]);
   colorScale.range([0,barlength]); 
 
   var colorAxis=d3.svg.axis();  
@@ -497,7 +511,7 @@ $('.hist_x').remove();
 $('.hist_y').remove();
 for (i=1; i<hist.length; i++) {
  	color=colormap[i];
- 	console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight);
+ 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight);
  	chart.append("rect")
 		.attr("class","hist_2d")
 		.attr("x",imgwidth+75+i)
@@ -510,13 +524,28 @@ for (i=1; i<hist.length; i++) {
 		
  }
 
-
+  console.log('hist:',transform);
+  if (transform=='linear') {
+	var gradScale=d3.scale.linear();
+  }
   var xScale=d3.scale.linear();  
-  xScale.range([0,hist.length]); 
-  xScale.domain([0,maxval]);
+  if (transform=='log10') {  	
+  	var gradScale=d3.scale.log();
+  }
+  if (transform=='log2') {
+  	var gradScale=d3.scale.log().base(2);
+  }
+  if (transform=='sqrt') {
+  	var gradScale=d3.scale.pow().exponent(0.5);
+  }
+ 
+ 
   
-  var xyAxis=d3.svg.axis();  
-  xyAxis.scale(xScale)   
+  gradScale.range([0,hist.length]);
+  gradScale.domain([tgradmin,tgradmax]);
+  
+  var gradAxis=d3.svg.axis();  
+  gradAxis.scale(gradScale)   
   		.ticks(5)    
        .orient("bottom");
   //console.log(chart);
@@ -526,7 +555,7 @@ for (i=1; i<hist.length; i++) {
   chart.append("g")
         .attr("class","xaxis hist_2d")
         .attr("transform","translate("+offsetx+","+offsety+")")
-        .call(xyAxis);
+        .call(gradAxis);
 }
 
 
