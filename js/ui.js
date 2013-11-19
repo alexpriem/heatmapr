@@ -177,8 +177,8 @@ function calc_heatmap () {
 
 		indexval=parseInt(indexval);
 		hist[indexval]++;
-		if (inv_grad) {
-			indexval=colormaplength-indexval;
+		if ((inv_grad)  && (indexval!=0)) {			
+				indexval=colormaplength-indexval;
 		}
 
 		if (inv_y) {
@@ -310,25 +310,18 @@ var click_transform=function click_size (evt) {
 		tgradmin=gradmin;
 	}
 	if (transform=='sqrt') {		
-		tgradmax=Math.sqrt(gradmax);
-		tgradmin=Math.sqrt(gradmin);
+		tgradmax=gradmax;
+		tgradmin=gradmin;
 	}
-	if (transform=='log') {
-		tgradmax=Math.log(gradmax);
-		if (tgradmin>0) {
-			tgradmin=Math.log(gradmin);
-			}
-		else {
-			tgradmin=0;
+	if (transform=='log2') {
+		if (tgradmin==0){ 
+			tgradmin=1;
 		}
 	}
 	if (transform=='log10') {
-		tgradmax=Math.log(gradmax)/Math.LN10;		
-		if (tgradmin>0) {
-			tgradmin=Math.log(gradmin)/Math.LN10;
-			}
-		else {
-			tgradmin=0;
+		trgradmax=gradmax;
+		if (tgradmin==0){
+			tgradmin=1;
 		}
 
 	}
@@ -485,8 +478,9 @@ chart.append("rect")
 
    console.log('Colorscale, domain',datamin, datamax);
    console.log('Colorscale, domain',tgradmin, tgradmax);
-  colorScale.domain([datamax,datamin]);
+  colorScale.domain([tgradmax, tgradmin]);
   colorScale.range([0,barlength]); 
+  colorScale.ticks(8);
 
   var colorAxis=d3.svg.axis();  
   colorAxis.scale(colorScale)       
