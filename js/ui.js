@@ -21,14 +21,19 @@ var chart;
 var backbuffer, transposebuf;
 var imgData, mapdata;
 
+
 var xpix2img=parseInt(imgwidth/xpixels);
 var ypix2img=parseInt(imgheight/ypixels);
 if ((xpixels>0) && (ypixels>0)) {
 	var realimgwidth=xpixels*xpix2img;
 	var realimgheight=ypixels*ypix2img;
 } else {
-
+//upscale
 }
+
+// sanity checks
+if (gradmin<1) {gradmin=1;}
+
 
 function init_databuffers () {
 
@@ -37,7 +42,7 @@ chart = d3.select("#heatmap_svg");
 // first, create a new ImageData to contain our pixels
 imgData = ctx.createImageData(imgwidth, imgheight); // width x height
 //var backbuffer= new Uint8ClampedArray (width*height);
-transposebuffer= new Uint8Array  (xpixels*ypixels);
+transposebuffer= new Float32Array  (xpixels*ypixels);
 backbuffer= new Uint32Array  (imgwidth*imgheight);
 mapdata = imgData.data;
 }
@@ -80,37 +85,36 @@ $('.colormapname').slice(0,1).addClass('active_selectie');
  colormap=colormaps[colormapname];
  colormaplength=colormap.length-1;
  console.log('init_colormap:',colormapname,colormaplength);
-
- 
 }
 
 function init_colormap_inputs() {
 
 chart.append("foreignObject")
-.attr("width", 150)
-.attr("height", 50)
-.attr("x",imgwidth+125)
-.attr("y",35)
-.append("xhtml:body")
-.style("font", "14px Helvetica")
-.html("<input type='text' id='edit_gradmin'name='gradmax' value='"+gradmax+"' size=4/>");
+	.attr("width", 150)
+	.attr("height", 50)
+	.attr("x",imgwidth+150)
+	.attr("y",35)
+	.append("xhtml:body")
+	.style("font", "14px Helvetica")
+	.html("<input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
+
 chart.append("foreignObject")
-.attr("width", 150)
-.attr("height", 50)
-.attr("x",imgwidth+125)
-.attr("y",105)
-.append("xhtml:body")
-.style("font", "14px Helvetica")
-.html("<input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
-}
+	.attr("width", 150)
+	.attr("height", 50)
+	.attr("x",imgwidth+150)
+	.attr("y",105)
+	.append("xhtml:body")
+	.style("font", "14px Helvetica")
+	.html("<input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
+
 chart.append("foreignObject")
-.attr("width", 150)
-.attr("height", 50)
-.attr("x",imgwidth+125)
-.attr("y",185)
-.append("xhtml:body")
-.style("font", "14px Helvetica")
-.html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
+	.attr("width", 150)
+	.attr("height", 50)
+	.attr("x",imgwidth+150)
+	.attr("y",185)
+	.append("xhtml:body")
+	.style("font", "14px Helvetica")
+	.html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
 }
 
 
@@ -194,15 +198,9 @@ function calc_heatmap () {
 	for (i=0; i<ptr2; i++)	{	
 		val=transposebuffer[i];
 
-		indexval=~~((val-tgradmin)/(tdelta)*colormaplength);  					
-		if ((indexval<0) || (indexval>=colormaplength)){
-			if (crashnr<10) 
-				console.log('crash:indexval, negval,tgradmin,delta:',indexval, val, tgradmin,tdelta);
-			crashnr++;
-
-			if (indexval<0) indexval=0;
-			if (indexval>=colormaplength) indexval=colormaplength-2;
-		}
+		indexval=~~((val-tgradmin)/(tdelta)*gradsteps);  					
+		if (indexval<0) indexval=0;
+		if (indexval>gradsteps) indexval=gradsteps-1;
 
 		indexval=parseInt(indexval);
 		hist[indexval]++;
@@ -333,29 +331,9 @@ var click_transform=function click_size (evt) {
 	$('.transformname ').removeClass('active_selectie');
 	$(this).addClass('active_selectie');
 
-	console.log("click_transform:", transform);	
-	if (transform=='linear') {
-		tgradmax=gradmax;
-		tgradmin=gradmin;
-	}
-	if (transform=='sqrt') {		
-		tgradmax=gradmax;
-		tgradmin=gradmin;
-	}
-	if (transform=='log2') {
-		if (tgradmin==0){ 
-			tgradmin=1;
-		}
-	}
-	if (transform=='log10') {
-		trgradmax=gradmax;
-		if (tgradmin==0){
-			tgradmin=1;
-		}
-
-	}
-	
-	console.log(transform, tgradmin, tgradmax);
+	tgradmax=gradmax;
+	tgradmin=gradmin;
+	console.log("click_transform:", transform,tgradmin, tgradmax);				
 	draw_heatmap();
 	return false;
 }
@@ -463,9 +441,8 @@ function draw_colormap () {
 console.log("draw_colormap", colormaplength);
 
 $('.colormap').remove();
-var step=4;
 var barlength=imgheight/3;
-var barstep=(barlength/colormaplength);
+var barstep=(barlength/gradsteps);
 console.log(barlength, barstep);
 chart.append("rect")
 	.attr("class","colormap")
@@ -477,14 +454,14 @@ chart.append("rect")
 	.style("stroke","black")
 	.style("stroke-width","1px");
   
- for (i=0; i<colormap.length; i+=step) {
+ for (i=0; i<gradsteps; i++) {
  	color=colormap[i];
 	chart.append("rect")
 		.attr("class","colormap")
 		.attr("x",imgwidth+75)
 		.attr("y",25+10+barlength-barstep*i)
 		.attr("width",20)
-		.attr("height",barstep*(step+1))
+		.attr("height",barstep)
 		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke-width","1px");
@@ -638,15 +615,11 @@ function lighten () {
 }
 
 
-function edit_gradmax() {
+function toggle_gradmax() {
 
 	console.log("gradmax");
 }
 
-function edit_gradmin() {
-
-	console.log("gradmin");
-}
 
 function update_hist_x_y (evt) {
 
@@ -656,11 +629,8 @@ function update_hist_x_y (evt) {
 	console.log(x, y);
 
 	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
-		if ((x>imgwidth) && (x<imgwidth+100) && (y<75)) {
-			edit_gradmax();
-		}
-		if ((x>imgwidth) && (x<imgwidth+100) && (y>150) && (y<200)) {
-			edit_gradmin();
+		if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
+			toggle_gradcontrols();					
 		}
 	}return;
 	
