@@ -80,9 +80,38 @@ $('.colormapname').slice(0,1).addClass('active_selectie');
  colormap=colormaps[colormapname];
  colormaplength=colormap.length-1;
  console.log('init_colormap:',colormapname,colormaplength);
+
+ 
 }
 
+function init_colormap_inputs() {
 
+chart.append("foreignObject")
+.attr("width", 150)
+.attr("height", 50)
+.attr("x",imgwidth+125)
+.attr("y",35)
+.append("xhtml:body")
+.style("font", "14px Helvetica")
+.html("<input type='text' id='edit_gradmin'name='gradmax' value='"+gradmax+"' size=4/>");
+chart.append("foreignObject")
+.attr("width", 150)
+.attr("height", 50)
+.attr("x",imgwidth+125)
+.attr("y",105)
+.append("xhtml:body")
+.style("font", "14px Helvetica")
+.html("<input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
+}
+chart.append("foreignObject")
+.attr("width", 150)
+.attr("height", 50)
+.attr("x",imgwidth+125)
+.attr("y",185)
+.append("xhtml:body")
+.style("font", "14px Helvetica")
+.html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
+}
 
 
 
@@ -609,7 +638,15 @@ function lighten () {
 }
 
 
+function edit_gradmax() {
 
+	console.log("gradmax");
+}
+
+function edit_gradmin() {
+
+	console.log("gradmin");
+}
 
 function update_hist_x_y (evt) {
 
@@ -617,7 +654,15 @@ function update_hist_x_y (evt) {
 	x=parseInt(evt.pageX-$(this).position().left-50);
 	y=parseInt(evt.pageY-$(this).position().top-25);
 	console.log(x, y);
-	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) return;
+
+	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
+		if ((x>imgwidth) && (x<imgwidth+100) && (y<75)) {
+			edit_gradmax();
+		}
+		if ((x>imgwidth) && (x<imgwidth+100) && (y>150) && (y<200)) {
+			edit_gradmin();
+		}
+	}return;
 	
 	$('.hist_2d').remove();
 	$('.hist_x').remove();

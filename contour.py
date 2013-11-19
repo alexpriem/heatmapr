@@ -190,7 +190,7 @@ class contour:
         if args['ylabel'] is None:
             args['ylabel']=ycol            
         
-        vlist=['gradmin','gradmax',
+        vlist=['gradmin','gradmax','gradsteps',
                'datamin','datamax',
                'xmin','xmax',
                'ymin','ymax',
@@ -269,6 +269,7 @@ parser.add_argument('-x', dest='x',  help='define xaxis:columnname, min, max, st
 parser.add_argument('-y', dest='y',  help='define yaxis:columnname, min, max, steps', required=True)
 parser.add_argument('-gradmin', dest='gradmin',  help='define minimum gradient, default 0', required=False, default=0)
 parser.add_argument('-gradmax', dest='gradmax',  help='define maximum gradient, default max value in heatmap', required=False)
+parser.add_argument('-gradsteps', dest='gradsteps',  help='define nr of steps in gradient, default 255', required=False, default=255)
 
 parser.add_argument('-imgwidth', dest='imgwidth',  help='set img width (default 500)', required=False, default=500)
 parser.add_argument('-imgheight', dest='imgheight',  help='set img height (default 500)', required=False, default=500)
