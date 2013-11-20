@@ -180,8 +180,8 @@ class contour:
         args['ymax']=ymax
         args['xpixels']=xpixels
         args['ypixels']=ypixels
-        args['datamin']=datamin
-        args['datamax']=datamax
+        args['datamin']=gradmin
+        args['datamax']=gradmax
         
         if args['gradmax'] is None:
             args['gradmax']=gradmax
@@ -292,6 +292,7 @@ if args['dbtype']=='mssql':
     args['driver']='SQL Server'
 if args['dbtype']=='psql':
     args['driver']='PostgreSQL ODBC Driver(ANSI)'
+
 
 db_obj=dbconnection(args)
 

@@ -1,6 +1,6 @@
 
 /* settings */	
-var colormapname='coolwarm';
+var colormapname='gray';
 var size=1;
 var transform='log10';
 var crashnr=0;
@@ -15,8 +15,8 @@ var inv_grad=0;
 
 /* storage */
 
+var colormap=[];
 var val=0;
-var color=[];
 var chart;
 var backbuffer, transposebuf;
 var imgData, mapdata;
@@ -51,14 +51,13 @@ mapdata = imgData.data;
 var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
 	
-	colormap=colormaps[colormapname];
+	console.log('click_colormap',colormapname);
+	colormap=colormaps[colormapname](gradsteps);
 	colormaplength=colormap.length-1;
-
 	console.log('click_colormap',colormapname,  colormaplength);
 	$('.colormapname ').removeClass('active_selectie');
 	$(this).addClass('active_selectie');
-
-	//console.log('click_colormap',colormap);
+	
 	draw_heatmap();
 	return false;
 }
@@ -82,9 +81,10 @@ $('.colormapname').on('mouseout ',leave_selectie);
 
 $('.colormapname').slice(0,1).addClass('active_selectie');
  //for (colormapname in colormaps)  break;
- colormap=colormaps[colormapname];
+ colormap=colormaps[colormapname](gradsteps);
  colormaplength=colormap.length-1;
- console.log('init_colormap:',colormapname,colormaplength);
+ console.log('init_colormap:',colormapname,colormaplength,gradsteps);
+ //console.log('init_colormap:',colormap);
 }
 
 function init_colormap_inputs() {
@@ -122,13 +122,11 @@ chart.append("foreignObject")
 function calc_heatmap () {
 
 	console.log("calc_heatmap: invx, invy, invxy, inv_grad:",inv_x, inv_y, inv_xy, inv_grad);
-
 	
 	hist=new Array(colormap.length);
 	for (i=0; i<hist.length; i++) {
 		hist[i]=0;
 	}
-
 
 	console.log('calc_heatmap',size);
 	var ptr2=0;
@@ -200,7 +198,7 @@ function calc_heatmap () {
 
 		indexval=~~((val-tgradmin)/(tdelta)*gradsteps);  					
 		if (indexval<0) indexval=0;
-		if (indexval>gradsteps) indexval=gradsteps-1;
+		if (indexval>=gradsteps) indexval=gradsteps-1;
 
 		indexval=parseInt(indexval);
 		hist[indexval]++;
@@ -263,7 +261,7 @@ function draw_heatmap() {
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 			indexval=backbuffer[i];
-			if ((indexval!=0) || (!skipzero)) {
+			if ((indexval!=0) || (!skipzero)) {				
 				color=colormap[indexval];
 	    		mapdata[j] =  color[0];  // imgd[i];
 	    		mapdata[j+1] = color[1];  //i & 0xff; //color[1];  // imgd[i];
@@ -505,11 +503,12 @@ chart.append("rect")
 function draw_histogram () {
 
 console.log("draw_histogram:", histmax, colormaplength);
+console.log(colormap);
 
 $('.hist_2d').remove();
 $('.hist_x').remove();
 $('.hist_y').remove();
-for (i=1; i<hist.length; i++) {
+for (i=1; i<gradsteps; i++) {
  	color=colormap[i];
  	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight);
  	chart.append("rect")
