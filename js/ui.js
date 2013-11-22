@@ -41,9 +41,17 @@ chart = d3.select("#heatmap_svg");
 
 // first, create a new ImageData to contain our pixels
 imgData = ctx.createImageData(imgwidth, imgheight); // width x height
-//var backbuffer= new Uint8ClampedArray (width*height);
-transposebuffer= new Float32Array  (xpixels*ypixels);
-backbuffer= new Uint32Array  (imgwidth*imgheight);
+try {
+    transposebuffer= new Float32Array  (xpixels*ypixels);
+    } catch(x){
+    transposebuffer= new Array  (xpixels*ypixels);
+}
+
+try {
+    backbuffer= new Uint32Array  (imgwidth*imgheight);
+    } catch(x){
+    backbuffer= new Array  (imgwidth*imgheight);
+}
 mapdata = imgData.data;
 }
 
