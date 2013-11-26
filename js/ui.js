@@ -2,7 +2,7 @@
 /* settings */	
 var colormapname='gray';
 var size=1;
-var transform='log10';
+var transform='linear';
 var crashnr=0;
 var skipzero=true;
 
@@ -56,6 +56,10 @@ mapdata = imgData.data;
 }
 
 
+
+
+
+
 var click_colormap=function click_colormap (evt) {
 	colormapname=$(this).attr('data-colormap');
 	
@@ -76,9 +80,14 @@ function init_colormaps()
 {
 
 var html='<li class="sel_heading"> Colormaps: </li>';
+var selclas='';
 for (var key in colormaps) {
   if (colormaps.hasOwnProperty(key)) {
-    html+='<li class="colormapname" data-colormap="'+key+'">'+key+'</li>';
+  	if (key==colormapname) 
+  		selclass='active_selectie';
+  	else
+  		selclass='';
+    html+='<li class="colormapname '+selclass+'" id="colormap_'+key+'" data-colormap="'+key+'">'+key+'</li>';
   }
 }
 
@@ -87,13 +96,26 @@ $('.colormapname').on('click',click_colormap);
 $('.colormapname').on('mouseenter ',enter_selectie);
 $('.colormapname').on('mouseout ',leave_selectie);
 
-$('.colormapname').slice(0,1).addClass('active_selectie');
+$('#colormapname_'+colormapname).addClass('active_selectie');
  //for (colormapname in colormaps)  break;
  colormap=colormaps[colormapname](gradsteps);
  colormaplength=colormap.length-1;
  console.log('init_colormap:',colormapname,colormaplength,gradsteps);
  //console.log('init_colormap:',colormap);
 }
+
+
+function update_gradient () {
+
+	console.log('update_gradient:');
+	gradmax=$('#edit_gradmax').val();
+	gradsteps=$('#edit_gradsteps').val();
+	gradmin=$('#edit_gradmin').val();
+	console.log('update_gradient:',gradmin, gradmax, gradsteps);
+	colormap=colormaps[colormapname](gradsteps);	
+	draw_heatmap();
+}
+
 
 function init_colormap_inputs() {
 
@@ -123,6 +145,11 @@ chart.append("foreignObject")
 	.append("xhtml:body")
 	.style("font", "14px Helvetica")
 	.html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
+
+$("#edit_gradmax").on('change',update_gradient);
+$("#edit_gradsteps").on('change',update_gradient);
+$("#edit_gradmin").on('change',update_gradient);
+
 }
 
 
@@ -188,9 +215,7 @@ function calc_heatmap () {
 		tgradmax=maxval;
 		tdelta=tgradmax-tgradmin;
 	}
-
-
-	console.log("goforit")
+	
 	var line=0;
 	for (i=0; i<imgwidth*imgheight; i++) {
 		backbuffer[i]=0;
@@ -345,12 +370,12 @@ var click_transform=function click_size (evt) {
 }
 
 
+
 function init_gradient_transforms() {
  	$('.transformname').on('click',click_transform);
  	$('.transformname').on('mouseenter ',enter_selectie);
   	$('.transformname').on('mouseout ',leave_selectie);
-  	$('.transformname').slice(0,1).addClass('active_selectie');	
-  	transform='linear';
+  	$('#trans_'+transform).addClass('active_selectie');	  	
   	tgradmax=gradmax;
   	tgradmin=gradmin;
   	tdelta=tgradmax-tgradmin;
