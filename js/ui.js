@@ -157,8 +157,8 @@ function calc_heatmap () {
 
 	console.log("calc_heatmap: invx, invy, invxy, inv_grad:",inv_x, inv_y, inv_xy, inv_grad);
 	
-	hist=new Array(colormap.length);
-	for (i=0; i<hist.length; i++) {
+	hist=new Array(gradsteps);
+	for (i=0; i<gradsteps; i++) {
 		hist[i]=0;
 	}
 
@@ -270,7 +270,7 @@ function calc_heatmap () {
 	}			//cy
 
 histmax=0;
-for (i=1; i<hist.length; i++) 
+for (i=1; i<gradsteps; i++) 
 	if (hist[i]>histmax) histmax=hist[i];
 	
  
@@ -279,7 +279,6 @@ for (i=1; i<hist.length; i++)
 
 console.log("calc_heatmap, maxval:",maxval);
 console.log("calc_heatmap, len:",backbuffer.length);
-console.log("calc_heatmap, histlen:",hist.length);
 }
 
 
@@ -376,8 +375,9 @@ var click_transform=function click_size (evt) {
 	$('.transformname ').removeClass('active_selectie');
 	$(this).addClass('active_selectie');
 
-	tgradmax=gradmax;
+/*	tgradmax=gradmax;
 	tgradmin=gradmin;
+*/	
 	console.log("click_transform:", transform,tgradmin, tgradmax);				
 	draw_heatmap();
 	return false;
@@ -574,21 +574,9 @@ for (i=1; i<gradsteps; i++) {
 
   
   console.log('hist:',transform);
-  if (transform=='linear') {
-	var heatmap_hist_xScale=d3.scale.linear();
-  }
-  var xScale=d3.scale.linear();  
-  if (transform=='log10') {  	
-  	var heatmap_hist_xScale=d3.scale.log();
-  }
-  if (transform=='log2') {
-  	var heatmap_hist_xScale=d3.scale.log().base(2);
-  }
-  if (transform=='sqrt') {
-  	var heatmap_hist_xScale=d3.scale.pow().exponent(0.5);
-  }
+  var heatmap_hist_xScale=d3.scale.linear();
   
-  heatmap_hist_xScale.range([0,hist.length*barwidth]);
+  heatmap_hist_xScale.range([0,gradsteps*barwidth]);
   heatmap_hist_xScale.domain([tgradmin,tgradmax]);
 
   var heatmap_hist_yScale=d3.scale.linear();
