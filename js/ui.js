@@ -1,4 +1,3 @@
-
 /* settings */	
 var colormapname='terrain';
 var size=1;
@@ -271,7 +270,7 @@ function calc_heatmap () {
 	}			//cy
 
 histmax=0;
-for (i=0; i<hist.length; i++) 
+for (i=1; i<hist.length; i++) 
 	if (hist[i]>histmax) histmax=hist[i];
 	
  
@@ -553,48 +552,59 @@ function draw_histogram () {
 console.log("draw_histogram:", histmax, colormaplength);
 //console.log(colormap);
 
+histwidth=500;
+barwidth=500/gradsteps;
+
 $('.hist_2d').remove();
 $('.hist_x').remove();
 $('.hist_y').remove();
 for (i=1; i<gradsteps; i++) {
  	color=colormap[i];
- 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight);
+ 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
  	chart.append("rect")
 		.attr("class","hist_2d")
-		.attr("x",imgwidth+75+i)
+		.attr("x",imgwidth+75+i*barwidth)
 		.attr("y",imgheight-(hist[i]/histmax)*0.4*imgheight)
-		.attr("width",2)
+		.attr("width",barwidth)
 		.attr("height",(hist[i]/histmax)*0.4*imgheight)
 		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
-		.style("stroke-width","1px");
-		
+		.style("stroke-width","1px");		
  }
 
+  
   console.log('hist:',transform);
   if (transform=='linear') {
-	var gradScale=d3.scale.linear();
+	var heatmap_hist_xScale=d3.scale.linear();
   }
   var xScale=d3.scale.linear();  
   if (transform=='log10') {  	
-  	var gradScale=d3.scale.log();
+  	var heatmap_hist_xScale=d3.scale.log();
   }
   if (transform=='log2') {
-  	var gradScale=d3.scale.log().base(2);
+  	var heatmap_hist_xScale=d3.scale.log().base(2);
   }
   if (transform=='sqrt') {
-  	var gradScale=d3.scale.pow().exponent(0.5);
+  	var heatmap_hist_xScale=d3.scale.pow().exponent(0.5);
   }
- 
- 
   
-  gradScale.range([0,hist.length]);
-  gradScale.domain([tgradmin,tgradmax]);
+  heatmap_hist_xScale.range([0,hist.length*barwidth]);
+  heatmap_hist_xScale.domain([tgradmin,tgradmax]);
+
+  var heatmap_hist_yScale=d3.scale.linear();
+  heatmap_hist_yScale.range([0,0.4*imgheight]);
+  heatmap_hist_yScale.domain([histmax,0]);
+
   
-  var gradAxis=d3.svg.axis();  
-  gradAxis.scale(gradScale)   
+  var heatmap_hist_xAxis=d3.svg.axis(); 
+  var heatmap_hist_yAxis=d3.svg.axis();   
+  heatmap_hist_xAxis.scale(heatmap_hist_xScale)   
   		.ticks(5)    
        .orient("bottom");
+  heatmap_hist_yAxis.scale(heatmap_hist_yScale)   
+  		.ticks(5)    
+       .orient("left");
+
   //console.log(chart);
   offsetx=imgwidth+75;
   offsety=imgheight;
@@ -602,7 +612,18 @@ for (i=1; i<gradsteps; i++) {
   chart.append("g")
         .attr("class","xaxis hist_2d")
         .attr("transform","translate("+offsetx+","+offsety+")")
-        .call(gradAxis);
+        .call(heatmap_hist_xAxis); 
+  offsety=0.6*imgheight;
+  chart.append("g")
+        .attr("class","yaxis hist_2d")
+        .attr("transform","translate("+offsetx+","+offsety+")")
+        .call(heatmap_hist_yAxis); 
+
+        /*
+        .attr("class","yaxis hist_2d")
+        .attr("transform","translate("+offsetx+","+offsety+")")
+        .call(heatmap_hist_yAxis);*/
+
 }
 
 

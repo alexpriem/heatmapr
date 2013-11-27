@@ -69,7 +69,7 @@ function build_colormap (N, colorvals){
 		deltar=(colorvals[range+1][0]-colorvals[range][0])/rangesteps;
 		deltag=(colorvals[range+1][1]-colorvals[range][1])/rangesteps;
 		deltab=(colorvals[range+1][2]-colorvals[range][2])/rangesteps;
-		console.log("DELTA:",deltar, deltag, deltab);		
+//		console.log("DELTA:",deltar, deltag, deltab);		
 		r=colorvals[range][0];
 		g=colorvals[range][1];
 		b=colorvals[range][2];
