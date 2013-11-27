@@ -74,7 +74,7 @@ function build_colormap (N, colorvals){
 		g=colorvals[range][1];
 		b=colorvals[range][2];
 		for (var i=0; i<rangesteps; i++) {								
-			console.log(r,g,b);
+//			console.log(r,g,b);
 			cmap.push([parseInt(r),parseInt(g),parseInt(b)]);
 			r+=deltar;
 			g+=deltag;

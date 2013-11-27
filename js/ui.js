@@ -1,6 +1,6 @@
 
 /* settings */	
-var colormapname='gray';
+var colormapname='terrain';
 var size=1;
 var transform='linear';
 var crashnr=0;
@@ -213,9 +213,12 @@ function calc_heatmap () {
 
 	if (gradmax=='max') {
 		tgradmax=maxval;
-		tdelta=tgradmax-tgradmin;
+	} else {
+		tgradmax=gradmax;
 	}
-	
+	tgradmin=gradmin;
+	tdelta=tgradmax-tgradmin;
+
 	var line=0;
 	for (i=0; i<imgwidth*imgheight; i++) {
 		backbuffer[i]=0;
@@ -282,6 +285,14 @@ console.log("calc_heatmap, histlen:",hist.length);
 
 
 
+/* draw_heatmap:
+	- heatmap uitrekenen
+	- minima/maxima bepalen
+   - colormap tekenen; 
+   - heatmap tekenen.
+
+*/
+
 function draw_heatmap() {
 
 	console.log("draw_heatmap:",size, colormapname,transform);
@@ -289,22 +300,26 @@ function draw_heatmap() {
 	draw_colormap();
 
 	draw_histogram();	
+
+	/* eigenlijke heatmap plotten */
+
 	var indexval=0;
 	var color=[];
+
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 			indexval=backbuffer[i];
-			if ((indexval!=0) || (!skipzero)) {				
+			if ((indexval!=0) || (!skipzero)) {	  // waardes die 0 zijn niet plotten
 				color=colormap[indexval];
-	    		mapdata[j] =  color[0];  // imgd[i];
-	    		mapdata[j+1] = color[1];  //i & 0xff; //color[1];  // imgd[i];
-	    		mapdata[j+2] = color[2];  // imgd[i];
-	    		mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
+	    		mapdata[j] =  color[0];  
+	    		mapdata[j+1] = color[1];  
+	    		mapdata[j+2] = color[2];  
+	    		mapdata[j+3] = 0xff; 
 			} else {
-				mapdata[j] =  0xff;  // imgd[i];
-	    		mapdata[j+1] = 0xff;  //i & 0xff; //color[1];  // imgd[i];
-	    		mapdata[j+2] = 0xff;  // imgd[i];
-	    		mapdata[j+3] = 0xff; //i & 0x3f;  // imgd[i];
+				mapdata[j] =  0xff;  
+	    		mapdata[j+1] = 0xff; 
+	    		mapdata[j+2] = 0xff; 
+	    		mapdata[j+3] = 0xff; 
 	    	}
 
 		}	
@@ -378,7 +393,6 @@ function init_gradient_transforms() {
   	$('#trans_'+transform).addClass('active_selectie');	  	
   	tgradmax=gradmax;
   	tgradmin=gradmin;
-  	tdelta=tgradmax-tgradmin;
 }
 
 
@@ -471,6 +485,7 @@ function draw_colormap () {
 
 console.log("draw_colormap", colormaplength);
 
+
 $('.colormap').remove();
 var barlength=imgheight/3;
 var barstep=(barlength/gradsteps);
@@ -513,8 +528,8 @@ chart.append("rect")
   	var colorScale=d3.scale.pow().exponent(0.5);
   }
 
-   console.log('Colorscale, domain',datamin, datamax);
-   console.log('Colorscale, domain',tgradmin, tgradmax);
+  console.log('Colorscale, datadomain',datamin, datamax);
+  console.log('Colorscale, domain',tgradmin, tgradmax);
   colorScale.domain([tgradmax, tgradmin]);
   colorScale.range([0,barlength]); 
   colorScale.ticks(8);
@@ -536,7 +551,7 @@ chart.append("rect")
 function draw_histogram () {
 
 console.log("draw_histogram:", histmax, colormaplength);
-console.log(colormap);
+//console.log(colormap);
 
 $('.hist_2d').remove();
 $('.hist_x').remove();
@@ -647,11 +662,6 @@ function lighten () {
 }
 
 
-function toggle_gradmax() {
-
-	console.log("gradmax");
-}
-
 
 function update_hist_x_y (evt) {
 
@@ -662,7 +672,7 @@ function update_hist_x_y (evt) {
 
 	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
 		if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
-			toggle_gradcontrols();					
+			//toggle_gradcontrols();					
 		}
 	}return;
 	
