@@ -56,6 +56,7 @@ class contour:
     def run_contour (self, db_obj, args):
         tabel=args['tabel']
         x=args['x'].split(',')
+        
         if len(x)!=4:
             raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
         y=args['y'].split(',')
@@ -63,8 +64,10 @@ class contour:
             raise RuntimeError ("-y: expected col, min,max, steps")
         xcol,xmin, xmax, xpixels=[xx.strip() for xx in x]
         ycol,ymin, ymax, ypixels=y=[yy.strip() for yy in y]
+        logx=args['logx']
+        logy=args['logy']
 
-
+        
         debuglvl=args.get('debug','')
         db_obj.exec_sql=True
         db_obj.print_sql=True #False
@@ -192,8 +195,8 @@ class contour:
         
         vlist=['gradmin','gradmax','gradsteps',
                'datamin','datamax',
-               'xmin','xmax',
-               'ymin','ymax',
+               'xmin','xmax','logx',
+               'ymin','ymax','logy',
                'xpixels','ypixels',
                'imgwidth','imgheight',               
                'xlabel','ylabel','title']
@@ -267,6 +270,9 @@ parser.add_argument('-t','--tabel', dest='tabel',  help='set tabel', required=Tr
 
 parser.add_argument('-x', dest='x',  help='define xaxis:columnname, min, max, steps', required=True)
 parser.add_argument('-y', dest='y',  help='define yaxis:columnname, min, max, steps', required=True)
+parser.add_argument('-logx', dest='logx',  help='log x axis', required=False, default=False, action='store_true')
+parser.add_argument('-logy', dest='logy',  help='log y axis', required=False, default=False, action='store_true')
+
 parser.add_argument('-gradmin', dest='gradmin',  help='define minimum gradient, default 0', required=False, default=0)
 parser.add_argument('-gradmax', dest='gradmax',  help='define maximum gradient, default max value in heatmap', required=False)
 parser.add_argument('-gradsteps', dest='gradsteps',  help='define nr of steps in gradient, default 255', required=False, default=255)
@@ -281,7 +287,7 @@ parser.add_argument('-title', dest='title',  help='set title', required=False)
 parser.add_argument('-o', dest='outfile',  help='set outfile', required=True)
 parser.add_argument('-html', dest='dump_html',  help='html output', required=False, default=True, action='store_true')
 parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=False, action='store_false')
-parser.add_argument('-js', dest='dump_js',  help='javascript ouput', required=False, default=False, action='store_true')
+parser.add_argument('-js', dest='dump_js',  help='javascript output', required=False, default=False, action='store_true')
 parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')
 parser.add_argument('-sel', dest='sel',  help='set selection', required=False)
 parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do not execute sql', required=False)
