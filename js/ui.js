@@ -560,6 +560,12 @@ $('.hist_x').remove();
 $('.hist_y').remove();
 for (i=1; i<gradsteps; i++) {
  	color=colormap[i];
+ 	colorstring="rgb("+color[0]+","+color[1]+","+color[2]+")";
+ 	if (gradsteps>30) {
+ 		borderstyle=colorstring;
+ 	} else {
+ 		borderstyle="#5a5a5a";
+ 	}
  	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
  	chart.append("rect")
 		.attr("class","hist_2d")
@@ -567,8 +573,8 @@ for (i=1; i<gradsteps; i++) {
 		.attr("y",imgheight-(hist[i]/histmax)*0.4*imgheight)
 		.attr("width",barwidth)
 		.attr("height",(hist[i]/histmax)*0.4*imgheight)
-		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+		.style("fill",colorstring)	
+		.style("stroke",borderstyle)
 		.style("stroke-width","1px");		
  }
 
