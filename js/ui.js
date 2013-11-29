@@ -164,7 +164,7 @@ function calc_heatmap () {
 
 	console.log('calc_heatmap',size);
 	var ptr2=0;
-	maxval=0;
+	maxval=0;	
 	for (var i=0; i<ypixels; i+=size) {
 		for (var j=0; j<xpixels;  j+=size) {		
 			val=0;
@@ -182,6 +182,7 @@ function calc_heatmap () {
 			}  // size >1
 			
 
+			val=val/(size*size);
 	    	if (transform=='sqrt') {
 				val=Math.sqrt(val);
 	    	}
@@ -202,7 +203,7 @@ function calc_heatmap () {
 	    			
 			ptr2++;			
 			transposebuffer[ptr2]=val;			
-			if (val>maxval) maxval=val;	    			
+			if (val>maxval) maxval=val;
 
 		} //j
 //		console.log("i:",i);
