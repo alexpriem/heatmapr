@@ -123,6 +123,18 @@ for (i=0; i<N; i++){
 return cmap;
 }
 
+var colormap_hot2=function colormap_hot2(N){
+    
+scale=chroma.interpolate.bezier(['white', 'yellow', 'red', 'black']);
+cmap=[];
+frac=1.0/N;
+for (i=0; i<N; i++){
+	rgb=scale(i*frac).rgb();
+	cmap.push([parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])]);
+}
+return cmap;
+}
+
 var colormap_ygb=function colormap_ygb(N){
     
 scale=chroma.scale(['yellow', 'green', 'blue']);
@@ -146,5 +158,6 @@ var colormaps={
 	'terrain':colormap_terrain,
 	'coolwarm':colormap_coolwarm,
 	'hot':colormap_hot,	
+	'hot2':colormap_hot2,		
 	'ygb':colormap_ygb,
         };

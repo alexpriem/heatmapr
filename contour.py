@@ -201,13 +201,19 @@ class contour:
                'imgwidth','imgheight',               
                'xlabel','ylabel','title']
         for k in vlist:
-            v=args[k]
-            try:
-                v2=int(v)
-            except:
-                if v2 is None:
-                    v=''                    
+            v=args[k]       
+            if v==None:
+                js+='var %s="";\n' % (k,v)
+                continue
+            t=type(v)
+            if t==str:            
                 js+='var %s="%s";\n' % (k,v)
+                continue
+            if t==bool:
+                if v:
+                    js+='var %s=true;\n' % (k)
+                else:                    
+                    js+='var %s=false;\n' % (k)
             else:
                 js+="var %s=%s;\n" % (k,v)
         

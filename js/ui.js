@@ -423,20 +423,28 @@ function init_data_transforms() {
 
   function draw_axes () {
 
-
-  var xScale=d3.scale.linear();
-  var yScale=d3.scale.linear();
+  if (logx) var xScale=d3.scale.log();
+  else	var xScale=d3.scale.linear();
+  if (logy) var yScale=d3.scale.log();
+  else	var yScale=d3.scale.linear();
+    
+  
+  if ((logx) && (xmin<=0)) xmin=1;
+  xScale.domain([xmin,xmax]);  
   xScale.range([0,imgwidth]); 
-  xScale.domain([xmin,xmax]);
+
+  if ((logy) && (ymin<=0)) ymin=1;
   yScale.domain([ymax,ymin]);
   yScale.range([0,imgheight]); 
-
+  
   var xAxis=d3.svg.axis();
   var yAxis=d3.svg.axis();  
   xAxis.scale(xScale)       
        .orient("bottom");
   yAxis.scale(yScale)       
        .orient("left");
+       
+   
 
   //console.log(chart);
   chart.append("g")
