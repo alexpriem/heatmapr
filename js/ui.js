@@ -698,11 +698,45 @@ function update_hist_x_y (evt) {
 		if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
 			//toggle_gradcontrols();					
 		}
-	}return;
+		return;
+	}
 	
 	$('.hist_2d').remove();
 	$('.hist_x').remove();
 	$('.hist_y').remove();
+	$('.pointinfotext').remove();	
+
+	delta=(xmax-xmin);
+	val=(x/imgwidth)*delta+xmin;
+	val=val.toFixed(2);
+ 	chart.append("text")      // text label for the x axis
+    	.attr("class","pointinfotext")
+        .attr("x", 1.5*imgwidth+100 )
+        .attr("y", 50 )
+        .attr("font-family", "sans-serif")
+
+        .text(xlabel+':'+val);
+		
+	delta=(ymax-ymin);
+	val=((imgheight-y)/imgheight)*delta+ymin;
+	val=val.toFixed(0);
+	chart.append("text")      // text label for the x axis
+    	.attr("class","pointinfotext")
+        .attr("x", 1.5*imgwidth+100 )
+        .attr("y", 50+16)
+         .attr("font-family", "sans-serif")
+     
+        .text(ylabel+':'+val);
+
+	val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
+	chart.append("text")      // text label for the x axis
+    	.attr("class","pointinfotext")
+        .attr("x", 1.5*imgwidth+100 )
+        .attr("y", 50+32)
+         .attr("font-family", "sans-serif")
+     
+        .text('#count:'+val);
+
 
 	max=0;
 	for (i=0; i<imgwidth; i++) { 		
@@ -723,8 +757,7 @@ function update_hist_x_y (evt) {
 			.attr("width",1)
 			.attr("height",(val/max)*0.25*imgheight)
 			.style("fill","rgb(8,8,130)")
-			.style("stroke","rgb(8,8,130)")
-			
+			.style("stroke","rgb(8,8,130)")			
 			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			.style("stroke-width","1px");

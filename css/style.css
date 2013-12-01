@@ -142,3 +142,10 @@ fill none;
 	font-family:sans-serif;
 	font-size: 11px;
 }
+
+
+.pointinfotext text {
+	font-family:sans-serif;
+	font-size: 15px;
+	font-weight: bold;
+}

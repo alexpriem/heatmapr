@@ -214,8 +214,8 @@ class contour:
                     js+='var %s=true;\n' % (k)
                 else:                    
                     js+='var %s=false;\n' % (k)
-            else:
-                js+="var %s=%s;\n" % (k,v)
+                continue            
+            js+="var %s=%s;\n" % (k,v)
         
         return js
 
