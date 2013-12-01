@@ -738,13 +738,13 @@ function update_hist_x_y (evt) {
         .text('#count:'+val);
 
 
-	max=0;
+	histy_max=0;
 	for (i=0; i<imgwidth; i++) { 		
 		val=backbuffer[y*imgheight+i];
-		if (val>max) max=val;
+		if (val>histy_max) histy_max=val;
 	}
 
-	console.log(max);
+	//console.log(histy_max);
 	
 	for (i=0; i<imgwidth; i++) { 	
 	 	val=backbuffer[y*imgheight+i];	 		 	
@@ -753,9 +753,9 @@ function update_hist_x_y (evt) {
 		chart.append("rect")
 			.attr("class","hist_y")
 			.attr("x",imgwidth+75+i)
-			.attr("y",parseInt(imgheight-(val/max)*0.25*imgheight))
+			.attr("y",parseInt(imgheight-(val/histy_max)*0.25*imgheight))
 			.attr("width",1)
-			.attr("height",(val/max)*0.25*imgheight)
+			.attr("height",(val/histy_max)*0.25*imgheight)
 			.style("fill","rgb(8,8,130)")
 			.style("stroke","rgb(8,8,130)")			
 			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
@@ -764,10 +764,10 @@ function update_hist_x_y (evt) {
 		 }
 
 		
-max=0;
+histx_max=0;
 for (i=0; i<imgheight; i++) { 	
 	 	val=backbuffer[i*imgwidth+x];
-	 	if (val>max) max=val;
+	 	if (val>histx_max) histx_max=val;
 	 }
 	
 for (i=0; i<imgheight; i++) { 	
@@ -776,9 +776,9 @@ for (i=0; i<imgheight; i++) {
 		chart.append("rect")
 			.attr("class","hist_y")
 			.attr("x",2*imgwidth+75-i)
-			.attr("y",imgheight-(val/max)*0.25*imgheight-0.3*imgheight)
+			.attr("y",imgheight-(val/histx_max)*0.25*imgheight-0.3*imgheight)
 			.attr("width",1)
-			.attr("height",(val/max)*0.25*imgheight)
+			.attr("height",(val/histx_max)*0.25*imgheight)
 			.style("fill","rgb(130,8,8)")
 			.style("stroke","rgb(130,8,8)")
 			
@@ -789,34 +789,61 @@ for (i=0; i<imgheight; i++) {
 
   
 
-  var xScale=d3.scale.linear();
-  var yScale=d3.scale.linear();
-  xScale.range([0,imgwidth]); 
-  xScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
-  yScale.domain([xmin,xmax]);
-  yScale.range([0,imgwidth]); 
+  var xxScale=d3.scale.linear();
+  var yxScale=d3.scale.linear();
+  var xyScale=d3.scale.linear();
+  var yyScale=d3.scale.linear();
+  
+  xxScale.range([0,imgwidth]); 
+  xxScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
+  xyScale.range([0,0.25*imgheight]); 
+  xyScale.domain([histy_max*(tgradmax/gradsteps),0]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
 
-  var xAxis=d3.svg.axis();
-  var yAxis=d3.svg.axis();  
-  xAxis.scale(xScale)       
-       .orient("bottom");
-  yAxis.scale(yScale)       
-       .orient("bottom");
+  yxScale.range([0,imgwidth]); 
+  yxScale.domain([xmin,xmax]);   
+  yyScale.range([0,0.25*imgheight]); 
+  yyScale.domain([histx_max*(tgradmax/gradsteps),0]);
 
+  var xxAxis=d3.svg.axis();
+  var xyAxis=d3.svg.axis();  
+  var yxAxis=d3.svg.axis();
+  var yyAxis=d3.svg.axis();  
+  
+  xxAxis.scale(xxScale)       
+       .orient("bottom");
+  xyAxis.scale(xyScale)       
+       .orient("left");
+  yxAxis.scale(yxScale)       
+       .orient("bottom");
+  yyAxis.scale(yyScale)       
+       .orient("left");
+  
   //console.log(chart);
-  offsetx=imgwidth+75;
-  offsety=imgheight;
+  offsetx=imgwidth+50;
+  offsetyx=imgheight;
+  offsetyy=0.5*imgheight;
 
   chart.append("g")
         .attr("class","yaxis hist_x")
-        .attr("transform","translate("+offsetx+","+offsety+")")
-        .call(yAxis);
-  offsety=0.7*imgheight;
+        .attr("transform","translate("+offsetx+","+offsetyx+")")
+        .call(yxAxis);
+  chart.append("g")
+        .attr("class","yaxis hist_x")
+        .attr("transform","translate("+offsetx+","+offsetyy+")")
+        .call(yyAxis);
+
+  offsetx=imgwidth+50;
+  offsetyx=0.7*imgheight;
+  offsetyy=0.75*imgheight;
 
   chart.append("g")
         .attr("class","xaxis hist_y")
-        .attr("transform","translate("+offsetx+","+offsety+")")        
-        .call(xAxis);        
+        .attr("transform","translate("+offsetx+","+offsetyx+")")        
+        .call(xxAxis);        
+  chart.append("g")
+        .attr("class","xaxis hist_y")
+        .attr("transform","translate("+offsetx+","+offsetyy+")")        
+        .call(xyAxis);        
 
 
   chart.append("text")      // text label for the x axis
