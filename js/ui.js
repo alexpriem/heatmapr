@@ -118,37 +118,13 @@ function update_gradient () {
 
 function init_colormap_inputs() {
 
-chart.append("foreignObject")
-	.attr("width", 150)
-	.attr("height", 50)
-	.attr("x",imgwidth+150)
-	.attr("y",35)
-	.append("xhtml:body")
-	.style("font", "14px Helvetica")
-	.html("<input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
-
-chart.append("foreignObject")
-	.attr("width", 150)
-	.attr("height", 50)
-	.attr("x",imgwidth+150)
-	.attr("y",105)
-	.append("xhtml:body")
-	.style("font", "14px Helvetica")
-	.html("<input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
-
-chart.append("foreignObject")
-	.attr("width", 150)
-	.attr("height", 50)
-	.attr("x",imgwidth+150)
-	.attr("y",185)
-	.append("xhtml:body")
-	.style("font", "14px Helvetica")
-	.html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
-
 $("#edit_gradmax").on('change',update_gradient);
 $("#edit_gradsteps").on('change',update_gradient);
 $("#edit_gradmin").on('change',update_gradient);
 
+$("#edit_gradmax").val(gradmax);
+$("#edit_gradsteps").val(gradsteps);
+$("#edit_gradmin").val(gradmin);
 }
 
 
