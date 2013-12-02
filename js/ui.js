@@ -104,27 +104,61 @@ $('#colormapname_'+colormapname).addClass('active_selectie');
 }
 
 
-function update_gradient () {
+function update_gradient (e) {
 
+	
 	console.log('update_gradient:');
-	gradmax=$('#edit_gradmax').val();
-	gradsteps=$('#edit_gradsteps').val();
-	gradmin=$('#edit_gradmin').val();
-	console.log('update_gradient:',gradmin, gradmax, gradsteps);
-	colormap=colormaps[colormapname](gradsteps);	
-	draw_heatmap();
+	if (e.keyCode == '13') {
+		gradmax=$('#edit_gradmax').val();
+		gradsteps=$('#edit_gradsteps').val();
+		gradmin=$('#edit_gradmin').val();
+		console.log('update_gradient:',gradmin, gradmax, gradsteps);
+		colormap=colormaps[colormapname](gradsteps);	
+		draw_heatmap();	
+	}
 }
 
 
 function init_colormap_inputs() {
 
-$("#edit_gradmax").on('change',update_gradient);
-$("#edit_gradsteps").on('change',update_gradient);
-$("#edit_gradmin").on('change',update_gradient);
+	if 	(typeof(SVGForeignObjectElement)!== 'undefined') {
+		$('.ie_fallback').remove();
+		chart.append("foreignObject")
+		  .attr("width", 150)
+		  .attr("height", 50)
+		  .attr("x",imgwidth+150)
+		  .attr("y",35)
+		  .append("xhtml:body")
+		  .style("font", "14px Helvetica")
+		  .html("<input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
 
-$("#edit_gradmax").val(gradmax);
-$("#edit_gradsteps").val(gradsteps);
-$("#edit_gradmin").val(gradmin);
+		chart.append("foreignObject")
+		  .attr("width", 150)
+		  .attr("height", 50)
+		  .attr("x",imgwidth+150)
+		  .attr("y",105)
+		  .append("xhtml:body")
+		  .style("font", "14px Helvetica")
+		  .html("<input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
+
+		chart.append("foreignObject")
+		  .attr("width", 150)
+		  .attr("height", 50)
+		  .attr("x",imgwidth+150)
+		  .attr("y",185)
+		  .append("xhtml:body")
+		  .style("font", "14px Helvetica")
+		  .html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
+	} 
+ 		
+	$("#edit_gradmax").val(gradmax);
+	$("#edit_gradsteps").val(gradsteps);
+	$("#edit_gradmin").val(gradmin);
+
+	$("#edit_gradmax").on('keydown',update_gradient);
+	$("#edit_gradsteps").on('keydown',update_gradient);
+	$("#edit_gradmin").on('keydown',update_gradient);
+
 }
 
 
@@ -674,7 +708,7 @@ function update_hist_x_y (evt) {
 		if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
 			//toggle_gradcontrols();					
 		}
-		return;
+		return false;
 	}
 	
 	$('.hist_2d').remove();

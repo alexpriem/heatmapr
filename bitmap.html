@@ -17,7 +17,6 @@
 
 
 <body>
-<p class="sel_heading">Heatmap:</p>
 <div id="controls" class="leftbox">
 <ul id="sel_colormap">
 </ul>
@@ -49,19 +48,18 @@
 </div>
 
 <div id="canvasdiv" class="rightbox"> 
-  <canvas id="heatmap_canvas" > </canvas>
-  <svg id="heatmap_svg" > </svg>  
-  <div>
   <div id="colormap_max">
-      <input type='text' id='edit_gradmax'name='gradmax' value='2000' size='4'>
+      <input type='text' id='edit_gradmax' class="ie_fallback" name='gradmax' value='' size='4'>
   </div>
   <div id="colormap_steps">
-      <input type='text' id='edit_gradsteps'name='gradsteps' value='20' size='4'>
+      <input type='text' id='edit_gradsteps' class="ie_fallback" name='gradsteps' value='' size='4'>
   </div>
   <div id="colormap_min">
-      <input type='text' id='edit_gradmin'name='gradmin' value='0' size='4'>  
+      <input type='text' id='edit_gradmin' class="ie_fallback" name='gradmin' value='' size='4'>  
   </div>
-</div>
+  <canvas id="heatmap_canvas" > </canvas>
+  <svg id="heatmap_svg" > </svg>    
+  
 </div>
 
 </div>
