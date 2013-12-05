@@ -34,6 +34,14 @@ if ((xpixels>0) && (ypixels>0)) {
 if (gradmin<1) {gradmin=1;}
 
 
+window.console = window.console || (function(){
+    var c = {}; 
+    c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function(){};
+    return c;
+})();
+
+
+
 function init_databuffers () {
 
 chart = d3.select("#heatmap_svg");
