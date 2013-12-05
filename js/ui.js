@@ -130,7 +130,7 @@ function init_colormap_inputs() {
 		  .attr("y",35)
 		  .append("xhtml:body")
 		  .style("font", "14px Helvetica")
-		  .html("<input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
+		  .html("<label> max:</label> <input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
 
 		chart.append("foreignObject")
 		  .attr("width", 150)
@@ -139,7 +139,7 @@ function init_colormap_inputs() {
 		  .attr("y",105)
 		  .append("xhtml:body")
 		  .style("font", "14px Helvetica")
-		  .html("<input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
+		  .html("<label> step:</label> <input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
 
 		chart.append("foreignObject")
 		  .attr("width", 150)
@@ -148,7 +148,7 @@ function init_colormap_inputs() {
 		  .attr("y",185)
 		  .append("xhtml:body")
 		  .style("font", "14px Helvetica")
-		  .html("<input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
+		  .html("<label> min:</label> <input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
 	} 
  		
 	$("#edit_gradmax").val(gradmax);
@@ -716,30 +716,35 @@ function update_hist_x_y (evt) {
 	$('.hist_y').remove();
 	$('.pointinfotext').remove();	
 
+	var offsetx_hist=100;  //distance between heatmap and side-histograms
+	var offsety_hist=25;   // distance between bottom of screen & side-histograms
+	var offsetspace_hist=-40;   // distance between side-histograms
+	var graphheight=0.25*imgheight;
 	delta=(xmax-xmin);
 	val=(x/imgwidth)*delta+xmin;
-	val=val.toFixed(2);
- 	chart.append("text")      // text label for the x axis
+	xval=val.toFixed(2);
+
+	/* text upper right corner */
+ 	chart.append("text")      
     	.attr("class","pointinfotext")
         .attr("x", 1.5*imgwidth+100 )
         .attr("y", 50 )
         .attr("font-family", "sans-serif")
-
-        .text(xlabel+':'+val);
+        .text(xlabel+':'+xval);
 		
 	delta=(ymax-ymin);
 	val=((imgheight-y)/imgheight)*delta+ymin;
-	val=val.toFixed(0);
-	chart.append("text")      // text label for the x axis
+	yval=val.toFixed(0);
+	chart.append("text")      
     	.attr("class","pointinfotext")
         .attr("x", 1.5*imgwidth+100 )
         .attr("y", 50+16)
          .attr("font-family", "sans-serif")
      
-        .text(ylabel+':'+val);
+        .text(ylabel+':'+yval);
 
 	val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
-	chart.append("text")      // text label for the x axis
+	chart.append("text")      
     	.attr("class","pointinfotext")
         .attr("x", 1.5*imgwidth+100 )
         .attr("y", 50+32)
@@ -747,6 +752,7 @@ function update_hist_x_y (evt) {
      
         .text('#count:'+val);
 
+/* histogram y */
 
 	histy_max=0;
 	for (i=0; i<imgwidth; i++) { 		
@@ -762,12 +768,12 @@ function update_hist_x_y (evt) {
 	 	color=colormap[val];
 		chart.append("rect")
 			.attr("class","hist_y")
-			.attr("x",imgwidth+75+i)
-			.attr("y",parseInt(imgheight-(val/histy_max)*0.25*imgheight))
+			.attr("x",imgwidth+offsetx_hist+i)
+			.attr("y",parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist)
 			.attr("width",1)
-			.attr("height",(val/histy_max)*0.25*imgheight)
-			.style("fill","rgb(8,8,130)")
-			.style("stroke","rgb(8,8,130)")			
+			.attr("height",(val/histy_max)*graphheight)
+			.style("fill","rgb(8,8,0)")
+			.style("stroke","rgb(8,8,0)")			
 			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 			.style("stroke-width","1px");
@@ -785,10 +791,10 @@ for (i=0; i<imgheight; i++) {
 	 	color=colormap[val];
 		chart.append("rect")
 			.attr("class","hist_y")
-			.attr("x",2*imgwidth+75-i)
-			.attr("y",imgheight-(val/histx_max)*0.25*imgheight-0.3*imgheight)
+			.attr("x",2*imgwidth+offsetx_hist-i)
+			.attr("y",imgheight-(val/histx_max)*graphheight-graphheight+offsety_hist+offsetspace_hist)
 			.attr("width",1)
-			.attr("height",(val/histx_max)*0.25*imgheight)
+			.attr("height",(val/histx_max)*graphheight)
 			.style("fill","rgb(130,8,8)")
 			.style("stroke","rgb(130,8,8)")
 			
@@ -829,9 +835,9 @@ for (i=0; i<imgheight; i++) {
        .orient("left");
   
   //console.log(chart);
-  offsetx=imgwidth+50;
-  offsetyx=imgheight;
-  offsetyy=0.5*imgheight;
+  offsetx=imgwidth+offsetx_hist;
+  offsetyx=imgheight+offsety_hist
+  offsetyy=imgheight-2*graphheight+offsety_hist+offsetspace_hist;
 
   chart.append("g")
         .attr("class","yaxis hist_x")
@@ -842,9 +848,9 @@ for (i=0; i<imgheight; i++) {
         .attr("transform","translate("+offsetx+","+offsetyy+")")
         .call(yyAxis);
 
-  offsetx=imgwidth+50;
-  offsetyx=0.7*imgheight;
-  offsetyy=0.75*imgheight;
+  offsetx=imgwidth+offsetx_hist;
+  offsetyx=imgheight-graphheight+offsety_hist+offsetspace_hist;
+  offsetyy=imgheight-graphheight+offsety_hist;
 
   chart.append("g")
         .attr("class","xaxis hist_y")
@@ -857,23 +863,23 @@ for (i=0; i<imgheight; i++) {
 
 
   chart.append("text")      // text label for the x axis
-  		.attr("class","xaxis")
-        .attr("x",  1.5*imgwidth+50 )
-        .attr("y",  imgheight+35 )
+  		.attr("class","xaxis hist_x")
+        .attr("x",  1.5*imgwidth+offsetx_hist )
+        .attr("y",  imgheight+offsety_hist+35 )
         .style("text-anchor", "middle")
         .attr("font-family", "sans-serif")
   		.attr("font-size", "16px")
   		.attr("font-weight", "bold")
-        .text(xlabel);
+        .text(xlabel+ '(voor '+ylabel+'='+yval+')');
   chart.append("text")      // text label for the x axis
-    	.attr("class","yaxis")
-        .attr("x", 1.5*imgwidth+50 )
-        .attr("y", imgheight-120 )
+    	.attr("class","yaxis hist_y")
+        .attr("x", 1.5*imgwidth+offsetx_hist )
+        .attr("y", imgheight-graphheight+offsety_hist-offsetspace_hist-45 )
         .attr("font-family", "sans-serif")
   		.attr("font-size", "16px")
   		.attr("font-weight", "bold")                
         .style("text-anchor", "middle")
-        .text(ylabel);
+        .text(ylabel+ '(voor '+xlabel+'='+xval+')');
 	
 
  chart.append("svg:line")
