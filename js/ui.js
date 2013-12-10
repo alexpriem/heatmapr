@@ -526,12 +526,12 @@ chart.append("rect")
 	.style("stroke","black")
 	.style("stroke-width","1px");
   
- for (i=0; i<gradsteps; i++) {
+ for (i=1; i<gradsteps; i++) {
  	color=colormap[i];
 	chart.append("rect")
 		.attr("class","colormap")
-		.attr("x",imgwidth+75)
-		.attr("y",25+10+barlength-barstep*i)
+		.attr("x",imgwidth+76)
+		.attr("y",25+10+barlength-barstep*i-1)
 		.attr("width",20)
 		.attr("height",barstep)
 		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
