@@ -467,11 +467,11 @@ function init_data_transforms() {
   //console.log(chart);
   chart.append("g")
         .attr("class","xaxis")
-        .attr("transform","translate(50,"+(imgheight+25)+")")
+        .attr("transform","translate(75,"+(imgheight+25)+")")
         .call(xAxis);
   chart.append("g")
         .attr("class","yaxis")
-        .attr("transform","translate(50,25)")
+        .attr("transform","translate(75,25)")
         .call(yAxis);        
 
   chart.append("text")      // text label for the x axis
@@ -490,12 +490,12 @@ function init_data_transforms() {
         .attr("font-family", "sans-serif")
   		.attr("font-size", "16px")
   		.attr("font-weight", "bold")        
-        .attr("transform","translate(10,"+(imgheight/2)+")rotate(270)")
+        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
         .style("text-anchor", "middle")
         .text(ylabel);
   chart.append("text")      // text label for the x axis
     	.attr("class","yaxis")
-        .attr("x", imgwidth/2+50 )
+        .attr("x", imgwidth/2+70 )
         .attr("y", 15)
         .attr("font-family", "sans-serif")
   		.attr("font-size", "16px")
@@ -580,7 +580,10 @@ console.log("draw_histogram:", histmax, colormaplength);
 //console.log(colormap);
 
 histwidth=500;
+histheight=0.4*imgheight;
 barwidth=500/gradsteps;
+
+var hist_offset_x=125;
 
 $('.hist_2d').remove();
 $('.hist_x').remove();
@@ -596,10 +599,10 @@ for (i=1; i<gradsteps; i++) {
  	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
  	chart.append("rect")
 		.attr("class","hist_2d")
-		.attr("x",imgwidth+75+i*barwidth)
-		.attr("y",imgheight-(hist[i]/histmax)*0.4*imgheight)
+		.attr("x",imgwidth+hist_offset_x+i*barwidth)
+		.attr("y",imgheight-(hist[i]/histmax)*histheight+25)
 		.attr("width",barwidth)
-		.attr("height",(hist[i]/histmax)*0.4*imgheight)
+		.attr("height",(hist[i]/histmax)*histheight)
 		.style("fill",colorstring)	
 		.style("stroke",borderstyle)
 		.style("stroke-width","1px");		
@@ -613,7 +616,7 @@ for (i=1; i<gradsteps; i++) {
   heatmap_hist_xScale.domain([tgradmin,tgradmax]);
 
   var heatmap_hist_yScale=d3.scale.linear();
-  heatmap_hist_yScale.range([0,0.4*imgheight]);
+  heatmap_hist_yScale.range([0,histheight]);
   heatmap_hist_yScale.domain([histmax,0]);
 
   
@@ -627,14 +630,14 @@ for (i=1; i<gradsteps; i++) {
        .orient("left");
 
   //console.log(chart);
-  offsetx=imgwidth+75;
-  offsety=imgheight;
+  offsetx=imgwidth+hist_offset_x;
+  offsety=imgheight+25;
 
   chart.append("g")
         .attr("class","xaxis hist_2d")
         .attr("transform","translate("+offsetx+","+offsety+")")
         .call(heatmap_hist_xAxis); 
-  offsety=0.6*imgheight;
+  offsety=imgheight-histheight+25;
   chart.append("g")
         .attr("class","yaxis hist_2d")
         .attr("transform","translate("+offsetx+","+offsety+")")
