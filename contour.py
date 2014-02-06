@@ -1,7 +1,18 @@
 import pyodbc
 import argparse
-from jinja2 import Environment, Template
+from jinja2 import Template
+from math import log10
 
+
+
+def safelog10 (x):
+    if x==0:
+        return 0
+    if x>0:
+        return log10(x)
+    return -log10(-x)
+        
+        
 
 class dbconnection:
     def __init__ (self,metadict):
@@ -78,8 +89,6 @@ class contour:
         if debuglvl=='2':
             db_obj.exec_sql=False
             db_obj.print_sql=True
-
-        
         
         selcol=args.get('sel','')
         #selcol=','+sel
@@ -87,16 +96,22 @@ class contour:
         xmin=int(xmin)
         xmax=int(xmax)
         xpixels=int(xpixels)
-
+        if logx:            
+            xmin=safelog10(xmin)
+            xmax=safelog10(xmax)
+        
         ymin=int(ymin)
         ymax=int(ymax)
-        ypixels=int(ypixels)
+        if logy:            
+            ymin=safelog10(ymin)
+            ymax=safelog10(ymax)
+        ypixels=int(ypixels)        
 
         xfactor= (xmax-xmin)/ (1.0*xpixels)
-        yfactor= (ymax-ymin)/ (1.0*ypixels)
+        yfactor= (ymax-ymin)/ (1.0*ypixels)        
         xfactorinv= (1.0*xpixels)/(xmax-xmin)
         yfactorinv= (1.0*ypixels)/(ymax-ymin)
-
+        
         self.setup_numbers()
         
         if xcol=='leeftijd':
@@ -119,8 +134,9 @@ class contour:
             postfix='_psql.sql'
         self.postfix=postfix
 
-        for t in sqltemplates:        
+        for t in sqltemplates:                 
             s=open("templates/"+t+postfix).read()
+            print t
             sql=Template(s).render(locals())            
             db_obj.run_sql (sql)        
 

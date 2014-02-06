@@ -10,7 +10,8 @@ DROP TABLE contourtab
         into contourtab
         from xy a
         left join selectie2  b
-        on a.{{xcol}}=b.{{xcol}} and a.{{ycol}}=b.{{ycol}}
+        on convert(bigint, 1000*a.{{xcol}})=convert(bigint, 1000*b.{{xcol}}) and 
+            convert(bigint,1000*a.{{ycol}})=convert(bigint,1000*b.{{ycol}})        --- rounding errrors prevent joining. converting floats to ints seems to fix it.
         {% if selcol %}
         and a.{{selcol}}=b.{{selcol}}
         {% endif %}
