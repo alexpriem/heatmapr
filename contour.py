@@ -1,8 +1,5 @@
-import pyodbc
-import argparse
-from jinja2 import Template
+import argparse, random
 from math import log10
-
 
 
 def safelog10 (x):
@@ -14,60 +11,15 @@ def safelog10 (x):
         
         
 
-class dbconnection:
-    def __init__ (self,metadict):
-        self.print_sql=True
-        self.exec_sql=True
-        self.open_server(metadict)
-
-        
-    def open_server (self, metadict):
-        if metadict.get('username') is not None:
-            s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;uid=%(username)s;pwd=%(password)s' % metadict
-        else:
-            if metadict.get('dbtype')=='mssql':
-                s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s;Trusted_Connection=Yes;' % metadict
-            else:
-                s='Driver={%(driver)s};SERVER=%(server)s;DATABASE=%(database)s' % metadict
-        dbc = pyodbc.connect(s)     # open a database connection
-        dbc.autocommit=True
-        hnd=dbc.cursor()
-        self.dbc=dbc
-        self.hnd=hnd
-        self.driver=metadict['driver']
-        self.server=metadict['server']
-        self.database=metadict['database']
-        return dbc, hnd
-
-
-    def run_sql (self, sql):        
-        if self.print_sql:
-            print sql
-  
-        if self.exec_sql:            
-            self.hnd.execute(sql)
-            self.dbc.commit()
-
-
 
 
 class contour:
     def __init__(self):
         pass
 
-
-    def setup_numbers (self):
-        f=open("numbers.csv","w")
-        for num in range(10000):
-            f.write("%d\n" % num)
-        f.close()
-        
-                    
-
-    def run_contour (self, db_obj, args):
-        tabel=args['tabel']
+    def run_contour (self, args):
+        infile=args['infile']
         x=args['x'].split(',')
-        
         if len(x)!=4:
             raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
         y=args['y'].split(',')
@@ -75,23 +27,9 @@ class contour:
             raise RuntimeError ("-y: expected col, min,max, steps")
         xcol,xmin, xmax, xpixels=[xx.strip() for xx in x]
         ycol,ymin, ymax, ypixels=y=[yy.strip() for yy in y]
+
         logx=args['logx']
         logy=args['logy']
-
-        
-        debuglvl=args.get('debug','')
-        db_obj.exec_sql=True
-        db_obj.print_sql=True #False
-        #print debuglvl
-        if debuglvl=='1':
-            db_obj.exec_sql=True
-            db_obj.print_sql=True
-        if debuglvl=='2':
-            db_obj.exec_sql=False
-            db_obj.print_sql=True
-        
-        selcol=args.get('sel','')
-        #selcol=','+sel
 
         xmin=int(xmin)
         xmax=int(xmax)
@@ -99,115 +37,106 @@ class contour:
         if logx:            
             xmin=safelog10(xmin)
             xmax=safelog10(xmax)
-        
-        ymin=int(ymin)
-        ymax=int(ymax)
-        if logy:            
-            ymin=safelog10(ymin)
-            ymax=safelog10(ymax)
-        ypixels=int(ypixels)        
-
-        xfactor= (xmax-xmin)/ (1.0*xpixels)
-        yfactor= (ymax-ymin)/ (1.0*ypixels)        
-        xfactorinv= (1.0*xpixels)/(xmax-xmin)
-        yfactorinv= (1.0*ypixels)/(ymax-ymin)
-        
-        self.setup_numbers()
-        
-        if xcol=='leeftijd':
-            s="01_template1_date"                     
-        else:
-            s="01_template1_int"
-            
-        sqltemplates=[
-            "00_setup_numbers",
-            s,
-            "02_template2",
-            "03_xas",
-            "04_yas",
-            "05_crossjoin",
-            "06_prep_contourtab",
-            "07_index"]
-        if args['dbtype']=='mssql':
-            postfix='_mssql.sql'
-        if args['dbtype']=='psql':
-            postfix='_psql.sql'
-        self.postfix=postfix
-
-        for t in sqltemplates:                 
-            s=open("templates/"+t+postfix).read()
-            print t
-            sql=Template(s).render(locals())            
-            db_obj.run_sql (sql)        
-
-
-    def dump_data  (self, db_obj, args):
-        
-        x=args['x'].split(',')
-        if len(x)!=4:
-            raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
-        y=args['y'].split(',')
-        if len(x)!=4:
-            raise RuntimeError ("-y: expected col, min,max, steps")
-        xcol,xmin, xmax, xpixels=[xx.strip() for xx in x]
-        ycol,ymin, ymax, ypixels=y=[yy.strip() for yy in y]
-
-        xmin=int(xmin)
-        xmax=int(xmax)
-        xpixels=int(xpixels)
 
         ymin=int(ymin)
         ymax=int(ymax)
         ypixels=int(ypixels)
+        if logy:            
+            ymin=safelog10(ymin)
+            ymax=safelog10(ymax)
 
         xfactor= (xmax-xmin)/ (1.0*xpixels)
         yfactor= (ymax-ymin)/ (1.0*ypixels)
-        outfile=args['outfile']
+        xfactorinv= (1.0*xpixels)/(xmax-xmin)
+        yfactorinv= (1.0*ypixels)/(ymax-ymin)
 
-        sql_tmpl=open("templates/10_dumpdata"+self.postfix).read()
-        
-        sql=Template(sql_tmpl).render(locals())
-        db_obj.run_sql (sql)
-        rows=db_obj.hnd.fetchall()
-
-               
-        js="var data=["
-
-        gradmin=rows[0][0]
-        gradmax=rows[0][0]
-        prevx=None            
-        #firstrow=True
-        s=''
-        for row in rows:
-           # print row[0],row[1],row[2]
-            x=row[1]        
-            if prevx is not None and x>prevx:         
-                js+=s+'\n'
-                s=''
-            s+="%d," % row[2]
-            if row[2]<gradmin:
-                gradmin=row[2]
-            if row[2]>gradmax:
-                gradmax=row[2]        
-            prevx=x                    
-        js+=s[:-1]+'];\n\n'
-
-        
         args['xmin']=xmin
         args['ymin']=ymin
         args['xmax']=xmax
         args['ymax']=ymax
         args['xpixels']=xpixels
         args['ypixels']=ypixels
+
+        if args['xlabel'] is None:
+            args['xlabel']=xcol
+        if args['ylabel'] is None:
+            args['ylabel']=ycol            
+
+        heatmap=[[0]*xpixels for i in range(ypixels)]
+
+        sep=args['sep']
+
+        fuzzx=float(args['fuzzx'])
+        fuzzy=float(args['fuzzy'])
+
+
+        linenr=0
+        f=open(infile)
+        line=f.readline()
+        cols=line.split(sep)
+        numcols=len(cols)
+        #f.seek(0)
+        
+        for line in f:
+            linenr+=1
+            if linenr % 10000==0:
+                print linenr
+            
+            cols=line.split(sep)
+            x=float(cols[0])
+            y=float(cols[1])
+            val=1
+           # print x,y
+            if numcols==3:
+                val=float(cols[2])
+            if numcols==4:
+                val=float(cols[2])*float(cols[3])
+            if (x>xmin and x<xmax):
+                hx=int((x-xmin)/xfactor)
+                if fuzzx!=0:
+                    hx+=int(random.random()*fuzzx)
+                    if hx>=xpixels:
+                        hx=xpixels-1
+            else:
+                continue
+            if (y>ymin and y<ymax):
+                hy=int((y-ymin)/yfactor)
+                if fuzzy!=0:
+                    hy+=int(random.random()*fuzzy)
+            else:
+                continue
+           # print x,y,hx,hy
+            heatmap[hx][hy]+=val
+
+        self.heatmap=heatmap
+            
+
+    def dump_data  (self, args):
+        
+        outfile=args['outfile']
+               
+        js="var data=["
+
+        gradmin=self.heatmap[0][0]
+        gradmax=gradmin
+        s=''
+        for row in self.heatmap:            
+            js+=','.join([str(col) for col in row])+',\n'
+            minrow=min(row)
+            maxrow=max(row)            
+            if minrow<gradmin:
+                gradmin=minrow
+            if maxrow>gradmax:
+                gradmax=maxrow                    
+        js=js[:-2]+'];\n\n'
+
+
         args['datamin']=gradmin
         args['datamax']=gradmax
         
         if args['gradmax'] is None:
             args['gradmax']=gradmax
-        if args['xlabel'] is None:
-            args['xlabel']=xcol
-        if args['ylabel'] is None:
-            args['ylabel']=ycol            
+        
         
         vlist=['gradmin','gradmax','gradsteps',
                'datamin','datamax',
@@ -217,9 +146,10 @@ class contour:
                'imgwidth','imgheight',               
                'xlabel','ylabel','title']
         for k in vlist:
-            v=args[k]       
+            v=args[k]
+            print k,v
             if v==None:
-                js+='var %s="";\n' % (k,v)
+                js+='var %s="";\n' % (k)
                 continue
             t=type(v)
             if t==str:            
@@ -232,17 +162,22 @@ class contour:
                     js+='var %s=false;\n' % (k)
                 continue            
             js+="var %s=%s;\n" % (k,v)
-        
-        return js
 
-
-    def write_data (self, js,args):
-
-        outfile=args['outfile']        
         if args['dump_js']:
             f=open(outfile+'.js','w')
             f.write(js)
-            f.close()
+            f.close()        
+
+#        self.js=js
+        f=open("js/data.js","w")
+        f.write(js)
+        f.close()
+        
+
+
+    def write_html (self, args):
+
+        outfile=args['outfile']        
         if args['dump_html']:
             html=open ("bitmap.html",'r').read()
             
@@ -260,9 +195,9 @@ class contour:
                 g.write(css)
                 g.write('\n</style>\n')
 
-            g.write('\n<script type="text/javascript">\n')            
-            g.write(js)
-            g.write('\n</script>\n')
+#            g.write('\n<script type="text/javascript">\n')            
+#            g.write(self.js)
+#            g.write('\n</script>\n')
             
             jsfrags=html.split('script src="')            
             for jsfrag in jsfrags[1:]:
@@ -283,15 +218,15 @@ class contour:
 
 
 parser = argparse.ArgumentParser(description='generate javascript contourdata from db.')
-parser.add_argument('-dbt','--dbtype', dest='dbtype',  help='set databasetype: psql/mssql', required=True)
-parser.add_argument('-s','--server', dest='server', help='set server', required=True)
-parser.add_argument('-db','--database', dest='database',  help='set database', required=True)
-parser.add_argument('-u', dest='username',  help='set username', required=False)
-parser.add_argument('-p', dest='password',  help='set password', required=False)
-parser.add_argument('-t','--tabel', dest='tabel',  help='set tabel', required=True)
+
+parser.add_argument('-f','--file', dest='infile',  help='inputfile (csv)', required=True)
+parser.add_argument('-sep', dest='sep',  help='seperator (default ;)', required=False, default=';')
 
 parser.add_argument('-x', dest='x',  help='define xaxis:columnname, min, max, steps', required=True)
 parser.add_argument('-y', dest='y',  help='define yaxis:columnname, min, max, steps', required=True)
+
+parser.add_argument('-fuzzx', dest='fuzzx',  help='x-pixel fuzz (default 0)', required=False, default=0)
+parser.add_argument('-fuzzy', dest='fuzzy',  help='y-pixel fuzz (default 0)', required=False,default=0)
 parser.add_argument('-logx', dest='logx',  help='log x axis', required=False, default=False, action='store_true')
 parser.add_argument('-logy', dest='logy',  help='log y axis', required=False, default=False, action='store_true')
 
@@ -312,21 +247,14 @@ parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=F
 parser.add_argument('-js', dest='dump_js',  help='javascript output', required=False, default=False, action='store_true')
 parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')
 parser.add_argument('-sel', dest='sel',  help='set selection', required=False)
+
 parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do not execute sql', required=False)
 
 args=vars(parser.parse_args())
 
-if args['dbtype']=='mssql':
-    args['driver']='SQL Server'
-if args['dbtype']=='psql':
-    args['driver']='PostgreSQL ODBC Driver(ANSI)'
-
-
-db_obj=dbconnection(args)
-
 c=contour()
 
-c.run_contour(db_obj, args)
-js=c.dump_data (db_obj, args)
-c.write_data(js, args)
+c.run_contour(args)
+c.dump_data (args)
+c.write_html(args)
 

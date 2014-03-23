@@ -42,29 +42,6 @@ window.console = window.console || (function(){
 
 
 
-function init_databuffers () {
-
-chart = d3.select("#heatmap_svg");
-
-// first, create a new ImageData to contain our pixels
-imgData = ctx.createImageData(imgwidth, imgheight); // width x height
-try {
-    transposebuffer= new Float32Array  (xpixels*ypixels);
-    } catch(x){
-    transposebuffer= new Array  (xpixels*ypixels);
-}
-
-try {
-    backbuffer= new Uint32Array  (imgwidth*imgheight);
-    } catch(x){
-    backbuffer= new Array  (imgwidth*imgheight);
-}
-mapdata = imgData.data;
-}
-
-
-
-
 
 
 var click_colormap=function click_colormap (evt) {
@@ -110,6 +87,37 @@ $('#colormapname_'+colormapname).addClass('active_selectie');
  console.log('init_colormap:',colormapname,colormaplength,gradsteps);
  //console.log('init_colormap:',colormap);
 }
+
+
+
+
+
+
+
+function init_databuffers () {
+
+chart = d3.select("#heatmap_svg");
+
+// first, create a new ImageData to contain our pixels
+imgData = ctx.createImageData(imgwidth, imgheight); // width x height
+try {
+    transposebuffer= new Float32Array  (xpixels*ypixels);
+    } catch(x){
+    transposebuffer= new Array  (xpixels*ypixels);
+}
+
+try {
+    backbuffer= new Uint32Array  (imgwidth*imgheight);
+    } catch(x){
+    backbuffer= new Array  (imgwidth*imgheight);
+}
+mapdata = imgData.data;
+}
+
+
+
+
+
 
 
 function update_gradient (e) {
