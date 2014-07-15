@@ -34,12 +34,6 @@ if ((xpixels>0) && (ypixels>0)) {
 if (gradmin<1) {gradmin=1;}
 
 
-window.console = window.console || (function(){
-    var c = {}; 
-    c.log = c.warn = c.debug = c.info = c.error = c.time = c.dir = c.profile = c.clear = c.exception = c.trace = c.assert = function(){};
-    return c;
-})();
-
 
 
 
@@ -370,6 +364,7 @@ var click_size=function click_size (evt) {
 	return false;
 }
 
+
 function init_sizes() {
 
 	var html='<li class="sel_heading"> Sizes:</li>';
@@ -446,6 +441,38 @@ function init_data_transforms() {
   	$('.swapname').on('mouseout ',leave_selectie);  	
 }
 
+
+
+function init_print() {
+   $('.print').on('click',click_print);
+   $('.print').on('mouseenter ',enter_selectie);
+   $('.print').on('mouseout ',leave_selectie);
+}
+
+
+function print_ok () {
+	console.log("print ok");
+}
+
+function print_fail () {
+	console.log("print failed");
+}
+
+function click_print () {
+
+
+	var printtype=$(this).attr('data-print');
+	//$.get('#',{'cmd':printtype})
+ 	$.ajax({
+            cache: false,
+            url: "/"+printtype,
+            type: "GET"
+            
+        })
+ 		.done(print_ok)
+ 		.fail(print_fail);
+
+}
 
   function draw_axes () {
 

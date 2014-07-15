@@ -169,9 +169,9 @@ class contour:
             f.close()        
 
 #        self.js=js
-        f=open("js/data.js","w")
-        f.write(js)
-        f.close()
+        #f=open("js/data.js","w")
+        #f.write(js)
+        #f.close()
         
 
 
