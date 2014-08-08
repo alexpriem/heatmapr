@@ -643,8 +643,8 @@ chart.append("rect")
 	.style("stroke","black")
 	.style("stroke-width","1px");
   
- for (i=1; i<gradsteps; i++) {
- 	color=colormap[i];
+ for (i=1; i<=gradsteps; i++) {
+ 	color=colormap[i-1];
 	chart.append("rect")
 		.attr("class","colormap")
 		.attr("x",imgwidth+76)
