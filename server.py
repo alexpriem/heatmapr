@@ -1,32 +1,8 @@
-import sys, threading, webbrowser, BaseHTTPServer
-
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from PyQt4.QtWebKit import *
-from PyQt4 import QtCore
+import os,sys, threading, webbrowser, BaseHTTPServer
 
 
 FILE = 'bitmap.html'
 PORT = 8080
-
-FILE=sys.argv[1]
-
-app = QApplication(sys.argv)
-web = QWebView()
-web.load(QUrl("./"+FILE))
-web.show()
-
-def print_png_Qt():
-
-        print 'print_png_Qt:'
-        xpage = self.web.page()
-        xpage.setViewportSize(xpage.currentFrame().contentsSize())
-        image = QImage(xpage.viewportSize(),QImage.Format_ARGB32)
-        painter = QPainter(image)
-        xpage.mainFrame().render(painter)
-        painter.end()
-        image.save('out.png')
-
 
 
 
@@ -68,12 +44,12 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             path=self.path.split('?')
             result='{"msg":"error"}'        
             if path[0]=='/png':
-                filename='out.png'
-                self.print_png(filename)
+                filename='out2.png'
+                os.system("python print.py "+filename)
                 result='{"msg":"OK"}'
             if path[0]=='/pdf':
-                filename='out.pdf'
-                self.print_pdf(filename)
+                filename='out2.pdf'
+                os.system("python print.py "+filename)
                 result='{"msg":"OK"}'
             self.send_response(200)            
             self.send_header('Content-length', len(result))
@@ -95,15 +71,6 @@ class TestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.end_headers()          
         self.wfile.write(result)
 
-
-    
-    def print_png(self,filename):
-
-        print 'print_png:',filename
-        self.filename=filename        
-     
-        QObject.connect(web, SIGNAL("loadFinished(bool)"), print_png_Qt)
-        
         
 
 
