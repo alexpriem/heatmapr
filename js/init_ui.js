@@ -2,6 +2,8 @@
 
 var c,s,ctx;
 
+var print=true;
+
 function init_page() {
   
     console.log("init:",imgwidth,imgheight);
@@ -30,6 +32,11 @@ function init_page() {
     init_hist_xy();
  //   Pixastic.debug=true;
     document.title =title;
+    if (print) {
+        $('.leftbox').hide();
+        $('.gradient_vars').hide();
+        $('.hist_2d').hide();
+    }
 }
 
 $( document ).ready(init_page);

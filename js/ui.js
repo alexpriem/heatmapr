@@ -1,14 +1,21 @@
 /* settings */	
+
+
+if (typeof(default_colormap)=='undefined') { 
+	default_colormap='cbs_blue';
+}
+if (typeof(default_size)=='undefined') { 
+	default_size=1;
+}
+if (typeof(default_transform)=='undefined') { 
+	default_transform='linear';
+}
 var colormapname=default_colormap;
 var size=default_size;
 var transform=default_transform;
 var skipzero=true;
-
 var histmax=0;
 
-var inv_x=0;
-var inv_y=1;
-var inv_xy=1;
 var inv_grad=0;
 
 /* storage */
@@ -137,6 +144,7 @@ function init_colormap_inputs() {
 		  .attr("height", 50)
 		  .attr("x",imgwidth+150)
 		  .attr("y",35)
+		  .attr("class",'gradient_vars')
 		  .append("xhtml:body")
 		  .style("font", "14px Helvetica")
 		  .html("<label> max:</label> <input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
@@ -146,6 +154,7 @@ function init_colormap_inputs() {
 		  .attr("height", 50)
 		  .attr("x",imgwidth+150)
 		  .attr("y",105)
+		  .attr("class",'gradient_vars')
 		  .append("xhtml:body")
 		  .style("font", "14px Helvetica")
 		  .html("<label> step:</label> <input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
@@ -155,6 +164,7 @@ function init_colormap_inputs() {
 		  .attr("height", 50)
 		  .attr("x",imgwidth+150)
 		  .attr("y",185)
+		  .attr("class",'gradient_vars')
 		  .append("xhtml:body")
 		  .style("font", "14px Helvetica")
 		  .html("<label> min:</label> <input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
@@ -174,7 +184,7 @@ function init_colormap_inputs() {
 
 function calc_heatmap () {
 
-	console.log("calc_heatmap: invx, invy, invxy, inv_grad:",inv_x, inv_y, inv_xy, inv_grad);
+	console.log("calc_heatmap: invx, invy, invxy, inv_grad:", inv_grad);
 	
 	hist=new Array(gradsteps);
 	for (i=0; i<gradsteps; i++) {
@@ -187,10 +197,7 @@ function calc_heatmap () {
 	for (var i=0; i<ypixels; i+=size) {
 		for (var j=0; j<xpixels;  j+=size) {		
 			val=0;
-			if (inv_xy) 
-				ptr=j*ypixels+i;
-			else
-				ptr=i*xpixels+j;
+			ptr=j*ypixels+i;
 			if (size==1) val=data[ptr];
 			if (size>1) {
 				for (cx=0; cx<size; cx++) {
@@ -261,17 +268,8 @@ function calc_heatmap () {
 				indexval=colormaplength-indexval;
 		}
 
-		if (inv_y) {
-			ptr=(imgheight-v*ystep)*imgwidth; 
-		} else {
-			ptr=v*ystep*imgwidth;
-		}
-
-		if (inv_x) {
-			ptr+=imgwidth-u*xstep;
-		} else {
-			ptr+=u*xstep;
-		}
+		ptr=(imgheight-v*ystep)*imgwidth; 
+		ptr+=u*xstep;
 
 		//if (line==0) { console.log("val=",val);}
 		//ptr=u*xstep+v*ystep*imgwidth;

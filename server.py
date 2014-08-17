@@ -9,11 +9,11 @@ from PyQt4 import QtCore
 FILE = 'bitmap.html'
 PORT = 8080
 
-
+FILE=sys.argv[1]
 
 app = QApplication(sys.argv)
 web = QWebView()
-web.load(QUrl("./bitmap.html"))
+web.load(QUrl("./"+FILE))
 web.show()
 
 def print_png_Qt():
