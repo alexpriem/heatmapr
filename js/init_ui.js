@@ -18,7 +18,7 @@ function init_page() {
     init_sizes();
     init_gradient_transforms();
     init_data_transforms();
-    init_manipulation();
+  //  init_manipulation();
     init_databuffers();
     init_colormap_inputs();
     init_print();
@@ -28,7 +28,7 @@ function init_page() {
     draw_colormap();
     //console.clear();
     init_hist_xy();
-    Pixastic.debug=true;
+ //   Pixastic.debug=true;
     document.title =title;
 }
 

@@ -1,8 +1,7 @@
 /* settings */	
-var colormapname='terrain';
-var size=1;
-var transform='linear';
-var crashnr=0;
+var colormapname=default_colormap;
+var size=default_size;
+var transform=default_transform;
 var skipzero=true;
 
 var histmax=0;
@@ -421,9 +420,6 @@ function init_gradient_transforms() {
 function click_data_transform () {
 
 	var id=$(this).attr('id');
-	if (id=='inv_x') {inv_x=1-inv_x; var state=inv_x;}
-	if (id=='inv_y') {inv_y=1-inv_y; var state=inv_y;}
-	if (id=='inv_xy') {inv_xy=1-inv_xy; var state=inv_xy;}
 	if (id=='inv_grad') {inv_grad=1-inv_grad;	var state=inv_grad;}
 
 	if (state) {
@@ -455,7 +451,64 @@ function print_ok () {
 }
 
 function print_fail () {
-	console.log("print failed");
+	console.log('print failed');
+	s='\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+	s+="Printen niet gelukt. Opties voor command-line-reproductie:\n\n";
+	s+='import contour\n\n'
+	s+='args=dict(\n\t'
+	var firstkey=true;
+	opties['default_colormap']=colormapname;
+	opties['default_size']=size;
+	opties['default_transform']=transform;
+	opties['gradmin']=gradmin;
+	opties['gradmax']=gradmax;
+	opties['gradsteps']=gradsteps;
+
+	console.log('transform=',transform);
+
+	var optiekeys=[];
+	for (key in opties) {		
+    	if (opties.hasOwnProperty(key)) {
+    		optiekeys.push(key);
+    	}
+    }
+    optiekeys.sort();
+
+    delete opties['datamin'];
+    delete opties['datamax'];
+    delete opties['xmax'];
+    delete opties['xmin'];
+    delete opties['ymax'];
+    delete opties['ymin'];
+
+
+    for (var i=0; i<optiekeys.length; i++) {
+    		key=optiekeys[i];
+    		if (!(firstkey)) {
+    			s+=',\n\t';
+    		}
+			val=opties[key];
+			console.log(key,val, typeof(val));
+			if (typeof(val)=='number')  {
+    			s+=key+'='+val;
+    		}
+    		if (typeof(val)=='boolean') {
+    			if (val==true) {
+    				s+=key+'=True'
+    			}
+	   			if (val==false) {
+    				s+=key+'=False'
+    			}
+
+    		}
+			if (typeof(val)=='string') {
+				s+=key+'="'+val+'"';	
+			}
+    		firstkey=false;    	
+    }
+    s+=')\nc=contour.contour()\nc.run_contour(args)\n';
+
+    $('#printcode').html(s);	
 }
 
 function click_print () {

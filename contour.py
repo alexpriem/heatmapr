@@ -17,7 +17,77 @@ class contour:
     def __init__(self):
         pass
 
+
+    def check_args(self, args):    # alleen defaults zetten.
+
+        defaults=[
+            ['infile',';',True,''],
+            ['y','',True,''],
+            ['x','',True,''],
+            ['sep',';',False,''],
+            ['fuzzx',0,False,''],
+            ['fuzzy',0,False,''],
+            ['logx',False,False,''],
+            ['logy',False,False,''],
+            ['gradmin',0,False,''],
+            ['gradmax','max',False,''],
+            ['gradsteps',40,False,''],
+            ['imgwidth',500,False,''],
+            ['imgheight',500,False,''],
+            ['outfile','',True,''],
+            ['xlabel',None,False,''],
+            ['ylabel',None,False,''],
+            ['title',None,False,''],
+            ['dump_html',True,False,'full html output'],
+            ['dump_js',True,False,'full html output'],
+            ['default_colormap','cbs_blue',False,''],
+            ['default_size','1',False,''],
+            ['default_transform','linear',False,''],
+        ]
+
+
+        default_colormaps=['blue','gray',
+                           'cbs_blue','cbs_green', 'cbs_red', 'cbs_hot',
+                            'terrain', 'coolwarm',
+                            'hot', 'hot2','ygb']
+        default_colormap=args['default_colormap']
+        if default_colormap not in default_colormaps:
+            raise RuntimeError ('allowed colormaps: %s' % default_colormaps)
+
+        default_transforms=['linear','sqrt','log2','log10']
+        default_transform=args['default_transform']
+        if default_transform not in default_transforms:
+            raise RuntimeError ('allowed colormaps: %s' % default_transforms)
+
+
+                           
+        for varinfo in defaults:
+            varname=varinfo[0]
+            defaultval=varinfo[1]
+            required=varinfo[2]
+            helptxt=varinfo[3]
+            
+            if not (varname in args):
+                if required:
+                    raise RuntimeError('Missing %s' % varname)
+                args[varname]=defaultval
+                                        
+
+
+        
+        #parser.add_argument('-html', dest='dump_html',  help='html output', required=False, default=True, action='store_true')
+        #parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=False, action='store_false')
+        #parser.add_argument('-js', dest='dump_js',  help='javascript output', required=False, default=False, action='store_true')
+        #parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')
+        return args
+
+
+
     def run_contour (self, args):
+
+
+        args=self.check_args(args)
+        
         infile=args['infile']
         x=args['x'].split(',')
         if len(x)!=4:
@@ -109,9 +179,11 @@ class contour:
             heatmap[hx][hy]+=val
 
         self.heatmap=heatmap
-            
 
-    def dump_data  (self, args):
+
+
+# dump data
+
         
         outfile=args['outfile']
                
@@ -144,7 +216,8 @@ class contour:
                'ymin','ymax','logy',
                'xpixels','ypixels',
                'imgwidth','imgheight',               
-               'xlabel','ylabel','title']
+               'xlabel','ylabel','title',
+               'default_colormap','default_size','default_transform']
         for k in vlist:
             v=args[k]
             print k,v
@@ -163,19 +236,38 @@ class contour:
                 continue            
             js+="var %s=%s;\n" % (k,v)
 
+
+        js+='var opties={'
+        for k,v in args.items():
+            t=type(v)
+            if t==str:            
+                js+='"%s":"%s",\n' % (k,v)
+                continue
+            if t==bool:
+                if v:
+                    js+='"%s":true,\n' % (k)
+                else:                    
+                    js+='"%s":false,\n' % (k)
+                continue            
+            js+='"%s":%s,\n' % (k,v)
+        js+='};'
+            
+
         if args['dump_js']:
             f=open(outfile+'.js','w')
             f.write(js)
             f.close()        
 
-#        self.js=js
-        #f=open("js/data.js","w")
-        #f.write(js)
-        #f.close()
+        self.js=js
+        if args['dump_html']==False:
+            f=open("js/data.js","w")
+            f.write(js)
+            f.close()
+
         
 
 
-    def write_html (self, args):
+#    def write_html (self, args):
 
         outfile=args['outfile']        
         if args['dump_html']:
@@ -195,13 +287,16 @@ class contour:
                 g.write(css)
                 g.write('\n</style>\n')
 
-#            g.write('\n<script type="text/javascript">\n')            
-#            g.write(self.js)
-#            g.write('\n</script>\n')
+            g.write('\n<script type="text/javascript">\n')            
+            g.write(self.js)
+            g.write('\n</script>\n')
             
             jsfrags=html.split('script src="')            
             for jsfrag in jsfrags[1:]:
                 jsfile=jsfrag.split('"')
+                print jsfile[0]
+                if jsfile[0]=='js/data.js':
+                    continue
               #  print jsfile[0]
                 g.write('\n<script type="text/javascript">\n')
                 js=open(jsfile[0],'r').read()    
@@ -217,44 +312,4 @@ class contour:
 
 
 
-parser = argparse.ArgumentParser(description='generate javascript contourdata from db.')
-
-parser.add_argument('-f','--file', dest='infile',  help='inputfile (csv)', required=True)
-parser.add_argument('-sep', dest='sep',  help='seperator (default ;)', required=False, default=';')
-
-parser.add_argument('-x', dest='x',  help='define xaxis:columnname, min, max, steps', required=True)
-parser.add_argument('-y', dest='y',  help='define yaxis:columnname, min, max, steps', required=True)
-
-parser.add_argument('-fuzzx', dest='fuzzx',  help='x-pixel fuzz (default 0)', required=False, default=0)
-parser.add_argument('-fuzzy', dest='fuzzy',  help='y-pixel fuzz (default 0)', required=False,default=0)
-parser.add_argument('-logx', dest='logx',  help='log x axis', required=False, default=False, action='store_true')
-parser.add_argument('-logy', dest='logy',  help='log y axis', required=False, default=False, action='store_true')
-
-parser.add_argument('-gradmin', dest='gradmin',  help='define minimum gradient, default 0', required=False, default=0)
-parser.add_argument('-gradmax', dest='gradmax',  help='define maximum gradient, default max value in heatmap', required=False)
-parser.add_argument('-gradsteps', dest='gradsteps',  help='define nr of steps in gradient, default 255', required=False, default=255)
-
-parser.add_argument('-imgwidth', dest='imgwidth',  help='set img width (default 500)', required=False, default=500)
-parser.add_argument('-imgheight', dest='imgheight',  help='set img height (default 500)', required=False, default=500)
-
-parser.add_argument('-xlabel', dest='xlabel',  help='set xlabel; default x variable', required=False)
-parser.add_argument('-ylabel', dest='ylabel',  help='set ylabel; default y variable', required=False)
-parser.add_argument('-title', dest='title',  help='set title', required=False)
-
-parser.add_argument('-o', dest='outfile',  help='set outfile', required=True)
-parser.add_argument('-html', dest='dump_html',  help='html output', required=False, default=True, action='store_true')
-parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=False, action='store_false')
-parser.add_argument('-js', dest='dump_js',  help='javascript output', required=False, default=False, action='store_true')
-parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')
-parser.add_argument('-sel', dest='sel',  help='set selection', required=False)
-
-parser.add_argument('-debug', dest='debug',  help='1: print/execute; 2:print, do not execute sql', required=False)
-
-args=vars(parser.parse_args())
-
-c=contour()
-
-c.run_contour(args)
-c.dump_data (args)
-c.write_html(args)
 

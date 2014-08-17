@@ -8,7 +8,7 @@ var colormap_gray=function colormap_gray (N) {
 	for (var i=0; i<N; i++,c+=step){
 		col+=step;
 		intcol=parseInt(col);
-		cmap.push([intcol,intcol,intcol]);
+		cmap.push([255-intcol,255-intcol,255-intcol]);
 	}
   return cmap;
 }
