@@ -1,8 +1,10 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
 
 var c,s,ctx;
-
 var print=true;
+
+// printinfo hier
+
 
 function init_page() {
   
