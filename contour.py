@@ -43,6 +43,7 @@ class contour:
             ['default_colormap','cbs_blue',False,''],
             ['default_size','1',False,''],
             ['default_transform','linear',False,''],
+            ['mean_median', True, False,'']
         ]
 
 
@@ -72,46 +73,43 @@ class contour:
                     raise RuntimeError('Missing %s' % varname)
                 args[varname]=defaultval
                                         
-
+        for k,v in args.items():
+            setattr(self,k,v)
 
         
         #parser.add_argument('-html', dest='dump_html',  help='html output', required=False, default=True, action='store_true')
         #parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=False, action='store_false')
         #parser.add_argument('-js', dest='dump_js',  help='javascript output', required=False, default=False, action='store_true')
-        #parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')
-        return args
+        #parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')        
 
 
 
     def run_contour (self, args):
 
 
-        args=self.check_args(args)
-        
-        infile=args['infile']
-        x=args['x'].split(',')
+        self.check_args(args)
+                
+        infile=self.infile
+        x=self.x.strip().split(',')
         if len(x)!=4:
             raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
-        y=args['y'].split(',')
+        y=self.y.strip().split(',')
         if len(x)!=4:
             raise RuntimeError ("-y: expected col, min,max, steps")
         xcol,xmin, xmax, xpixels=[xx.strip() for xx in x]
         ycol,ymin, ymax, ypixels=y=[yy.strip() for yy in y]
 
-        logx=args['logx']
-        logy=args['logy']
-
         xmin=int(xmin)
         xmax=int(xmax)
         xpixels=int(xpixels)
-        if logx:            
+        if self.logx:            
             xmin=safelog10(xmin)
             xmax=safelog10(xmax)
 
         ymin=int(ymin)
         ymax=int(ymax)
         ypixels=int(ypixels)
-        if logy:            
+        if self.logy:            
             ymin=safelog10(ymin)
             ymax=safelog10(ymax)
 
@@ -120,24 +118,23 @@ class contour:
         xfactorinv= (1.0*xpixels)/(xmax-xmin)
         yfactorinv= (1.0*ypixels)/(ymax-ymin)
 
-        args['xmin']=xmin
-        args['ymin']=ymin
-        args['xmax']=xmax
-        args['ymax']=ymax
-        args['xpixels']=xpixels
-        args['ypixels']=ypixels
+        self.xmin=xmin
+        self.ymin=ymin
+        self.xmax=xmax
+        self.ymax=ymax
+        self.xpixels=xpixels
+        self.ypixels=ypixels
 
-        if args['xlabel'] is None:
-            args['xlabel']=xcol
-        if args['ylabel'] is None:
-            args['ylabel']=ycol            
+        if self.xlabel is None:
+            self.xlabel=xcol
+        if self.ylabel is None:
+            self.ylabel=ycol            
 
         heatmap=[[0]*xpixels for i in range(ypixels)]
 
-        sep=args['sep']
-
-        fuzzx=float(args['fuzzx'])
-        fuzzy=float(args['fuzzy'])
+        sep=self.sep
+        fuzzx=float(self.fuzzx)
+        fuzzy=float(self.fuzzy)
 
 
         linenr=0
@@ -146,7 +143,8 @@ class contour:
         cols=line.split(sep)
         numcols=len(cols)
         #f.seek(0)
-        
+        keys_x={}
+        keys_y={}
         for line in f:
             linenr+=1
             if linenr % 10000==0:
@@ -160,32 +158,51 @@ class contour:
             if numcols==3:
                 val=float(cols[2])
             if numcols==4:
-                val=float(cols[2])*float(cols[3])
+                val=float(cols[2])*float(cols[3])            
             if (x>xmin and x<xmax):
                 hx=int((x-xmin)/xfactor)
                 if fuzzx!=0:
                     hx+=int(random.random()*fuzzx)
                     if hx>=xpixels:
-                        hx=xpixels-1
+                        hx=xpixels-1                
             else:
                 continue
+            
+            if self.mean_median:                
+                x_hist=keys_x.get(hx,{})
+                num=x_hist.get(y,0)                
+                x_hist[y]=num+val
+                keys_x[hx]=x_hist
+                
             if (y>ymin and y<ymax):
                 hy=int((y-ymin)/yfactor)
                 if fuzzy!=0:
-                    hy+=int(random.random()*fuzzy)
-            else:
-                continue
-           # print x,y,hx,hy
+                    hy+=int(random.random()*fuzzy)                
+            
+                
+           
             heatmap[hx][hy]+=val
 
         self.heatmap=heatmap
+        avg_x={}
+        for xpixel in range(0,xpixels):
+            x_hist=keys_x.get(xpixel,None)
+            
+            if x_hist is None:
+                avg_x[xpixel]=0
+                continue
+            
+            avg=sum([k*v for k,v in x_hist.items()])/sum(x_hist.values())            
+            avg_in_pixels=int((avg-ymin)/yfactor)            
+            print xpixel, avg, avg_in_pixels
+            avg_x[xpixel]=avg_in_pixels
+            
+            
+           
 
 
 
 # dump data
-
-        
-        outfile=args['outfile']
                
         js="var data=["
 
@@ -203,11 +220,13 @@ class contour:
         js=js[:-2]+'];\n\n'
 
 
-        args['datamin']=gradmin
-        args['datamax']=gradmax
         
-        if args['gradmax'] is None:
-            args['gradmax']=gradmax
+
+        self.datamin=gradmin
+        self.datamax=gradmax
+        
+        if getattr(self,'gradmax') is None:
+            self.gradmax=gradmax
         
         
         vlist=['gradmin','gradmax','gradsteps',
@@ -219,7 +238,7 @@ class contour:
                'xlabel','ylabel','title',
                'default_colormap','default_size','default_transform']
         for k in vlist:
-            v=args[k]
+            v=getattr(self,k)
             print k,v
             if v==None:
                 js+='var %s="";\n' % (k)
@@ -250,16 +269,32 @@ class contour:
                     js+='"%s":false,\n' % (k)
                 continue            
             js+='"%s":%s,\n' % (k,v)
-        js+='};'
+        js+='};\n\n'
+
+        if self.mean_median:
+            js+='var mean_x=['
+            txt=''
+            nr=0
+            for xpixel in sorted(avg_x.keys()):                
+                if nr>9:
+                    txt+='\n'
+                    nr=0
+                nr+=1
+                txt+=str(avg_x[xpixel])+','
+                
+            js+=txt[:-1]+'];\n'
+                    
+                
+                    
             
 
-        if args['dump_js']:
-            f=open(outfile+'.js','w')
+        if self.dump_js:
+            f=open(self.outfile+'.js','w')
             f.write(js)
             f.close()        
 
         self.js=js
-        if args['dump_html']==False:
+        if self.dump_html==False:
             f=open("js/data.js","w")
             f.write(js)
             f.close()
@@ -268,12 +303,11 @@ class contour:
 
 
 #    def write_html (self, args):
-
-        outfile=args['outfile']        
-        if args['dump_html']:
+        
+        if self.dump_html:
             html=open ("bitmap.html",'r').read()
             
-            g=open(outfile+'.html','w')
+            g=open(self.outfile+'.html','w')
             cssfrags=html.split('<link href="')
             g.write(cssfrags[0])
             cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]            
@@ -294,9 +328,9 @@ class contour:
             jsfrags=html.split('script src="')            
             for jsfrag in jsfrags[1:]:
                 jsfile=jsfrag.split('"')
-                print jsfile[0]
                 if jsfile[0]=='js/data.js':
                     continue
+                print jsfile[0]
               #  print jsfile[0]
                 g.write('\n<script type="text/javascript">\n')
                 js=open(jsfile[0],'r').read()    
@@ -307,7 +341,26 @@ class contour:
 
             g.write("</head>\n")
             g.write("<body>\n")
-            g.write(body[1])
+
+
+            body=body[1]
+            jsfrags=body.split('script  src="')
+            for jsfrag in jsfrags[1:]:                
+                jsfile=jsfrag.split('"')
+                js_end=jsfrag.split('\n')[0]
+                
+                
+                print 'extra:',jsfile[0]                
+              #  print jsfile[0]
+                js_txt='\n<script type="text/javascript">\n'
+                js_txt+=open(jsfile[0],'r').read()    
+                js_txt+='\n</script>\n'
+              #  print js_txt
+                body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
+               
+                print jsfile[1:]
+                
+            g.write(body)
             g.close()
 
 

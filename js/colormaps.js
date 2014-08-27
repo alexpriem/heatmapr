@@ -149,13 +149,26 @@ return cmap;
 
 
 var colormap_cbs_blue=function colormap_cbs_blue(N){
-    
+
+scale=chroma.scale(['white', '#d2ecf7','#9cd7ef','#00a1cd','#008dd1','#004b9a', '#002c61']);
+
+// dump for debug-purposes
+cmap=[];
+frac=1.0/N;
+for (i=0; i<N; i++){
+	rgb=scale(i*frac).rgb();
+	cmap.push([parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])]);
+//	console.log('%d:%d,%d,%d',i,rgb[0],rgb[1],rgb[2]);
+}
+
+console.log('blue, cmaps1:', cmap);
 scale=chroma.scale(['white', '#d2ecf7','#9cd7ef','#00a1cd','#008dd1','#004b9a', '#002c61']).correctLightness(true);
 cmap=[];
 frac=1.0/N;
 for (i=0; i<N; i++){
 	rgb=scale(i*frac).rgb();
 	cmap.push([parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])]);
+//	console.log('%d:%d,%d,%d',i,rgb[0],rgb[1],rgb[2]);
 }
 return cmap;
 }

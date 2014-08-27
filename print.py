@@ -12,7 +12,7 @@ from time import sleep
 f=open(sys.argv[1],'r')
 txt=f.read()
 f.close()
-txt.replace('// printinfo hier','// printinfo hier\nvar print=true;\n')
+txt=txt.replace('printinfo hier','printinfo hier\nvar print=true;\n')
 g=open('./tmp.html','w')
 g.write(txt)
 g.close()

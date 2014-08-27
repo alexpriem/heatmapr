@@ -1,7 +1,7 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
 
 var c,s,ctx;
-var print=true;
+var print=false;
 
 // printinfo hier
 
@@ -34,7 +34,8 @@ function init_page() {
     init_hist_xy();
  //   Pixastic.debug=true;
     document.title =title;
-    if (print) {
+    console.log('print=',print);
+    if (print==true) {
         $('.leftbox').hide();
         $('.gradient_vars').hide();
         $('.hist_2d').hide();

@@ -339,9 +339,18 @@ function draw_heatmap() {
 	    	}
 
 		}	
+	if (opties['mean_median']==true){
+		for (i=0; i<mean_x.length; i++) {
+			avgval=mean_x[i];
+			ptr=(i+imgwidth*(imgheight-avgval))*4;
+			mapdata[ptr]=0;
+			mapdata[ptr+1]=0;
+			mapdata[ptr+2]=0;
+			mapdata[ptr+3]=0xff;
+		}
+	}
 	console.log('putdata');
 	ctx.putImageData(imgData, 0, 0);		 
-
 }
 
 
