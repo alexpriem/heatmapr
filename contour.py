@@ -43,7 +43,9 @@ class contour:
             ['default_colormap','cbs_blue',False,''],
             ['default_size','1',False,''],
             ['default_transform','linear',False,''],
-            ['mean_median', True, False,'']
+            ['plot_mean', True, False,''],
+            ['plot_median', True, False,''],
+            ['dot_datafile',None,False,'']
         ]
 
 
@@ -168,7 +170,7 @@ class contour:
             else:
                 continue
             
-            if self.mean_median:                
+            if self.plot_median or self.plot_mean:
                 x_hist=keys_x.get(hx,{})
                 num=x_hist.get(y,0)                
                 x_hist[y]=num+val
@@ -184,20 +186,50 @@ class contour:
             heatmap[hx][hy]+=val
 
         self.heatmap=heatmap
-        avg_x={}
-        for xpixel in range(0,xpixels):
-            x_hist=keys_x.get(xpixel,None)
+        if self.plot_mean:
+            avg_x={}
+            for xpixel in range(0,xpixels):
+                x_hist=keys_x.get(xpixel,None)
+                
+                if x_hist is None:
+                    avg_x[xpixel]=0
+                    continue
+                
+                avg=sum([k*v for k,v in x_hist.items()])/sum(x_hist.values())            
+                avg_in_pixels=int((avg-ymin)/yfactor)            
+                print xpixel, avg, avg_in_pixels
+                avg_x[xpixel]=avg_in_pixels
+
+        if self.plot_median:
+            med_x={}
+            for xpixel in range(0,xpixels):
+                x_hist=keys_x.get(xpixel,None)                
+                if x_hist is None:
+                    med_x[xpixel]=0
+                    continue
+                medval=sum(x_hist.values())/2
+                sumv=0
+                for k in sorted(x_hist.keys()):
+                    if sumv>=medval:
+                        med=k                                
+                med_in_pixels=int((med-ymin)/yfactor)
+               # print xpixel, med, med_in_pixels
+                med_x[xpixel]=med_in_pixels
             
-            if x_hist is None:
-                avg_x[xpixel]=0
-                continue
+
+        extradata=[]
+        if self.dot_datafile is not None:
+            f=open(self.dot_datafile)
+            f.readline()
+            for line in f:
+                x,y=line.split(sep)
+                x=float(x.strip())
+                y=float(y.strip())
+                xpixel=int((x-xmin)/xfactor) 
+                ypixel=int((y-ymin)/yfactor) 
+            extradata.append([xpixel,ypixel])
             
-            avg=sum([k*v for k,v in x_hist.items()])/sum(x_hist.values())            
-            avg_in_pixels=int((avg-ymin)/yfactor)            
-            print xpixel, avg, avg_in_pixels
-            avg_x[xpixel]=avg_in_pixels
-            
-            
+                
            
 
 
@@ -258,6 +290,9 @@ class contour:
 
         js+='var opties={'
         for k,v in args.items():
+            if v is None:
+                js+='"%s":null,\n' % (k)                
+                continue
             t=type(v)
             if t==str:            
                 js+='"%s":"%s",\n' % (k,v)
@@ -267,11 +302,11 @@ class contour:
                     js+='"%s":true,\n' % (k)
                 else:                    
                     js+='"%s":false,\n' % (k)
-                continue            
+                continue
             js+='"%s":%s,\n' % (k,v)
         js+='};\n\n'
 
-        if self.mean_median:
+        if self.plot_mean:
             js+='var mean_x=['
             txt=''
             nr=0
@@ -281,6 +316,33 @@ class contour:
                     nr=0
                 nr+=1
                 txt+=str(avg_x[xpixel])+','
+                
+            js+=txt[:-1]+'];\n\n'
+
+        if self.plot_median:
+            js+='var median_x=['
+            txt=''
+            nr=0
+            for xpixel in sorted(med_x.keys()):                
+                if nr>9:
+                    txt+='\n'
+                    nr=0
+                nr+=1
+                txt+=str(med_x[xpixel])+','
+                
+            js+=txt[:-1]+'];\n\n'
+
+
+        if self.dot_datafile:
+            js+='var extradata=['
+            txt=''
+            nr=0
+            for xpixel,ypixel in extradata:
+                if nr>9:
+                    txt+='\n'
+                    nr=0
+                nr+=1
+                txt+='[%d,%d],' % (xpixel, ypixel)
                 
             js+=txt[:-1]+'];\n'
                     
@@ -325,7 +387,7 @@ class contour:
             g.write(self.js)
             g.write('\n</script>\n')
             
-            jsfrags=html.split('script src="')            
+            jsfrags=html.split('<script src="')            
             for jsfrag in jsfrags[1:]:
                 jsfile=jsfrag.split('"')
                 if jsfile[0]=='js/data.js':
@@ -344,21 +406,17 @@ class contour:
 
 
             body=body[1]
-            jsfrags=body.split('script  src="')
+            jsfrags=body.split('<script  src="')
             for jsfrag in jsfrags[1:]:                
                 jsfile=jsfrag.split('"')
-                js_end=jsfrag.split('\n')[0]
-                
-                
-                print 'extra:',jsfile[0]                
+                js_end=jsfrag.split('\n')[0]                        
+                print 'body:',jsfile[0]                
               #  print jsfile[0]
                 js_txt='\n<script type="text/javascript">\n'
                 js_txt+=open(jsfile[0],'r').read()    
                 js_txt+='\n</script>\n'
               #  print js_txt
                 body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
-               
-                print jsfile[1:]
                 
             g.write(body)
             g.close()

@@ -339,10 +339,32 @@ function draw_heatmap() {
 	    	}
 
 		}	
-	if (opties['mean_median']==true){
+	if (opties['plot_mean']==true){
 		for (i=0; i<mean_x.length; i++) {
 			avgval=mean_x[i];
 			ptr=(i+imgwidth*(imgheight-avgval))*4;
+			mapdata[ptr]=0;
+			mapdata[ptr+1]=0;
+			mapdata[ptr+2]=0;
+			mapdata[ptr+3]=0xff;
+		}
+	}
+	if (opties['plot_median']==true){
+		for (i=0; i<median_x.length; i++) {
+			medval=median_x[i];
+			ptr=(i+imgwidth*(imgheight-medval))*4;
+			mapdata[ptr]=0xff;
+			mapdata[ptr+1]=0;
+			mapdata[ptr+2]=0;
+			mapdata[ptr+3]=0xff;
+		}
+	}
+
+	if (opties['dot_datafile']!=null){
+		for (i=0; i<extradata.length; i++) {
+			i=extradata[i][0];
+			j=i=extradata[i][1];
+			ptr=(i+imgwidth*(imgheight-j))*4;
 			mapdata[ptr]=0;
 			mapdata[ptr+1]=0;
 			mapdata[ptr+2]=0;
