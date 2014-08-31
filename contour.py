@@ -43,9 +43,19 @@ class contour:
             ['default_colormap','cbs_blue',False,''],
             ['default_size','1',False,''],
             ['default_transform','linear',False,''],
+            
             ['plot_mean', True, False,''],
+            ['plot_median_pixelsize',2, False,''],
+            ['plot_mean_color',[0,0,0], False,''],
+            
             ['plot_median', True, False,''],
-            ['dot_datafile',None,False,'']
+            ['plot_mean_pixelsize',2, False,''],
+            ['plot_median_color',[0,255,0], False,''],
+            
+            ['info_datafile',None,False,''],
+            ['info_pixelsize',2, False,''],
+            ['info_color',[255,0,0], False,''],
+            
         ]
 
 
@@ -218,8 +228,8 @@ class contour:
             
 
         extradata=[]
-        if self.dot_datafile is not None:
-            f=open(self.dot_datafile)
+        if self.info_datafile is not None:
+            f=open(self.info_datafile)
             f.readline()
             for line in f:
                 x,y=line.split(sep)
@@ -333,7 +343,7 @@ class contour:
             js+=txt[:-1]+'];\n\n'
 
 
-        if self.dot_datafile:
+        if self.info_datafile:
             js+='var extradata=['
             txt=''
             nr=0

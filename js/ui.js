@@ -29,12 +29,6 @@ var imgData, mapdata;
 
 var xpix2img=parseInt(imgwidth/xpixels);
 var ypix2img=parseInt(imgheight/ypixels);
-if ((xpixels>0) && (ypixels>0)) {
-	var realimgwidth=xpixels*xpix2img;
-	var realimgheight=ypixels*ypix2img;
-} else {
-//upscale
-}
 
 // sanity checks
 if (gradmin<1) {gradmin=1;}
@@ -322,6 +316,8 @@ function draw_heatmap() {
 	var indexval=0;
 	var color=[];
 
+	var xstep=xpix2img*size;
+	var ystep=ypix2img*size;
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 			indexval=backbuffer[i];
@@ -340,22 +336,25 @@ function draw_heatmap() {
 
 		}	
 	if (opties['plot_mean']==true){
+		console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
+		color=opties['plot_median_color'];
 		for (i=0; i<mean_x.length; i++) {
 			avgval=mean_x[i];
-			ptr=(i+imgwidth*(imgheight-avgval))*4;
-			mapdata[ptr]=0;
-			mapdata[ptr+1]=0;
-			mapdata[ptr+2]=0;
+			ptr=(i*xpix2img+imgwidth*(imgheight-ypix2img*avgval))*4;
+			mapdata[ptr]=color[0];
+			mapdata[ptr+1]=color[1];
+			mapdata[ptr+2]=color[2];
 			mapdata[ptr+3]=0xff;
 		}
 	}
 	if (opties['plot_median']==true){
+		color=opties['plot_median_color'];
 		for (i=0; i<median_x.length; i++) {
 			medval=median_x[i];
-			ptr=(i+imgwidth*(imgheight-medval))*4;
-			mapdata[ptr]=0xff;
-			mapdata[ptr+1]=0;
-			mapdata[ptr+2]=0;
+			ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;			
+			mapdata[ptr]=color[0];
+			mapdata[ptr+1]=color[1];
+			mapdata[ptr+2]=[color[2]];
 			mapdata[ptr+3]=0xff;
 		}
 	}
@@ -364,7 +363,7 @@ function draw_heatmap() {
 		for (i=0; i<extradata.length; i++) {
 			i=extradata[i][0];
 			j=i=extradata[i][1];
-			ptr=(i+imgwidth*(imgheight-j))*4;
+			ptr=(i*size+size*imgwidth*(imgheight-j))*4;
 			mapdata[ptr]=0;
 			mapdata[ptr+1]=0;
 			mapdata[ptr+2]=0;
