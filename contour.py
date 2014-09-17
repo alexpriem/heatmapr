@@ -25,6 +25,7 @@ class contour:
             ['y','',True,''],
             ['x','',True,''],
             ['sep',';',False,''],
+            ['convert_comma',False,False,''],
             ['fuzzx',0,False,''],
             ['fuzzy',0,False,''],
             ['logx',False,False,''],
@@ -103,7 +104,7 @@ class contour:
                         
         sep=self.sep
         f=open(self.infile)
-        line=f.readline()
+        line=f.readline()        
         cols=line.strip().split(sep)
         numcols=len(cols)
         print cols
@@ -162,13 +163,24 @@ class contour:
         keys_x={}
         keys_y={}
         for line in f:
+            if self.convert_comma:
+                line=line.replace(',','.')
             linenr+=1
             if linenr % 10000==0:
                 print linenr
             
             cols=line.split(sep)
-            x=float(cols[xcolnr])
-            y=float(cols[ycolnr])
+            try:
+                x=float(cols[xcolnr])
+                y=float(cols[ycolnr])
+            except ValueError:
+                if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
+                    self.convert_comma=True
+                    line=line.replace(',','.')
+                    cols=line.split(sep)                    
+                    x=float(cols[xcolnr])
+                    y=float(cols[ycolnr])
+                    
             val=1
            # print x,y
             if numcols==3:
