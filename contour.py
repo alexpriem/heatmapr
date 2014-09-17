@@ -45,18 +45,19 @@ class contour:
             ['default_size','1',False,''],
             ['default_transform','linear',False,''],
             
-            ['plot_mean', True, False,''],
+            ['plot_mean', False, False,''],
             ['plot_median_pixelsize',2, False,''],
             ['plot_mean_color',[0,0,0], False,''],
             
-            ['plot_median', True, False,''],
+            ['plot_median', False, False,''],
             ['plot_mean_pixelsize',2, False,''],
-            ['plot_median_color',[0,255,0], False,''],
+            ['plot_median_color',[0,0,0], False,''],
             
             ['info_datafile',None,False,''],
             ['info_pixelsize',2, False,''],
             ['info_color',[255,0,0], False,''],
-            
+
+            ['debuglevel',0, False,''],            
         ]
 
 
@@ -107,7 +108,6 @@ class contour:
         line=f.readline()        
         cols=line.strip().split(sep)
         numcols=len(cols)
-        print cols
 
         x=self.x.strip().split(',')
         if len(x)!=4:
@@ -162,6 +162,7 @@ class contour:
         #f.seek(0)
         keys_x={}
         keys_y={}
+        total=0
         for line in f:
             if self.convert_comma:
                 line=line.replace(',','.')
@@ -175,7 +176,7 @@ class contour:
                 y=float(cols[ycolnr])
             except ValueError:
                 if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
-                    self.convert_comma=True
+                    self.convert_comma=True 
                     line=line.replace(',','.')
                     cols=line.split(sep)                    
                     x=float(cols[xcolnr])
@@ -206,9 +207,10 @@ class contour:
                 hy=int((y-ymin)/yfactor)
                 if fuzzy!=0:
                     hy+=int(random.random()*fuzzy)                
-            
+                    if hy>ymax:
+                        hy=ymax
                 
-           
+            total+=val           
             heatmap[hx][hy]+=val
 
         self.heatmap=heatmap
@@ -223,7 +225,7 @@ class contour:
                 
                 avg=sum([k*v for k,v in x_hist.items()])/sum(x_hist.values())            
                 avg_in_pixels=int((avg-ymin)/yfactor)            
-                print xpixel, avg, avg_in_pixels
+                #print xpixel, avg, avg_in_pixels
                 avg_x[xpixel]=avg_in_pixels
 
         if self.plot_median:
@@ -243,7 +245,7 @@ class contour:
                 med_x[xpixel]=med_in_pixels
             
 
-        extradata=[]
+        extradata=[]        
         if self.info_datafile is not None:
             f=open(self.info_datafile)
             f.readline()
@@ -254,10 +256,14 @@ class contour:
                 xpixel=int((x-xmin)/xfactor) 
                 ypixel=int((y-ymin)/yfactor) 
             extradata.append([xpixel,ypixel])
-            
-                
-           
 
+        nonzerocount=0
+        for x in range(0,xpixels):
+            for y in range(0,ypixels):
+                 nonzerocount+=(heatmap[x][y]!=0)
+                   
+        print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
+        print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))        
 
 
 # dump data
@@ -297,7 +303,8 @@ class contour:
                'default_colormap','default_size','default_transform']
         for k in vlist:
             v=getattr(self,k)
-            print k,v
+            if self.debuglevel==1:
+                print k,v
             if v==None:
                 js+='var %s="";\n' % (k)
                 continue
@@ -402,8 +409,8 @@ class contour:
 
             for cssfrag in cssfrags[1:]:
                 cssfile=cssfrag.split('"')
-                
-               # print cssfile[0]
+                if self.debuglevel==2:
+                    print cssfile[0]
                 g.write('\n<style>\n')
                 css=open(cssfile[0],"r").read()
                 g.write(css)
@@ -418,8 +425,8 @@ class contour:
                 jsfile=jsfrag.split('"')
                 if jsfile[0]=='js/data.js':
                     continue
-                print jsfile[0]
-              #  print jsfile[0]
+                if self.debuglevel==2:
+                    print jsfile[0]
                 g.write('\n<script type="text/javascript">\n')
                 js=open(jsfile[0],'r').read()    
                 g.write(js)
@@ -435,8 +442,7 @@ class contour:
             jsfrags=body.split('<script  src="')
             for jsfrag in jsfrags[1:]:                
                 jsfile=jsfrag.split('"')
-                js_end=jsfrag.split('\n')[0]                        
-                print 'body:',jsfile[0]                
+                js_end=jsfrag.split('\n')[0]                
               #  print jsfile[0]
                 js_txt='\n<script type="text/javascript">\n'
                 js_txt+=open(jsfile[0],'r').read()    
