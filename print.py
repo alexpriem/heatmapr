@@ -21,12 +21,13 @@ app = QApplication(sys.argv)
 web = QWebView()
 web.load(QUrl("./tmp.html"))
 
-
+# alternatief: met gs conversie doen
+#gs -sDEVICE=pngalpha -sOutputFile=infile.png -r1200 infile.pdf -dBATCH
 
 def print_pdf():
     print 'print_pdf', filename
     printer = QPrinter(mode = QPrinter.ScreenResolution)
-    printer.setPaperSize(QSizeF(1024, 768), QPrinter.DevicePixel)
+    printer.setPaperSize(QSizeF(640, 480), QPrinter.DevicePixel)
     printer.setOutputFormat(QPrinter.PdfFormat)
     printer.setPageMargins(0 , 0 , 0 , 0 , QPrinter.DevicePixel)
     printer.setFullPage(True)
@@ -38,8 +39,11 @@ def print_pdf():
 def print_png():
     print 'print_png', filename
     xpage = web.page()
-    xpage.setViewportSize(xpage. currentFrame().contentsSize())
-    image = QImage(xpage.viewportSize(),QImage.Format_ARGB32)
+    print xpage.viewportSize()
+    print xpage. currentFrame().contentsSize()
+    #1.33*1600
+    xpage.setViewportSize(xpage. currentFrame().contentsSize())    
+    image = QImage(QSize(1706,1280),QImage.Format_ARGB32)
     image.setDotsPerMeterX(1000*1200)
     image.setDotsPerMeterY(1000*1200)
 
@@ -52,6 +56,10 @@ def print_png():
 	#imagePainter.end()
 
     painter = QPainter(image)
+    painter.setRenderHint(QPainter.SmoothPixmapTransform);
+    painter.setRenderHint(QPainter.Antialiasing);
+    painter.setRenderHint(QPainter.TextAntialiasing);
+    painter.setRenderHint(QPainter.HighQualityAntialiasing); 
     xpage.mainFrame().render(painter)
     painter.end()
    # sleep(1)
@@ -69,10 +77,10 @@ if len(sys.argv)==3:
 if printtype=='pdf':
     print 'start_print_pdf'
     QObject.connect(web, SIGNAL("loadFinished(bool)"), print_pdf)    
-    sys.exit()
+    
 else:
-	print 'start_print_png'
-	QObject.connect(web, SIGNAL("loadFinished(bool)"), print_png)
+    print 'start_print_png'
+    QObject.connect(web, SIGNAL("loadFinished(bool)"), print_png)
 
   
 sys.exit(app.exec_())
