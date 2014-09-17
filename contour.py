@@ -100,8 +100,14 @@ class contour:
 
 
         self.check_args(args)
-                
-        infile=self.infile
+                        
+        sep=self.sep
+        f=open(self.infile)
+        line=f.readline()
+        cols=line.strip().split(sep)
+        numcols=len(cols)
+        print cols
+
         x=self.x.strip().split(',')
         if len(x)!=4:
             raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
@@ -111,6 +117,9 @@ class contour:
         xcol,xmin, xmax, xpixels=[xx.strip() for xx in x]
         ycol,ymin, ymax, ypixels=y=[yy.strip() for yy in y]
 
+
+        xcolnr=cols.index(xcol)
+        ycolnr=cols.index(ycol)
         xmin=int(xmin)
         xmax=int(xmax)
         xpixels=int(xpixels)
@@ -143,17 +152,12 @@ class contour:
             self.ylabel=ycol            
 
         heatmap=[[0]*xpixels for i in range(ypixels)]
-
-        sep=self.sep
+        
         fuzzx=float(self.fuzzx)
         fuzzy=float(self.fuzzy)
 
 
         linenr=0
-        f=open(infile)
-        line=f.readline()
-        cols=line.split(sep)
-        numcols=len(cols)
         #f.seek(0)
         keys_x={}
         keys_y={}
@@ -163,8 +167,8 @@ class contour:
                 print linenr
             
             cols=line.split(sep)
-            x=float(cols[0])
-            y=float(cols[1])
+            x=float(cols[xcolnr])
+            y=float(cols[ycolnr])
             val=1
            # print x,y
             if numcols==3:
