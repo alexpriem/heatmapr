@@ -207,8 +207,8 @@ class contour:
                 hy=int((y-ymin)/yfactor)
                 if fuzzy!=0:
                     hy+=int(random.random()*fuzzy)                
-                    if hy>ymax:
-                        hy=ymax
+                    if hy>ypixels:
+                        hy=ypixels
                 
             total+=val           
             heatmap[hx][hy]+=val
