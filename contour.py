@@ -208,10 +208,12 @@ class contour:
                 if fuzzy!=0:
                     hy+=int(random.random()*fuzzy)                
                     if hy>ypixels:
-                        hy=ypixels
+                        hy=ypixels-1
                 
-            total+=val           
+            total+=val  #          
             heatmap[hx][hy]+=val
+
+            
 
         self.heatmap=heatmap
         if self.plot_mean:
@@ -258,12 +260,41 @@ class contour:
             extradata.append([xpixel,ypixel])
 
         nonzerocount=0
+        xsum=[0]*xpixels
+        ysum=[0]*ypixels
         for x in range(0,xpixels):
             for y in range(0,ypixels):
                  nonzerocount+=(heatmap[x][y]!=0)
-                   
+                 xsum[x]+=heatmap[x][y]
+                 ysum[y]+=heatmap[x][y]
+
+                 
         print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
-        print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))        
+        print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))
+
+# test autoscaling
+        cutoff=1
+        for x in range(0,xpixels):
+            if xsum[x]>cutoff:
+                min_x=x
+                break
+        for x in range(xpixels-1,0,-1):
+            if xsum[x]>cutoff:
+                max_x=x
+                break
+        print 'suggested autoscale x:', min_x*xfactor+xmin,max_x*xfactor+xmin
+
+        cutoff=1
+        for y in range(0,ypixels):
+            if ysum[y]>cutoff:
+                min_y=y
+                break
+        for y in range(ypixels-1,0,-1):
+            if ysum[y]>cutoff:
+                max_y=y
+                break
+        print 'suggested autoscale y:', min_y*yfactor+ymin,max_y*yfactor+ymin
+        
 
 
 # dump data
