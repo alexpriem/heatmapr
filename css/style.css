@@ -172,3 +172,8 @@ padding-left:650px;
 #printcode{
 font-family: "Lucida Console", Monaco, monospace;
 }
+
+.gradient_input {
+	width: 24px;
+	float: right;
+}
