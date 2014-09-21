@@ -9,64 +9,60 @@
   <script src="lib/jquery-2.0.3.min.js"  type="text/javascript"> </script> 
   <script src="lib/d3.v3.min.js"  type="text/javascript"> </script> 
   <script src="lib/chroma.min.js"  type="text/javascript"> </script> 
-  <script src="js/data.js" type="text/javascript"> </script> 
-  <script src="js/colormaps.js" type="text/javascript"> </script> 
+
+  <script src="lib/handlebars-v2.0.0.js"></script>    
+  <script src="lib/document-register-element.js"></script>        
+  <script src="lib/colormapr.js"></script>        
+
+  <script src="js/data.js" type="text/javascript"> </script>   
   <script src="js/ui.js" type="text/javascript"> </script> 
+    
   </head>
 
 
 <body>
-<div id="controls" class="leftbox">
-<ul id="sel_colormap">
-</ul>
-<ul id="sel_size" class="selbox">
-</ul>
-<ul id="sel_transform" class="selbox">
-  <li class="sel_heading"> Transform: </li>
-  <li class="transformname" id="trans_linear" data-transform="linear"> linear</li>
-  <li class="transformname" id="trans_sqrt" data-transform="sqrt"> sqrt</li>
-  <li class="transformname" id="trans_log2" data-transform="log2"> log2</li>
-  <li class="transformname" id="trans_log10" data-transform="log10"> log10</li>  
-</ul>
-<ul id="sel_swap" class="selbox">
-  <li class="sel_heading"> Gradient:</li>
-  <li class="swapname" id="inv_grad" > invert gradient</li>
-</ul>
-<ul id="sel_pixastic" class="selbox_hidden" >
-  <li class="sel_heading"> Image-manipulation:</li>
-  <li class="man" id="sharpen"> Sharpen</li>
-  <li class="man" id="denoise"> Denoise</li>
-  <li class="man" id="edge"> Edge</li>
-  <li class="man" id="pointilize"> Pointilize</li>
-  <li class="man" id="blur"> Blur</li>
-  <li class="man" id="lighten"> lighten</li>
-  </ul>
-<ul id="sel_print" class="selbox">
-  <li class="sel_heading"> Output options:</li>
-  <li class="print" data-print="png"> Print to png</li>
-  <li class="print" data-print="pdf"> Print to pdf</li>
-</ul>
 
+<script id="entry-template" type="text/x-handlebars-template">
+    <ul id="sel_colormap_{{widget_id}}" class="selbox">
+    <li class="sel_heading"> Colormaps: </li>    
+    {{#colormaps}}
+    <li  class="colormapname colormapname_{{widget_id}}" id="colormap_{{name}}_{{widget_id}}" data-colormap="{{name}}" data-widget="{{widget_id}}">{{name}}</li>  
+    {{/colormaps}}
+    </ul>
+
+    <ul id="sel_transform_{{widget_id}}" class="selbox">
+      <li class="sel_heading"> Transform: </li>
+      <li class="transformname transformname_{{widget_id}}" id="trans_linear_{{widget_id}}" data-transform="linear" data-widget="{{widget_id}}"> linear</li>
+      <li class="transformname transformname_{{widget_id}}" id="trans_sqrt_{{widget_id}}" data-transform="sqrt" data-widget="{{widget_id}}"> sqrt</li>
+      <li class="transformname transformname_{{widget_id}}" id="trans_log2_{{widget_id}}" data-transform="log2" data-widget="{{widget_id}}"> log2</li>
+      <li class="transformname transformname_{{widget_id}}" id="trans_log10_{{widget_id}}" data-transform="log10" data-widget="{{widget_id}}"> log10</li>  
+    </ul>
+
+    <ul id="sel_swap_{{widget_id}}" class="selbox">
+      <li class="sel_heading"> Gradient:</li>
+      <li class="swapname swapname_{{widget_id}}" id="invert_{{widget_id}}" data-widget="{{widget_id}}"> invert gradient</li>
+      <li class="swapname swapname_{{widget_id}}" id="header_min_{{widget_id}}" > Mininum: 
+              <input type="text" id="min_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_min" class="gradient_input" value="{{min}}" maxlength=5  >  </li>
+      <li class="swapname swapname_{{widget_id}}" id="header_max_{{widget_id}}"  > Maximum:  
+              <input type="text" id="max_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_max" class="gradient_input" value="{{max}}" maxlength=5> </li>
+      <li class="swapname swapname_{{widget_id}}" id="header_steps_{{widget_id}}" > Steps:  
+              <input type="text" id="steps_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_steps" class="gradient_input" value="{{steps}}" maxlength=5> </li>
+    </ul>
+  </script>
+
+
+<div id="controls" class="leftbox">
+    <colormap-controls id="cc_a" gradient="cg_a"> </colormap-controls>
 </div>
 
 <div id="canvasdiv" class="rightbox"> 
   <canvas id="heatmap_canvas" > </canvas>
-  <svg id="heatmap_svg" > </svg>    
-  <div id="colormap_max" class="gradient_vars">
-      <label class="ie_fallback"> max:</label>
-      <input type='text' id='edit_gradmax' class="ie_fallback" name='gradmax' value='' size='4'>
-  </div>
-  <div id="colormap_steps" class="gradient_vars">
-      <label class="ie_fallback"> steps:</label>
-      <input type='text' id='edit_gradsteps' class="ie_fallback" name='gradsteps' value='' size='4'>
-  </div>
-  <div id="colormap_min" class="gradient_vars">
-      <label class="ie_fallback"> min:</label>
-      <input type='text' id='edit_gradmin' class="ie_fallback" name='gradmin' value='' size='4'>  
-  </div>
+  <svg id="heatmap_svg" > </svg>   
+  <colormap-gradient id="cg_a" controls="cc_a"> </colormap-gradient> 
+
 </div>
   <div id="printdiv">
-  	<pre id="printcode"> </[pre]>
+  	<pre id="printcode"> </pre>
   </div>
 
   <script  src="js/init_ui.js" type="text/javascript"> </script>   

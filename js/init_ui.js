@@ -9,6 +9,7 @@ var print=false;
 function init_page() {
   
     console.log("init:",imgwidth,imgheight);
+    init_gradients(); 
     c=document.getElementById("heatmap_canvas");
     c.setAttribute("width", imgwidth);
     c.setAttribute("height", imgwidth);
@@ -18,18 +19,14 @@ function init_page() {
     
     ctx = c.getContext('2d');  
     
-    init_colormaps();
-    init_sizes();
-    init_gradient_transforms();
-    init_data_transforms();
+
   //  init_manipulation();
     init_databuffers();
-    init_colormap_inputs();
+  //  init_colormap_inputs();
     init_print();
     // copy img byte-per-byte into our ImageData
     draw_heatmap();
-    draw_axes ();
-    draw_colormap();
+    draw_axes ();    
     //console.clear();
     init_hist_xy();
  //   Pixastic.debug=true;

@@ -2,7 +2,7 @@
 
 
 if (typeof(default_colormap)=='undefined') { 
-	default_colormap='cbs_blue';
+	default_colormap='blue';
 }
 if (typeof(default_size)=='undefined') { 
 	default_size=1;
@@ -38,52 +38,6 @@ if (gradmin<1) {gradmin=1;}
 
 
 
-var click_colormap=function click_colormap (evt) {
-	colormapname=$(this).attr('data-colormap');
-	
-	console.log('click_colormap',colormapname);
-	colormap=colormaps[colormapname](gradsteps);
-	colormaplength=colormap.length-1;
-	console.log('click_colormap',colormapname,  colormaplength);
-	$('.colormapname ').removeClass('active_selectie');
-	$(this).addClass('active_selectie');
-	
-	draw_heatmap();
-	return false;
-}
-
-
-
-function init_colormaps()
-{
-
-var html='<li class="sel_heading"> Colormaps: </li>';
-var selclas='';
-for (var key in colormaps) {
-  if (colormaps.hasOwnProperty(key)) {
-  	if (key==colormapname) 
-  		selclass='active_selectie';
-  	else
-  		selclass='';
-    html+='<li class="colormapname '+selclass+'" id="colormap_'+key+'" data-colormap="'+key+'">'+key+'</li>';
-  }
-}
-
-$('#sel_colormap').html(html);
-$('.colormapname').on('click',click_colormap);
-$('.colormapname').on('mouseenter ',enter_selectie);
-$('.colormapname').on('mouseout ',leave_selectie);
-
-$('#colormapname_'+colormapname).addClass('active_selectie');
- //for (colormapname in colormaps)  break;
- colormap=colormaps[colormapname](gradsteps);
- colormaplength=colormap.length-1;
- console.log('init_colormap:',colormapname,colormaplength,gradsteps);
- //console.log('init_colormap:',colormap);
-}
-
-
-
 
 
 
@@ -113,81 +67,22 @@ mapdata = imgData.data;
 
 
 
-
-function update_gradient (e) {
-
-	
-	console.log('update_gradient:');
-	if (e.keyCode == '13') {
-		gradmax=$('#edit_gradmax').val();
-		gradsteps=$('#edit_gradsteps').val();
-		gradmin=$('#edit_gradmin').val();
-		console.log('update_gradient:',gradmin, gradmax, gradsteps);
-		colormap=colormaps[colormapname](gradsteps);	
-		draw_heatmap();	
-	}
-}
-
-
-function init_colormap_inputs() {
-
-	if 	(typeof(SVGForeignObjectElement)!== 'undefined') {
-		$('.ie_fallback').remove();
-		chart.append("foreignObject")
-		  .attr("width", 150)
-		  .attr("height", 50)
-		  .attr("x",imgwidth+150)
-		  .attr("y",35)
-		  .attr("class",'gradient_vars')
-		  .append("xhtml:body")
-		  .style("font", "14px Helvetica")
-		  .html("<label> max:</label> <input type='text' id='edit_gradmax'name='gradmax' value='"+gradmax+"' size=4/>");
-
-		chart.append("foreignObject")
-		  .attr("width", 150)
-		  .attr("height", 50)
-		  .attr("x",imgwidth+150)
-		  .attr("y",105)
-		  .attr("class",'gradient_vars')
-		  .append("xhtml:body")
-		  .style("font", "14px Helvetica")
-		  .html("<label> step:</label> <input type='text' id='edit_gradsteps'  name='gradsteps' value='"+gradsteps+"' size=4/>");
-
-		chart.append("foreignObject")
-		  .attr("width", 150)
-		  .attr("height", 50)
-		  .attr("x",imgwidth+150)
-		  .attr("y",185)
-		  .attr("class",'gradient_vars')
-		  .append("xhtml:body")
-		  .style("font", "14px Helvetica")
-		  .html("<label> min:</label> <input type='text' id='edit_gradmin'  name='gradmin' value='"+gradmin+"' size=4/>");
-	} 
- 		
-	$("#edit_gradmax").val(gradmax);
-	$("#edit_gradsteps").val(gradsteps);
-	$("#edit_gradmin").val(gradmin);
-
-	$("#edit_gradmax").on('keydown',update_gradient);
-	$("#edit_gradsteps").on('keydown',update_gradient);
-	$("#edit_gradmin").on('keydown',update_gradient);
-
-}
-
-
-
 function calc_heatmap () {
 
-	console.log("calc_heatmap: invx, invy, invxy, inv_grad:", inv_grad);
+	console.log("calc_heatmap: inv_grad:", inv_grad);
 	
 	hist=new Array(gradsteps);
 	for (i=0; i<gradsteps; i++) {
 		hist[i]=0;
 	}
 
-	console.log('calc_heatmap',size);
+	var gradient_node=document.getElementById("cg_a");
+	var gradsteps=gradient_node.getAttribute('gradient_steps');
+	
+	console.log('calc_heatmap:',xpixels, ypixels, size);
 	var ptr2=0;
 	maxval=0;	
+	size=1;  // XXX 
 	for (var i=0; i<ypixels; i+=size) {
 		for (var j=0; j<xpixels;  j+=size) {		
 			val=0;
@@ -307,7 +202,7 @@ function draw_heatmap() {
 
 	console.log("draw_heatmap:",size, colormapname,transform);
 	calc_heatmap();
-	draw_colormap();
+//	draw_colormap();   FIXME: update colormap
 
 	draw_histogram();	
 
@@ -315,20 +210,33 @@ function draw_heatmap() {
 
 	var indexval=0;
 	var color=[];
+	var nr=0;
 
 	var xstep=xpix2img*size;
 	var ystep=ypix2img*size;
+
+	var gradient_node=document.getElementById("cg_a");
+	var gradsteps=gradient_node.getAttribute('gradient_steps');
+	var colormapname=gradient_node.getAttribute('colormapname');
+	colormap=gradient_node.colormaps[colormapname](gradsteps);
+
+	console.log('draw_heatmap, colormap:',colormapname, gradsteps, colormap);
+
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 			indexval=backbuffer[i];
+			if ((indexval>0) && (nr<50)) {
+						console.log(nr, i,j,indexval);
+						nr+=1;
+					}
 			if ((indexval!=0) || (!skipzero)) {	  // waardes die 0 zijn niet plotten
-				color=colormap[indexval];
+				color=colormap[indexval];			
 	    		mapdata[j] =  color[0];  
 	    		mapdata[j+1] = color[1];  
 	    		mapdata[j+2] = color[2];  
 	    		mapdata[j+3] = 0xff; 
 			} else {
-				mapdata[j] =  0xff;  
+				mapdata[j] =  0xff;   // background color: white
 	    		mapdata[j+1] = 0xff; 
 	    		mapdata[j+2] = 0xff; 
 	    		mapdata[j+3] = 0xff; 
@@ -414,55 +322,6 @@ function init_sizes() {
    $('.sizename').on('mouseenter ',enter_selectie);
    $('.sizename').on('mouseout ',leave_selectie);
  // console.log("initsize");
-}
-
-
-
-var click_transform=function click_size (evt) {
-
-	transform=$(this).attr('data-transform');
-	$('.transformname ').removeClass('active_selectie');
-	$(this).addClass('active_selectie');
-
-/*	tgradmax=gradmax;
-	tgradmin=gradmin;
-*/	
-	console.log("click_transform:", transform,tgradmin, tgradmax);				
-	draw_heatmap();
-	return false;
-}
-
-
-
-function init_gradient_transforms() {
- 	$('.transformname').on('click',click_transform);
- 	$('.transformname').on('mouseenter ',enter_selectie);
-  	$('.transformname').on('mouseout ',leave_selectie);
-  	$('#trans_'+transform).addClass('active_selectie');	  	
-  	tgradmax=gradmax;
-  	tgradmin=gradmin;
-}
-
-
-
-function click_data_transform () {
-
-	var id=$(this).attr('id');
-	if (id=='inv_grad') {inv_grad=1-inv_grad;	var state=inv_grad;}
-
-	if (state) {
-		$(this).addClass('active_selectie');
-	} else {
-		$(this).removeClass('active_selectie');
-	}
-	draw_heatmap();
-}
-
-
-function init_data_transforms() {
- 	$('.swapname').on('click',click_data_transform);
- 	$('.swapname').on('mouseenter ',enter_selectie);
-  	$('.swapname').on('mouseout ',leave_selectie);  	
 }
 
 
@@ -623,76 +482,9 @@ function click_print () {
 
 
 
-function draw_colormap () {
-
-console.log("draw_colormap", colormaplength);
-
-
-$('.colormap').remove();
-var barlength=imgheight/3;
-var barstep=(barlength/gradsteps);
-console.log(barlength, barstep);
-chart.append("rect")
-	.attr("class","colormap")
-	.attr("x",imgwidth+75)
-	.attr("y",25+10)
-	.attr("width",20)
-	.attr("height",barlength)
-	.style("fill","none")
-	.style("stroke","black")
-	.style("stroke-width","1px");
-  
- for (i=1; i<=gradsteps; i++) {
- 	color=colormap[i-1];
-	chart.append("rect")
-		.attr("class","colormap")
-		.attr("x",imgwidth+76)
-		.attr("y",25+10+barlength-barstep*i-1)
-		.attr("width",20)
-		.attr("height",barstep)
-		.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-		.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
-		.style("stroke-width","1px");
-
- }
-
-
-  if (transform=='linear') {
-	var colorScale=d3.scale.linear();
-  }  
-  if (transform=='log10') {  	
-  	var colorScale=d3.scale.log();
-  }
-  if (transform=='log2') {
-  	var colorScale=d3.scale.log().base(2);
-  }
-  if (transform=='sqrt') {
-  	var colorScale=d3.scale.pow().exponent(0.5);
-  }
-
-  console.log('Colorscale, datadomain',datamin, datamax);
-  console.log('Colorscale, domain',tgradmin, tgradmax);
-  colorScale.domain([tgradmax, tgradmin]);
-  colorScale.range([0,barlength]); 
-  colorScale.ticks(8);
-
-  var colorAxis=d3.svg.axis();  
-  colorAxis.scale(colorScale)       
-       .orient("right");
-
-  scalepos=imgwidth+95;
-  chart.append("g")
-        .attr("class","yaxis colormap")
-        .attr("transform","translate("+scalepos+",35)")
-        .call(colorAxis);        
- 
-}
-
-
-
 function draw_histogram () {
 
-console.log("draw_histogram:", histmax, colormaplength);
+console.log("draw_histogram:", histmax);
 //console.log(colormap);
 
 histwidth=500;
@@ -700,6 +492,16 @@ histheight=0.4*imgheight;
 barwidth=500/gradsteps;
 
 var hist_offset_x=125;
+
+var gradient_node=document.getElementById("cg_a");
+var gradsteps=gradient_node.getAttribute('gradient_steps');
+var colormapname=gradient_node.getAttribute('colormapname');
+console.log(gradient_node);
+console.log('draw_histogram, colormap:',colormapname, gradsteps);
+console.log(gradient_node.colormaps);
+colormap=gradient_node.colormaps[colormapname](gradsteps);
+
+return;
 
 $('.hist_2d').remove();
 $('.hist_x').remove();
@@ -1009,7 +811,7 @@ for (i=0; i<imgheight; i++) {
         .text(ylabel+ '(voor '+xlabel+'='+xval+')');
 	
 
- chart.append("svg:line")
+  chart.append("svg:line")
  	.attr("class","hist_x")
     .attr("x1", 50)
     .attr("y1", y+25)
@@ -1018,7 +820,7 @@ for (i=0; i<imgheight; i++) {
     .style("stroke", "rgb(8,8,130)");
 
 
- 	chart.append("svg:line")
+  chart.append("svg:line")
  	.attr("class","hist_y")
     .attr("x1", x+50)
     .attr("y1", 25)
@@ -1026,6 +828,8 @@ for (i=0; i<imgheight; i++) {
     .attr("y2", imgwidth+25)
     .style("stroke", "rgb(130,8,8)");    
 }
+
+
 function init_hist_xy () {
 
 	console.log('init_hist');
