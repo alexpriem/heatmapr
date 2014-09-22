@@ -9,6 +9,28 @@ var print=false;
 function init_page() {
   
     console.log("init:",imgwidth,imgheight);
+
+    defaultsettings={
+        colormapname: opties.colormap,
+        height: opties.imgheight,
+        width: opties.imgwidth,
+        gradient_min: opties.gradmin,
+        gradient_max: opties.gradmax,
+        gradient_steps: opties.gradsteps,
+        transform: opties.transform
+    };
+    console.log(defaultsettings);
+
+    topnode=document.getElementById('cg_a');
+     for (var keyword in defaultsettings) {
+      if (defaultsettings.hasOwnProperty(keyword)) {          
+            if (keyword!='colormaps') {
+                topnode.setAttribute(keyword, defaultsettings[keyword]);          
+            }
+      }
+  }
+  
+
     init_gradients(); 
     c=document.getElementById("heatmap_canvas");
     c.setAttribute("width", imgwidth);

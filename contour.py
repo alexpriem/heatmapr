@@ -41,9 +41,9 @@ class contour:
             ['title',None,False,''],
             ['dump_html',True,False,'full html output'],
             ['dump_js',True,False,'full html output'],
-            ['default_colormap','cbs_blue',False,''],
-            ['default_size','1',False,''],
-            ['default_transform','linear',False,''],
+            ['colormap','blue',False,''],
+            ['size','1',False,''],
+            ['transform','linear',False,''],
             
             ['plot_mean', False, False,''],
             ['plot_median_pixelsize',2, False,''],
@@ -61,18 +61,17 @@ class contour:
         ]
 
 
-        default_colormaps=['blue','gray',
-                           'cbs_blue','cbs_green', 'cbs_red', 'cbs_hot',
-                            'terrain', 'coolwarm',
-                            'hot', 'hot2','ygb']
-        default_colormap=args['default_colormap']
-        if default_colormap not in default_colormaps:
-            raise RuntimeError ('allowed colormaps: %s' % default_colormaps)
+        colormaps=['blue','blue2','green', 'red','gray',
+                    'terrain', 'coolwarm',
+                    'hot', 'hot2','hot3', 'ygb']
+        colormap=args['colormap']
+        if colormap not in colormaps:
+            raise RuntimeError ('allowed colormaps: %s' % colormaps)
 
-        default_transforms=['linear','sqrt','log2','log10']
-        default_transform=args['default_transform']
-        if default_transform not in default_transforms:
-            raise RuntimeError ('allowed colormaps: %s' % default_transforms)
+        transforms=['linear','sqrt','log2','log10']
+        transform=args['transform']
+        if transform not in transforms:
+            raise RuntimeError ('allowed colormaps: %s' % transforms)
 
 
                            
@@ -331,7 +330,7 @@ class contour:
                'xpixels','ypixels',
                'imgwidth','imgheight',               
                'xlabel','ylabel','title',
-               'default_colormap','default_size','default_transform']
+               'colormap','size','transform']
         for k in vlist:
             v=getattr(self,k)
             if self.debuglevel==1:

@@ -202,8 +202,6 @@ function draw_heatmap() {
 
 	console.log("draw_heatmap:",size, colormapname,transform);
 	calc_heatmap();
-//	draw_colormap();   FIXME: update colormap
-
 	draw_histogram();	
 
 	/* eigenlijke heatmap plotten */
@@ -225,7 +223,7 @@ function draw_heatmap() {
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 			indexval=backbuffer[i];
-			if ((indexval>0) && (nr<50)) {
+			if ((indexval>0) && (nr<-50)) {
 						console.log(nr, i,j,indexval);
 						nr+=1;
 					}
