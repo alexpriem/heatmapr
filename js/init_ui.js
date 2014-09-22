@@ -12,8 +12,6 @@ function init_page() {
 
     defaultsettings={
         colormapname: opties.colormap,
-        height: opties.imgheight,
-        width: opties.imgwidth,
         gradient_min: opties.gradmin,
         gradient_max: opties.gradmax,
         gradient_steps: opties.gradsteps,
@@ -23,10 +21,8 @@ function init_page() {
 
     topnode=document.getElementById('cg_a');
      for (var keyword in defaultsettings) {
-      if (defaultsettings.hasOwnProperty(keyword)) {          
-            if (keyword!='colormaps') {
-                topnode.setAttribute(keyword, defaultsettings[keyword]);          
-            }
+      if (defaultsettings.hasOwnProperty(keyword)) {                      
+            topnode.setAttribute(keyword, defaultsettings[keyword]);                      
       }
   }
   
@@ -44,7 +40,6 @@ function init_page() {
 
   //  init_manipulation();
     init_databuffers();
-  //  init_colormap_inputs();
     init_print();
     // copy img byte-per-byte into our ImageData
     draw_heatmap();
