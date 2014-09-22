@@ -138,6 +138,11 @@ class contour:
             xmin=safelog10(xmin)
             xmax=safelog10(xmax)
 
+        weightcolnr=None
+        if self.weight_var is not None:
+            weightcolnr=cols.index(self.weight_var)
+            
+
         ymin=int(ymin)
         ymax=int(ymax)
         ypixels=int(ypixels)
@@ -194,10 +199,10 @@ class contour:
                     
             val=1
            # print x,y
-            if numcols==3:
-                val=float(cols[2])
-            if numcols==4:
-                val=float(cols[2])*float(cols[3])            
+            if self.weight_var is not None:
+                
+            if weightcolnr is not None:
+                val=float(cols[weightcolnr])
             if (x>xmin and x<xmax):
                 hx=int((x-xmin)/xfactor)
                 if fuzzx!=0:
