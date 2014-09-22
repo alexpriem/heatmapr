@@ -177,3 +177,11 @@ font-family: "Lucida Console", Monaco, monospace;
 	width: 24px;
 	float: right;
 }
+
+#cg_a{
+position:absolute;
+z-index: 5;
+padding-left:520px;
+top:50px;
+}
+
