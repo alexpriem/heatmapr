@@ -1,4 +1,4 @@
-import argparse, random
+import argparse, random,sys
 from math import log10
 
 
@@ -208,9 +208,16 @@ class contour:
                     hy+=int(random.random()*fuzzy)                
                     if hy>ypixels:
                         hy=ypixels-1
+            else:
+                continue
                 
-            total+=val  #          
-            heatmap[hx][hy]+=val
+            total+=val  #
+            try:
+                heatmap[hx][hy]+=val
+            except IndexError:
+                print 'IndexError:', hx,hy
+                sys.exit()
+                
 
             
 
