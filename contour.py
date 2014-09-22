@@ -33,7 +33,7 @@ class contour:
             ['y_max','',True,''],
             ['y_steps','',True,''],
 
-            ['weight_var','',False,''],
+            ['weight_var',None,False,''],
             
             ['sep',';',False,''],
             ['convert_comma',False,False,''],
