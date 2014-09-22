@@ -50,8 +50,7 @@ class contour:
             ['xlabel',None,False,''],
             ['ylabel',None,False,''],
             ['title',None,False,''],
-            ['dump_html',True,False,'full html output'],
-            ['dump_js',True,False,'full html output'],
+            ['dump_html',True,False,'full html output'],            
             ['colormap','blue',False,''],
             ['size','1',False,''],
             ['transform','linear',False,''],
@@ -101,12 +100,6 @@ class contour:
             setattr(self,k,v)
 
         
-        #parser.add_argument('-html', dest='dump_html',  help='html output', required=False, default=True, action='store_true')
-        #parser.add_argument('-nohtml', dest='dump_html',  help='html output', required=False, action='store_false')
-        #parser.add_argument('-js', dest='dump_js',  help='javascript output', required=False, default=False, action='store_true')
-        #parser.add_argument('-nojs', dest='dump_js',  help='javascript output', required=False, action='store_false')        
-
-
 
     def run_contour (self, args):
 
@@ -198,9 +191,6 @@ class contour:
                     y=float(cols[ycolnr])
                     
             val=1
-           # print x,y
-            if self.weight_var is not None:
-                
             if weightcolnr is not None:
                 val=float(cols[weightcolnr])
             if (x>xmin and x<xmax):
@@ -432,14 +422,6 @@ class contour:
                 
             js+=txt[:-1]+'];\n'
                     
-                
-                    
-            
-
-        if self.dump_js:
-            f=open(self.outfile+'.js','w')
-            f.write(js)
-            f.close()        
 
         self.js=js
         if self.dump_html==False:

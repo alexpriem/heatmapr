@@ -1,22 +1,8 @@
 /* settings */	
 
-
-if (typeof(default_colormap)=='undefined') { 
-	default_colormap='blue';
-}
-if (typeof(default_size)=='undefined') { 
-	default_size=1;
-}
-if (typeof(default_transform)=='undefined') { 
-	default_transform='linear';
-}
-var colormapname=default_colormap;
-var size=default_size;
-var transform=default_transform;
 var skipzero=true;
 var histmax=0;
 
-var inv_grad=0;
 
 /* storage */
 
@@ -29,17 +15,6 @@ var imgData, mapdata;
 
 var xpix2img=parseInt(imgwidth/xpixels);
 var ypix2img=parseInt(imgheight/ypixels);
-
-// sanity checks
-if (gradmin<1) {gradmin=1;}
-
-
-
-
-
-
-
-
 
 
 function init_databuffers () {
@@ -200,7 +175,7 @@ console.log("calc_heatmap, len:",backbuffer.length);
 
 function draw_heatmap() {
 
-	console.log("draw_heatmap:",size, colormapname,transform);
+	console.log("draw_heatmap:");
 	calc_heatmap();
 	draw_histogram();	
 
