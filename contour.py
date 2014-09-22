@@ -22,8 +22,19 @@ class contour:
 
         defaults=[
             ['infile',';',True,''],
-            ['y','',True,''],
-            ['x','',True,''],
+            
+            ['x_var','',True,''],
+            ['x_min','',True,''],
+            ['x_max','',True,''],
+            ['x_steps','',True,''],
+
+            ['y_var','',True,''],
+            ['y_min','',True,''],
+            ['y_max','',True,''],
+            ['y_steps','',True,''],
+
+            ['weight_var','',False,''],
+            
             ['sep',';',False,''],
             ['convert_comma',False,False,''],
             ['fuzzx',0,False,''],
@@ -107,17 +118,17 @@ class contour:
         line=f.readline()        
         cols=line.strip().split(sep)
         numcols=len(cols)
+        
+        xcol=self.x_var
+        xmin=self.x_min
+        xmax=self.x_max
+        xpixels=self.x_steps
 
-        x=self.x.strip().split(',')
-        if len(x)!=4:
-            raise RuntimeError ("-x: expected col, min,max, steps, got %x", str(x))
-        y=self.y.strip().split(',')
-        if len(x)!=4:
-            raise RuntimeError ("-y: expected col, min,max, steps")
-        xcol,xmin, xmax, xpixels=[xx.strip() for xx in x]
-        ycol,ymin, ymax, ypixels=y=[yy.strip() for yy in y]
-
-
+        ycol=self.y_var
+        ymin=self.y_min
+        ymax=self.y_max
+        ypixels=self.y_steps
+        
         xcolnr=cols.index(xcol)
         ycolnr=cols.index(ycol)
         xmin=int(xmin)
