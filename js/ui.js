@@ -44,7 +44,7 @@ mapdata = imgData.data;
 
 function calc_heatmap () {
 
-	console.log("calc_heatmap: inv_grad:", inv_grad);
+	console.log("calc_heatmap:");
 	
 	hist=new Array(gradsteps);
 	for (i=0; i<gradsteps; i++) {
@@ -53,6 +53,7 @@ function calc_heatmap () {
 
 	var gradient_node=document.getElementById("cg_a");
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
+	var inv_grad=gradient_node.gradient_invert;
 	
 	console.log('calc_heatmap:',xpixels, ypixels, size);
 	var ptr2=0;

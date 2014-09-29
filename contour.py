@@ -70,6 +70,17 @@ class contour:
             ['debuglevel',0, False,''],            
         ]
 
+                           
+        for varinfo in defaults:
+            varname=varinfo[0]
+            defaultval=varinfo[1]
+            required=varinfo[2]
+            helptxt=varinfo[3]
+            
+            if not (varname in args):
+                if required:
+                    raise RuntimeError('Missing %s' % varname)
+                args[varname]=defaultval
 
         colormaps=['blue','blue2','green', 'red','gray',
                     'terrain', 'coolwarm',
@@ -83,18 +94,6 @@ class contour:
         if transform not in transforms:
             raise RuntimeError ('allowed colormaps: %s' % transforms)
 
-
-                           
-        for varinfo in defaults:
-            varname=varinfo[0]
-            defaultval=varinfo[1]
-            required=varinfo[2]
-            helptxt=varinfo[3]
-            
-            if not (varname in args):
-                if required:
-                    raise RuntimeError('Missing %s' % varname)
-                args[varname]=defaultval
                                         
         for k,v in args.items():
             setattr(self,k,v)
