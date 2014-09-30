@@ -10,7 +10,8 @@ Parameters:
 **x_var** : kolom in csv-file die variabele voor de x-as aangeeft.
 **x_min** : minimumwaarde x-as
 **x_max** : maximumwaarde x-as
-**x_steps** : aantal stappen/klassen voor de x-as. 
+**x_steps** : aantal stappen/klassen voor de x-as. Aantal stappen in x-richting moet voor nu nog gelijk zijn aan aantal stappen in y-richting; ongelijke
+stapgroottes leveren nu een niet-passende y- of x-schaal op, omdat het aantal stappen wordt gematched met het aantal 'pixels' in de breedte/hoogte (zie **imgwidth** / **imgheight**).
 
 **y_var** : kolom in csv-file die variabele voor de x-as aangeeft.
 **y_min** : minimumwaarde y-as
