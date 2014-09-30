@@ -56,16 +56,16 @@ class contour:
             ['transform','linear',False,''],
             
             ['plot_mean', False, False,''],
-            ['plot_median_pixelsize',2, False,''],
-            ['plot_mean_color',[0,0,0], False,''],
+            ['plot_mean_pixelsize',2, False,''],
+            ['plot_mean_color',[0,0,0,255], False,''],
             
             ['plot_median', False, False,''],
-            ['plot_mean_pixelsize',2, False,''],
-            ['plot_median_color',[0,0,0], False,''],
+            ['plot_median_pixelsize',2, False,''],
+            ['plot_median_color',[0,0,255,255], False,''],
             
             ['info_datafile',None,False,''],
             ['info_pixelsize',2, False,''],
-            ['info_color',[255,0,0], False,''],
+            ['info_color',[255,0,0,255], False,''],
 
             ['debuglevel',0, False,''],            
         ]
