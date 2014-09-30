@@ -219,14 +219,14 @@ function draw_heatmap() {
 		}	
 	if (opties['plot_mean']==true){
 		console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
-		color=opties['plot_median_color'];
+		color=opties['plot_mean_color'];
 		for (i=0; i<mean_x.length; i++) {
 			avgval=mean_x[i];
 			ptr=(i*xpix2img+imgwidth*(imgheight-ypix2img*avgval))*4;
 			mapdata[ptr]=color[0];
 			mapdata[ptr+1]=color[1];
 			mapdata[ptr+2]=color[2];
-			mapdata[ptr+3]=0xff;
+			mapdata[ptr+3]=color[3];
 		}
 	}
 	if (opties['plot_median']==true){
@@ -236,20 +236,21 @@ function draw_heatmap() {
 			ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;			
 			mapdata[ptr]=color[0];
 			mapdata[ptr+1]=color[1];
-			mapdata[ptr+2]=[color[2]];
-			mapdata[ptr+3]=0xff;
+			mapdata[ptr+2]=color[2];
+			mapdata[ptr+3]=color[3];
 		}
 	}
 
-	if (opties['dot_datafile']!=null){
+	if (opties['info_datafile']!=null){
+		color=opties['info_color'];
 		for (i=0; i<extradata.length; i++) {
 			i=extradata[i][0];
 			j=i=extradata[i][1];
 			ptr=(i*size+size*imgwidth*(imgheight-j))*4;
-			mapdata[ptr]=0;
-			mapdata[ptr+1]=0;
-			mapdata[ptr+2]=0;
-			mapdata[ptr+3]=0xff;
+			mapdata[ptr]=color[0];
+			mapdata[ptr+1]=color[1];
+			mapdata[ptr+2]=color[2];
+			mapdata[ptr+3]=color[3];
 		}
 	}
 	console.log('putdata');
@@ -470,9 +471,7 @@ var hist_offset_x=125;
 var gradient_node=document.getElementById("cg_a");
 var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
-console.log(gradient_node);
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
-console.log(gradient_node.colormaps);
 colormap=gradient_node.colormaps[colormapname](gradsteps);
 
 return;
@@ -753,4 +752,34 @@ function init_hist_xy () {
 	console.log('init_hist');
 	$("#heatmap_svg").on('click',update_hist_x_y);
 	//$("#heatmap_svg").on('mousedown',update_hist_x_y);
+}
+
+
+function click_stats () {
+
+	var id=$(this).attr('id');
+	f=$(this).attr('data-stats');
+	var state=opties[f];
+	if (state==true)	{
+		state=false;
+		$(this).removeClass('active_selectie');		
+	} 
+	else {
+		state=true;
+		$(this).addClass('active_selectie');	
+	}
+	opties[f]=state;
+	console.log(opties);
+	draw_heatmap();
+
+}
+
+
+
+
+function init_stats(widget_id, transform) {
+
+ 	$('.stats').on('click',click_stats);
+ 	$('.stats').on('mouseenter ',enter_selectie);
+  	$('.stats').on('mouseout ',leave_selectie);  	
 }

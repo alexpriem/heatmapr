@@ -21,7 +21,7 @@ function init_page() {
         gradient_steps: opties.gradsteps,
         transform: opties.transform
     };
-    console.log(defaultsettings);
+    //console.log(defaultsettings);
 
     topnode=document.getElementById('cg_a');
      for (var keyword in defaultsettings) {
@@ -48,8 +48,8 @@ function init_page() {
     init_print();
     // copy img byte-per-byte into our ImageData
     draw_heatmap();
-    draw_axes ();    
-    //console.clear();
+    draw_axes ();        
+    init_stats();
     init_hist_xy();
  //   Pixastic.debug=true;
     document.title =title;

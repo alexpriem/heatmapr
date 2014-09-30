@@ -83,7 +83,7 @@ table {
 	padding-left:5px;
 }
 
-.sizename, .transformname, .swapname, .man, .print {
+.sizename, .transformname, .swapname, .man, .print, .stats {
 	display:table;
     list-style-type: none;
 	font-family: Arial, Helvetica, sans-serif;

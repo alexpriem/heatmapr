@@ -54,7 +54,9 @@ class contour:
             ['colormap','blue',False,''],
             ['size','1',False,''],
             ['transform','linear',False,''],
-            
+
+
+            ['stats_enabled', True, False,''],
             ['plot_mean', False, False,''],
             ['plot_mean_pixelsize',2, False,''],
             ['plot_mean_color',[0,0,0,255], False,''],
@@ -201,7 +203,7 @@ class contour:
             else:
                 continue
             
-            if self.plot_median or self.plot_mean:
+            if self.stats_enabled:
                 x_hist=keys_x.get(hx,{})
                 num=x_hist.get(y,0)                
                 x_hist[y]=num+val
@@ -227,7 +229,7 @@ class contour:
             
 
         self.heatmap=heatmap
-        if self.plot_mean:
+        if self.stats_enabled:  # calculate mean
             avg_x={}
             for xpixel in range(0,xpixels):
                 x_hist=keys_x.get(xpixel,None)
@@ -241,7 +243,7 @@ class contour:
                 #print xpixel, avg, avg_in_pixels
                 avg_x[xpixel]=avg_in_pixels
 
-        if self.plot_median:
+        if self.stats_enabled:  # calculate median
             med_x={}
             for xpixel in range(0,xpixels):
                 x_hist=keys_x.get(xpixel,None)                
@@ -381,7 +383,7 @@ class contour:
             js+='"%s":%s,\n' % (k,v)
         js+='};\n\n'
 
-        if self.plot_mean:
+        if self.stats_enabled:   #mean
             js+='var mean_x=['
             txt=''
             nr=0
@@ -394,7 +396,7 @@ class contour:
                 
             js+=txt[:-1]+'];\n\n'
 
-        if self.plot_median:
+        if self.stats_enabled:  # median
             js+='var median_x=['
             txt=''
             nr=0
