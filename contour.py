@@ -159,7 +159,7 @@ class contour:
         if self.ylabel is None:
             self.ylabel=ycol            
 
-        heatmap=[[0]*xpixels for i in range(ypixels)]
+        heatmap=[[0]*ypixels for i in range(xpixels)]
         
         fuzzx=float(self.fuzzx)
         fuzzy=float(self.fuzzy)
