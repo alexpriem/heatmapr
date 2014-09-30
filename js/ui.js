@@ -425,7 +425,7 @@ function click_print () {
 
   chart.append("text")      // text label for the x axis
   		.attr("class","xaxis")
-        .attr("x", imgwidth/2 )
+        .attr("x", imgwidth/2+70 )
         .attr("y",  imgheight+70 )
         .style("text-anchor", "middle")
         .attr("font-family", "Corbel")
