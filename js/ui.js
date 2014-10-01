@@ -16,7 +16,6 @@ var imgData, mapdata;
 var xpix2img=parseInt(imgwidth/xpixels);
 var ypix2img=parseInt(imgheight/ypixels);
 
-
 function init_databuffers () {
 
 chart = d3.select("#heatmap_svg");
@@ -55,9 +54,13 @@ function calc_heatmap () {
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var inv_grad=gradient_node.gradient_invert;
 	
+	var weigh_x=opties['weighx'];
+	var weigh_y=opties['weighy'];
+	console.log('weighx/y:', weigh_x, weigh_y);
 	console.log('calc_heatmap:',xpixels, ypixels, size);
 	var ptr2=0;
-	maxval=0;	
+	maxval=null;	
+	minval=null;
 	size=1;  // XXX 
 	for (var i=0; i<ypixels; i+=size) {
 		for (var j=0; j<xpixels;  j+=size) {		
@@ -92,9 +95,16 @@ function calc_heatmap () {
 				}
 	    	}
 	    			
-			ptr2++;			
+			ptr2++;		
+			if (weigh_x) {
+				val=(val/sum_x[j])*xmean;
+			}
+			if (weigh_y) {
+				val=(val/sum_y[i])*ymean;
+			}
 			transposebuffer[ptr2]=val;			
-			if (val>maxval) maxval=val;
+			if ((val>maxval) || (maxval==null)) maxval=val;
+			if ((val<minval) || (minval==null)) minval=val;
 
 		} //j
 //		console.log("i:",i);
@@ -758,7 +768,7 @@ function init_hist_xy () {
 function click_stats () {
 
 	var id=$(this).attr('id');
-	f=$(this).attr('data-stats');
+	var f=$(this).attr('data-stats');
 	var state=opties[f];
 	if (state==true)	{
 		state=false;
@@ -782,4 +792,9 @@ function init_stats(widget_id, transform) {
  	$('.stats').on('click',click_stats);
  	$('.stats').on('mouseenter ',enter_selectie);
   	$('.stats').on('mouseout ',leave_selectie);  	
+
+  	$('.stats').each(function(i,obj){
+  		var f=$(this).attr('data-stats');
+  		opties[f]=false;
+  	});
 }

@@ -226,6 +226,7 @@ class contour:
                 sys.exit()
                 
 
+
             
 
         self.heatmap=heatmap
@@ -275,11 +276,14 @@ class contour:
         nonzerocount=0
         xsum=[0]*xpixels
         ysum=[0]*ypixels
+        totalsum=0
         for x in range(0,xpixels):
             for y in range(0,ypixels):
-                 nonzerocount+=(heatmap[x][y]!=0)
-                 xsum[x]+=heatmap[x][y]
-                 ysum[y]+=heatmap[x][y]
+                val=heatmap[x][y]
+                nonzerocount+=(val!=0)
+                xsum[x]+=val
+                ysum[y]+=val
+                totalsum+=val
 
                  
         print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
@@ -383,6 +387,33 @@ class contour:
             js+='"%s":%s,\n' % (k,v)
         js+='};\n\n'
 
+        
+        js+='var sum_x=['
+        txt=''
+        nr=0
+        for sumx in xsum:                
+            if nr>9:
+                txt+='\n'
+                nr=0
+            nr+=1
+            txt+=str(sumx)+','
+        js+=txt[:-1]+'];\n\n'
+        
+        js+='var sum_y=['
+        txt=''
+        nr=0
+        for sumy in ysum:                
+            if nr>9:
+                txt+='\n'
+                nr=0
+            nr+=1
+            txt+=str(sumy)+','
+        js+=txt[:-1]+'];\n\n'            
+        js+='var totalsum=%s;\n' % str(totalsum)
+        js+='var xmean=%s;\n' % str(float(sum(xsum))/len(xsum) )
+        js+='var ymean=%s;\n\n' % str(float(sum(xsum))/len(ysum) )
+    
+
         if self.stats_enabled:   #mean
             js+='var mean_x=['
             txt=''
@@ -422,6 +453,8 @@ class contour:
                 txt+='[%d,%d],' % (xpixel, ypixel)
                 
             js+=txt[:-1]+'];\n'
+
+        
                     
 
         self.js=js
