@@ -55,7 +55,7 @@
 <div id="controls" class="leftbox">
     <colormap-controls id="cc_a" gradient="cg_a"> </colormap-controls>
 
-      <ul id="sel_transform_{{widget_id}}" class="selbox">
+      <ul id="sel_transform" class="selbox">
           <li class="sel_heading"> Transform: </li>
           <li class="stats" id="stats_mean" data-stats="plot_mean"> Mean</li>
           <li class="stats" id="stats_median" data-stats="plot_median"> Median</li>
@@ -63,6 +63,12 @@
           <li class="stats" id="stats_weighx" data-stats="weighx"> Weigh-x</li>
           <li class="stats" id="stats_weighy" data-stats="weighy"> Weigh-y</li>
       </ul>
+
+      <ul id="sel_print" class="selbox">
+  		<li class="sel_heading"> Output options:</li>
+  		<li class="print" data-print="png"> Print to png</li>
+  		<li class="print" data-print="pdf"> Print to pdf</li>
+	</ul>
 </div>
 
 <div id="canvasdiv" class="rightbox"> 
