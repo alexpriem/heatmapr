@@ -108,12 +108,12 @@ class contour:
         self.check_args(args)
                         
         sep=self.sep
-        if self.infile[-3:]='.gz':
+        if self.infile[-3:]=='.gz':
             f=gzip.open(self.infile)
         else:
             f=open(self.infile)
         line=f.readline()        
-        cols=[cols.lower().strip() for c in line.split(sep)]
+        cols=[c.lower().strip() for c in line.split(sep)]
         numcols=len(cols)
         
         xcol=self.x_var.lower()
@@ -259,7 +259,7 @@ class contour:
                     med_x[xpixel]=0
                     continue
                 medval=sum(x_hist.values())/2
-                if medval<ymin
+                if medval<ymin:
                     medval=ymin
                 if medval>ymax:
                     medval=ymax                         
