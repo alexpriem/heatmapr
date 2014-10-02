@@ -110,15 +110,15 @@ class contour:
         sep=self.sep
         f=open(self.infile)
         line=f.readline()        
-        cols=line.strip().split(sep)
+        cols=[cols.lower().strip() for c in line.split(sep)]
         numcols=len(cols)
         
-        xcol=self.x_var
+        xcol=self.x_var.lower()
         xmin=self.x_min
         xmax=self.x_max
         xpixels=self.x_steps
 
-        ycol=self.y_var
+        ycol=self.y_var.lower()
         ymin=self.y_min
         ymax=self.y_max
         ypixels=self.y_steps
