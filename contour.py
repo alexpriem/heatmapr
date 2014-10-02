@@ -243,6 +243,10 @@ class contour:
                     continue
                 
                 avg=sum([k*v for k,v in x_hist.items()])/sum(x_hist.values())            
+                if avg<ymin:
+                    avg=ymin
+                if avg>ymax:
+                    avg=ymax                         
                 avg_in_pixels=int((avg-ymin)/yfactor)            
                 #print xpixel, avg, avg_in_pixels
                 avg_x[xpixel]=avg_in_pixels
@@ -255,11 +259,11 @@ class contour:
                     med_x[xpixel]=0
                     continue
                 medval=sum(x_hist.values())/2
-                sumv=0
-                for k in sorted(x_hist.keys()):
-                    if sumv>=medval:
-                        med=k                                
-                med_in_pixels=int((med-ymin)/yfactor)
+                if medval<ymin
+                    medval=ymin
+                if medval>ymax:
+                    medval=ymax                         
+                med_in_pixels=int((medval-ymin)/yfactor)
                # print xpixel, med, med_in_pixels
                 med_x[xpixel]=med_in_pixels
             
@@ -272,8 +276,10 @@ class contour:
                 x,y=line.split(sep)
                 x=float(x.strip())
                 y=float(y.strip())
+                if (x<xmin) or (x>xmax) or (y<xmin) or (y>ymax):
+                    continue
                 xpixel=int((x-xmin)/xfactor) 
-                ypixel=int((y-ymin)/yfactor) 
+                ypixel=int((y-ymin)/yfactor)                
             extradata.append([xpixel,ypixel])
 
         nonzerocount=0
