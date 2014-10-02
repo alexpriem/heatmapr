@@ -108,7 +108,10 @@ class contour:
         self.check_args(args)
                         
         sep=self.sep
-        f=open(self.infile)
+        if self.infile[-3:]='.gz':
+            f=gzip.open(self.infile)
+        else:
+            f=open(self.infile)
         line=f.readline()        
         cols=[cols.lower().strip() for c in line.split(sep)]
         numcols=len(cols)
