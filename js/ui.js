@@ -479,6 +479,7 @@ barwidth=500/gradsteps;
 var hist_offset_x=125;
 
 var gradient_node=document.getElementById("cg_a");
+console.log(gradient_node);
 var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
