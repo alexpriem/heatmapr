@@ -181,12 +181,12 @@ font-family: "Lucida Console", Monaco, monospace;
 #cg_a{
 position:absolute;
 z-index: 5;
-padding-left:620px;
+margin-left:620px;
 top:50px;
 }
 
 #heatmap_container{
 position:absolute;
-padding-left:100px;
+margin-left:100px;
 top:50px;
 }
