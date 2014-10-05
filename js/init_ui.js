@@ -5,10 +5,6 @@ var print=false;
 
 // printinfo hier
 
-var changed=function changed_things (){
-    console.log('changed, redrawing');
-    draw_heatmap();
-}
 
 function init_page() {
   
@@ -29,10 +25,9 @@ function init_page() {
             topnode.setAttribute(keyword, defaultsettings[keyword]);                      
       }
   }
-  topnode.attributeChangedCallback=changed;
-
-
+  
     init_gradients(); 
+    topnode.postAttributeChangedCallback=draw_heatmap;  
     c=document.getElementById("heatmap_canvas");
     c.setAttribute("width", imgwidth);
     c.setAttribute("height", imgwidth);

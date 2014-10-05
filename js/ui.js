@@ -9,7 +9,7 @@ var histmax=0;
 var colormap=[];
 var val=0;
 var chart;
-var backbuffer, transposebuf;
+var backbuffer, transposebuffer;
 var imgData, mapdata;
 
 
@@ -184,7 +184,7 @@ console.log("calc_heatmap, len:",backbuffer.length);
 
 */
 
-function draw_heatmap() {
+var draw_heatmap=function draw_heatmap() {
 
 	console.log("draw_heatmap:");
 	calc_heatmap();
