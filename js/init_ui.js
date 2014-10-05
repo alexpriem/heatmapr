@@ -28,6 +28,7 @@ function init_page() {
   
     init_gradients(); 
     topnode.postAttributeChangedCallback=draw_heatmap;  
+    topnode.preAttributeChangedCallback=calc_minmax;
     c=document.getElementById("heatmap_canvas");
     c.setAttribute("width", imgwidth);
     c.setAttribute("height", imgwidth);
