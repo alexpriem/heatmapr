@@ -51,9 +51,8 @@ var calc_minmax=function calc_heatmap () {
 	}
 
 	var gradient_node=document.getElementById("cg_a");
-	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	
-	
+	if (gradient_node.need_data_recalc==false) return;
+
 	var weigh_x=opties['weighx'];
 	var weigh_y=opties['weighy'];
 	console.log('weighx/y:', weigh_x, weigh_y);
@@ -68,41 +67,48 @@ var calc_minmax=function calc_heatmap () {
 			val=0;
 			ptr=j*ypixels+i;
 			if (size==1) val=data[ptr];
-			if (size>1) {
-				for (cx=0; cx<size; cx++) {
-					for (cy=0; cy<size; cy++) {
-						val+=data[ptr+cx+cy*xpixels];
-						}
-					}				//cy
-			}  // size >1
+			else {
+				if (size>1) {
+					for (cx=0; cx<size; cx++) {
+						for (cy=0; cy<size; cy++) {
+							val+=data[ptr+cx+cy*xpixels];
+							}
+						}				//cy
+				}  // size >1
+			}
 			
 
 			val=val/(size*size);
 	    	if (transform=='sqrt') {
-				val=Math.sqrt(val);
+	    		if (val>0) {
+					val=Math.sqrt(val);
+				} else {
+					val=-Math.sqrt(-val);
+				}
 	    	}
 			if (transform=='log2') {
 				if (val>0) {
 					val=Math.log(val);
 				} else { 
-					val=0;
+					val=-Math.log(-val);
 				}
 	    	}
 			if (transform=='log10') {
 				if (val>0) {
 					val=Math.log(val)/Math.LN10;
 				} else { 
-					val=0;
+					val=-Math.log(-val)/Math.LN10;
 				}
 	    	}
 	    			
-			ptr2++;		
+			
 			if (weigh_x) {
 				val=(val/sum_x[j])*xmean;
 			}
 			if (weigh_y) {
 				val=(val/sum_y[i])*ymean;
 			}
+			ptr2++;		
 			transposebuffer[ptr2]=val;			
 			if ((val>maxval) || (maxval==null)) maxval=val;
 			if ((val<minval) || (minval==null)) minval=val;
@@ -112,36 +118,32 @@ var calc_minmax=function calc_heatmap () {
 	}	//i
 
 
+	
 	var gradmax=gradient_node.getAttribute('gradient_max');
 	var gradmin=gradient_node.getAttribute('gradient_min');
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	if (gradmax=='max') {
-		gradient_node.setAttribute('gradient_max_data', maxval);
-		var tgradmax=maxval;
+		gradient_node.setAttribute('gradient_max_data', maxval);		
 	} else {
 		if (gradient_node.hasAttribute('gradient_max_data')) {
 			gradient_node.deleteAttribute('gradient_max_data');			
-		}
-		var tgradmax=gradmax;
+		}		
 	}
 	if (gradmin=='min') {
-		gradient_node.setAttribute('gradient_min_data', minval);
-		var tgradmin=minval;
+		gradient_node.setAttribute('gradient_min_data', minval);		
 	} else {
 		if (gradient_node.hasAttribute('gradient_min_data')) {
 			gradient_node.deleteAttribute('gradient_min_data');			
-		}
-		var tgradmin=gradmin;
+		}		
 	}
-
-	return ptr2; //hack
+	
 }
 
 
 
-function bin_data (ptr2) {
+function bin_data () {
 
-	//var ptr2=0;
+	var totalpixels=xpixels*ypixels;
 	var gradient_node=document.getElementById("cg_a");
 	var gradmax=gradient_node.getAttribute('gradient_max');
 	var gradmin=gradient_node.getAttribute('gradient_min');
@@ -167,7 +169,7 @@ function bin_data (ptr2) {
 	u=0;
 	v=0;
 
-	for (i=0; i<ptr2; i++)	{	
+	for (i=0; i<totalpixels; i++)	{	
 		val=transposebuffer[i];
 
 		indexval=~~((val-gradmin)/(delta)*gradsteps);  					
@@ -221,8 +223,8 @@ for (i=1; i<gradsteps; i++)
 var draw_heatmap=function draw_heatmap() {
 
 	console.log("draw_heatmap:");
-	ptr2=calc_minmax();
-	bin_data(ptr2);
+	calc_minmax();
+	bin_data();
 	draw_histogram();	
 
 	/* eigenlijke heatmap plotten */
