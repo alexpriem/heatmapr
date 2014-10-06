@@ -1,6 +1,7 @@
 /* settings */	
 
 var skipzero=true;
+var hist;
 var histmax=0;
 
 
@@ -45,10 +46,7 @@ var calc_minmax=function calc_heatmap () {
 
 	console.log("calc_heatmap:");
 	
-	hist=new Array(gradsteps);
-	for (i=0; i<gradsteps; i++) {
-		hist[i]=0;
-	}
+	
 
 	var gradient_node=document.getElementById("cg_a");
 	if (gradient_node.need_data_recalc==false) return;
@@ -150,6 +148,8 @@ function bin_data () {
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var inv_grad=gradient_node.gradient_invert;
 	
+
+
 	if (gradient_node.hasAttribute('gradient_max_data')) {
 		var gradmax=gradient_node.getAttribute('gradient_max_data');
 	}
@@ -168,7 +168,10 @@ function bin_data () {
 	ptr=-xstep; // whut?
 	u=0;
 	v=0;
-
+	hist=new Array(gradsteps);
+	for (i=0; i<gradsteps; i++) {
+		hist[i]=0;
+	}
 	for (i=0; i<totalpixels; i++)	{	
 		val=transposebuffer[i];
 
@@ -201,6 +204,7 @@ function bin_data () {
 		}
 	}			//cy
 
+console.log('HISTMAX:',hist)
 histmax=0;
 for (i=1; i<gradsteps; i++) 
 	if (hist[i]>histmax) histmax=hist[i];
@@ -509,24 +513,26 @@ function draw_histogram () {
 console.log("draw_histogram:", histmax);
 //console.log(colormap);
 
-histwidth=500;
-histheight=0.4*imgheight;
-barwidth=500/gradsteps;
 
-var hist_offset_x=125;
+
 
 var gradient_node=document.getElementById("cg_a");
-console.log(gradient_node);
 var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
 colormap=gradient_node.colormaps[colormapname](gradsteps);
 
-return;
+var histwidth=500;
+var histheight=0.4*imgheight;
+var barwidth=500/gradsteps;
+var hist_offset_x=125;
+
 
 $('.hist_2d').remove();
 $('.hist_x').remove();
 $('.hist_y').remove();
+
+console.log('DRAW_HISTOGRAM:',imgheight,histmax,histheight);
 for (i=1; i<gradsteps; i++) {
  	color=colormap[i];
  	colorstring="rgb("+color[0]+","+color[1]+","+color[2]+")";
@@ -536,6 +542,7 @@ for (i=1; i<gradsteps; i++) {
  		borderstyle="#5a5a5a";
  	}
  	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
+ 	
  	chart.append("rect")
 		.attr("class","hist_2d")
 		.attr("x",imgwidth+hist_offset_x+i*barwidth)
@@ -546,13 +553,12 @@ for (i=1; i<gradsteps; i++) {
 		.style("stroke",borderstyle)
 		.style("stroke-width","1px");		
  }
-
-  
+	  
   console.log('hist:',transform);
   var heatmap_hist_xScale=d3.scale.linear();
   
   heatmap_hist_xScale.range([0,gradsteps*barwidth]);
-  heatmap_hist_xScale.domain([tgradmin,tgradmax]);
+  heatmap_hist_xScale.domain([gradmin,gradmax]);
 
   var heatmap_hist_yScale=d3.scale.linear();
   heatmap_hist_yScale.range([0,histheight]);
@@ -594,6 +600,20 @@ for (i=1; i<gradsteps; i++) {
 function update_hist_x_y (evt) {
 
 	console.log("update_hist_x_y");	
+
+	var gradient_node=document.getElementById("cg_a");
+	var gradmax=gradient_node.getAttribute('gradient_max');
+	var gradmin=gradient_node.getAttribute('gradient_min');
+	var gradsteps=gradient_node.getAttribute('gradient_steps');
+	var inv_grad=gradient_node.gradient_invert;
+	if (gradient_node.hasAttribute('gradient_max_data')) {
+		var gradmax=gradient_node.getAttribute('gradient_max_data');
+	}
+	if (gradient_node.hasAttribute('gradient_min_data')) {
+		var gradmin=gradient_node.getAttribute('gradient_min_data');
+	}
+
+
 	x=parseInt(evt.pageX-$(this).position().left-50);
 	y=parseInt(evt.pageY-$(this).position().top-25);
 	console.log(x, y);
@@ -707,12 +727,12 @@ for (i=0; i<imgheight; i++) {
   xxScale.range([0,imgwidth]); 
   xxScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
   xyScale.range([0,0.25*imgheight]); 
-  xyScale.domain([histy_max*(tgradmax/gradsteps),0]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
+  xyScale.domain([histy_max*(gradmax/gradsteps),0]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
 
   yxScale.range([0,imgwidth]); 
   yxScale.domain([xmin,xmax]);   
   yyScale.range([0,0.25*imgheight]); 
-  yyScale.domain([histx_max*(tgradmax/gradsteps),0]);
+  yyScale.domain([histx_max*(gradmax/gradsteps),0]);
 
   var xxAxis=d3.svg.axis();
   var xyAxis=d3.svg.axis();  
