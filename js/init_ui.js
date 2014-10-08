@@ -26,9 +26,7 @@ function init_page() {
       }
   }
   
-    init_gradients(); 
-    topnode.postAttributeChangedCallback=draw_heatmap;  
-    topnode.preAttributeChangedCallback=calc_minmax;
+
     c=document.getElementById("heatmap_canvas");
     c.setAttribute("width", imgwidth);
     c.setAttribute("height", imgwidth);
@@ -37,13 +35,15 @@ function init_page() {
     s.setAttribute("height", imgheight+100);
     
     ctx = c.getContext('2d');  
+    topnode.postAttributeChangedCallback=draw_heatmap;  
+    topnode.preAttributeChangedCallback=calc_minmax;
+    init_databuffers();
+    init_gradients(); 
     
 
   //  init_manipulation();
-    init_databuffers();
+    
     init_print();
-    // copy img byte-per-byte into our ImageData
-    draw_heatmap();
     draw_axes ();        
     init_stats();
     init_hist_xy();
