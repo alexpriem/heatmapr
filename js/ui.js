@@ -790,6 +790,7 @@ function click_stats () {
 
 	var id=$(this).attr('id');
 	var f=$(this).attr('data-stats');
+	console.log('click_stats:',f);
 	var state=opties[f];
 	if (state==true)	{
 		state=false;
@@ -801,6 +802,7 @@ function click_stats () {
 	}
 	opties[f]=state;
 	console.log(opties);
+	calc_minmax();
 	draw_heatmap();
 
 }
