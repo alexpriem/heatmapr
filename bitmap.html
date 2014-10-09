@@ -37,6 +37,15 @@
             <li class="transformname transformname_{{widget_id}}" id="trans_log10_{{widget_id}}" data-transform="log10" data-widget="{{widget_id}}"> log10</li>  
     </ul>
 
+    {{#if show_size}}
+        <ul id="sel_size_{{widget_id}}" class="selbox">
+        <li class="sel_heading"> Sizes: </li>
+        {{#sizes}}
+            <li class="sizename sizename_{{widget_id}}" id="sizename_{{size}}_{{widget_id}}" data-size="{{size}}" data-widget="{{widget_id}}">{{size_x_size}}</li>  
+        {{/sizes}}
+        </ul>
+    {{/if}}
+
     <ul id="sel_swap_{{widget_id}}" class="selbox">
       <li class="sel_heading"> Gradient:</li>
       <li class="swapname swapname_{{widget_id}}" id="invert_{{widget_id}}" data-widget="{{widget_id}}"> invert gradient</li>

@@ -77,7 +77,7 @@ var calc_minmax=function calc_heatmap () {
 	maxval=data[0];	
 	minval=data[0];
 
-	size=1;  // XXX 
+	size=gradient_node.size;		
 	for (var i=0; i<ypixels; i+=size) {
 		for (var j=0; j<xpixels;  j+=size) {		
 			val=0;
@@ -230,6 +230,7 @@ for (i=1; i<gradsteps; i++)
 var draw_heatmap=function draw_heatmap() {
 
 	console.log("draw_heatmap:");
+
 	//calc_minmax();
 	bin_data();
 	draw_histogram();	
@@ -240,10 +241,12 @@ var draw_heatmap=function draw_heatmap() {
 	var color=[];
 	var nr=0;
 
+	var gradient_node=document.getElementById("cg_a");
+	var size=gradient_node.size;	
+	console.log('draw_heatmap, size:',size);
 	var xstep=xpix2img*size;
 	var ystep=ypix2img*size;
 
-	var gradient_node=document.getElementById("cg_a");
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var colormapname=gradient_node.getAttribute('colormapname');
 	colormap=gradient_node.colormaps[colormapname](gradsteps);
