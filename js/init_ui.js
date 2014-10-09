@@ -15,7 +15,8 @@ function init_page() {
         gradient_min: opties.gradmin,
         gradient_max: opties.gradmax,
         gradient_steps: opties.gradsteps,
-        transform: opties.transform
+        transform: opties.transform,
+        show_size: 'true'
     };
     //console.log(defaultsettings);
 
