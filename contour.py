@@ -64,6 +64,11 @@ class contour:
             ['plot_median', False, False,''],
             ['plot_median_pixelsize',2, False,''],
             ['plot_median_color',[0,0,255,255], False,''],
+        
+            ['use_dots',False,False,''],
+            ['dot_color','blue',False,''],
+            ['dot_size',8,False,''],
+
             
             ['info_datafile',None,False,''],
             ['info_pixelsize',2, False,''],

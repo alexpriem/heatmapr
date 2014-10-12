@@ -232,8 +232,11 @@ var draw_heatmap=function draw_heatmap() {
 
 	console.log("draw_heatmap:");
 
-	//calc_minmax();
-	bin_data();
+	if (opties['use_dots']) {
+		return;
+	}
+
+	bin_data();		
 	draw_histogram();	
 
 	/* eigenlijke heatmap plotten */
@@ -316,6 +319,14 @@ var draw_heatmap=function draw_heatmap() {
 }
 
 
+
+
+
+function plot_dotted_data () {
+
+
+
+}
 
 
 
@@ -414,7 +425,9 @@ function click_print () {
   if (logy) var yScale=d3.scale.log();
   else	var yScale=d3.scale.linear();
     
-  
+    // off by one, again.
+  ymax=ymax+1;
+  xmax=xmax+1;
   if ((logx) && (xmin<=0)) xmin=1;
   xScale.domain([xmin,xmax]);  
   xScale.range([0,imgwidth]); 
@@ -429,7 +442,32 @@ function click_print () {
        .orient("bottom");
   yAxis.scale(yScale)       
        .orient("left");
-       
+
+
+
+    dx=(xmax-xmin)/(xpixels);
+    dy=(ymax-ymin)/(ypixels);
+	console.log('plot_dotted_data', dx,dy);
+
+	var dot_size=opties["dot_size"];
+	var dot_color=opties["dot_color"];
+	for (i=0; i<xpixels; i++){
+		for (j=0; j<ypixels; j++){
+			ptr=ypixels*j+i;
+			val=transposebuffer[ptr];
+		xval=i*dx+xmin;
+		yval=j*dy+ymin;				
+		for (k=0; k<val; k++) {
+			chart.append("svg:circle")
+          		.attr("cx", function (d,i) { return xScale(xval+0.6*dx*Math.random()); } )
+          		.attr("cy", function (d) { return xScale(yval+0.6*dy*Math.random()); } )
+          		.attr("transform","translate(85,35)")
+          		.attr("r", dot_size)
+          		.style("fill",dot_color);
+          	}
+
+		}
+	}       
    
 
   //console.log(chart);
@@ -470,6 +508,8 @@ function click_print () {
   		.attr("font-weight", "bold")         
         .style("text-anchor", "middle")
         .text(title);
+
+
 
 }
 
