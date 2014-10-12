@@ -16,7 +16,9 @@ function init_page() {
         gradient_max: opties.gradmax,
         gradient_steps: opties.gradsteps,
         transform: opties.transform,
-        show_size: 'true'
+        show_size: 'true',
+        xpixels: xpixels,
+        ypixels: ypixels
     };
     //console.log(defaultsettings);
 
