@@ -69,6 +69,10 @@ class contour:
             ['info_pixelsize',2, False,''],
             ['info_color',[255,0,0,255], False,''],
 
+
+            ['weighx',False,False,''],
+            ['weighy',False,False,''],
+             
             ['debuglevel',0, False,''],            
         ]
 
