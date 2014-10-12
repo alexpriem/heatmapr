@@ -300,10 +300,12 @@ class contour:
 
 # test autoscaling
         cutoff=1
+        min_x=xsum[0]
         for x in range(0,xpixels):
             if xsum[x]>cutoff:
                 min_x=x
                 break
+        max_x=xsum[0]            
         for x in range(xpixels-1,0,-1):
             if xsum[x]>cutoff:
                 max_x=x
@@ -311,10 +313,12 @@ class contour:
         print 'suggested autoscale x:', min_x*xfactor+xmin,max_x*xfactor+xmin
 
         cutoff=1
+        min_y=ysum[0]
         for y in range(0,ypixels):
             if ysum[y]>cutoff:
                 min_y=y
                 break
+        max_y=ysum[0]
         for y in range(ypixels-1,0,-1):
             if ysum[y]>cutoff:
                 max_y=y
