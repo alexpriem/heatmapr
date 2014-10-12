@@ -105,9 +105,9 @@ var calc_minmax=function calc_heatmap () {
 			}
 			if (weigh_y) {
 				val=(val/sum_y[i])*ymean;
-			}
-			ptr2++;		
+			}			
 			transposebuffer[ptr2]=val;			
+			ptr2++;	
 		} //j
 //		console.log("i:",i);
 	}	//i
@@ -138,7 +138,7 @@ var calc_minmax=function calc_heatmap () {
 
 function bin_data () {
 
-	var totalpixels=xpixels*ypixels;
+	var totalpixels=xpixels*ypixels;	
 	var gradient_node=document.getElementById("cg_a");
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var transform=gradient_node.getAttribute('transform');
@@ -168,13 +168,15 @@ function bin_data () {
 	}
 	xstep=xpix2img*size;
 	ystep=ypix2img*size;
-	ptr=-xstep; // whut?
+	
 	u=0;
-	v=0;
+	v=1;
+	//console.log('xstep/ystep:',xstep,ystep, xpix2img, ypix2img, size);
 	hist=new Array(gradsteps);
 	for (i=0; i<gradsteps; i++) {
 		hist[i]=0;
 	}
+	console.log('totalpixels,ptr:',totalpixels,ptr, imgheight, imgwidth);
 	for (i=0; i<totalpixels; i++)	{	
 		val=transposebuffer[i];
 
@@ -191,10 +193,11 @@ function bin_data () {
 		ptr=(imgheight-v*ystep)*imgwidth; 
 		ptr+=u*xstep;
 
+
 		//if (line==0) { console.log("val=",val);}
 		//ptr=u*xstep+v*ystep*imgwidth;
 		for (cy=0; cy<ystep; cy++) {
-			for (cx=0; cx<xstep; cx++) {			
+			for (cx=0; cx<xstep; cx++) {
 				backbuffer[ptr+cy*imgwidth+cx]=indexval;
 				}
 			}
@@ -207,13 +210,11 @@ function bin_data () {
 		}
 	}			//cy
 
-console.log('HISTMAX:',hist)
-histmax=0;
+//console.log('HISTMAX:',hist)
+histmax=hist[0];
 for (i=1; i<gradsteps; i++) 
 	if (hist[i]>histmax) histmax=hist[i];
 	
- 
-//console.log('hist:',hist);
 //console.log('hist2:',backbuffer);
 }
 
