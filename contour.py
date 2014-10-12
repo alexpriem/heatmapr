@@ -151,8 +151,9 @@ class contour:
             ymin=safelog10(ymin)
             ymax=safelog10(ymax)
 
-        xfactor= (xmax-xmin)/ (1.0*xpixels)
-        yfactor= (ymax-ymin)/ (1.0*ypixels)
+        xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
+        yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
+        print xfactor, yfactor
         xfactorinv= (1.0*xpixels)/(xmax-xmin)
         yfactorinv= (1.0*ypixels)/(ymax-ymin)
 
@@ -175,7 +176,6 @@ class contour:
 
 
         linenr=0
-        #f.seek(0)
         keys_x={}
         keys_y={}
         total=0
@@ -201,8 +201,8 @@ class contour:
             val=1
             if weightcolnr is not None:
                 val=float(cols[weightcolnr])
-            if (x>xmin and x<xmax):
-                hx=int((x-xmin)/xfactor)
+            if (x>=xmin and x<=xmax):
+                hx=int((x-xmin)/xfactor)                
                 if fuzzx!=0:
                     hx+=int(random.random()*fuzzx)
                     if hx>=xpixels:
@@ -216,7 +216,7 @@ class contour:
                 x_hist[y]=num+val
                 keys_x[hx]=x_hist
                 
-            if (y>ymin and y<ymax):
+            if (y>=ymin and y<=ymax):
                 hy=int((y-ymin)/yfactor)
                 if fuzzy!=0:
                     hy+=int(random.random()*fuzzy)                
@@ -229,7 +229,8 @@ class contour:
             try:
                 heatmap[hx][hy]+=val
             except IndexError:
-                print 'IndexError:', hx,hy
+                print 'IndexError (%d,%d), line nr %d:' % (hx,hy,linenr)
+                print 'inputdata:',line
                 sys.exit()
                 
 
