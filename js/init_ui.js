@@ -50,9 +50,13 @@ function init_page() {
     draw_axes ();        
     init_stats();
     init_hist_xy();
+    init_dotplot();
     if (opties['use_dots']) {
         console.log('kill gradient');
-        $('.colormap-gradient').css("display","none");
+        $('.colormap-gradient').css("display","none");   
+        $('.dotplot-controls').css("display","");     
+    } else {
+        $('.dotplot-controls').css("display","none");
     }
  //   Pixastic.debug=true;
     document.title =title;

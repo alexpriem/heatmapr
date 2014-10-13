@@ -445,30 +445,71 @@ function click_print () {
 
 
 
-    dx=(xmax-xmin)/(xpixels);
-    dy=(ymax-ymin)/(ypixels);
-	console.log('plot_dotted_data', dx,dy);
+	
+// dotplot starts here 
+	if (opties['use_dots']) {
+    	dx=(xmax-xmin)/(xpixels);
+    	dy=(ymax-ymin)/(ypixels);
+		console.log('plot_dotted_data', dx,dy);
 
-	var dot_size=opties["dot_size"];
-	var dot_color=opties["dot_color"];
-	for (i=0; i<xpixels; i++){
-		for (j=0; j<ypixels; j++){
-			ptr=ypixels*j+i;
-			val=transposebuffer[ptr];
-		xval=i*dx+xmin;
-		yval=j*dy+ymin;				
-		for (k=0; k<val; k++) {
-			chart.append("svg:circle")
-          		.attr("cx", function (d,i) { return xScale(xval+0.6*dx*Math.random()); } )
-          		.attr("cy", function (d) { return xScale(yval+0.6*dy*Math.random()); } )
-          		.attr("transform","translate(85,35)")
-          		.attr("r", dot_size)
-          		.style("fill",dot_color);
-          	}
+		var dot_dotsize=opties["dot_dotsize"];
+		var dot_boxsize=opties["dot_boxsize"];
+		var dot_color=opties["dot_color"];
+		var use_gradient=opties["dot_use_gradient"];
+		if (use_gradient) {
+			
+			var gradient_node=document.getElementById("cg_a");
+			if (gradient_node.hasAttribute('gradient_max_data')) {
+				var gradmax=gradient_node.getAttribute('gradient_max_data');
+			} else {
+				var gradmax=gradient_node.getAttribute('gradient_max');	
+			}
+			if (gradient_node.hasAttribute('gradient_min_data')) {
+				var gradmin=gradient_node.getAttribute('gradient_min_data');
+			} else {
+				var gradmin=gradient_node.getAttribute('gradient_min');
+			}
 
+			var gradmax=transform_value(gradmax,transform);
+			var gradmin=transform_value(gradmin,transform);
+			var gradsteps=gradient_node.getAttribute('gradient_steps');
+
+			var delta=gradmax-gradmin;
+			var color='';
+			var colormapname=gradient_node.getAttribute('colormapname');
+			colormap=gradient_node.colormaps[colormapname](gradsteps);
 		}
-	}       
-   
+
+		for (i=0; i<xpixels; i++){
+			for (j=0; j<ypixels; j++){
+				ptr=ypixels*j+i;				
+				val=transposebuffer[ptr];
+				if (use_gradient) {
+					console.log(val);
+					console.log(colormap[val]);
+					indexval=~~((val-gradmin)/(delta)*gradsteps);  					
+					if (indexval<0) indexval=0;
+					if (indexval>=gradsteps) indexval=gradsteps-1;
+					color=colormap[indexval];
+					dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
+				}
+				xval=i*dx+xmin;
+				yval=j*dy+ymin;				
+				for (k=0; k<val; k++) {
+					chart.append("svg:circle")
+						.attr("class","dot")
+	          			.attr("cx", function (d,i) { return xScale(xval+dot_boxsize*dx*Math.random()); } )
+	          			.attr("cy", function (d) { return xScale(yval+dot_boxsize*dy*Math.random()); } )
+	          			.attr("transform","translate(85,25)")
+	          			.attr("r", dot_dotsize)
+	          			.style("fill",dot_color);
+	          		}
+
+			}
+		}          	
+   	}
+
+   	// dotplot done
 
   //console.log(chart);
   chart.append("g")
@@ -864,4 +905,80 @@ function init_stats(widget_id, transform) {
   		var f=$(this).attr('data-stats');
   		opties[f]=false;
   	});
+}
+
+
+function update_dotplot (e) {
+
+
+	console.log('update_gradient:');
+	if (e.keyCode == '13') {		
+		boxsize=$('#dotplot_boxsize_val').val();
+		dotsize=$('#dotplot_dotsize_val').val();
+		console.log('update_dotplot:',boxsize, dotsize);
+		opties['dot_boxsize']=boxsize;
+		opties['dot_dotsize']=dotsize;
+
+		$('.xaxis').remove();
+		$('.yaxis').remove();
+		$('.dot').remove();
+		draw_axes ();
+		console.log('update_dotplot done');
+	}
+
+}
+
+function toggle_heatmap()
+{
+	console.log('toggle_heatmap',opties['use_dots'] );	
+	if(opties['use_dots']){
+		$(this).removeClass('active_selectie');
+		opties['use_dots']=false;
+		$('.xaxis').remove();
+		$('.yaxis').remove();
+		$('.dot').remove();
+		draw_heatmap();
+	} else{
+		$(this).addClass('active_selectie');
+		opties['use_dots']=true;
+		$('.xaxis').remove();
+		$('.yaxis').remove();
+		$('.dot').remove();
+		draw_axes();
+	}
+}
+
+
+function toggle_dotgradient()
+{
+	console.log('toggle_dotgradient',opties['dot_use_gradient'] );
+
+	if(opties['dot_use_gradient']){
+		$(this).removeClass('active_selectie');
+		opties['dot_use_gradient']=false;
+		$('.xaxis').remove();
+		$('.yaxis').remove();
+		$('.dot').remove();
+		draw_axes();
+	} else{
+		opties['dot_use_gradient']=true;
+		$(this).addClass('active_selectie');
+		$('.xaxis').remove();
+		$('.yaxis').remove();
+		$('.dot').remove();
+		draw_axes();
+	}
+}
+
+function init_dotplot () {
+	$('#dotplot_heatdots').on('click',toggle_dotgradient);
+	$('#dotplot_heatmap').on('click',toggle_heatmap);
+ 	$('.stats').on('mouseenter ',enter_selectie);
+  	$('.stats').on('mouseout ',leave_selectie);  	
+	$("#dotplot_boxsize_val").on('keydown',update_dotplot);
+	$("#dotplot_dotsize_val").on('keydown',update_dotplot);
+
+	if (opties['dot_use_gradient']) {
+		$('#dot_use_gradient').addClass('active_selectie');
+	}
 }

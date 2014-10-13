@@ -62,6 +62,24 @@
 <div id="controls" class="leftbox">
     <div class="colormap-controls" id="cc_a" data-gradient="cg_a"> </div>
 
+    <div class="dotplot-controls" > 
+      <ul id="dotplot" class="selbox">
+          <li class="sel_heading"> Dotplot: </li>
+          <li class="dotplot" id="dotplot_color" data-stats="dot_color"> Dotcolor:</li>
+          <li class="dotplot" id="dotplot_dotsize" data-stats="dot_size"> Dotsize:
+                <input type="text" id="dotplot_dotsize_val"  name="dotplot_size" class="dotplot" value="5" maxlength=2  >  
+          </li>
+
+          <li class="dotplot" id="dotplot_boxsize" data-stats="dotbox_size"> Boxsize:
+                <input type="text" id="dotplot_boxsize_val"  name="dotplot_boxsize" class="dotplot" value="0.6" maxlength=3  >  
+          </li>
+          <li class="dotplot" id="dotplot_grid" data-stats="x"> Grid on</li>
+          <li class="dotplot" id="dotplot_heatdots" data-stats="x"> Gradient</li>
+          <li class="dotplot" id="dotplot_heatmap" data-stats="x"> As heatmap</li>
+      </ul>
+
+    </div>
+
       <ul id="sel_stats" class="selbox">
           <li class="sel_heading"> Transform: </li>
           <li class="stats" id="stats_mean" data-stats="plot_mean"> Mean</li>

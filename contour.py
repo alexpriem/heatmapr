@@ -67,7 +67,9 @@ class contour:
         
             ['use_dots',False,False,''],
             ['dot_color','blue',False,''],
-            ['dot_size',8,False,''],
+            ['dot_dotsize',5,False,''],
+            ['dot_boxsize',0.6,False,''],
+            ['dot_use_gradient',False,False,''],
 
             
             ['info_datafile',None,False,''],
