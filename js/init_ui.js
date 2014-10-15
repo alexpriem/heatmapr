@@ -41,13 +41,13 @@ function init_page() {
     topnode.postAttributeChangedCallback=draw_heatmap;  
     topnode.preAttributeChangedCallback=calc_minmax;
     init_databuffers();
+    draw_axes();    
     init_gradients(); 
-    
+
 
   //  init_manipulation();
     
-    init_print();
-    draw_axes ();        
+    init_print();    
     init_stats();
     init_hist_xy();
     init_dotplot();

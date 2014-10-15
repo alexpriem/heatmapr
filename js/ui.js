@@ -142,7 +142,7 @@ function bin_data () {
 	var gradient_node=document.getElementById("cg_a");
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var transform=gradient_node.getAttribute('transform');
-	var inv_grad=gradient_node.gradient_invert;
+	var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
 	
 
 
@@ -186,9 +186,11 @@ function bin_data () {
 
 		indexval=parseInt(indexval);
 		hist[indexval]++;
+		/*
 		if ((inv_grad)  && (indexval!=0)) {			
 				indexval=colormaplength-indexval;
 		}
+*/
 
 		ptr=(imgheight-v*ystep)*imgwidth; 
 		ptr+=u*xstep;
@@ -233,7 +235,7 @@ var draw_heatmap=function draw_heatmap() {
 	console.log("draw_heatmap:");
 
 	if (opties['use_dots']) {
-		return;
+		draw_dotplot();
 	}
 
 	bin_data();		
@@ -245,6 +247,7 @@ var draw_heatmap=function draw_heatmap() {
 	var color=[];
 	var nr=0;
 
+//	$('.dot').remove();		//remove dotplot
 	var gradient_node=document.getElementById("cg_a");
 	var size=gradient_node.size;	
 	console.log('draw_heatmap, size:',size);
@@ -254,6 +257,9 @@ var draw_heatmap=function draw_heatmap() {
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var colormapname=gradient_node.getAttribute('colormapname');
 	colormap=gradient_node.colormaps[colormapname](gradsteps);
+	if (gradient_node.getAttribute('gradient_invert')=='true') {
+		colormap=colormap.reverse();
+	}
 
 	console.log('draw_heatmap, colormap:',colormapname, gradsteps, colormap);
 
@@ -418,12 +424,22 @@ function click_print () {
 
 }
 
+
+
+
+
+
+
+
+
+
+
   function draw_axes () {
 
-  if (logx) var xScale=d3.scale.log();
-  else	var xScale=d3.scale.linear();
-  if (logy) var yScale=d3.scale.log();
-  else	var yScale=d3.scale.linear();
+  if (logx) xScale=d3.scale.log();     // naar object-namespace
+  else	xScale=d3.scale.linear();
+  if (logy) yScale=d3.scale.log();
+  else	yScale=d3.scale.linear();
     
     // off by one, again.
   ymax=ymax+1;
@@ -445,71 +461,8 @@ function click_print () {
 
 
 
-	
-// dotplot starts here 
-	if (opties['use_dots']) {
-    	dx=(xmax-xmin)/(xpixels);
-    	dy=(ymax-ymin)/(ypixels);
-		console.log('plot_dotted_data', dx,dy);
 
-		var dot_dotsize=opties["dot_dotsize"];
-		var dot_boxsize=opties["dot_boxsize"];
-		var dot_color=opties["dot_color"];
-		var use_gradient=opties["dot_use_gradient"];
-		if (use_gradient) {
-			
-			var gradient_node=document.getElementById("cg_a");
-			if (gradient_node.hasAttribute('gradient_max_data')) {
-				var gradmax=gradient_node.getAttribute('gradient_max_data');
-			} else {
-				var gradmax=gradient_node.getAttribute('gradient_max');	
-			}
-			if (gradient_node.hasAttribute('gradient_min_data')) {
-				var gradmin=gradient_node.getAttribute('gradient_min_data');
-			} else {
-				var gradmin=gradient_node.getAttribute('gradient_min');
-			}
-
-			var gradmax=transform_value(gradmax,transform);
-			var gradmin=transform_value(gradmin,transform);
-			var gradsteps=gradient_node.getAttribute('gradient_steps');
-
-			var delta=gradmax-gradmin;
-			var color='';
-			var colormapname=gradient_node.getAttribute('colormapname');
-			colormap=gradient_node.colormaps[colormapname](gradsteps);
-		}
-
-		for (i=0; i<xpixels; i++){
-			for (j=0; j<ypixels; j++){
-				ptr=ypixels*j+i;				
-				val=transposebuffer[ptr];
-				if (use_gradient) {
-					console.log(val);
-					console.log(colormap[val]);
-					indexval=~~((val-gradmin)/(delta)*gradsteps);  					
-					if (indexval<0) indexval=0;
-					if (indexval>=gradsteps) indexval=gradsteps-1;
-					color=colormap[indexval];
-					dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
-				}
-				xval=i*dx+xmin;
-				yval=j*dy+ymin;				
-				for (k=0; k<val; k++) {
-					chart.append("svg:circle")
-						.attr("class","dot")
-	          			.attr("cx", function (d,i) { return xScale(xval+dot_boxsize*dx*Math.random()); } )
-	          			.attr("cy", function (d) { return xScale(yval+dot_boxsize*dy*Math.random()); } )
-	          			.attr("transform","translate(85,25)")
-	          			.attr("r", dot_dotsize)
-	          			.style("fill",dot_color);
-	          		}
-
-			}
-		}          	
-   	}
-
-   	// dotplot done
+ 
 
   //console.log(chart);
   chart.append("g")
@@ -556,6 +509,80 @@ function click_print () {
 
 
 
+// dotplot starts here 
+
+
+function draw_dotplot () {
+
+	if (opties['use_dots']) {	
+		$('.dot').remove();
+    	var dx=(xmax-xmin)/(xpixels);
+    	var dy=(ymax-ymin)/(ypixels);
+		console.log('draw_dotplot', dx,dy);
+
+		var dot_dotsize=opties["dot_dotsize"];
+		var dot_boxsize=opties["dot_boxsize"];
+		var dot_color=opties["dot_color"];
+		var use_gradient=opties["dot_use_gradient"];
+		if (use_gradient) {
+			
+			var gradient_node=document.getElementById("cg_a");
+			if (gradient_node.hasAttribute('gradient_max_data')) {
+				var gradmax=gradient_node.getAttribute('gradient_max_data');
+			} else {
+				var gradmax=gradient_node.getAttribute('gradient_max');	
+			}
+			if (gradient_node.hasAttribute('gradient_min_data')) {
+				var gradmin=gradient_node.getAttribute('gradient_min_data');
+			} else {
+				var gradmin=gradient_node.getAttribute('gradient_min');
+			}
+
+			var gradmax=transform_value(gradmax,transform);
+			var gradmin=transform_value(gradmin,transform);
+			var gradsteps=gradient_node.getAttribute('gradient_steps');
+
+			var delta=gradmax-gradmin;
+			var color='';
+			var colormapname=gradient_node.getAttribute('colormapname');
+			colormap=gradient_node.colormaps[colormapname](gradsteps);
+			if (gradient_node.getAttribute('gradient_invert')=='true') {
+				colormap=colormap.reverse();
+			}
+		}
+
+		for (i=0; i<xpixels; i++){
+			for (j=0; j<ypixels; j++){
+				ptr=ypixels*j+i;				
+				val=transposebuffer[ptr];
+				if (use_gradient) {
+		//			console.log(val);
+		//			console.log(colormap[val]);
+					indexval=~~((val-gradmin)/(delta)*gradsteps);  					
+					if (indexval<0) indexval=0;
+					if (indexval>=gradsteps) indexval=gradsteps-1;
+					color=colormap[indexval];
+					dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
+				}
+				xval=i*dx+xmin;
+				yval=j*dy+ymin;				
+				for (k=0; k<val; k++) {
+					chart.append("svg:circle")
+						.attr("class","dot")
+	          			.attr("cx", function (d,i) { return xScale(xval+dot_boxsize*dx*Math.random()); } )
+	          			.attr("cy", function (d) { return xScale(yval+dot_boxsize*dy*Math.random()); } )
+	          			.attr("transform","translate(85,35)")
+	          			.attr("r", dot_dotsize)
+	          			.style("fill",dot_color);
+	          		}
+
+			}
+		}          	
+   	}
+   	  	// dotplot done
+}
+
+
 function draw_histogram () {
 
 console.log("draw_histogram:", histmax);
@@ -569,6 +596,10 @@ var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
 colormap=gradient_node.colormaps[colormapname](gradsteps);
+if (gradient_node.getAttribute('gradient_invert')=='true') {
+	colormap=colormap.reverse();
+}
+
 
 var histwidth=500;
 var histheight=0.4*imgheight;
@@ -653,7 +684,7 @@ function update_hist_x_y (evt) {
 	var gradmax=gradient_node.getAttribute('gradient_max');
 	var gradmin=gradient_node.getAttribute('gradient_min');
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	var inv_grad=gradient_node.gradient_invert;
+	var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
 	if (gradient_node.hasAttribute('gradient_max_data')) {
 		var gradmax=gradient_node.getAttribute('gradient_max_data');
 	}
@@ -918,33 +949,37 @@ function update_dotplot (e) {
 		console.log('update_dotplot:',boxsize, dotsize);
 		opties['dot_boxsize']=boxsize;
 		opties['dot_dotsize']=dotsize;
-
-		$('.xaxis').remove();
-		$('.yaxis').remove();
-		$('.dot').remove();
-		draw_axes ();
+		draw_dotplot ();
 		console.log('update_dotplot done');
 	}
 
 }
 
-function toggle_heatmap()
+function toggle_dotplot()
 {
-	console.log('toggle_heatmap',opties['use_dots'] );	
+	console.log('toggle_dotplot',opties['use_dots'] );	
 	if(opties['use_dots']){
 		$(this).removeClass('active_selectie');
 		opties['use_dots']=false;
-		$('.xaxis').remove();
-		$('.yaxis').remove();
 		$('.dot').remove();
-		draw_heatmap();
 	} else{
 		$(this).addClass('active_selectie');
 		opties['use_dots']=true;
-		$('.xaxis').remove();
-		$('.yaxis').remove();
+		draw_dotplot();
+	}
+}
+
+function toggle_heatmap()
+{
+	console.log('toggle_heatmap',opties['use_dots'] );	
+	if(opties['use_heatmap']){
+		$(this).removeClass('active_selectie');
+		opties['use_heatmap']=false;
 		$('.dot').remove();
-		draw_axes();
+	} else{
+		$(this).addClass('active_selectie');
+		opties['use_heatmap']=true;
+		draw_heatmap();
 	}
 }
 
@@ -956,23 +991,18 @@ function toggle_dotgradient()
 	if(opties['dot_use_gradient']){
 		$(this).removeClass('active_selectie');
 		opties['dot_use_gradient']=false;
-		$('.xaxis').remove();
-		$('.yaxis').remove();
-		$('.dot').remove();
-		draw_axes();
+		draw_dotplot();
 	} else{
 		opties['dot_use_gradient']=true;
 		$(this).addClass('active_selectie');
-		$('.xaxis').remove();
-		$('.yaxis').remove();
-		$('.dot').remove();
-		draw_axes();
+		draw_dotplot();
 	}
 }
 
 function init_dotplot () {
 	$('#dotplot_heatdots').on('click',toggle_dotgradient);
-	$('#dotplot_heatmap').on('click',toggle_heatmap);
+	$('#dotplot_show_dotplot').on('click',toggle_dotplot);
+	$('#dotplot_show_heatmap').on('click',toggle_heatmap);
  	$('.stats').on('mouseenter ',enter_selectie);
   	$('.stats').on('mouseout ',leave_selectie);  	
 	$("#dotplot_boxsize_val").on('keydown',update_dotplot);
