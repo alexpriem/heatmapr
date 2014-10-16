@@ -7,8 +7,6 @@ var histmax=0;
 
 /* storage */
 
-var colormap=[];
-var val=0;
 var chart;
 var backbuffer, transposebuffer;
 var imgData, mapdata;
@@ -254,14 +252,9 @@ var draw_heatmap=function draw_heatmap() {
 	var xstep=xpix2img*size;
 	var ystep=ypix2img*size;
 
-	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	var colormapname=gradient_node.getAttribute('colormapname');
-	colormap=gradient_node.colormaps[colormapname](gradsteps);
-	if (gradient_node.getAttribute('gradient_invert')=='true') {
-		colormap=colormap.reverse();
-	}
-
-	console.log('draw_heatmap, colormap:',colormapname, gradsteps, colormap);
+	colormap=gradient_node.colormap;
+	
+//	console.log('draw_heatmap, colormap:', colormap);
 
 	console.log("draw_heatmap:",backbuffer.length);
 	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
@@ -543,12 +536,8 @@ function draw_dotplot () {
 			var gradsteps=gradient_node.getAttribute('gradient_steps');
 
 			var delta=gradmax-gradmin;
-			var color='';
-			var colormapname=gradient_node.getAttribute('colormapname');
-			colormap=gradient_node.colormaps[colormapname](gradsteps);
-			if (gradient_node.getAttribute('gradient_invert')=='true') {
-				colormap=colormap.reverse();
-			}
+			var color='';			
+			colormap=gradient_node.colormap;
 		}
 
 		for (i=0; i<xpixels; i++){
@@ -595,10 +584,7 @@ var gradient_node=document.getElementById("cg_a");
 var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
-colormap=gradient_node.colormaps[colormapname](gradsteps);
-if (gradient_node.getAttribute('gradient_invert')=='true') {
-	colormap=colormap.reverse();
-}
+colormap=gradient_node.colormap;
 
 
 var histwidth=500;
