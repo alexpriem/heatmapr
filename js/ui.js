@@ -515,6 +515,7 @@ function draw_dotplot () {
 
 		var dot_dotsize=opties["dot_dotsize"];
 		var dot_boxsize=opties["dot_boxsize"];
+		
 		var dot_color=opties["dot_color"];
 		var use_gradient=opties["dot_use_gradient"];
 		if (use_gradient) {
@@ -540,6 +541,8 @@ function draw_dotplot () {
 			colormap=gradient_node.colormap;
 		}
 
+		var xoffset=0.5*dx-0.5*dot_boxsize*dx;
+		var yoffset=0.5*dy-0.5*dot_boxsize*dy;
 		for (i=0; i<xpixels; i++){
 			for (j=0; j<ypixels; j++){
 				ptr=ypixels*j+i;				
@@ -553,14 +556,14 @@ function draw_dotplot () {
 					color=colormap[indexval];
 					dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
 				}
-				xval=i*dx+xmin;
-				yval=j*dy+ymin;				
+				xval=i*dx+xmin+xoffset;
+				yval=j*dy+ymin+yoffset				
 				for (k=0; k<val; k++) {
 					chart.append("svg:circle")
 						.attr("class","dot")
 	          			.attr("cx", function (d,i) { return xScale(xval+dot_boxsize*dx*Math.random()); } )
 	          			.attr("cy", function (d) { return xScale(yval+dot_boxsize*dy*Math.random()); } )
-	          			.attr("transform","translate(85,35)")
+	          			.attr("transform","translate(75,25)")
 	          			.attr("r", dot_dotsize)
 	          			.style("fill",dot_color);
 	          		}
