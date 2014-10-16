@@ -961,11 +961,12 @@ function toggle_heatmap()
 	if(opties['use_heatmap']){
 		$(this).removeClass('active_selectie');
 		opties['use_heatmap']=false;
-		$('.dot').remove();
+		$('#heatmap_canvas').show();
+		draw_heatmap();
 	} else{
 		$(this).addClass('active_selectie');
-		opties['use_heatmap']=true;
-		draw_heatmap();
+		opties['use_heatmap']=true;		
+		$('#heatmap_canvas').hide();
 	}
 }
 
