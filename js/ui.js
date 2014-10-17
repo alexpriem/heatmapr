@@ -447,25 +447,33 @@ function click_print () {
   
   var xAxis=d3.svg.axis();
   var yAxis=d3.svg.axis();  
-  xAxis.scale(xScale)       
+  xAxis.scale(xScale)
+  		.ticks(5)
        .orient("bottom");
-  yAxis.scale(yScale)       
+  yAxis.scale(yScale)
+  		.ticks(5)
        .orient("left");
 
+	
 
 
-
- 
+  fontsize=opties['fontsize'];
 
   //console.log(chart);
   chart.append("g")
         .attr("class","xaxis")
         .attr("transform","translate(75,"+(imgheight+25)+")")
+        .attr('font-size','32px')
         .call(xAxis);
   chart.append("g")
         .attr("class","yaxis")
+
         .attr("transform","translate(75,25)")
         .call(yAxis);        
+  chart.selectAll(".tick >text")
+  		.attr("font-family", "Corbel")
+  		.attr("font-weight", "normal")
+  		.attr('font-size',fontsize+'px');
 
   chart.append("text")      // text label for the x axis
   		.attr("class","xaxis")
@@ -473,7 +481,8 @@ function click_print () {
         .attr("y",  imgheight+70 )
         .style("text-anchor", "middle")
         .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
+  		.attr("font-size", fontsize+"px")
+  		 .attr("transform","translate(0,"+(fontsize-15)+")")
   		.attr("font-weight", "bold")
         .text(xlabel);
   chart.append("text")      // text label for the x axis
@@ -481,7 +490,7 @@ function click_print () {
         .attr("x", 0 )
         .attr("y", 0)
         .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
+  		.attr("font-size", fontsize+"px")
   		.attr("font-weight", "bold")        
         .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
         .style("text-anchor", "middle")
@@ -491,11 +500,10 @@ function click_print () {
         .attr("x", imgwidth/2+70 )
         .attr("y", 15)
         .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
+  		.attr("font-size", fontsize+"px")
   		.attr("font-weight", "bold")         
         .style("text-anchor", "middle")
         .text(title);
-
 
 
 }
@@ -684,6 +692,11 @@ for (i=1; i<gradsteps; i++) {
         .attr("transform","translate("+offsetx+","+offsety+")")
         .call(heatmap_hist_yAxis); 
 
+  chart.selectAll('.hist_2d')
+  		.selectAll('.tick >text')
+        .attr("font-family", "Corbel")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "normal");
         /*
         .attr("class","yaxis hist_2d")
         .attr("transform","translate("+offsetx+","+offsety+")")
@@ -740,6 +753,8 @@ function update_hist_x_y (evt) {
         .attr("x", 1.5*imgwidth+100 )
         .attr("y", 50 )
         .attr("font-family", "Corbel")
+        .attr("font-size", "15px")
+        .attr("font-weight", "bold")
         .text(xlabel+':'+xval);
 		
 	delta=(ymax-ymin);
@@ -749,8 +764,9 @@ function update_hist_x_y (evt) {
     	.attr("class","pointinfotext")
         .attr("x", 1.5*imgwidth+100 )
         .attr("y", 50+16)
-         .attr("font-family", "Corbel")
-     
+        .attr("font-family", "Corbel")
+        .attr("font-size", "15px")
+        .attr("font-weight", "bold")     
         .text(ylabel+':'+yval);
 
 	val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
@@ -758,9 +774,12 @@ function update_hist_x_y (evt) {
     	.attr("class","pointinfotext")
         .attr("x", 1.5*imgwidth+100 )
         .attr("y", 50+32)
-         .attr("font-family", "Corbel")
-     
+        .attr("font-family", "Corbel")
+        .attr("font-size", "15px")
+        .attr("font-weight", "bold")             
         .text('#count:'+val);
+
+
 
 /* histogram y */
 
@@ -870,6 +889,24 @@ for (i=0; i<imgheight; i++) {
         .attr("class","xaxis hist_y")
         .attr("transform","translate("+offsetx+","+offsetyy+")")        
         .call(xyAxis);        
+
+  chart.selectAll('.hist_x >text')
+        .attr("font-family", "Corbel")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "normal");
+
+  chart.selectAll('.hist_y')
+  		.selectAll('.tick >text')
+        .attr("font-family", "Corbel")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "normal");
+
+  chart.selectAll('.hist_x')
+  		.selectAll('.tick >text')
+        .attr("font-family", "Corbel")
+  		.attr("font-size", "16px")
+  		.attr("font-weight", "normal");
+
 
 
   chart.append("text")      // text label for the x axis

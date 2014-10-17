@@ -137,16 +137,8 @@ stroke-width:0;
 fill:none;
 }
 
-.yaxis text,
-.xaxis text
-{
-	font-family:sans-serif;
-	font-size: 11px;
-}
-
-
 .pointinfotext text {
-	font-family:sans-serif;
+	font-family:Corbel;
 	font-size: 15px;
 	font-weight: bold;
 }
