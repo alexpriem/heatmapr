@@ -13,12 +13,16 @@ function init_page() {
     defaultsettings={
         colormapname: opties.colormap,
         gradient_min: opties.gradmin,
-        gradient_max: opties.gradmax,
+        gradient_center: opties.gradcenter,
+        gradient_max: opties.gradmax,                
         gradient_steps: opties.gradsteps,
+        gradient_bimodal: opties.bimodal,
         transform: opties.transform,
+        gradient_invert: opties.gradient_invert,
         show_size: 'true',
         xpixels: xpixels,
-        ypixels: ypixels
+        ypixels: ypixels,
+        controltype: opties.controltype
     };
     //console.log(defaultsettings);
 

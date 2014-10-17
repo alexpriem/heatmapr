@@ -41,14 +41,22 @@ class contour:
             ['fuzzy',0,False,''],
             ['logx',False,False,''],
             ['logy',False,False,''],
+
             ['gradmin',0,False,''],
             ['gradmax','max',False,''],
             ['gradsteps',40,False,''],
+            
+            ['gradient_invert',False,False,''],
+            ['gradcenter',50,False,''],
+            ['gradient_bimodal',True,False,''],
+            
+            
             ['imgwidth',500,False,''],
             ['imgheight',500,False,''],
             ['outfile','',True,''],
             ['xlabel',None,False,''],
             ['ylabel',None,False,''],
+            ['fontsize',16,False,''],
             ['title',None,False,''],
             ['dump_html',True,False,'full html output'],            
             ['colormap','blue',False,''],
@@ -64,22 +72,21 @@ class contour:
             ['plot_median', False, False,''],
             ['plot_median_pixelsize',2, False,''],
             ['plot_median_color',[0,0,255,255], False,''],
+
+            ['info_datafile',None,False,''],
+            ['info_pixelsize',2, False,''],
+            ['info_color',[255,0,0,255], False,''],
         
             ['use_dots',False,False,''],
             ['dot_color','blue',False,''],
             ['dot_dotsize',5,False,''],
             ['dot_boxsize',0.6,False,''],
             ['dot_use_gradient',False,False,''],
-
-            
-            ['info_datafile',None,False,''],
-            ['info_pixelsize',2, False,''],
-            ['info_color',[255,0,0,255], False,''],
-
-
+                                
             ['weighx',False,False,''],
             ['weighy',False,False,''],
-             
+            
+            ['controltype','notflat', False,''], 
             ['debuglevel',0, False,''],            
         ]
 

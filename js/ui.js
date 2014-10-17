@@ -252,7 +252,7 @@ var draw_heatmap=function draw_heatmap() {
 	var xstep=xpix2img*size;
 	var ystep=ypix2img*size;
 
-	colormap=gradient_node.colormap;
+	var colormap=gradient_node.colormap;
 	
 //	console.log('draw_heatmap, colormap:', colormap);
 
@@ -518,6 +518,7 @@ function draw_dotplot () {
 		
 		var dot_color=opties["dot_color"];
 		var use_gradient=opties["dot_use_gradient"];
+		var bimodal=opties["bimodal"];
 		if (use_gradient) {
 			
 			var gradient_node=document.getElementById("cg_a");
@@ -532,13 +533,22 @@ function draw_dotplot () {
 				var gradmin=gradient_node.getAttribute('gradient_min');
 			}
 
+			var gradcenter=gradient_node.getAttribute('gradient_center');
 			var gradmax=transform_value(gradmax,transform);
+			var gradcenter=transform_value(gradcenter,transform);
 			var gradmin=transform_value(gradmin,transform);
 			var gradsteps=gradient_node.getAttribute('gradient_steps');
 
-			var delta=gradmax-gradmin;
-			var color='';			
-			colormap=gradient_node.colormap;
+			if (bimodal) {
+				var delta=gradmax-gradcenter;
+				var delta2=gradcenter-gradmin;
+				var colormap=gradient_node.colormap;
+				var colormap2=gradient_node.colormap2;
+			} else {
+				var delta=gradmax-gradmin;
+				var colormap=gradient_node.colormap;
+			}
+			var color='';						
 		}
 
 		var xoffset=0.5*dx-0.5*dot_boxsize*dx;
@@ -550,12 +560,30 @@ function draw_dotplot () {
 				if (use_gradient) {
 		//			console.log(val);
 		//			console.log(colormap[val]);
-					indexval=~~((val-gradmin)/(delta)*gradsteps);  					
-					if (indexval<0) indexval=0;
-					if (indexval>=gradsteps) indexval=gradsteps-1;
-					color=colormap[indexval];
+										
+					console.log('setval:',bimodal,val,gradmin,gradcenter,gradmax);
+					if (bimodal) {						
+						if (val>gradcenter) {
+							indexval=~~((val-gradcenter)/(delta)*gradsteps);  
+							if (indexval<0) indexval=0;
+							if (indexval>=gradsteps) indexval=gradsteps-1;
+							console.log('take1:',indexval);
+							color=colormap[indexval];
+						} else {	
+							indexval=~~((val-gradmin)/(delta2)*gradsteps);  
+							console.log('take2:',indexval);
+							if (indexval<0) indexval=0;
+							if (indexval>=gradsteps) indexval=gradsteps-1;
+							color=colormap2[indexval];
+						}
+					} else {
+						if (indexval<0) indexval=0;
+						if (indexval>=gradsteps) indexval=gradsteps-1;
+						color=colormap[indexval];
+					}
 					dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
 				}
+				if (val<0) val=-val;
 				xval=i*dx+xmin+xoffset;
 				yval=j*dy+ymin+yoffset				
 				for (k=0; k<val; k++) {
@@ -587,7 +615,7 @@ var gradient_node=document.getElementById("cg_a");
 var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
-colormap=gradient_node.colormap;
+var colormap=gradient_node.colormap;
 
 
 var histwidth=500;

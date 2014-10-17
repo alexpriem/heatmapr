@@ -58,6 +58,61 @@
     </ul>
   </script>
 
+  <script id="entry-template-flat" type="text/x-handlebars-template">
+ <ul id="sel_colormap_{{widget_id}}" class="selbox">
+    <li class="sel_heading"> Colormaps: </li>  
+    <select id="colormap_select_{{widget_id}}" data-widget="{{widget_id}}">
+        {{#colormaps}}
+        <option value="{{name}}" data-widget="{{widget_id}}">{{name}}</option>
+        {{/colormaps}}
+    </select>
+    </ul>
+
+    <ul id="sel_transform_{{widget_id}}" class="selbox">
+      <li class="sel_heading"> Transform: </li>
+      <select id="transform_select_{{widget_id}}" data-widget="{{widget_id}}">          
+          <option value="linear" data-widget="{{widget_id}}">linear</option>
+          <option value="sqrt" data-widget="{{widget_id}}">sqrt</option>
+          <option value="log" data-widget="{{widget_id}}">log</option>
+      </select>
+    </ul>
+
+    {{#if show_size}}
+        <ul id="sel_size_{{widget_id}}" class="selbox" >
+        <li class="sel_heading"> Sizes: </li>
+        <select id="size_select_{{widget_id}}" data-widget="{{widget_id}}">
+        {{#sizes}}
+        <option class="sizename" value="{{size}}" data-widget="{{widget_id}}"> {{size_x_size}} </option>
+        {{/sizes}}
+        </select>
+        </ul>
+    {{/if}}
+
+    <ul id="sel_swap_{{widget_id}}" class="selbox">
+      <li class="sel_heading"> Gradient:</li>
+      <li class="swapname swapname_{{widget_id}}" id="invert_{{widget_id}}" data-widget="{{widget_id}}"> invert gradient</li>
+      <li class="swapname swapname_{{widget_id}}" id="bimodal_{{widget_id}}" data-widget="{{widget_id}}"> Bimodal gradient</li>
+      <li class="swapname swapname_{{widget_id}}" id="header_min_{{widget_id}}" > 
+            Mininum: 
+              <input type="text" id="min_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_min" class="gradient_input" value="{{min}}" maxlength=5  >  
+            </li>
+      <li class="swapname swapname_{{widget_id}}" id="header_center_{{widget_id}}" > 
+            Center: 
+              <input type="text" id="center_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_center" class="gradient_input" value="{{center}}" maxlength=5>
+            </li>
+      <li class="swapname swapname_{{widget_id}}" id="header_max_{{widget_id}}"  > 
+            Maximum:  
+              <input type="text" id="max_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_max" class="gradient_input" value="{{max}}" maxlength=5> 
+            </li>
+      <li class="swapname swapname_{{widget_id}}" id="header_steps_{{widget_id}}" > 
+            Steps:  
+              <input type="text" id="steps_{{widget_id}}" data-widget="{{widget_id}}" name="gradient_steps" class="gradient_input" value="{{steps}}" maxlength=5> 
+            </li>
+    </ul>
+  </script>
+
+
+
 
 <div id="controls" class="leftbox">
     <div class="colormap-controls" id="cc_a" data-gradient="cg_a"> </div>
