@@ -27,18 +27,20 @@ class contour:
             ['x_min','',True,''],
             ['x_max','',True,''],
             ['x_steps','',True,''],
-
+            ['x_fuzz',0,False,''],
+            
             ['y_var','',True,''],
             ['y_min','',True,''],
             ['y_max','',True,''],
             ['y_steps','',True,''],
-
+            ['y_fuzz',0,False,''],
+            
             ['weight_var',None,False,''],
             
             ['sep',';',False,''],
             ['convert_comma',False,False,''],
-            ['fuzzx',0,False,''],
-            ['fuzzy',0,False,''],
+            
+
             ['logx',False,False,''],
             ['logy',False,False,''],
 
@@ -57,6 +59,8 @@ class contour:
             ['xlabel',None,False,''],
             ['ylabel',None,False,''],
             ['fontsize',16,False,''],
+            ['numticks',None,False,''],
+            
             ['title',None,False,''],
             ['dump_html',True,False,'full html output'],            
             ['colormap','blue',False,''],
@@ -185,8 +189,8 @@ class contour:
 
         heatmap=[[0]*ypixels for i in range(xpixels)]
         
-        fuzzx=float(self.fuzzx)
-        fuzzy=float(self.fuzzy)
+        x_fuzz=float(self.x_fuzz)
+        y_fuzz=float(self.y_fuzz)
 
 
         linenr=0
@@ -217,8 +221,8 @@ class contour:
                 val=float(cols[weightcolnr])
             if (x>=xmin and x<=xmax):
                 hx=int((x-xmin)/xfactor)                
-                if fuzzx!=0:
-                    hx+=int(random.random()*fuzzx)
+                if x_fuzz!=0:
+                    hx+=int(random.random()*x_fuzz)
                     if hx>=xpixels:
                         hx=xpixels-1                
             else:
@@ -232,8 +236,8 @@ class contour:
                 
             if (y>=ymin and y<=ymax):
                 hy=int((y-ymin)/yfactor)
-                if fuzzy!=0:
-                    hy+=int(random.random()*fuzzy)                
+                if y_fuzz!=0:
+                    hy+=int(random.random()*y_fuzz)                
                     if hy>ypixels:
                         hy=ypixels-1
             else:
@@ -364,45 +368,15 @@ class contour:
         js=js[:-2]+'];\n\n'
 
 
-        
-
         self.datamin=gradmin
         self.datamax=gradmax
         
         if getattr(self,'gradmax') is None:
-            self.gradmax=gradmax
-        
-        
-        vlist=['gradmin','gradmax','gradsteps',
-               'datamin','datamax',
-               'xmin','xmax','logx',
-               'ymin','ymax','logy',
-               'xpixels','ypixels',
-               'imgwidth','imgheight',               
-               'xlabel','ylabel','title',
-               'colormap','size','transform']
-        for k in vlist:
-            v=getattr(self,k)
-            if self.debuglevel==1:
-                print k,v
-            if v==None:
-                js+='var %s="";\n' % (k)
-                continue
-            t=type(v)
-            if t==str:            
-                js+='var %s="%s";\n' % (k,v)
-                continue
-            if t==bool:
-                if v:
-                    js+='var %s=true;\n' % (k)
-                else:                    
-                    js+='var %s=false;\n' % (k)
-                continue            
-            js+="var %s=%s;\n" % (k,v)
-
+            self.gradmax=gradmax        
 
         js+='var opties={'
-        for k,v in args.items():
+        for k in sorted(args.keys()):
+            v=args[k]
             if v is None:
                 js+='"%s":null,\n' % (k)                
                 continue

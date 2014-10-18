@@ -12,25 +12,25 @@ var backbuffer, transposebuffer;
 var imgData, mapdata;
 
 
-var xpix2img=parseInt(imgwidth/xpixels);
-var ypix2img=parseInt(imgheight/ypixels);
+var xpix2img=parseInt(opties.imgwidth/opties.x_steps);
+var ypix2img=parseInt(opties.imgheight/opties.y_steps);
 
 function init_databuffers () {
 
 chart = d3.select("#heatmap_svg");
 
 // first, create a new ImageData to contain our pixels
-imgData = ctx.createImageData(imgwidth, imgheight); // width x height
+imgData = ctx.createImageData(opties.imgwidth, opties.imgheight); // width x height
 try {
-    transposebuffer= new Float32Array  (xpixels*ypixels);
+    transposebuffer= new Float32Array  (opties.x_steps*opties.y_steps);
     } catch(x){
-    transposebuffer= new Array  (xpixels*ypixels);
+    transposebuffer= new Array  (opties.x_steps*opties.y_steps);
 }
 
 try {
-    backbuffer= new Uint32Array  (imgwidth*imgheight);
+    backbuffer= new Uint32Array  (opties.imgwidth*opties.imgheight);
     } catch(x){
-    backbuffer= new Array  (imgwidth*imgheight);
+    backbuffer= new Array  (opties.imgwidth*opties.imgheight);
 }
 mapdata = imgData.data;
 }
@@ -66,26 +66,29 @@ var calc_minmax=function calc_heatmap () {
 	var gradient_node=document.getElementById("cg_a");
 	if (gradient_node.need_data_recalc==false) return;
 
-	var weigh_x=opties['weighx'];
-	var weigh_y=opties['weighy'];
+	var weigh_x=opties.weighx;
+	var weigh_y=opties.weighy;
+	var x_steps=opties.x_steps;
+	var y_steps=opties.y_steps;
+	var transform=opties.transform;
 	console.log('weighx/y:', weigh_x, weigh_y);
-	console.log('calc_heatmap:',xpixels, ypixels, size);
+	console.log('calc_heatmap:',x_steps, y_steps, size);
 	
 	var ptr2=0;
 	maxval=data[0];	
 	minval=data[0];
 
 	size=gradient_node.size;		
-	for (var i=0; i<ypixels; i+=size) {
-		for (var j=0; j<xpixels;  j+=size) {		
+	for (var i=0; i<y_steps; i+=size) {
+		for (var j=0; j<x_steps;  j+=size) {		
 			val=0;
-			ptr=j*ypixels+i;
+			ptr=j*y_steps+i;
 			if (size==1) val=data[ptr];
 			else {
 				if (size>1) {
 					for (cx=0; cx<size; cx++) {
 						for (cy=0; cy<size; cy++) {
-							val+=data[ptr+cx+cy*xpixels];
+							val+=data[ptr+cx+cy*x_steps];
 							}
 						}				//cy
 				}  // size >1
@@ -136,12 +139,13 @@ var calc_minmax=function calc_heatmap () {
 
 function bin_data () {
 
-	var totalpixels=xpixels*ypixels;	
+	var totalpixels=opties.x_steps*opties.y_steps;	
 	var gradient_node=document.getElementById("cg_a");
 	var gradsteps=gradient_node.getAttribute('gradient_steps');
 	var transform=gradient_node.getAttribute('transform');
 	var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
-	
+	var imgheight=opties.imgheight;
+	var imgwidth=opties.imgwidth;
 
 
 	if (gradient_node.hasAttribute('gradient_max_data')) {
@@ -161,7 +165,7 @@ function bin_data () {
 	var delta=gradmax-gradmin;
 
 	var line=0;
-	for (i=0; i<imgwidth*imgheight; i++) {
+	for (i=0; i<opties.imgwidth*opties.imgheight; i++) {
 		backbuffer[i]=0;
 	}
 	xstep=xpix2img*size;
@@ -174,7 +178,7 @@ function bin_data () {
 	for (i=0; i<gradsteps; i++) {
 		hist[i]=0;
 	}
-	console.log('totalpixels,ptr:',totalpixels,ptr, imgheight, imgwidth);
+	console.log('totalpixels,ptr:',totalpixels, opties.imgheight, opties.imgwidth);
 	for (i=0; i<totalpixels; i++)	{	
 		val=transposebuffer[i];
 
@@ -366,10 +370,10 @@ function print_fail () {
 
     delete opties['datamin'];
     delete opties['datamax'];
-    delete opties['xmax'];
-    delete opties['xmin'];
-    delete opties['ymax'];
-    delete opties['ymin'];
+    delete opties.x_max;
+    delete opties.x_min;
+    delete opties.y_max;
+    delete opties.y_min;
 
 
     for (var i=0; i<optiekeys.length; i++) {
@@ -429,14 +433,24 @@ function click_print () {
 
   function draw_axes () {
 
+  var logx=opties.logx;
+  var logy=opties.logy;
+
   if (logx) xScale=d3.scale.log();     // naar object-namespace
   else	xScale=d3.scale.linear();
   if (logy) yScale=d3.scale.log();
   else	yScale=d3.scale.linear();
     
-    // off by one, again.
-  ymax=ymax+1;
-  xmax=xmax+1;
+    
+  var numticks=opties['numticks']
+  var xmin=opties.x_min;
+  var ymin=opties.y_min;
+  var ymax=opties.y_max+1;   // off by one, again.
+  var xmax=opties.x_max+1;
+
+  var imgwidth=opties.imgwidth;
+  var imgheight=opties.imgheight;
+
   if ((logx) && (xmin<=0)) xmin=1;
   xScale.domain([xmin,xmax]);  
   xScale.range([0,imgwidth]); 
@@ -448,10 +462,10 @@ function click_print () {
   var xAxis=d3.svg.axis();
   var yAxis=d3.svg.axis();  
   xAxis.scale(xScale)
-  		.ticks(5)
+  		.ticks(numticks)
        .orient("bottom");
   yAxis.scale(yScale)
-  		.ticks(5)
+  		.ticks(numticks)
        .orient("left");
 
 	
@@ -484,7 +498,7 @@ function click_print () {
   		.attr("font-size", fontsize+"px")
   		 .attr("transform","translate(0,"+(fontsize-15)+")")
   		.attr("font-weight", "bold")
-        .text(xlabel);
+        .text(opties.xlabel);
   chart.append("text")      // text label for the x axis
     	.attr("class","yaxis")
         .attr("x", 0 )
@@ -494,7 +508,7 @@ function click_print () {
   		.attr("font-weight", "bold")        
         .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
         .style("text-anchor", "middle")
-        .text(ylabel);
+        .text(opties.ylabel);
   chart.append("text")      // text label for the x axis
     	.attr("class","yaxis")
         .attr("x", imgwidth/2+70 )
@@ -503,7 +517,7 @@ function click_print () {
   		.attr("font-size", fontsize+"px")
   		.attr("font-weight", "bold")         
         .style("text-anchor", "middle")
-        .text(title);
+        .text(opties.title);
 
 
 }
@@ -515,18 +529,32 @@ function click_print () {
 
 function draw_dotplot () {
 
+
+
 	if (opties['use_dots']) {	
 		$('.dot').remove();
-    	var dx=(xmax-xmin)/(xpixels);
-    	var dy=(ymax-ymin)/(ypixels);
-		console.log('draw_dotplot', dx,dy);
 
-		var dot_dotsize=opties["dot_dotsize"];
-		var dot_boxsize=opties["dot_boxsize"];
+		var xmin=opties.x_min;
+		var xmax=opties.x_max+1;
+		var ymin=opties.y_min;
+		var ymax=opties.y_max+1;
+		var x_steps=opties.x_steps;
+		var y_steps=opties.y_steps;
+		var transform=opties.transform;
+
+    	var dx=(xmax-xmin)/(x_steps);
+    	var dy=(ymax-ymin)/(y_steps);
+
+
+
+		console.log('draw_dotplot',xmin, xmax, x_steps, dx,dy);
+
+		var dot_dotsize=opties.dot_dotsize;
+		var dot_boxsize=opties.dot_boxsize;
 		
-		var dot_color=opties["dot_color"];
-		var use_gradient=opties["dot_use_gradient"];
-		var bimodal=opties["bimodal"];
+		var dot_color=opties.dot_color;
+		var use_gradient=opties.dot_use_gradient;
+		var bimodal=opties.gradient_bimodal;
 		if (use_gradient) {
 			
 			var gradient_node=document.getElementById("cg_a");
@@ -552,6 +580,7 @@ function draw_dotplot () {
 				var delta2=gradcenter-gradmin;
 				var colormap=gradient_node.colormap;
 				var colormap2=gradient_node.colormap2;
+				console.log('bimodal:',delta,delta2,colormap,colormap2)
 			} else {
 				var delta=gradmax-gradmin;
 				var colormap=gradient_node.colormap;
@@ -561,9 +590,9 @@ function draw_dotplot () {
 
 		var xoffset=0.5*dx-0.5*dot_boxsize*dx;
 		var yoffset=0.5*dy-0.5*dot_boxsize*dy;
-		for (i=0; i<xpixels; i++){
-			for (j=0; j<ypixels; j++){
-				ptr=ypixels*j+i;				
+		for (i=0; i<x_steps; i++){
+			for (j=0; j<y_steps; j++){
+				ptr=y_steps*j+i;				
 				val=transposebuffer[ptr];
 				if (use_gradient) {
 		//			console.log(val);
@@ -620,14 +649,18 @@ console.log("draw_histogram:", histmax);
 
 
 var gradient_node=document.getElementById("cg_a");
+var gradmin=gradient_node.getAttribute('gradient_min');  //FIXME
+var gradmax=gradient_node.getAttribute('gradient_max');
 var gradsteps=gradient_node.getAttribute('gradient_steps');
 var colormapname=gradient_node.getAttribute('colormapname');
 console.log('draw_histogram, colormap:',colormapname, gradsteps);
 var colormap=gradient_node.colormap;
 
 
+var imgwidth=opties.imgwidth;
+var imgheight=opties.imgheight;
 var histwidth=500;
-var histheight=0.4*imgheight;
+var histheight=0.4*opties.imgheight;
 var barwidth=500/gradsteps;
 var hist_offset_x=125;
 
@@ -658,7 +691,7 @@ for (i=1; i<gradsteps; i++) {
 		.style("stroke-width","1px");		
  }
 	  
-  console.log('hist:',transform);
+  console.log('hist:',opties.transform);
   var heatmap_hist_xScale=d3.scale.linear();
   
   heatmap_hist_xScale.range([0,gradsteps*barwidth]);
@@ -721,6 +754,8 @@ function update_hist_x_y (evt) {
 	if (gradient_node.hasAttribute('gradient_min_data')) {
 		var gradmin=gradient_node.getAttribute('gradient_min_data');
 	}
+	var imgheight=opties.imgheight;
+	var imgwidth=opties.imgwidth;
 
 
 	x=parseInt(evt.pageX-$(this).position().left-50);

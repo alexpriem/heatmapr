@@ -8,6 +8,9 @@ var print=false;
 
 function init_page() {
   
+
+    var imgwidth=opties.imgwidth;
+    var imgheight=opties.imgheight;
     console.log("init:",imgwidth,imgheight);
 
     defaultsettings={
@@ -16,12 +19,12 @@ function init_page() {
         gradient_center: opties.gradcenter,
         gradient_max: opties.gradmax,                
         gradient_steps: opties.gradsteps,
-        gradient_bimodal: opties.bimodal,
+        gradient_bimodal: opties.gradient_bimodal,
         transform: opties.transform,
         gradient_invert: opties.gradient_invert,
         show_size: 'true',
-        xpixels: xpixels,
-        ypixels: ypixels,
+        xpixels: opties.x_steps,
+        ypixels: opties.y_steps,
         controltype: opties.controltype
     };
     //console.log(defaultsettings);
@@ -63,7 +66,7 @@ function init_page() {
         $('.dotplot-controls').css("display","none");
     }
  //   Pixastic.debug=true;
-    document.title =title;
+    document.title =opties.title;
     console.log('print=',print);
     if (print==true) {
         $('.leftbox').hide();
