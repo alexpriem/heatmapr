@@ -1,43 +1,8 @@
 /* settings */	
 
-var skipzero=true;
-var hist;
-var histmax=0;
 
 
-/* storage */
-
-var chart;
-var backbuffer, transposebuffer;
-var imgData, mapdata;
-
-
-var xpix2img=parseInt(opties.imgwidth/opties.x_steps);
-var ypix2img=parseInt(opties.imgheight/opties.y_steps);
-
-function init_databuffers () {
-
-chart = d3.select("#heatmap_svg");
-
-// first, create a new ImageData to contain our pixels
-imgData = ctx.createImageData(opties.imgwidth, opties.imgheight); // width x height
-try {
-    transposebuffer= new Float32Array  (opties.x_steps*opties.y_steps);
-    } catch(x){
-    transposebuffer= new Array  (opties.x_steps*opties.y_steps);
-}
-
-try {
-    backbuffer= new Uint32Array  (opties.imgwidth*opties.imgheight);
-    } catch(x){
-    backbuffer= new Array  (opties.imgwidth*opties.imgheight);
-}
-mapdata = imgData.data;
-}
-
-
-
-function transform_value (val,transform) {
+transform_value=function  (val,transform) {
 
 	if (transform=='sqrt') {
 		if (val>0) {
@@ -60,1045 +25,1102 @@ function transform_value (val,transform) {
 
 
 
-var calc_minmax=function calc_heatmap () {
+function heatmap () {
+	this.skipzero=true;
+	this.hist=null;
+	this.histmax=0;
 
-	console.log("calc_heatmap:");
-	var gradient_node=document.getElementById("cg_a");
-	if (gradient_node.need_data_recalc==false) return;
 
-	var weigh_x=opties.weighx;
-	var weigh_y=opties.weighy;
-	var x_steps=opties.x_steps;
-	var y_steps=opties.y_steps;
-	var transform=opties.transform;
-	console.log('weighx/y:', weigh_x, weigh_y);
-	console.log('calc_heatmap:',x_steps, y_steps, size);
+	/* storage */
+
+	this.chart=null;
+	this.backbuffer=null;
+	this.transposebuffer=null;
+	this.imgData=null;
+	this.mapdata=null;
 	
-	var ptr2=0;
-	maxval=data[0];	
-	minval=data[0];
-
-	size=gradient_node.size;		
-	for (var i=0; i<y_steps; i+=size) {
-		for (var j=0; j<x_steps;  j+=size) {		
-			val=0;
-			ptr=j*y_steps+i;
-			if (size==1) val=data[ptr];
-			else {
-				if (size>1) {
-					for (cx=0; cx<size; cx++) {
-						for (cy=0; cy<size; cy++) {
-							val+=data[ptr+cx+cy*x_steps];
-							}
-						}				//cy
-				}  // size >1
-			}
-			
-
-			val=val/(size*size);
-			if (val>maxval) maxval=val;
-			if (val<minval) minval=val;
-
-			val=transform_value(val,transform);
-			
-			if (weigh_x) {
-				val=(val/sum_x[j])*xmean;
-			}
-			if (weigh_y) {
-				val=(val/sum_y[i])*ymean;
-			}			
-			transposebuffer[ptr2]=val;			
-			ptr2++;	
-		} //j
-//		console.log("i:",i);
-	}	//i
-
-
-	
-	var gradmax=gradient_node.getAttribute('gradient_max');
-	var gradmin=gradient_node.getAttribute('gradient_min');
-	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	if (gradmax=='max') {
-		gradient_node.setAttribute('gradient_max_data', maxval);		
-	} else {
-		if (gradient_node.hasAttribute('gradient_max_data')) {
-			gradient_node.removeAttribute ('gradient_max_data');			
-		}		
-	}
-	if (gradmin=='min') {
-		gradient_node.setAttribute('gradient_min_data', minval);		
-	} else {
-		if (gradient_node.hasAttribute('gradient_min_data')) {
-			gradient_node.removeAttribute ('gradient_min_data');			
-		}		
-	}
-	console.log('calc_heatmap min/max:',minval,maxval );
-}
+	var _this = this;
+	var xpix2img=parseInt(opties.imgwidth/opties.x_steps);
+	var ypix2img=parseInt(opties.imgheight/opties.y_steps);
 
 
 
-function bin_data () {
+	this.init_databuffers =function (svgid) {
 
-	var totalpixels=opties.x_steps*opties.y_steps;	
-	var gradient_node=document.getElementById("cg_a");
-	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	var transform=gradient_node.getAttribute('transform');
-	var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
-	var imgheight=opties.imgheight;
-	var imgwidth=opties.imgwidth;
+		_this.chart = d3.select(svgid);
 
-
-	if (gradient_node.hasAttribute('gradient_max_data')) {
-		var gradmax=gradient_node.getAttribute('gradient_max_data');
-	} else {
-		var gradmax=gradient_node.getAttribute('gradient_max');	
-	}
-	if (gradient_node.hasAttribute('gradient_min_data')) {
-		var gradmin=gradient_node.getAttribute('gradient_min_data');
-	} else {
-		var gradmin=gradient_node.getAttribute('gradient_min');
-	}
-
-	var gradmax=transform_value(gradmax,transform);
-	var gradmin=transform_value(gradmin,transform);
-
-	var delta=gradmax-gradmin;
-
-	var line=0;
-	for (i=0; i<opties.imgwidth*opties.imgheight; i++) {
-		backbuffer[i]=0;
-	}
-	xstep=xpix2img*size;
-	ystep=ypix2img*size;
-	
-	u=0;
-	v=1;
-	//console.log('xstep/ystep:',xstep,ystep, xpix2img, ypix2img, size);
-	hist=new Array(gradsteps);
-	for (i=0; i<gradsteps; i++) {
-		hist[i]=0;
-	}
-	console.log('totalpixels,ptr:',totalpixels, opties.imgheight, opties.imgwidth);
-	for (i=0; i<totalpixels; i++)	{	
-		val=transposebuffer[i];
-
-		indexval=~~((val-gradmin)/(delta)*gradsteps);  					
-		if (indexval<0) indexval=0;
-		if (indexval>=gradsteps) indexval=gradsteps-1;
-
-		indexval=parseInt(indexval);
-		hist[indexval]++;
-		/*
-		if ((inv_grad)  && (indexval!=0)) {			
-				indexval=colormaplength-indexval;
+		// first, create a new ImageData to contain our pixels
+		_this.imgData = ctx.createImageData(opties.imgwidth, opties.imgheight); // width x height
+		try {
+		    _this.transposebuffer= new Float32Array  (opties.x_steps*opties.y_steps);
+		    } catch(x){
+		    _this.transposebuffer= new Array  (opties.x_steps*opties.y_steps);		//IE fallback
 		}
-*/
 
-		ptr=(imgheight-v*ystep)*imgwidth; 
-		ptr+=u*xstep;
-
-
-		//if (line==0) { console.log("val=",val);}
-		//ptr=u*xstep+v*ystep*imgwidth;
-		for (cy=0; cy<ystep; cy++) {
-			for (cx=0; cx<xstep; cx++) {
-				backbuffer[ptr+cy*imgwidth+cx]=indexval;
-				}
-			}
-		u++;
-		line+=xstep;		
-		if (line>=imgwidth) {			
-			u=0;
-			v++;			
-			line=0;
+		try {
+		    _this.backbuffer= new Uint32Array  (opties.imgwidth*opties.imgheight);
+		    } catch(x){
+		    _this.backbuffer= new Array  (opties.imgwidth*opties.imgheight);		//IE fallback
 		}
-	}			//cy
-
-//console.log('HISTMAX:',hist)
-histmax=hist[0];
-for (i=1; i<gradsteps; i++) 
-	if (hist[i]>histmax) histmax=hist[i];
-	
-//console.log('hist2:',backbuffer);
-}
-
-
-
-/* draw_heatmap:
-	- heatmap uitrekenen
-	- minima/maxima bepalen
-   - colormap tekenen; 
-   - heatmap tekenen.
-
-*/
-
-var draw_heatmap=function draw_heatmap() {
-
-	console.log("draw_heatmap:");
-
-	if (opties['use_dots']) {
-		draw_dotplot();
+		_this.mapdata = _this.imgData.data;
 	}
 
-	bin_data();		
-	draw_histogram();	
 
-	/* eigenlijke heatmap plotten */
 
-	var indexval=0;
-	var color=[];
-	var nr=0;
 
-//	$('.dot').remove();		//remove dotplot
-	var gradient_node=document.getElementById("cg_a");
-	var size=gradient_node.size;	
-	console.log('draw_heatmap, size:',size);
-	var xstep=xpix2img*size;
-	var ystep=ypix2img*size;
 
-	var colormap=gradient_node.colormap;
-	
-//	console.log('draw_heatmap, colormap:', colormap);
 
-	console.log("draw_heatmap:",backbuffer.length);
-	for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
-			indexval=backbuffer[i];
-			if ((indexval>0) && (nr<-50)) {
-						console.log(nr, i,j,indexval);
-						nr+=1;
-					}
-			if ((indexval!=0) || (!skipzero)) {	  // waardes die 0 zijn niet plotten
-				color=colormap[indexval];			
-	    		mapdata[j] =  color[0];  
-	    		mapdata[j+1] = color[1];  
-	    		mapdata[j+2] = color[2];  
-	    		mapdata[j+3] = 0xff; 
-			} else {
-				mapdata[j] =  0xff;   // background color: white
-	    		mapdata[j+1] = 0xff; 
-	    		mapdata[j+2] = 0xff; 
-	    		mapdata[j+3] = 0xff; 
-	    	}
+	this.calc_minmax=function  () {
+		
+		console.log("calc_heatmap:", _this);
+		var gradient_node=document.getElementById("cg_a");
+		if (gradient_node.need_data_recalc==false) return;
 
-		}	
-	if (opties['plot_mean']==true){
-		console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
-		color=opties['plot_mean_color'];
-		for (i=0; i<mean_x.length; i++) {
-			avgval=mean_x[i];
-			ptr=(i*xpix2img+imgwidth*(imgheight-ypix2img*avgval))*4;
-			mapdata[ptr]=color[0];
-			mapdata[ptr+1]=color[1];
-			mapdata[ptr+2]=color[2];
-			mapdata[ptr+3]=color[3];
-		}
-	}
-	if (opties['plot_median']==true){
-		color=opties['plot_median_color'];
-		for (i=0; i<median_x.length; i++) {
-			medval=median_x[i];
-			ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;			
-			mapdata[ptr]=color[0];
-			mapdata[ptr+1]=color[1];
-			mapdata[ptr+2]=color[2];
-			mapdata[ptr+3]=color[3];
-		}
-	}
-
-	if (opties['info_datafile']!=null){
-		color=opties['info_color'];
-		for (i=0; i<extradata.length; i++) {
-			i=extradata[i][0];
-			j=i=extradata[i][1];
-			ptr=(i*size+size*imgwidth*(imgheight-j))*4;
-			mapdata[ptr]=color[0];
-			mapdata[ptr+1]=color[1];
-			mapdata[ptr+2]=color[2];
-			mapdata[ptr+3]=color[3];
-		}
-	}
-	console.log('putdata');
-	ctx.putImageData(imgData, 0, 0);		 
-}
-
-
-
-
-
-function plot_dotted_data () {
-
-
-
-}
-
-
-
-function init_print() {
-   $('.print').on('click',click_print);
-   $('.print').on('mouseenter ',enter_selectie);
-   $('.print').on('mouseout ',leave_selectie);
-}
-
-
-function print_ok () {
-	console.log("print ok");
-}
-
-function print_fail () {
-	console.log('print failed');
-	s='\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
-	s+="Printen niet gelukt. Opties voor command-line-reproductie:\n\n";
-	s+='import contour\n\n'
-	s+='args=dict(\n\t'
-	var firstkey=true;
-	opties['default_colormap']=colormapname;
-	opties['default_size']=size;
-	opties['default_transform']=transform;
-	opties['gradmin']=gradmin;
-	opties['gradmax']=gradmax;
-	opties['gradsteps']=gradsteps;
-
-	console.log('transform=',transform);
-
-	var optiekeys=[];
-	for (key in opties) {		
-    	if (opties.hasOwnProperty(key)) {
-    		optiekeys.push(key);
-    	}
-    }
-    optiekeys.sort();
-
-    delete opties['datamin'];
-    delete opties['datamax'];
-    delete opties.x_max;
-    delete opties.x_min;
-    delete opties.y_max;
-    delete opties.y_min;
-
-
-    for (var i=0; i<optiekeys.length; i++) {
-    		key=optiekeys[i];
-    		if (!(firstkey)) {
-    			s+=',\n\t';
-    		}
-			val=opties[key];
-			console.log(key,val, typeof(val));
-			if (typeof(val)=='number')  {
-    			s+=key+'='+val;
-    		}
-    		if (typeof(val)=='boolean') {
-    			if (val==true) {
-    				s+=key+'=True'
-    			}
-	   			if (val==false) {
-    				s+=key+'=False'
-    			}
-
-    		}
-			if (typeof(val)=='string') {
-				s+=key+'="'+val+'"';	
-			}
-    		firstkey=false;    	
-    }
-    s+=')\nc=contour.contour()\nc.run_contour(args)\n';
-
-    $('#printcode').html(s);	
-}
-
-function click_print () {
-
-
-	var printtype=$(this).attr('data-print');
-	//$.get('#',{'cmd':printtype})
- 	$.ajax({
-            cache: false,
-            url: "/"+printtype,
-            type: "GET"
-            
-        })
- 		.done(print_ok)
- 		.fail(print_fail);
-
-}
-
-
-
-
-
-
-
-
-
-
-
-  function draw_axes () {
-
-  var logx=opties.logx;
-  var logy=opties.logy;
-
-  if (logx) xScale=d3.scale.log();     // naar object-namespace
-  else	xScale=d3.scale.linear();
-  if (logy) yScale=d3.scale.log();
-  else	yScale=d3.scale.linear();
-    
-    
-  var numticks=opties['numticks']
-  var xmin=opties.x_min;
-  var ymin=opties.y_min;
-  var ymax=opties.y_max+1;   // off by one, again.
-  var xmax=opties.x_max+1;
-
-  var imgwidth=opties.imgwidth;
-  var imgheight=opties.imgheight;
-
-  if ((logx) && (xmin<=0)) xmin=1;
-  xScale.domain([xmin,xmax]);  
-  xScale.range([0,imgwidth]); 
-
-  if ((logy) && (ymin<=0)) ymin=1;
-  yScale.domain([ymax,ymin]);
-  yScale.range([0,imgheight]); 
-  
-  var xAxis=d3.svg.axis();
-  var yAxis=d3.svg.axis();  
-  xAxis.scale(xScale)
-  		.ticks(numticks)
-       .orient("bottom");
-  yAxis.scale(yScale)
-  		.ticks(numticks)
-       .orient("left");
-
-	
-
-
-  fontsize=opties['fontsize'];
-
-  //console.log(chart);
-  chart.append("g")
-        .attr("class","xaxis")
-        .attr("transform","translate(75,"+(imgheight+25)+")")
-        .attr('font-size','32px')
-        .call(xAxis);
-  chart.append("g")
-        .attr("class","yaxis")
-
-        .attr("transform","translate(75,25)")
-        .call(yAxis);        
-  chart.selectAll(".tick >text")
-  		.attr("font-family", "Corbel")
-  		.attr("font-weight", "normal")
-  		.attr('font-size',fontsize+'px');
-
-  chart.append("text")      // text label for the x axis
-  		.attr("class","xaxis")
-        .attr("x", imgwidth/2+70 )
-        .attr("y",  imgheight+70 )
-        .style("text-anchor", "middle")
-        .attr("font-family", "Corbel")
-  		.attr("font-size", fontsize+"px")
-  		 .attr("transform","translate(0,"+(fontsize-15)+")")
-  		.attr("font-weight", "bold")
-        .text(opties.xlabel);
-  chart.append("text")      // text label for the x axis
-    	.attr("class","yaxis")
-        .attr("x", 0 )
-        .attr("y", 0)
-        .attr("font-family", "Corbel")
-  		.attr("font-size", fontsize+"px")
-  		.attr("font-weight", "bold")        
-        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
-        .style("text-anchor", "middle")
-        .text(opties.ylabel);
-  chart.append("text")      // text label for the x axis
-    	.attr("class","yaxis")
-        .attr("x", imgwidth/2+70 )
-        .attr("y", 15)
-        .attr("font-family", "Corbel")
-  		.attr("font-size", fontsize+"px")
-  		.attr("font-weight", "bold")         
-        .style("text-anchor", "middle")
-        .text(opties.title);
-
-
-}
-
-
-
-// dotplot starts here 
-
-
-function draw_dotplot () {
-
-
-
-	if (opties['use_dots']) {	
-		$('.dot').remove();
-
-		var xmin=opties.x_min;
-		var xmax=opties.x_max+1;
-		var ymin=opties.y_min;
-		var ymax=opties.y_max+1;
+		var weigh_x=opties.weighx;
+		var weigh_y=opties.weighy;
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
 		var transform=opties.transform;
-
-    	var dx=(xmax-xmin)/(x_steps);
-    	var dy=(ymax-ymin)/(y_steps);
-
-
-
-		console.log('draw_dotplot',xmin, xmax, x_steps, dx,dy);
-
-		var dot_dotsize=opties.dot_dotsize;
-		var dot_boxsize=opties.dot_boxsize;
+		console.log('weighx/y:', weigh_x, weigh_y);
+		console.log('calc_heatmap:',x_steps, y_steps, size);
 		
-		var dot_color=opties.dot_color;
-		var use_gradient=opties.dot_use_gradient;
-		var bimodal=opties.gradient_bimodal;
-		if (use_gradient) {
-			
-			var gradient_node=document.getElementById("cg_a");
+		var ptr2=0;
+		maxval=data[0];	
+		minval=data[0];
+
+		size=gradient_node.size;		
+		for (var i=0; i<y_steps; i+=size) {
+			for (var j=0; j<x_steps;  j+=size) {		
+				val=0;
+				ptr=j*y_steps+i;
+				if (size==1) val=data[ptr];
+				else {
+					if (size>1) {
+						for (cx=0; cx<size; cx++) {
+							for (cy=0; cy<size; cy++) {
+								val+=data[ptr+cx+cy*x_steps];
+								}
+							}				//cy
+					}  // size >1
+				}
+				
+
+				val=val/(size*size);
+				if (val>maxval) maxval=val;
+				if (val<minval) minval=val;
+
+				console.log(this);
+				val=transform_value(val,transform);
+				
+				if (weigh_x) {
+					val=(val/sum_x[j])*xmean;
+				}
+				if (weigh_y) {
+					val=(val/sum_y[i])*ymean;
+				}			
+				_this.transposebuffer[ptr2]=val;			
+				ptr2++;	
+			} //j
+	//		console.log("i:",i);
+		}	//i
+
+
+		
+		var gradmax=gradient_node.getAttribute('gradient_max');
+		var gradmin=gradient_node.getAttribute('gradient_min');
+		var gradsteps=gradient_node.getAttribute('gradient_steps');
+		if (gradmax=='max') {
+			gradient_node.setAttribute('gradient_max_data', maxval);		
+		} else {
 			if (gradient_node.hasAttribute('gradient_max_data')) {
-				var gradmax=gradient_node.getAttribute('gradient_max_data');
-			} else {
-				var gradmax=gradient_node.getAttribute('gradient_max');	
-			}
+				gradient_node.removeAttribute ('gradient_max_data');			
+			}		
+		}
+		if (gradmin=='min') {
+			gradient_node.setAttribute('gradient_min_data', minval);		
+		} else {
 			if (gradient_node.hasAttribute('gradient_min_data')) {
-				var gradmin=gradient_node.getAttribute('gradient_min_data');
-			} else {
-				var gradmin=gradient_node.getAttribute('gradient_min');
-			}
+				gradient_node.removeAttribute ('gradient_min_data');			
+			}		
+		}
+		console.log('calc_heatmap min/max:',minval,maxval );
+	}
 
-			var gradcenter=gradient_node.getAttribute('gradient_center');
-			var gradmax=transform_value(gradmax,transform);
-			var gradcenter=transform_value(gradcenter,transform);
-			var gradmin=transform_value(gradmin,transform);
-			var gradsteps=gradient_node.getAttribute('gradient_steps');
 
-			if (bimodal) {
-				var delta=gradmax-gradcenter;
-				var delta2=gradcenter-gradmin;
-				var colormap=gradient_node.colormap;
-				var colormap2=gradient_node.colormap2;
-				console.log('bimodal:',delta,delta2,colormap,colormap2)
-			} else {
-				var delta=gradmax-gradmin;
-				var colormap=gradient_node.colormap;
-			}
-			var color='';						
+
+	this.bin_data=function  () {
+
+		var totalpixels=opties.x_steps*opties.y_steps;	
+		var gradient_node=document.getElementById("cg_a");
+		var gradsteps=gradient_node.getAttribute('gradient_steps');
+		var transform=gradient_node.getAttribute('transform');
+		var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
+		var imgheight=opties.imgheight;
+		var imgwidth=opties.imgwidth;
+
+		
+		var histmax=_this.histmax;
+		var transposebuffer=_this.transposebuffer;
+		var backbuffer=_this.backbuffer;
+
+
+		if (gradient_node.hasAttribute('gradient_max_data')) {
+			var gradmax=gradient_node.getAttribute('gradient_max_data');
+		} else {
+			var gradmax=gradient_node.getAttribute('gradient_max');	
+		}
+		if (gradient_node.hasAttribute('gradient_min_data')) {
+			var gradmin=gradient_node.getAttribute('gradient_min_data');
+		} else {
+			var gradmin=gradient_node.getAttribute('gradient_min');
 		}
 
-		var xoffset=0.5*dx-0.5*dot_boxsize*dx;
-		var yoffset=0.5*dy-0.5*dot_boxsize*dy;
-		for (i=0; i<x_steps; i++){
-			for (j=0; j<y_steps; j++){
-				ptr=y_steps*j+i;				
-				val=transposebuffer[ptr];
-				if (use_gradient) {
-		//			console.log(val);
-		//			console.log(colormap[val]);
-										
-					console.log('setval:',bimodal,val,gradmin,gradcenter,gradmax);
-					if (bimodal) {						
-						if (val>gradcenter) {
-							indexval=~~((val-gradcenter)/(delta)*gradsteps);  
-							if (indexval<0) indexval=0;
-							if (indexval>=gradsteps) indexval=gradsteps-1;
-							console.log('take1:',indexval);
-							color=colormap[indexval];
-						} else {	
-							indexval=~~((val-gradmin)/(delta2)*gradsteps);  
-							console.log('take2:',indexval);
-							if (indexval<0) indexval=0;
-							if (indexval>=gradsteps) indexval=gradsteps-1;
-							color=colormap2[indexval];
-						}
-					} else {
-						if (indexval<0) indexval=0;
-						if (indexval>=gradsteps) indexval=gradsteps-1;
-						color=colormap[indexval];
-					}
-					dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
-				}
-				if (val<0) val=-val;
-				xval=i*dx+xmin+xoffset;
-				yval=j*dy+ymin+yoffset				
-				for (k=0; k<val; k++) {
-					chart.append("svg:circle")
-						.attr("class","dot")
-	          			.attr("cx", function (d,i) { return xScale(xval+dot_boxsize*dx*Math.random()); } )
-	          			.attr("cy", function (d) { return xScale(yval+dot_boxsize*dy*Math.random()); } )
-	          			.attr("transform","translate(75,25)")
-	          			.attr("r", dot_dotsize)
-	          			.style("fill",dot_color);
-	          		}
+		var gradmax=transform_value(gradmax,transform);
+		var gradmin=transform_value(gradmin,transform);
 
+		var delta=gradmax-gradmin;
+
+		var line=0;
+		for (i=0; i<opties.imgwidth*opties.imgheight; i++) {
+			backbuffer[i]=0;
+		}
+		xstep=xpix2img*size;
+		ystep=ypix2img*size;
+		
+		u=0;
+		v=1;
+		//console.log('xstep/ystep:',xstep,ystep, xpix2img, ypix2img, size);
+		_this.hist=new Array(gradsteps);
+		var hist=_this.hist;
+		for (i=0; i<gradsteps; i++) {
+			hist[i]=0;
+		}
+		console.log('totalpixels,ptr:',totalpixels, opties.imgheight, opties.imgwidth);
+		for (i=0; i<totalpixels; i++)	{	
+			val=transposebuffer[i];
+
+			indexval=~~((val-gradmin)/(delta)*gradsteps);  					
+			if (indexval<0) indexval=0;
+			if (indexval>=gradsteps) indexval=gradsteps-1;
+
+			indexval=parseInt(indexval);
+			hist[indexval]++;
+			/*
+			if ((inv_grad)  && (indexval!=0)) {			
+					indexval=colormaplength-indexval;
 			}
-		}          	
-   	}
-   	  	// dotplot done
-}
+	*/
+
+			ptr=(imgheight-v*ystep)*imgwidth; 
+			ptr+=u*xstep;
 
 
-function draw_histogram () {
+			//if (line==0) { console.log("val=",val);}
+			//ptr=u*xstep+v*ystep*imgwidth;
+			for (cy=0; cy<ystep; cy++) {
+				for (cx=0; cx<xstep; cx++) {
+					backbuffer[ptr+cy*imgwidth+cx]=indexval;
+					}
+				}
+			u++;
+			line+=xstep;		
+			if (line>=imgwidth) {			
+				u=0;
+				v++;			
+				line=0;
+			}
+		}			//cy
 
-console.log("draw_histogram:", histmax);
-//console.log(colormap);
+	//console.log('HISTMAX:',hist)
+	histmax=hist[0];
+	for (i=1; i<gradsteps; i++) 
+		if (hist[i]>histmax) histmax=hist[i];
+
+	_this.histmax=histmax;
+		
+	//console.log('hist2:',backbuffer);
+	}
+
+
+
+	/* draw_heatmap:
+		- heatmap uitrekenen
+		- minima/maxima bepalen
+	   - colormap tekenen; 
+	   - heatmap tekenen.
+
+	*/
+
+	this.draw_heatmap=function () {
+
+		console.log("draw_heatmap:");
+
+		if (opties['use_dots']) {
+			_this.draw_dotplot();
+		}
+
+		_this.bin_data();		
+		_this.draw_histogram();
+
+		var mapdata=_this.mapdata;
+		var backbuffer=_this.backbuffer;	
+
+		/* eigenlijke heatmap plotten */
+
+		var indexval=0;
+		var color=[];
+		var nr=0;
+
+	//	$('.dot').remove();		//remove dotplot
+		var gradient_node=document.getElementById("cg_a");
+		var size=gradient_node.size;	
+		console.log('draw_heatmap, size:',size);
+		var xstep=xpix2img*size;
+		var ystep=ypix2img*size;
+
+		var colormap=gradient_node.colormap;
+		
+	//	console.log('draw_heatmap, colormap:', colormap);
+
+		console.log("draw_heatmap:",backbuffer.length);
+		for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
+				indexval=backbuffer[i];
+				if ((indexval>0) && (nr<-50)) {
+							console.log(nr, i,j,indexval);
+							nr+=1;
+						}
+				if ((indexval!=0) || (!_this.skipzero)) {	  // waardes die 0 zijn niet plotten
+					color=colormap[indexval];			
+		    		mapdata[j] =  color[0];  
+		    		mapdata[j+1] = color[1];  
+		    		mapdata[j+2] = color[2];  
+		    		mapdata[j+3] = 0xff; 
+				} else {
+					mapdata[j] =  0xff;   // background color: white
+		    		mapdata[j+1] = 0xff; 
+		    		mapdata[j+2] = 0xff; 
+		    		mapdata[j+3] = 0xff; 
+		    	}
+
+			}	
+		if (opties['plot_mean']==true){
+			console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
+			color=opties['plot_mean_color'];
+			for (i=0; i<mean_x.length; i++) {
+				avgval=mean_x[i];
+				ptr=(i*xpix2img+imgwidth*(imgheight-ypix2img*avgval))*4;
+				mapdata[ptr]=color[0];
+				mapdata[ptr+1]=color[1];
+				mapdata[ptr+2]=color[2];
+				mapdata[ptr+3]=color[3];
+			}
+		}
+		if (opties['plot_median']==true){
+			color=opties['plot_median_color'];
+			for (i=0; i<median_x.length; i++) {
+				medval=median_x[i];
+				ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;			
+				mapdata[ptr]=color[0];
+				mapdata[ptr+1]=color[1];
+				mapdata[ptr+2]=color[2];
+				mapdata[ptr+3]=color[3];
+			}
+		}
+
+		if (opties['info_datafile']!=null){
+			color=opties['info_color'];
+			for (i=0; i<extradata.length; i++) {
+				i=extradata[i][0];
+				j=i=extradata[i][1];
+				ptr=(i*size+size*imgwidth*(imgheight-j))*4;
+				mapdata[ptr]=color[0];
+				mapdata[ptr+1]=color[1];
+				mapdata[ptr+2]=color[2];
+				mapdata[ptr+3]=color[3];
+			}
+		}
+		console.log('putdata');
+		ctx.putImageData(_this.imgData, 0, 0);		 
+	}
 
 
 
 
-var gradient_node=document.getElementById("cg_a");
-var gradmin=gradient_node.getAttribute('gradient_min');  //FIXME
-var gradmax=gradient_node.getAttribute('gradient_max');
-var gradsteps=gradient_node.getAttribute('gradient_steps');
-var colormapname=gradient_node.getAttribute('colormapname');
-console.log('draw_histogram, colormap:',colormapname, gradsteps);
-var colormap=gradient_node.colormap;
 
 
-var imgwidth=opties.imgwidth;
-var imgheight=opties.imgheight;
-var histwidth=500;
-var histheight=0.4*opties.imgheight;
-var barwidth=500/gradsteps;
-var hist_offset_x=125;
+	this.init_print=function () {
+	   $('.print').on('click',_this.click_print);
+	   $('.print').on('mouseenter ',enter_selectie);
+	   $('.print').on('mouseout ',leave_selectie);
+	}
 
 
-$('.hist_2d').remove();
-$('.hist_x').remove();
-$('.hist_y').remove();
+	this.print_ok=function  () {
+		console.log("print ok");
+	}
 
-console.log('DRAW_HISTOGRAM:',imgheight,histmax,histheight);
-for (i=1; i<gradsteps; i++) {
- 	color=colormap[i];
- 	colorstring="rgb("+color[0]+","+color[1]+","+color[2]+")";
- 	if (gradsteps>30) {
- 		borderstyle=colorstring;
- 	} else {
- 		borderstyle="#5a5a5a";
- 	}
- 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
- 	
- 	chart.append("rect")
-		.attr("class","hist_2d")
-		.attr("x",imgwidth+hist_offset_x+i*barwidth)
-		.attr("y",imgheight-(hist[i]/histmax)*histheight+25)
-		.attr("width",barwidth)
-		.attr("height",(hist[i]/histmax)*histheight)
-		.style("fill",colorstring)	
-		.style("stroke",borderstyle)
-		.style("stroke-width","1px");		
- }
+	this.print_fail=function  () {
+		console.log('print failed');
+		s='\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+		s+="Printen niet gelukt. Opties voor command-line-reproductie:\n\n";
+		s+='import contour\n\n'
+		s+='args=dict(\n\t'
+		var firstkey=true;
+		opties['default_colormap']=colormapname;
+		opties['default_size']=size;
+		opties['default_transform']=transform;
+		opties['gradmin']=gradmin;
+		opties['gradmax']=gradmax;
+		opties['gradsteps']=gradsteps;
+
+		console.log('transform=',transform);
+
+		var optiekeys=[];
+		for (key in opties) {		
+	    	if (opties.hasOwnProperty(key)) {
+	    		optiekeys.push(key);
+	    	}
+	    }
+	    optiekeys.sort();
+
+	    delete opties['datamin'];
+	    delete opties['datamax'];
+	    delete opties.x_max;
+	    delete opties.x_min;
+	    delete opties.y_max;
+	    delete opties.y_min;
+
+
+	    for (var i=0; i<optiekeys.length; i++) {
+	    		key=optiekeys[i];
+	    		if (!(firstkey)) {
+	    			s+=',\n\t';
+	    		}
+				val=opties[key];
+				console.log(key,val, typeof(val));
+				if (typeof(val)=='number')  {
+	    			s+=key+'='+val;
+	    		}
+	    		if (typeof(val)=='boolean') {
+	    			if (val==true) {
+	    				s+=key+'=True'
+	    			}
+		   			if (val==false) {
+	    				s+=key+'=False'
+	    			}
+
+	    		}
+				if (typeof(val)=='string') {
+					s+=key+'="'+val+'"';	
+				}
+	    		firstkey=false;    	
+	    }
+	    s+=')\nc=contour.contour()\nc.run_contour(args)\n';
+
+	    $('#printcode').html(s);	
+	}
+
+	this.click_print=function  () {
+
+
+		var printtype=$(this).attr('data-print');
+		//$.get('#',{'cmd':printtype})
+	 	$.ajax({
+	            cache: false,
+	            url: "/"+printtype,
+	            type: "GET"
+	            
+	        })
+	 		.done(print_ok)
+	 		.fail(print_fail);
+
+	}
+
+
+
+
+
+
+
+
+
+
+
+	  this.draw_axes=function  () {
+
+	  var logx=opties.logx;
+	  var logy=opties.logy;
+
+	  if (logx) xScale=d3.scale.log();     // naar object-namespace
+	  else	xScale=d3.scale.linear();
+	  if (logy) yScale=d3.scale.log();
+	  else	yScale=d3.scale.linear();
+	    
+	    
+	  var numticks=opties['numticks']
+	  var xmin=opties.x_min;
+	  var ymin=opties.y_min;
+	  var ymax=opties.y_max+1;   // off by one, again.
+	  var xmax=opties.x_max+1;
+
+	  var imgwidth=opties.imgwidth;
+	  var imgheight=opties.imgheight;
+
+	  if ((logx) && (xmin<=0)) xmin=1;
+	  xScale.domain([xmin,xmax]);  
+	  xScale.range([0,imgwidth]); 
+
+	  if ((logy) && (ymin<=0)) ymin=1;
+	  yScale.domain([ymax,ymin]);
+	  yScale.range([0,imgheight]); 
 	  
-  console.log('hist:',opties.transform);
-  var heatmap_hist_xScale=d3.scale.linear();
-  
-  heatmap_hist_xScale.range([0,gradsteps*barwidth]);
-  heatmap_hist_xScale.domain([gradmin,gradmax]);
+	  var xAxis=d3.svg.axis();
+	  var yAxis=d3.svg.axis();  
+	  xAxis.scale(xScale)
+	  		.ticks(numticks)
+	       .orient("bottom");
+	  yAxis.scale(yScale)
+	  		.ticks(numticks)
+	       .orient("left");
 
-  var heatmap_hist_yScale=d3.scale.linear();
-  heatmap_hist_yScale.range([0,histheight]);
-  heatmap_hist_yScale.domain([histmax,0]);
-
-  
-  var heatmap_hist_xAxis=d3.svg.axis(); 
-  var heatmap_hist_yAxis=d3.svg.axis();   
-  heatmap_hist_xAxis.scale(heatmap_hist_xScale)   
-  		.ticks(5)    
-       .orient("bottom");
-  heatmap_hist_yAxis.scale(heatmap_hist_yScale)   
-  		.ticks(5)    
-       .orient("left");
-
-  //console.log(chart);
-  offsetx=imgwidth+hist_offset_x;
-  offsety=imgheight+25;
-
-  chart.append("g")
-        .attr("class","xaxis hist_2d")
-        .attr("transform","translate("+offsetx+","+offsety+")")
-        .call(heatmap_hist_xAxis); 
-  offsety=imgheight-histheight+25;
-  chart.append("g")
-        .attr("class","yaxis hist_2d")
-        .attr("transform","translate("+offsetx+","+offsety+")")
-        .call(heatmap_hist_yAxis); 
-
-  chart.selectAll('.hist_2d')
-  		.selectAll('.tick >text')
-        .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
-  		.attr("font-weight", "normal");
-        /*
-        .attr("class","yaxis hist_2d")
-        .attr("transform","translate("+offsetx+","+offsety+")")
-        .call(heatmap_hist_yAxis);*/
-
-}
+		
 
 
+	  fontsize=opties['fontsize'];
 
-function update_hist_x_y (evt) {
+	  //console.log(chart);
+	  var chart=this.chart;
 
-	console.log("update_hist_x_y");	
+	  chart.append("g")
+	        .attr("class","xaxis")
+	        .attr("transform","translate(75,"+(imgheight+25)+")")
+	        .attr('font-size','32px')
+	        .call(xAxis);
+	  chart.append("g")
+	        .attr("class","yaxis")
+
+	        .attr("transform","translate(75,25)")
+	        .call(yAxis);        
+	  chart.selectAll(".tick >text")
+	  		.attr("font-family", "Corbel")
+	  		.attr("font-weight", "normal")
+	  		.attr('font-size',fontsize+'px');
+
+	  chart.append("text")      // text label for the x axis
+	  		.attr("class","xaxis")
+	        .attr("x", imgwidth/2+70 )
+	        .attr("y",  imgheight+70 )
+	        .style("text-anchor", "middle")
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", fontsize+"px")
+	  		 .attr("transform","translate(0,"+(fontsize-15)+")")
+	  		.attr("font-weight", "bold")
+	        .text(opties.xlabel);
+	  chart.append("text")      // text label for the x axis
+	    	.attr("class","yaxis")
+	        .attr("x", 0 )
+	        .attr("y", 0)
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", fontsize+"px")
+	  		.attr("font-weight", "bold")        
+	        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
+	        .style("text-anchor", "middle")
+	        .text(opties.ylabel);
+	  chart.append("text")      // text label for the x axis
+	    	.attr("class","yaxis")
+	        .attr("x", imgwidth/2+70 )
+	        .attr("y", 15)
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", fontsize+"px")
+	  		.attr("font-weight", "bold")         
+	        .style("text-anchor", "middle")
+	        .text(opties.title);
+
+
+	}
+
+
+
+	// dotplot starts here 
+
+
+	this.draw_dotplot=function  () {
+
+
+
+		if (opties['use_dots']) {	
+			$('.dot').remove();
+
+			var chart=this.chart;
+			var xmin=opties.x_min;
+			var xmax=opties.x_max+1;
+			var ymin=opties.y_min;
+			var ymax=opties.y_max+1;
+			var x_steps=opties.x_steps;
+			var y_steps=opties.y_steps;
+			var transform=opties.transform;
+
+	    	var dx=(xmax-xmin)/(x_steps);
+	    	var dy=(ymax-ymin)/(y_steps);
+
+
+
+			console.log('draw_dotplot',xmin, xmax, x_steps, dx,dy);
+
+			var dot_dotsize=opties.dot_dotsize;
+			var dot_boxsize=opties.dot_boxsize;
+			
+			var dot_color=opties.dot_color;
+			var use_gradient=opties.dot_use_gradient;
+			var bimodal=opties.gradient_bimodal;
+			if (use_gradient) {
+				
+				var gradient_node=document.getElementById("cg_a");
+				if (gradient_node.hasAttribute('gradient_max_data')) {
+					var gradmax=gradient_node.getAttribute('gradient_max_data');
+				} else {
+					var gradmax=gradient_node.getAttribute('gradient_max');	
+				}
+				if (gradient_node.hasAttribute('gradient_min_data')) {
+					var gradmin=gradient_node.getAttribute('gradient_min_data');
+				} else {
+					var gradmin=gradient_node.getAttribute('gradient_min');
+				}
+
+				var gradcenter=gradient_node.getAttribute('gradient_center');
+				var gradmax=transform_value(gradmax,transform);
+				var gradcenter=transform_value(gradcenter,transform);
+				var gradmin=transform_value(gradmin,transform);
+				var gradsteps=gradient_node.getAttribute('gradient_steps');
+
+				if (bimodal) {
+					var delta=gradmax-gradcenter;
+					var delta2=gradcenter-gradmin;
+					var colormap=gradient_node.colormap;
+					var colormap2=gradient_node.colormap2;
+					console.log('bimodal:',delta,delta2,colormap,colormap2)
+				} else {
+					var delta=gradmax-gradmin;
+					var colormap=gradient_node.colormap;
+				}
+				var color='';						
+			}
+
+			var xoffset=0.5*dx-0.5*dot_boxsize*dx;
+			var yoffset=0.5*dy-0.5*dot_boxsize*dy;
+			for (i=0; i<x_steps; i++){
+				for (j=0; j<y_steps; j++){
+					ptr=y_steps*j+i;				
+					val=_this.transposebuffer[ptr];
+					if (use_gradient) {
+			//			console.log(val);
+			//			console.log(colormap[val]);
+											
+						//console.log('setval:',bimodal,val,gradmin,gradcenter,gradmax);
+						if (bimodal) {						
+							if (val>gradcenter) {
+								indexval=~~((val-gradcenter)/(delta)*gradsteps);  
+								if (indexval<0) indexval=0;
+								if (indexval>=gradsteps) indexval=gradsteps-1;
+								//console.log('take1:',indexval);
+								color=colormap[indexval];
+							} else {	
+								indexval=~~((val-gradmin)/(delta2)*gradsteps);  
+								//console.log('take2:',indexval);
+								if (indexval<0) indexval=0;
+								if (indexval>=gradsteps) indexval=gradsteps-1;
+								color=colormap2[indexval];
+							}
+						} else {
+							if (indexval<0) indexval=0;
+							if (indexval>=gradsteps) indexval=gradsteps-1;
+							color=colormap[indexval];
+						}
+						dot_color="rgb("+color[0]+","+color[1]+","+color[2]+")";
+					}
+					if (val<0) val=-val;
+					xval=i*dx+xmin+xoffset;
+					yval=j*dy+ymin+yoffset				
+					for (k=0; k<val; k++) {
+						chart.append("svg:circle")
+							.attr("class","dot")
+		          			.attr("cx", function (d,i) { return xScale(xval+dot_boxsize*dx*Math.random()); } )
+		          			.attr("cy", function (d) { return xScale(yval+dot_boxsize*dy*Math.random()); } )
+		          			.attr("transform","translate(75,25)")
+		          			.attr("r", dot_dotsize)
+		          			.style("fill",dot_color);
+		          		}
+
+				}
+			}          	
+	   	}
+	   	  	// dotplot done
+	}
+
+
+	this.draw_histogram=function  () {
+
+	console.log("draw_histogram:");
+	//console.log(colormap);
+
+
+
 
 	var gradient_node=document.getElementById("cg_a");
+	var gradmin=gradient_node.getAttribute('gradient_min');  //FIXME
 	var gradmax=gradient_node.getAttribute('gradient_max');
-	var gradmin=gradient_node.getAttribute('gradient_min');
-	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
-	if (gradient_node.hasAttribute('gradient_max_data')) {
-		var gradmax=gradient_node.getAttribute('gradient_max_data');
-	}
-	if (gradient_node.hasAttribute('gradient_min_data')) {
-		var gradmin=gradient_node.getAttribute('gradient_min_data');
-	}
-	var imgheight=opties.imgheight;
+	var gradsteps=gradient_node.getAttribute('gradient_steps');	
+	var colormap=gradient_node.colormap;	
+	var chart=this.chart;
+
 	var imgwidth=opties.imgwidth;
+	var imgheight=opties.imgheight;
+	var histwidth=500;
+	var histheight=0.4*opties.imgheight;
+	var barwidth=500/gradsteps;
+	var hist_offset_x=125;
+	var hist=_this.hist;
+	var histmax=_this.histmax;
 
 
-	x=parseInt(evt.pageX-$(this).position().left-50);
-	y=parseInt(evt.pageY-$(this).position().top-25);
-	console.log(x, y);
 
-	if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
-		if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
-			//toggle_gradcontrols();					
-		}
-		return false;
-	}
-	
 	$('.hist_2d').remove();
 	$('.hist_x').remove();
 	$('.hist_y').remove();
-	$('.pointinfotext').remove();	
 
-	var offsetx_hist=100;  //distance between heatmap and side-histograms
-	var offsety_hist=25;   // distance between bottom of screen & side-histograms
-	var offsetspace_hist=-40;   // distance between side-histograms
-	var graphheight=0.25*imgheight;
-	delta=(xmax-xmin);
-	val=(x/imgwidth)*delta+xmin;
-	xval=val.toFixed(2);
-
-	/* text upper right corner */
- 	chart.append("text")      
-    	.attr("class","pointinfotext")
-        .attr("x", 1.5*imgwidth+100 )
-        .attr("y", 50 )
-        .attr("font-family", "Corbel")
-        .attr("font-size", "15px")
-        .attr("font-weight", "bold")
-        .text(xlabel+':'+xval);
-		
-	delta=(ymax-ymin);
-	val=((imgheight-y)/imgheight)*delta+ymin;
-	yval=val.toFixed(0);
-	chart.append("text")      
-    	.attr("class","pointinfotext")
-        .attr("x", 1.5*imgwidth+100 )
-        .attr("y", 50+16)
-        .attr("font-family", "Corbel")
-        .attr("font-size", "15px")
-        .attr("font-weight", "bold")     
-        .text(ylabel+':'+yval);
-
-	val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
-	chart.append("text")      
-    	.attr("class","pointinfotext")
-        .attr("x", 1.5*imgwidth+100 )
-        .attr("y", 50+32)
-        .attr("font-family", "Corbel")
-        .attr("font-size", "15px")
-        .attr("font-weight", "bold")             
-        .text('#count:'+val);
-
-
-
-/* histogram y */
-
-	histy_max=0;
-	for (i=0; i<imgwidth; i++) { 		
-		val=backbuffer[y*imgheight+i];
-		if (val>histy_max) histy_max=val;
-	}
-
-	//console.log(histy_max);
-	
-	for (i=0; i<imgwidth; i++) { 	
-	 	val=backbuffer[y*imgheight+i];	 		 	
-
-	 	color=colormap[val];
-		chart.append("rect")
-			.attr("class","hist_y")
-			.attr("x",imgwidth+offsetx_hist+i)
-			.attr("y",parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist)
-			.attr("width",1)
-			.attr("height",(val/histy_max)*graphheight)
-			.style("fill","rgb(8,8,0)")
-			.style("stroke","rgb(8,8,0)")			
-			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
-			.style("stroke-width","1px");
-		 }
-
-		
-histx_max=0;
-for (i=0; i<imgheight; i++) { 	
-	 	val=backbuffer[i*imgwidth+x];
-	 	if (val>histx_max) histx_max=val;
+	console.log('DRAW_HISTOGRAM:',imgheight,histmax,histheight);
+	for (i=1; i<gradsteps; i++) {
+	 	color=colormap[i];
+	 	colorstring="rgb("+color[0]+","+color[1]+","+color[2]+")";
+	 	if (gradsteps>30) {
+	 		borderstyle=colorstring;
+	 	} else {
+	 		borderstyle="#5a5a5a";
+	 	}
+	 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
+	 		 	
+	 	chart.append("rect")
+			.attr("class","hist_2d")
+			.attr("x",imgwidth+hist_offset_x+i*barwidth)
+			.attr("y",imgheight-(hist[i]/histmax)*histheight+25)
+			.attr("width",barwidth)
+			.attr("height",(hist[i]/histmax)*histheight)
+			.style("fill",colorstring)	
+			.style("stroke",borderstyle)
+			.style("stroke-width","1px");		
 	 }
-	
-for (i=0; i<imgheight; i++) { 	
-	 	val=backbuffer[i*imgwidth+x];
-	 	color=colormap[val];
-		chart.append("rect")
-			.attr("class","hist_y")
-			.attr("x",2*imgwidth+offsetx_hist-i)
-			.attr("y",imgheight-(val/histx_max)*graphheight-graphheight+offsety_hist+offsetspace_hist)
-			.attr("width",1)
-			.attr("height",(val/histx_max)*graphheight)
-			.style("fill","rgb(130,8,8)")
-			.style("stroke","rgb(130,8,8)")
+		  
+	  console.log('hist:',opties.transform);
+	  var heatmap_hist_xScale=d3.scale.linear();
+	  
+	  heatmap_hist_xScale.range([0,gradsteps*barwidth]);
+	  heatmap_hist_xScale.domain([gradmin,gradmax]);
+
+	  var heatmap_hist_yScale=d3.scale.linear();
+	  heatmap_hist_yScale.range([0,histheight]);
+	  heatmap_hist_yScale.domain([histmax,0]);
+
+	  
+	  var heatmap_hist_xAxis=d3.svg.axis(); 
+	  var heatmap_hist_yAxis=d3.svg.axis();   
+	  heatmap_hist_xAxis.scale(heatmap_hist_xScale)   
+	  		.ticks(5)    
+	       .orient("bottom");
+	  heatmap_hist_yAxis.scale(heatmap_hist_yScale)   
+	  		.ticks(5)    
+	       .orient("left");
+
+	  //console.log(chart);
+	  offsetx=imgwidth+hist_offset_x;
+	  offsety=imgheight+25;
+
+	  chart.append("g")
+	        .attr("class","xaxis hist_2d")
+	        .attr("transform","translate("+offsetx+","+offsety+")")
+	        .call(heatmap_hist_xAxis); 
+	  offsety=imgheight-histheight+25;
+	  chart.append("g")
+	        .attr("class","yaxis hist_2d")
+	        .attr("transform","translate("+offsetx+","+offsety+")")
+	        .call(heatmap_hist_yAxis); 
+
+	  chart.selectAll('.hist_2d')
+	  		.selectAll('.tick >text')
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", "16px")
+	  		.attr("font-weight", "normal");
+	        /*
+	        .attr("class","yaxis hist_2d")
+	        .attr("transform","translate("+offsetx+","+offsety+")")
+	        .call(heatmap_hist_yAxis);*/
+
+	}
+
+
+
+	this.update_hist_x_y=function  (evt) {
+
+		console.log("update_hist_x_y");	
+
+		var chart=this.chart;
+		var gradient_node=document.getElementById("cg_a");
+		var gradmax=gradient_node.getAttribute('gradient_max');
+		var gradmin=gradient_node.getAttribute('gradient_min');
+		var gradsteps=gradient_node.getAttribute('gradient_steps');
+		var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
+		if (gradient_node.hasAttribute('gradient_max_data')) {
+			var gradmax=gradient_node.getAttribute('gradient_max_data');
+		}
+		if (gradient_node.hasAttribute('gradient_min_data')) {
+			var gradmin=gradient_node.getAttribute('gradient_min_data');
+		}
+		var imgheight=opties.imgheight;
+		var imgwidth=opties.imgwidth;
+
+
+		x=parseInt(evt.pageX-$(this).position().left-50);
+		y=parseInt(evt.pageY-$(this).position().top-25);
+		console.log(x, y);
+
+		if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
+			if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
+				//toggle_gradcontrols();					
+			}
+			return false;
+		}
+		
+		$('.hist_2d').remove();
+		$('.hist_x').remove();
+		$('.hist_y').remove();
+		$('.pointinfotext').remove();	
+
+		var offsetx_hist=100;  //distance between heatmap and side-histograms
+		var offsety_hist=25;   // distance between bottom of screen & side-histograms
+		var offsetspace_hist=-40;   // distance between side-histograms
+		var graphheight=0.25*imgheight;
+		delta=(xmax-xmin);
+		val=(x/imgwidth)*delta+xmin;
+		xval=val.toFixed(2);
+
+		/* text upper right corner */
+	 	chart.append("text")      
+	    	.attr("class","pointinfotext")
+	        .attr("x", 1.5*imgwidth+100 )
+	        .attr("y", 50 )
+	        .attr("font-family", "Corbel")
+	        .attr("font-size", "15px")
+	        .attr("font-weight", "bold")
+	        .text(xlabel+':'+xval);
 			
-			//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-			//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
-			.style("stroke-width","1px");
+		delta=(ymax-ymin);
+		val=((imgheight-y)/imgheight)*delta+ymin;
+		yval=val.toFixed(0);
+		chart.append("text")      
+	    	.attr("class","pointinfotext")
+	        .attr("x", 1.5*imgwidth+100 )
+	        .attr("y", 50+16)
+	        .attr("font-family", "Corbel")
+	        .attr("font-size", "15px")
+	        .attr("font-weight", "bold")     
+	        .text(ylabel+':'+yval);
+
+		val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
+		chart.append("text")      
+	    	.attr("class","pointinfotext")
+	        .attr("x", 1.5*imgwidth+100 )
+	        .attr("y", 50+32)
+	        .attr("font-family", "Corbel")
+	        .attr("font-size", "15px")
+	        .attr("font-weight", "bold")             
+	        .text('#count:'+val);
+
+
+
+	/* histogram y */
+
+		histy_max=0;
+		for (i=0; i<imgwidth; i++) { 		
+			val=backbuffer[y*imgheight+i];
+			if (val>histy_max) histy_max=val;
+		}
+
+		//console.log(histy_max);
+		
+		for (i=0; i<imgwidth; i++) { 	
+		 	val=backbuffer[y*imgheight+i];	 		 	
+
+		 	color=colormap[val];
+			chart.append("rect")
+				.attr("class","hist_y")
+				.attr("x",imgwidth+offsetx_hist+i)
+				.attr("y",parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist)
+				.attr("width",1)
+				.attr("height",(val/histy_max)*graphheight)
+				.style("fill","rgb(8,8,0)")
+				.style("stroke","rgb(8,8,0)")			
+				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+				.style("stroke-width","1px");
+			 }
+
+			
+	histx_max=0;
+	for (i=0; i<imgheight; i++) { 	
+		 	val=backbuffer[i*imgwidth+x];
+		 	if (val>histx_max) histx_max=val;
 		 }
+		
+	for (i=0; i<imgheight; i++) { 	
+		 	val=backbuffer[i*imgwidth+x];
+		 	color=colormap[val];
+			chart.append("rect")
+				.attr("class","hist_y")
+				.attr("x",2*imgwidth+offsetx_hist-i)
+				.attr("y",imgheight-(val/histx_max)*graphheight-graphheight+offsety_hist+offsetspace_hist)
+				.attr("width",1)
+				.attr("height",(val/histx_max)*graphheight)
+				.style("fill","rgb(130,8,8)")
+				.style("stroke","rgb(130,8,8)")
+				
+				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+				.style("stroke-width","1px");
+			 }
 
-  
+	  
 
-  var xxScale=d3.scale.linear();
-  var yxScale=d3.scale.linear();
-  var xyScale=d3.scale.linear();
-  var yyScale=d3.scale.linear();
-  
-  xxScale.range([0,imgwidth]); 
-  xxScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
-  xyScale.range([0,0.25*imgheight]); 
-  xyScale.domain([histy_max*(gradmax/gradsteps),0]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
+	  var xxScale=d3.scale.linear();
+	  var yxScale=d3.scale.linear();
+	  var xyScale=d3.scale.linear();
+	  var yyScale=d3.scale.linear();
+	  
+	  xxScale.range([0,imgwidth]); 
+	  xxScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
+	  xyScale.range([0,0.25*imgheight]); 
+	  xyScale.domain([histy_max*(gradmax/gradsteps),0]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
 
-  yxScale.range([0,imgwidth]); 
-  yxScale.domain([xmin,xmax]);   
-  yyScale.range([0,0.25*imgheight]); 
-  yyScale.domain([histx_max*(gradmax/gradsteps),0]);
+	  yxScale.range([0,imgwidth]); 
+	  yxScale.domain([xmin,xmax]);   
+	  yyScale.range([0,0.25*imgheight]); 
+	  yyScale.domain([histx_max*(gradmax/gradsteps),0]);
 
-  var xxAxis=d3.svg.axis();
-  var xyAxis=d3.svg.axis();  
-  var yxAxis=d3.svg.axis();
-  var yyAxis=d3.svg.axis();  
-  
-  xxAxis.scale(xxScale)       
-       .orient("bottom");
-  xyAxis.scale(xyScale)       
-       .orient("left");
-  yxAxis.scale(yxScale)       
-       .orient("bottom");
-  yyAxis.scale(yyScale)       
-       .orient("left");
-  
-  //console.log(chart);
-  offsetx=imgwidth+offsetx_hist;
-  offsetyx=imgheight+offsety_hist
-  offsetyy=imgheight-2*graphheight+offsety_hist+offsetspace_hist;
+	  var xxAxis=d3.svg.axis();
+	  var xyAxis=d3.svg.axis();  
+	  var yxAxis=d3.svg.axis();
+	  var yyAxis=d3.svg.axis();  
+	  
+	  xxAxis.scale(xxScale)       
+	       .orient("bottom");
+	  xyAxis.scale(xyScale)       
+	       .orient("left");
+	  yxAxis.scale(yxScale)       
+	       .orient("bottom");
+	  yyAxis.scale(yyScale)       
+	       .orient("left");
+	  
+	  //console.log(chart);
+	  offsetx=imgwidth+offsetx_hist;
+	  offsetyx=imgheight+offsety_hist
+	  offsetyy=imgheight-2*graphheight+offsety_hist+offsetspace_hist;
 
-  chart.append("g")
-        .attr("class","yaxis hist_x")
-        .attr("transform","translate("+offsetx+","+offsetyx+")")
-        .call(yxAxis);
-  chart.append("g")
-        .attr("class","yaxis hist_x")
-        .attr("transform","translate("+offsetx+","+offsetyy+")")
-        .call(yyAxis);
+	  chart.append("g")
+	        .attr("class","yaxis hist_x")
+	        .attr("transform","translate("+offsetx+","+offsetyx+")")
+	        .call(yxAxis);
+	  chart.append("g")
+	        .attr("class","yaxis hist_x")
+	        .attr("transform","translate("+offsetx+","+offsetyy+")")
+	        .call(yyAxis);
 
-  offsetx=imgwidth+offsetx_hist;
-  offsetyx=imgheight-graphheight+offsety_hist+offsetspace_hist;
-  offsetyy=imgheight-graphheight+offsety_hist;
+	  offsetx=imgwidth+offsetx_hist;
+	  offsetyx=imgheight-graphheight+offsety_hist+offsetspace_hist;
+	  offsetyy=imgheight-graphheight+offsety_hist;
 
-  chart.append("g")
-        .attr("class","xaxis hist_y")
-        .attr("transform","translate("+offsetx+","+offsetyx+")")        
-        .call(xxAxis);        
-  chart.append("g")
-        .attr("class","xaxis hist_y")
-        .attr("transform","translate("+offsetx+","+offsetyy+")")        
-        .call(xyAxis);        
+	  chart.append("g")
+	        .attr("class","xaxis hist_y")
+	        .attr("transform","translate("+offsetx+","+offsetyx+")")        
+	        .call(xxAxis);        
+	  chart.append("g")
+	        .attr("class","xaxis hist_y")
+	        .attr("transform","translate("+offsetx+","+offsetyy+")")        
+	        .call(xyAxis);        
 
-  chart.selectAll('.hist_x >text')
-        .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
-  		.attr("font-weight", "normal");
+	  chart.selectAll('.hist_x >text')
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", "16px")
+	  		.attr("font-weight", "normal");
 
-  chart.selectAll('.hist_y')
-  		.selectAll('.tick >text')
-        .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
-  		.attr("font-weight", "normal");
+	  chart.selectAll('.hist_y')
+	  		.selectAll('.tick >text')
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", "16px")
+	  		.attr("font-weight", "normal");
 
-  chart.selectAll('.hist_x')
-  		.selectAll('.tick >text')
-        .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
-  		.attr("font-weight", "normal");
-
-
-
-  chart.append("text")      // text label for the x axis
-  		.attr("class","xaxis hist_x")
-        .attr("x",  1.5*imgwidth+offsetx_hist )
-        .attr("y",  imgheight+offsety_hist+35 )
-        .style("text-anchor", "middle")
-        .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
-  		.attr("font-weight", "bold")
-        .text(xlabel+ '(voor '+ylabel+'='+yval+')');
-  chart.append("text")      // text label for the x axis
-    	.attr("class","yaxis hist_y")
-        .attr("x", 1.5*imgwidth+offsetx_hist )
-        .attr("y", imgheight-graphheight+offsety_hist-offsetspace_hist-45 )
-        .attr("font-family", "Corbel")
-  		.attr("font-size", "16px")
-  		.attr("font-weight", "bold")                
-        .style("text-anchor", "middle")
-        .text(ylabel+ '(voor '+xlabel+'='+xval+')');
-	
-
-  chart.append("svg:line")
- 	.attr("class","hist_x")
-    .attr("x1", 50)
-    .attr("y1", y+25)
-    .attr("x2",imgwidth+50)
-    .attr("y2", y+25)
-    .style("stroke", "rgb(8,8,130)");
-
-
-  chart.append("svg:line")
- 	.attr("class","hist_y")
-    .attr("x1", x+50)
-    .attr("y1", 25)
-    .attr("x2", x+50)
-    .attr("y2", imgwidth+25)
-    .style("stroke", "rgb(130,8,8)");    
-}
-
-
-function init_hist_xy () {
-
-	console.log('init_hist');
-	$("#heatmap_svg").on('click',update_hist_x_y);
-	//$("#heatmap_svg").on('mousedown',update_hist_x_y);
-}
-
-
-function click_stats () {
-
-	var id=$(this).attr('id');
-	var f=$(this).attr('data-stats');
-	console.log('click_stats:',f);
-	var state=opties[f];
-	if (state==true)	{
-		state=false;
-		$(this).removeClass('active_selectie');		
-	} 
-	else {
-		state=true;
-		$(this).addClass('active_selectie');	
-	}
-	opties[f]=state;
-	console.log(opties);
-	calc_minmax();
-	draw_heatmap();
-
-}
+	  chart.selectAll('.hist_x')
+	  		.selectAll('.tick >text')
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", "16px")
+	  		.attr("font-weight", "normal");
 
 
 
+	  chart.append("text")      // text label for the x axis
+	  		.attr("class","xaxis hist_x")
+	        .attr("x",  1.5*imgwidth+offsetx_hist )
+	        .attr("y",  imgheight+offsety_hist+35 )
+	        .style("text-anchor", "middle")
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", "16px")
+	  		.attr("font-weight", "bold")
+	        .text(xlabel+ '(voor '+ylabel+'='+yval+')');
+	  chart.append("text")      // text label for the x axis
+	    	.attr("class","yaxis hist_y")
+	        .attr("x", 1.5*imgwidth+offsetx_hist )
+	        .attr("y", imgheight-graphheight+offsety_hist-offsetspace_hist-45 )
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", "16px")
+	  		.attr("font-weight", "bold")                
+	        .style("text-anchor", "middle")
+	        .text(ylabel+ '(voor '+xlabel+'='+xval+')');
+		
 
-function init_stats(widget_id, transform) {
-
- 	$('.stats').on('click',click_stats);
- 	$('.stats').on('mouseenter ',enter_selectie);
-  	$('.stats').on('mouseout ',leave_selectie);  	
-
-  	$('.stats').each(function(i,obj){
-  		var f=$(this).attr('data-stats');
-  		opties[f]=false;
-  	});
-}
+	  chart.append("svg:line")
+	 	.attr("class","hist_x")
+	    .attr("x1", 50)
+	    .attr("y1", y+25)
+	    .attr("x2",imgwidth+50)
+	    .attr("y2", y+25)
+	    .style("stroke", "rgb(8,8,130)");
 
 
-function update_dotplot (e) {
-
-
-	console.log('update_gradient:');
-	if (e.keyCode == '13') {		
-		boxsize=$('#dotplot_boxsize_val').val();
-		dotsize=$('#dotplot_dotsize_val').val();
-		console.log('update_dotplot:',boxsize, dotsize);
-		opties['dot_boxsize']=boxsize;
-		opties['dot_dotsize']=dotsize;
-		draw_dotplot ();
-		console.log('update_dotplot done');
+	  chart.append("svg:line")
+	 	.attr("class","hist_y")
+	    .attr("x1", x+50)
+	    .attr("y1", 25)
+	    .attr("x2", x+50)
+	    .attr("y2", imgwidth+25)
+	    .style("stroke", "rgb(130,8,8)");    
 	}
 
-}
 
-function toggle_dotplot()
-{
-	console.log('toggle_dotplot',opties['use_dots'] );	
-	if(opties['use_dots']){
-		$(this).removeClass('active_selectie');
-		opties['use_dots']=false;
-		$('.dot').remove();
-	} else{
-		$(this).addClass('active_selectie');
-		opties['use_dots']=true;
-		draw_dotplot();
+	this.init_hist_xy=function  () {
+
+		console.log('init_hist');
+		$("#heatmap_svg").on('click',_this.update_hist_x_y);
+		//$("#heatmap_svg").on('mousedown',update_hist_x_y);
 	}
-}
 
-function toggle_heatmap()
-{
-	console.log('toggle_heatmap',opties['use_dots'] );	
-	if(opties['use_heatmap']){
-		$(this).removeClass('active_selectie');
-		opties['use_heatmap']=false;
-		$('#heatmap_canvas').show();
+
+	this.click_stats=function  () {
+
+		var id=$(this).attr('id');
+		var f=$(this).attr('data-stats');
+		console.log('click_stats:',f);
+		var state=opties[f];
+		if (state==true)	{
+			state=false;
+			$(this).removeClass('active_selectie');		
+		} 
+		else {
+			state=true;
+			$(this).addClass('active_selectie');	
+		}
+		opties[f]=state;
+		console.log(opties);
+		calc_minmax();
 		draw_heatmap();
-	} else{
-		$(this).addClass('active_selectie');
-		opties['use_heatmap']=true;		
-		$('#heatmap_canvas').hide();
+
 	}
-}
 
 
-function toggle_dotgradient()
-{
-	console.log('toggle_dotgradient',opties['dot_use_gradient'] );
 
-	if(opties['dot_use_gradient']){
-		$(this).removeClass('active_selectie');
-		opties['dot_use_gradient']=false;
-		draw_dotplot();
-	} else{
-		opties['dot_use_gradient']=true;
-		$(this).addClass('active_selectie');
-		draw_dotplot();
+
+	this.init_stats=function (widget_id, transform) {
+
+	 	$('.stats').on('click',_this.click_stats);
+	 	$('.stats').on('mouseenter ',enter_selectie);
+	  	$('.stats').on('mouseout ',leave_selectie);  	
+
+	  	$('.stats').each(function(i,obj){
+	  		var f=$(this).attr('data-stats');
+	  		opties[f]=false;
+	  	});
 	}
-}
 
-function init_dotplot () {
-	$('#dotplot_heatdots').on('click',toggle_dotgradient);
-	$('#dotplot_show_dotplot').on('click',toggle_dotplot);
-	$('#dotplot_show_heatmap').on('click',toggle_heatmap);
- 	$('.stats').on('mouseenter ',enter_selectie);
-  	$('.stats').on('mouseout ',leave_selectie);  	
-	$("#dotplot_boxsize_val").on('keydown',update_dotplot);
-	$("#dotplot_dotsize_val").on('keydown',update_dotplot);
 
-	if (opties['dot_use_gradient']) {
-		$('#dot_use_gradient').addClass('active_selectie');
+	this.update_dotplot=function  (e) {
+
+
+		console.log('update_gradient:');
+		if (e.keyCode == '13') {		
+			boxsize=$('#dotplot_boxsize_val').val();
+			dotsize=$('#dotplot_dotsize_val').val();
+			console.log('update_dotplot:',boxsize, dotsize);
+			opties['dot_boxsize']=boxsize;
+			opties['dot_dotsize']=dotsize;
+			_this.draw_dotplot ();
+			console.log('update_dotplot done');
+		}
+
 	}
+
+	this.toggle_dotplot=function ()
+	{
+		console.log('toggle_dotplot',opties['use_dots'] );	
+		if(opties['use_dots']){
+			$(this).removeClass('active_selectie');
+			opties['use_dots']=false;
+			$('.dot').remove();
+		} else{
+			$(this).addClass('active_selectie');
+			opties['use_dots']=true;
+			draw_dotplot();
+		}
+	}
+
+	this.toggle_heatmap=function ()
+	{
+		console.log('toggle_heatmap',opties['use_dots'] );	
+		if(opties['use_heatmap']){
+			$(this).removeClass('active_selectie');
+			opties['use_heatmap']=false;
+			$('#heatmap_canvas').show();
+			draw_heatmap();
+		} else{
+			$(this).addClass('active_selectie');
+			opties['use_heatmap']=true;		
+			$('#heatmap_canvas').hide();
+		}
+	}
+
+
+	this.toggle_dotgradient=function ()
+	{
+		console.log('toggle_dotgradient',opties['dot_use_gradient'] );
+
+		if(opties['dot_use_gradient']){
+			$(this).removeClass('active_selectie');
+			opties['dot_use_gradient']=false;
+			draw_dotplot();
+		} else{
+			opties['dot_use_gradient']=true;
+			$(this).addClass('active_selectie');
+			draw_dotplot();
+		}
+	}
+
+	this.init_dotplot=function  () {
+		$('#dotplot_heatdots').on('click',_this.toggle_dotgradient);
+		$('#dotplot_show_dotplot').on('click',_this.toggle_dotplot);
+		$('#dotplot_show_heatmap').on('click',_this.toggle_heatmap);
+	 	$('.stats').on('mouseenter ',enter_selectie);
+	  	$('.stats').on('mouseout ',leave_selectie);  	
+		$("#dotplot_boxsize_val").on('keydown',_this.update_dotplot);
+		$("#dotplot_dotsize_val").on('keydown',_this.update_dotplot);
+
+		if (opties['dot_use_gradient']) {
+			$('#dot_use_gradient').addClass('active_selectie');
+		}
+	}
+
 }

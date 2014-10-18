@@ -45,19 +45,21 @@ function init_page() {
     s.setAttribute("height", imgheight+100);
     
     ctx = c.getContext('2d');  
-    topnode.postAttributeChangedCallback=draw_heatmap;  
-    topnode.preAttributeChangedCallback=calc_minmax;
-    init_databuffers();
-    draw_axes();    
+    h=new heatmap();
+    console.log(h);
+    topnode.preAttributeChangedCallback=h.calc_minmax;
+    topnode.postAttributeChangedCallback=h.draw_heatmap;      
+    h.init_databuffers('#heatmap_svg');
+    h.draw_axes();    
     init_gradients(); 
 
 
   //  init_manipulation();
     
-    init_print();    
-    init_stats();
-    init_hist_xy();
-    init_dotplot();
+    h.init_print();    
+    h.init_stats();
+    h.init_hist_xy();
+    h.init_dotplot();
     if (opties['use_dots']) {
         console.log('kill gradient');
         $('.colormap-gradient').css("display","none");   
