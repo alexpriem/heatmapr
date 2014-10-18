@@ -50,7 +50,7 @@ table {
 
 .leftbox {
 	float: left;
-	width:100px;
+	width:125px;
 	padding-top:50px;
 	padding-left:25px;	
 }
@@ -144,18 +144,6 @@ fill:none;
 }
 
 
-#colormap_max {
-padding-top:35px;
-padding-left:650px;
-}
-#colormap_steps {
-padding-top:50px;
-padding-left:650px;
-}
-#colormap_min {
-padding-top:50px;
-padding-left:650px;
-}
 
 .selbox_hidden {
 	display:none;
