@@ -354,8 +354,9 @@ class contour:
 
 
 # dump data
+        js=''
         if self.multi_nr==0:
-                js='var data=[];\n'
+                js='var data=[];\n'        
         js+='data.push([';
     
         gradmin=self.heatmap[0][0]

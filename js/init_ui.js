@@ -39,6 +39,23 @@ function init_all_heatmaps(heatmapdata) {
 
     heatmapnode=document.getElementById('heatmap_div');
     heatmapnode.innerHTML =template(heatmapdata);
+
+    
+    startpos=200;
+    xpos=0;
+    ypos=50;
+    for (i=0,j=0; i<data.length; i++,j++) {
+        $('#heatmap_container_'+i).css('margin-left',xpos);        
+        $('#heatmap_container_'+i).css('top',ypos);        
+        xpos+=200;
+        if (j>3) {
+            ypos+=200;
+            xpos=0;
+            j=0;
+        }
+
+     //   $('#heatmap_container_'+i).css('left',xpos);       
+    }
 }
 
 function init_page() {
@@ -49,13 +66,18 @@ function init_page() {
 
     console.log("init_page", imgwidth, imgheight);
 
-    var nr_heatmaps=1;
-    var heatmapdata={heatmaps:[0]};
+    var nr_heatmaps=data.length;
+    console.log(data.length);
+    var heatmapinfo=[];    
+    for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
+
+    var heatmapdata={heatmaps:heatmapinfo};
+    console.log(heatmapinfo, heatmapdata);
     init_all_heatmaps(heatmapdata);
     
     for (i=0; i<nr_heatmaps; i++) {
-        h=new heatmap(data[0],opties[0]);        
-        h.init_databuffers('heatmap_svg_0','heatmap_canvas_0');
+        h=new heatmap(data[i],opties[i]);        
+        h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
         h.draw_axes();    
     }
     set_gradient(opties[0]);

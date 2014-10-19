@@ -155,10 +155,12 @@
   <script id="heatmap-template" type="text/x-handlebars-template">
   <table>              
       {{#heatmaps}}
-      <td><div id="heatmap_container">
-               <canvas class="heatmap_canvas" id="heatmap_canvas_0" > </canvas> 
-               <svg class="heatmap_svg"  id="heatmap_svg_0" > </svg>
-         </div>  </td>       
+      <td>
+          <div id="heatmap_container_{{this}}" class="heatmap_container">
+               <canvas class="heatmap_canvas" id="heatmap_canvas_{{this}}" > </canvas> 
+               <svg class="heatmap_svg"  id="heatmap_svg_{{this}}" > </svg>
+          </div>  
+      </td>       
       {{/heatmaps}}
       <td><div class="colormap-gradient" id="cg_a" data-controls="cc_a"> </div> </td>  
   </table>
