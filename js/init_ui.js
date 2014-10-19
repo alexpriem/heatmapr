@@ -44,18 +44,38 @@ function init_all_heatmaps(heatmapdata) {
     startpos=200;
     xpos=0;
     ypos=50;
+    var i=0;
+    var j=0;
     for (i=0,j=0; i<data.length; i++,j++) {
         $('#heatmap_container_'+i).css('margin-left',xpos);        
         $('#heatmap_container_'+i).css('top',ypos);        
         xpos+=200;
-        if (j>3) {
+        if (j>2) {
             ypos+=200;
             xpos=0;
-            j=0;
+            j=-1;
         }
 
      //   $('#heatmap_container_'+i).css('left',xpos);       
     }
+}
+
+
+var calc_minmaxes=function () {
+
+    for (var i=0; i<data.length; i++) {
+        heatmaps[i].calc_minmax();
+    }
+}
+
+var draw_heatmaps=function() {
+
+    for (var i=0; i<data.length; i++) {
+        console.log('draw_heatmaps:',data.length,i);
+        heatmaps[i].draw_heatmap();
+        console.log('draw_heatmaps:',data.length,i);
+    }
+
 }
 
 function init_page() {
@@ -75,15 +95,18 @@ function init_page() {
     console.log(heatmapinfo, heatmapdata);
     init_all_heatmaps(heatmapdata);
     
+    heatmaps=[];
     for (i=0; i<nr_heatmaps; i++) {
-        h=new heatmap(data[i],opties[i]);        
+        h=new heatmap(data[i],opties[i]);
         h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
-        h.draw_axes();    
+        h.draw_axes(); 
+        heatmaps.push(h);
     }
+
     set_gradient(opties[0]);
     console.log(h);
-    topnode.preAttributeChangedCallback=h.calc_minmax;    
-    topnode.postAttributeChangedCallback=h.draw_heatmap;        
+    topnode.preAttributeChangedCallback=calc_minmaxes;    
+    topnode.postAttributeChangedCallback=draw_heatmaps;        
     init_gradients(); 
 
 
