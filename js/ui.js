@@ -25,7 +25,7 @@ transform_value=function  (val,transform) {
 
 
 
-function heatmap () {
+function heatmap (data, opties) {
 	this.skipzero=true;
 	this.hist=null;
 	this.histmax=0;
@@ -38,19 +38,37 @@ function heatmap () {
 	this.transposebuffer=null;
 	this.imgData=null;
 	this.mapdata=null;
+	this.data=data;
+	this.opties=opties;
 	
 	var _this = this;
+
 	var xpix2img=parseInt(opties.imgwidth/opties.x_steps);
 	var ypix2img=parseInt(opties.imgheight/opties.y_steps);
 
 
 
-	this.init_databuffers =function (svgid) {
+	this.init_databuffers =function (svg_el, canvas_el) {
 
-		_this.chart = d3.select(svgid);
+		var opties=_this.opties;
+		var imgwidth=opties.imgwidth;
+		var imgheight=opties.imgheight;
+		var c,s;
+
+		console.log('init_databuffers:', svg_el, canvas_el, imgwidth, imgheight);
+
+		var c=document.getElementById(canvas_el);
+	    c.setAttribute("width", imgwidth);
+    	c.setAttribute("height", imgwidth);
+    	_this.ctx = c.getContext('2d'); 
+    	var s=document.getElementById(svg_el);
+    	s.setAttribute("width", imgwidth*2+100);
+    	s.setAttribute("height", imgheight+100);
+       	 
+		_this.chart = d3.select('#'+svg_el);		
 
 		// first, create a new ImageData to contain our pixels
-		_this.imgData = ctx.createImageData(opties.imgwidth, opties.imgheight); // width x height
+		_this.imgData = _this.ctx.createImageData(imgwidth, imgheight); // width x height
 		try {
 		    _this.transposebuffer= new Float32Array  (opties.x_steps*opties.y_steps);
 		    } catch(x){
@@ -58,9 +76,9 @@ function heatmap () {
 		}
 
 		try {
-		    _this.backbuffer= new Uint32Array  (opties.imgwidth*opties.imgheight);
+		    _this.backbuffer= new Uint32Array  (imgwidth*imgheight);
 		    } catch(x){
-		    _this.backbuffer= new Array  (opties.imgwidth*opties.imgheight);		//IE fallback
+		    _this.backbuffer= new Array  (imgwidth*imgheight);		//IE fallback
 		}
 		_this.mapdata = _this.imgData.data;
 	}
@@ -73,6 +91,7 @@ function heatmap () {
 	this.calc_minmax=function  () {
 		
 		console.log("calc_heatmap:", _this);
+		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
 		if (gradient_node.need_data_recalc==false) return;
 
@@ -83,10 +102,11 @@ function heatmap () {
 		var transform=opties.transform;
 		console.log('weighx/y:', weigh_x, weigh_y);
 		console.log('calc_heatmap:',x_steps, y_steps, size);
+		var data=_this.data;
 		
 		var ptr2=0;
-		maxval=data[0];	
-		minval=data[0];
+		var maxval=data[0];	
+		var minval=data[0];
 
 		size=gradient_node.size;		
 		for (var i=0; i<y_steps; i+=size) {
@@ -108,8 +128,7 @@ function heatmap () {
 				val=val/(size*size);
 				if (val>maxval) maxval=val;
 				if (val<minval) minval=val;
-
-				console.log(this);
+			
 				val=transform_value(val,transform);
 				
 				if (weigh_x) {
@@ -150,6 +169,7 @@ function heatmap () {
 
 	this.bin_data=function  () {
 
+		var opties=_this.opties;
 		var totalpixels=opties.x_steps*opties.y_steps;	
 		var gradient_node=document.getElementById("cg_a");
 		var gradsteps=gradient_node.getAttribute('gradient_steps');
@@ -255,7 +275,8 @@ function heatmap () {
 
 		console.log("draw_heatmap:");
 
-		if (opties['use_dots']) {
+		var opties=_this.opties;
+		if (opties.use_dots) {
 			_this.draw_dotplot();
 		}
 
@@ -340,7 +361,7 @@ function heatmap () {
 			}
 		}
 		console.log('putdata');
-		ctx.putImageData(_this.imgData, 0, 0);		 
+		_this.ctx.putImageData(_this.imgData, 0, 0);		 
 	}
 
 
@@ -360,6 +381,9 @@ function heatmap () {
 	}
 
 	this.print_fail=function  () {
+
+		var opties=_this.opties;
+
 		console.log('print failed');
 		s='\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
 		s+="Printen niet gelukt. Opties voor command-line-reproductie:\n\n";
@@ -448,6 +472,7 @@ function heatmap () {
 
 	  this.draw_axes=function  () {
 
+	  var opties=_this.opties;
 	  var logx=opties.logx;
 	  var logy=opties.logy;
 
@@ -547,7 +572,7 @@ function heatmap () {
 	this.draw_dotplot=function  () {
 
 
-
+		var opties=_this.opties;
 		if (opties['use_dots']) {	
 			$('.dot').remove();
 
@@ -660,11 +685,9 @@ function heatmap () {
 
 	this.draw_histogram=function  () {
 
+	var opties=_this.opties;
 	console.log("draw_histogram:");
 	//console.log(colormap);
-
-
-
 
 	var gradient_node=document.getElementById("cg_a");
 	var gradmin=gradient_node.getAttribute('gradient_min');  //FIXME
@@ -762,6 +785,7 @@ function heatmap () {
 
 		console.log("update_hist_x_y");	
 
+		var opties=_this.opties;
 		var chart=this.chart;
 		var gradient_node=document.getElementById("cg_a");
 		var gradmax=gradient_node.getAttribute('gradient_max');
@@ -1016,7 +1040,7 @@ function heatmap () {
 		var id=$(this).attr('id');
 		var f=$(this).attr('data-stats');
 		console.log('click_stats:',f);
-		var state=opties[f];
+		var state=_this.opties[f];
 		if (state==true)	{
 			state=false;
 			$(this).removeClass('active_selectie');		
@@ -1025,10 +1049,9 @@ function heatmap () {
 			state=true;
 			$(this).addClass('active_selectie');	
 		}
-		opties[f]=state;
-		console.log(opties);
-		calc_minmax();
-		draw_heatmap();
+		_this.opties[f]=state;		
+		_this.calc_minmax();
+		_this.draw_heatmap();
 
 	}
 
@@ -1043,7 +1066,7 @@ function heatmap () {
 
 	  	$('.stats').each(function(i,obj){
 	  		var f=$(this).attr('data-stats');
-	  		opties[f]=false;
+	  		_this.opties[f]=false;
 	  	});
 	}
 
@@ -1067,28 +1090,28 @@ function heatmap () {
 	this.toggle_dotplot=function ()
 	{
 		console.log('toggle_dotplot',opties['use_dots'] );	
-		if(opties['use_dots']){
+		if(_this.opties['use_dots']){
 			$(this).removeClass('active_selectie');
-			opties['use_dots']=false;
+			_this.opties['use_dots']=false;
 			$('.dot').remove();
 		} else{
 			$(this).addClass('active_selectie');
-			opties['use_dots']=true;
-			draw_dotplot();
+			_this.opties['use_dots']=true;			
+			_this.draw_dotplot();
 		}
 	}
 
 	this.toggle_heatmap=function ()
 	{
 		console.log('toggle_heatmap',opties['use_dots'] );	
-		if(opties['use_heatmap']){
+		if(_this.opties['use_heatmap']){
 			$(this).removeClass('active_selectie');
-			opties['use_heatmap']=false;
+			_this.opties['use_heatmap']=false;
 			$('#heatmap_canvas').show();
-			draw_heatmap();
+			_this.draw_heatmap();
 		} else{
 			$(this).addClass('active_selectie');
-			opties['use_heatmap']=true;		
+			_this.opties['use_heatmap']=true;		
 			$('#heatmap_canvas').hide();
 		}
 	}
@@ -1098,14 +1121,14 @@ function heatmap () {
 	{
 		console.log('toggle_dotgradient',opties['dot_use_gradient'] );
 
-		if(opties['dot_use_gradient']){
+		if(_this.opties['dot_use_gradient']){
 			$(this).removeClass('active_selectie');
-			opties['dot_use_gradient']=false;
-			draw_dotplot();
+			_this.opties['dot_use_gradient']=false;
+			_this.draw_dotplot();
 		} else{
-			opties['dot_use_gradient']=true;
+			_this.opties['dot_use_gradient']=true;
 			$(this).addClass('active_selectie');
-			draw_dotplot();
+			_this.draw_dotplot();
 		}
 	}
 
@@ -1118,7 +1141,7 @@ function heatmap () {
 		$("#dotplot_boxsize_val").on('keydown',_this.update_dotplot);
 		$("#dotplot_dotsize_val").on('keydown',_this.update_dotplot);
 
-		if (opties['dot_use_gradient']) {
+		if (_this.opties['dot_use_gradient']) {
 			$('#dot_use_gradient').addClass('active_selectie');
 		}
 	}

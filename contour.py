@@ -50,7 +50,7 @@ class contour:
             
             ['gradient_invert',False,False,''],
             ['gradcenter',50,False,''],
-            ['gradient_bimodal',True,False,''],
+            ['gradient_bimodal',False,False,''],
             
             
             ['imgwidth',500,False,''],
@@ -89,6 +89,9 @@ class contour:
                                 
             ['weighx',False,False,''],
             ['weighy',False,False,''],
+            
+            ['multi_nr', 0,False,''],
+            ['multi_cols', 5,False,''],
             
             ['controltype','notflat', False,''], 
             ['debuglevel',0, False,''],            
@@ -351,9 +354,10 @@ class contour:
 
 
 # dump data
-               
-        js="var data=["
-
+        if self.multi_nr==0:
+                js='var data=[];\n'
+        js+='data.push([';
+    
         gradmin=self.heatmap[0][0]
         gradmax=gradmin
         s=''
@@ -364,9 +368,9 @@ class contour:
             if minrow<gradmin:
                 gradmin=minrow
             if maxrow>gradmax:
-                gradmax=maxrow                    
-        js=js[:-2]+'];\n\n'
-
+                gradmax=maxrow   
+        js=js[:-2]+']);\n\n'
+   
 
         self.datamin=gradmin
         self.datamax=gradmax
@@ -374,7 +378,9 @@ class contour:
         if getattr(self,'gradmax') is None:
             self.gradmax=gradmax        
 
-        js+='var opties={'
+        if self.multi_nr==0:
+                js+='var opties=[];\n'
+        js+='opties.push({'
         for k in sorted(args.keys()):
             v=args[k]
             if v is None:
@@ -391,10 +397,11 @@ class contour:
                     js+='"%s":false,\n' % (k)
                 continue
             js+='"%s":%s,\n' % (k,v)
-        js+='};\n\n'
+        js+='});\n\n'
 
-        
-        js+='var sum_x=['
+        if self.multi_nr==0:
+            js+='var sum_x=[];\n';
+        js+='sum_x.push(['
         txt=''
         nr=0
         for sumx in xsum:                
@@ -403,9 +410,11 @@ class contour:
                 nr=0
             nr+=1
             txt+=str(sumx)+','
-        js+=txt[:-1]+'];\n\n'
+        js+=txt[:-1]+']);\n\n'
         
-        js+='var sum_y=['
+        if self.multi_nr==0:
+            js+='var sum_y=[];\n';
+        js+='sum_y.push(['
         txt=''
         nr=0
         for sumy in ysum:                
@@ -414,14 +423,17 @@ class contour:
                 nr=0
             nr+=1
             txt+=str(sumy)+','
-        js+=txt[:-1]+'];\n\n'            
+        js+=txt[:-1]+']);\n\n'
+        
         js+='var totalsum=%s;\n' % str(totalsum)
         js+='var xmean=%s;\n' % str(float(sum(xsum))/len(xsum) )
         js+='var ymean=%s;\n\n' % str(float(sum(xsum))/len(ysum) )
     
 
         if self.stats_enabled:   #mean
-            js+='var mean_x=['
+            if self.multi_nr==0:
+                js+='var mean_x=[];\n'
+            js+='mean_x.push(['
             txt=''
             nr=0
             for xpixel in sorted(avg_x.keys()):                
@@ -431,10 +443,12 @@ class contour:
                 nr+=1
                 txt+=str(avg_x[xpixel])+','
                 
-            js+=txt[:-1]+'];\n\n'
+            js+=txt[:-1]+']);\n\n'
 
         if self.stats_enabled:  # median
-            js+='var median_x=['
+            if self.multi_nr==0:
+                js+='var median_x=[];\n'
+            js+='median_x.push(['
             txt=''
             nr=0
             for xpixel in sorted(med_x.keys()):                
@@ -444,11 +458,13 @@ class contour:
                 nr+=1
                 txt+=str(med_x[xpixel])+','
                 
-            js+=txt[:-1]+'];\n\n'
+            js+=txt[:-1]+']);\n\n'
 
 
         if self.info_datafile:
-            js+='var extradata=['
+            if self.multi_nr==0:
+                js+='var extradata=[];\n'
+            js+='extradata.push(['
             txt=''
             nr=0
             for xpixel,ypixel in extradata:
@@ -458,14 +474,17 @@ class contour:
                 nr+=1
                 txt+='[%d,%d],' % (xpixel, ypixel)
                 
-            js+=txt[:-1]+'];\n'
+            js+=txt[:-1]+']);\n'
 
         
                     
 
         self.js=js
         if self.dump_html==False:
-            f=open("js/data.js","w")
+            if self.multi_nr==0:
+                f=open("js/data.js","w")
+            else:
+                f=open("js/data.js","a")
             f.write(js)
             f.close()
 
