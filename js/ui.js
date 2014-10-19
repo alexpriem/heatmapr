@@ -514,7 +514,7 @@ function heatmap (data, opties) {
 	  fontsize=opties['fontsize'];
 
 	  //console.log(chart);
-	  var chart=this.chart;
+	  var chart=_this.chart;
 
 	  chart.append("g")
 	        .attr("class","xaxis")

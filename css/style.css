@@ -102,13 +102,13 @@ table {
 
 
 
-#heatmap_canvas,
-#heatmap_svg {
+.heatmap_canvas,
+.heatmap_svg {
     position: absolute;
   }
 
 
-#heatmap_canvas{
+.heatmap_canvas{
 	padding-top:25px;
 	padding-left:75px;
 	padding-bottom:50px;
@@ -165,7 +165,7 @@ margin-left:620px;
 top:50px;
 }
 
-#heatmap_container{
+#heatmap_container_0{
 position:absolute;
 margin-left:100px;
 top:50px;

@@ -37,10 +37,8 @@ function init_all_heatmaps(heatmapdata) {
     var source   = $("#heatmap-template").html();        
     var template = Handlebars.compile(source); 
 
-
-    heatmapnode=document.getElementById('canvasdiv');
+    heatmapnode=document.getElementById('heatmap_div');
     heatmapnode.innerHTML =template(heatmapdata);
-
 }
 
 function init_page() {
@@ -55,11 +53,9 @@ function init_page() {
     var heatmapdata={heatmaps:[0]};
     init_all_heatmaps(heatmapdata);
     
-
-
-    for (i=0; i<nr_heatmaps; i++){
-        h=new heatmap(data[i],opties[i]);
-        h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
+    for (i=0; i<nr_heatmaps; i++) {
+        h=new heatmap(data[0],opties[0]);        
+        h.init_databuffers('heatmap_svg_0','heatmap_canvas_0');
         h.draw_axes();    
     }
     set_gradient(opties[0]);
