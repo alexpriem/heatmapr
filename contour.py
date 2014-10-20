@@ -66,6 +66,7 @@ class contour:
             ['colormap','blue',False,''],
             ['size','1',False,''],
             ['transform','linear',False,''],
+            ['log_min',1,False,''],
 
 
             ['stats_enabled', True, False,''],

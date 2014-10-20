@@ -2,7 +2,7 @@
 
 
 
-transform_value=function  (val,transform) {
+transform_value=function  (val,transform, log_min) {
 
 	if (transform=='sqrt') {
 		if (val>0) {
@@ -11,11 +11,17 @@ transform_value=function  (val,transform) {
 			val=-Math.sqrt(-val);
 		}
 	}	
-	if (transform=='log10') {
-		if (val>0) {
+	if (transform=='log') {
+		if (val>=0) {
+			if ((val>=0) && (val<=log_min)) {
+				return Math.log(log_min);   //null?
+			}
 			val=Math.log(val)/Math.LN10;
 		} else {
-			if (val<0) { 
+			if ((val<=0) && (val>=-log_min)) {
+				return -Math.log(log_min);
+			}
+			if (val<0) {
 				val=-Math.log(-val)/Math.LN10;					
 			}			
 		}

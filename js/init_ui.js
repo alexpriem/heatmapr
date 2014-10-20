@@ -15,6 +15,7 @@ function set_gradient (opties) {
         gradient_max: opties.gradmax,                
         gradient_steps: opties.gradsteps,
         gradient_bimodal: opties.gradient_bimodal,
+        log_min: opties.log_min,
         transform: opties.transform,
         gradient_invert: opties.gradient_invert,
         show_size: 'true',
