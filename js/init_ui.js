@@ -81,11 +81,6 @@ var draw_heatmaps=function() {
 function init_page() {
   
     
-    var imgwidth=opties[0].imgwidth;
-    var imgheight=opties[0].imgheight;
-
-    console.log("init_page", imgwidth, imgheight);
-
     var nr_heatmaps=data.length;
     console.log(data.length);
     var heatmapinfo=[];    
@@ -103,7 +98,8 @@ function init_page() {
         heatmaps.push(h);
     }
 
-    set_gradient(opties[0]);
+    var window_opties=opties[0];
+    set_gradient(window_opties);
     console.log(h);
     topnode.preAttributeChangedCallback=calc_minmaxes;    
     topnode.postAttributeChangedCallback=draw_heatmaps;        
@@ -116,15 +112,16 @@ function init_page() {
     h.init_stats();
     h.init_hist_xy();
     h.init_dotplot();
-    if (opties.use_dots) {
+    if (window_opties.use_dots) {
         console.log('kill gradient');
         $('.colormap-gradient').css("display","none");   
         $('.dotplot-controls').css("display","");     
     } else {
+        console.log('kill dotplot');
         $('.dotplot-controls').css("display","none");
     }
  //   Pixastic.debug=true;
-    document.title =opties[0].title;
+    document.title =window_opties.title;
     console.log('print=',print);
     if (print==true) {
         $('.leftbox').hide();

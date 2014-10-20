@@ -1,5 +1,5 @@
-f=open ('nrc_raw.csv')
-g=open('nrc.csv','w')
+f=open ('iv_raw.csv')
+g=open('iv.csv','w')
 g.write('inkomen,vermogen,num\n')
 j=1
 for line in f:

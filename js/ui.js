@@ -657,6 +657,7 @@ function heatmap (data, opties) {
 								color=colormap2[indexval];
 							}
 						} else {
+							indexval=~~((val-gradmin)/(delta)*gradsteps); 
 							if (indexval<0) indexval=0;
 							if (indexval>=gradsteps) indexval=gradsteps-1;
 							color=colormap[indexval];
