@@ -95,6 +95,11 @@ function init_page() {
     for (i=0; i<nr_heatmaps; i++) {
         h=new heatmap(data[i],opties[i]);
         h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
+        h.mean_x=mean_x[i];
+        h.median_x=median_x[i];
+        h.xmean=xmean[i];
+        h.ymean=ymean[i];
+        
         h.draw_axes(); 
         heatmaps.push(h);
     }
@@ -115,7 +120,7 @@ function init_page() {
     h.init_dotplot();
     if (window_opties.use_dots) {
         console.log('kill gradient');
-        $('.colormap-gradient').css("display","none");   
+        $('.colormap-gradient').css("display","none");
         $('.dotplot-controls').css("display","");     
     } else {
         console.log('kill dotplot');

@@ -61,12 +61,15 @@ class heatmap:
             ['fontsize',16,False,''],
             ['numticks',None,False,''],
             
+            
             ['title',None,False,''],
             ['dump_html',True,False,'full html output'],            
             ['colormap','blue',False,''],
+            ['missing_color','min',False,''],
             ['size','1',False,''],
             ['transform','linear',False,''],
             ['log_min',1,False,''],
+            
 
 
             ['stats_enabled', True, False,''],
@@ -117,10 +120,10 @@ class heatmap:
         if colormap not in colormaps:
             raise RuntimeError ('allowed colormaps: %s' % colormaps)
 
-        transforms=['linear','sqrt','log2','log10']
+        transforms=['linear','sqrt','log']
         transform=args['transform']
         if transform not in transforms:
-            raise RuntimeError ('allowed colormaps: %s' % transforms)
+            raise RuntimeError ('allowed transforms: %s' % transforms)
 
                                         
         for k,v in args.items():
@@ -426,10 +429,13 @@ class heatmap:
             nr+=1
             txt+=str(sumy)+','
         js+=txt[:-1]+']);\n\n'
-        
+
+        if self.multi_nr==0:
+            js+='var xmean=[];\n'
+            js+='var ymean=[];\n'
         js+='var totalsum=%s;\n' % str(totalsum)
-        js+='var xmean=%s;\n' % str(float(sum(xsum))/len(xsum) )
-        js+='var ymean=%s;\n\n' % str(float(sum(xsum))/len(ysum) )
+        js+='xmean.push(%s);\n' % str(float(sum(xsum))/len(xsum) )
+        js+='ymean.push(%s);\n\n' % str(float(sum(xsum))/len(ysum) )
     
 
         if self.stats_enabled:   #mean

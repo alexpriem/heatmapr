@@ -1,4 +1,4 @@
-import make_heatmap
+import heatmapr
 
 
 
@@ -24,8 +24,9 @@ args=dict(infile='data\ib_mv_2010_v.csv',
           ylabel="Inkomen box 1",
           xlabel="Leeftijd",
           colormap='blue',
+          missing_color=[128,128,128],
           size='1',
-          transform='log10',
+          transform='log',
           dump_html=False,
           imgwidth=500,
           imgheight=500
