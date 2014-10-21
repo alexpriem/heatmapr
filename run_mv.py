@@ -1,4 +1,4 @@
-import contour
+import make_heatmap
 
 
 
@@ -32,5 +32,5 @@ args=dict(infile='data\ib_mv_2010_v.csv',
           )
 
 
-c=contour.contour()
-c.run_contour(args)
+c=heatmapr.heatmap()
+c.make_heatmap(args)

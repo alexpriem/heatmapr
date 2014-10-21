@@ -1,4 +1,4 @@
-import contour
+import heatmapr
 
 
 
@@ -41,5 +41,5 @@ args=dict(infile='data\\inkomen_vermogen.csv',
           )
 
 
-c=contour.contour()
-c.run_contour(args)
+c=heatmapr.heatmap()
+c.make_heatmap(args)

@@ -13,7 +13,7 @@ def safelog10 (x):
 
 
 
-class contour:
+class heatmap:
     def __init__(self):
         pass
 
@@ -128,7 +128,7 @@ class contour:
 
         
 
-    def run_contour (self, args):
+    def make_heatmap (self, args):
 
 
         self.check_args(args)

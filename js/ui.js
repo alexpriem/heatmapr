@@ -1114,12 +1114,12 @@ function heatmap (data, opties) {
 		if(_this.opties['use_heatmap']){
 			$(this).removeClass('active_selectie');
 			_this.opties['use_heatmap']=false;
-			$('#heatmap_canvas').show();
+			$('.heatmap_canvas').show();
 			_this.draw_heatmap();
 		} else{
 			$(this).addClass('active_selectie');
 			_this.opties['use_heatmap']=true;		
-			$('#heatmap_canvas').hide();
+			$('.heatmap_canvas').hide();
 		}
 	}
 
