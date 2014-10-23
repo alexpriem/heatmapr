@@ -101,6 +101,10 @@ class heatmap:
             ['debuglevel',0, False,''],            
         ]
 
+
+        for set_option_var in args.keys():
+            if set_option_var not in defaults:
+                raise RuntimeError('Unknown variable: %s' % varname)
                            
         for varinfo in defaults:
             varname=varinfo[0]
@@ -110,7 +114,7 @@ class heatmap:
             
             if not (varname in args):
                 if required:
-                    raise RuntimeError('Missing %s' % varname)
+                    raise RuntimeError('Missing required variable %s' % varname)
                 args[varname]=defaultval
 
         colormaps=['blue','blue2','green', 'red','gray',
