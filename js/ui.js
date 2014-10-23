@@ -863,7 +863,7 @@ function heatmap (data, opties) {
 		var offsetspace_hist=-40;   // distance between side-histograms
 		var graphheight=0.25*imgheight;
 		delta=(xmax-xmin);
-		val=(x/imgwidth)*delta+xmin;
+		val=((x-25)/imgwidth)*delta+xmin;
 		xval=val.toFixed(2);
 
 		/* text upper right corner */
