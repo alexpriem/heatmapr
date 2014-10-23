@@ -22,6 +22,8 @@ class heatmap:
 
         defaults=[
             ['infile',';',True,''],
+            ['sep',';',False,''],
+            ['convert_comma',False,False,''],
             
             ['x_var','',True,''],
             ['x_min','',True,''],
@@ -36,10 +38,6 @@ class heatmap:
             ['y_fuzz',0,False,''],
             
             ['weight_var',None,False,''],
-            
-            ['sep',';',False,''],
-            ['convert_comma',False,False,''],
-            
 
             ['logx',False,False,''],
             ['logy',False,False,''],

@@ -546,6 +546,15 @@ function heatmap (data, opties) {
 	  //console.log(chart);
 	  var chart=_this.chart;
 
+	  chart.append("rect")
+	  		.attr("x",0)
+	  		.attr("y",0)
+	  		.attr("height",imgheight)
+	  		.attr("width",imgwidth)
+	  		.attr("stroke",'black')
+	  		.attr("stroke-width",0)
+	  		.attr("fill","none")
+	  		
 	  chart.append("g")
 	        .attr("class","xaxis")
 	        .attr("transform","translate(75,"+(imgheight+25)+")")

@@ -105,6 +105,7 @@ table {
 .heatmap_canvas,
 .heatmap_svg {
     position: absolute;
+    pointer-events:all;
   }
 
 
