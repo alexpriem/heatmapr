@@ -1,4 +1,4 @@
-import argparse, random,sys
+import random, os, sys, inspect
 from math import log10
 
 
@@ -100,12 +100,13 @@ class heatmap:
         ]
 
 
-        for set_option_var in args.keys():
-            if set_option_var not in defaults:
-                raise RuntimeError('Unknown variable: %s' % varname)
-                           
+        self.module_dir=os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        print self.module_dir 
+        
+        defaultvars=[]
         for varinfo in defaults:
             varname=varinfo[0]
+            defaultvars.append(varname)
             defaultval=varinfo[1]
             required=varinfo[2]
             helptxt=varinfo[3]
@@ -114,6 +115,11 @@ class heatmap:
                 if required:
                     raise RuntimeError('Missing required variable %s' % varname)
                 args[varname]=defaultval
+
+        for varname in args.keys():
+            if varname not in defaultvars:
+                raise RuntimeError('Unknown variable: %s' % varname)
+
 
         colormaps=['blue','blue2','green', 'red','gray',
                     'terrain', 'coolwarm',
@@ -492,9 +498,9 @@ class heatmap:
         self.js=js
         if self.dump_html==False:
             if self.multi_nr==0:
-                f=open("js/data.js","w")
+                f=open(self.module_dir+"/js/data.js","w")
             else:
-                f=open("js/data.js","a")
+                f=open(self.module_dir+"/js/data.js","a")
             f.write(js)
             f.close()
 
@@ -504,7 +510,7 @@ class heatmap:
 #    def write_html (self, args):
         
         if self.dump_html:
-            html=open ("bitmap.html",'r').read()
+            html=open (self.module_dir+'/bitmap.html','r').read()
             
             g=open(self.outfile+'.html','w')
             cssfrags=html.split('<link href="')
@@ -516,7 +522,7 @@ class heatmap:
                 if self.debuglevel==2:
                     print cssfile[0]
                 g.write('\n<style>\n')
-                css=open(cssfile[0],"r").read()
+                css=open(self.module_dir+'/'+cssfile[0],"r").read()
                 g.write(css)
                 g.write('\n</style>\n')
 
@@ -532,7 +538,7 @@ class heatmap:
                 if self.debuglevel==2:
                     print jsfile[0]
                 g.write('\n<script type="text/javascript">\n')
-                js=open(jsfile[0],'r').read()    
+                js=open(self.module_dir+'/'+jsfile[0],'r').read()    
                 g.write(js)
                 g.write('\n</script>\n')
 
@@ -549,7 +555,7 @@ class heatmap:
                 js_end=jsfrag.split('\n')[0]                
               #  print jsfile[0]
                 js_txt='\n<script type="text/javascript">\n'
-                js_txt+=open(jsfile[0],'r').read()    
+                js_txt+=open(self.module_dir+'/'+jsfile[0],'r').read()    
                 js_txt+='\n</script>\n'
               #  print js_txt
                 body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
