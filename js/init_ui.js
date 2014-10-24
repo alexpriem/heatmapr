@@ -133,6 +133,7 @@ function init_page() {
         $('.leftbox').hide();
         $('.gradient_vars').hide();
         $('.hist_2d').hide();
+        $('#IE9_hack').hide();
     }
 }
 

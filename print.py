@@ -37,13 +37,13 @@ def print_pdf():
     sys.exit(0)
 
 def print_png():
-    print 'print_png', filename
+    print 'print_png, output:', filename
     xpage = web.page()
-    print xpage.viewportSize()
-    print xpage. currentFrame().contentsSize()
+   # print xpage.viewportSize()
+   # print xpage. currentFrame().contentsSize()
     #1.33*1600
     xpage.setViewportSize(xpage. currentFrame().contentsSize())    
-    image = QImage(QSize(1706,1280),QImage.Format_ARGB32)
+    image = QImage(QSize(640,480),QImage.Format_ARGB32)
     image.setDotsPerMeterX(1000*1200)
     image.setDotsPerMeterY(1000*1200)
 

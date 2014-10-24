@@ -547,6 +547,7 @@ function heatmap (data, opties) {
 	  var chart=_this.chart;
 
 	  chart.append("rect")
+	  		.attr("id",'IE9_hack')
 	  		.attr("x",0)
 	  		.attr("y",0)
 	  		.attr("height",imgheight)
