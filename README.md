@@ -1,6 +1,36 @@
 heatmapr
 ========
 
+Uitvoeren: maak een python-file aan met de volgende inhoud (of kopieer 'simple.py' uit de examples-directory)
+```
+import sys
+sys.path.insert(0,'f:\\heatmapr')   # of waar de heatmap-software staat.
+
+import heatmapr
+
+args=dict(infile='f:\\examples\\simple_data.csv',		
+          sep=',',
+          outfile='simple',
+          
+          x_var='inkomen',
+          x_min=1,
+          x_max=10,
+          x_steps=10,
+
+          y_var='vermogen',
+          y_min=1,
+          y_max=10,
+          y_steps=10,
+          
+          weight_var='num'
+          )
+
+
+c=heatmapr.heatmap()
+c.make_heatmap(args)
+
+```
+
 Parameters:
 
 **infile**: csv-inputfile. Eerste regel van de csv-file moet de kolomnamen bevatten. 
@@ -73,6 +103,7 @@ ook over de waardes die buiten min/max van huidige as liggen.
 **dot_dotsize**: grootte van dots in pixels, default 5.
 **dot_boxsize**: ruimte om serie dots heen; 1=geen ruimte, 0.0=dots zitten op center van box. Default 0.6.
 **dot_use_gradient**: True/False: gebruik ipv 'dot_color' als kleur, de kleurenmap van 'colormap' als kleuring.
+**dot_show_background**: True/False: gebruik een heatmap met inverse gradient tov de dotplot als achtergrond.
 
 **multi_nr**: default 0; bij waardes boven 0 worden meerdere heatmaps aangemaakt binnen 1 html-file, en weergegeven in 1 html-file. Experimenteel. 
 Imgwidth/imgheight wordt op 100 gezet. Zie multimap.py/multisplit.py

@@ -1123,7 +1123,6 @@ function heatmap (data, opties) {
 
 	this.update_dotplot=function  (e) {
 
-
 		console.log('update_gradient:');
 		if (e.keyCode == '13') {		
 			boxsize=$('#dotplot_boxsize_val').val();
@@ -1151,19 +1150,28 @@ function heatmap (data, opties) {
 		}
 	}
 
-	this.toggle_heatmap=function ()
-	{
-		console.log('toggle_heatmap',opties['use_dots'] );	
-		if(_this.opties['use_heatmap']){
-			$(this).removeClass('active_selectie');
-			_this.opties['use_heatmap']=false;
+
+	this.show_dot_background=function () {
+
+		if(_this.opties['dot_show_background']){
+			$('#dotplot_show_background').addClass('active_selectie');
 			$('.heatmap_canvas').show();
 			_this.draw_heatmap();
-		} else{
-			$(this).addClass('active_selectie');
-			_this.opties['use_heatmap']=true;		
-			$('.heatmap_canvas').hide();
+		} else {
+			$('#dotplot_show_background').removeClass('active_selectie');
+			$('.heatmap_canvas').hide();			
 		}
+	}
+
+	this.toggle_dot_background=function ()
+	{
+		console.log('toggle_dot_background',opties['dot_show_background'] );	
+		if(_this.opties['dot_show_background']){	
+			_this.opties['dot_show_background']=false;		
+		} else{			
+			_this.opties['dot_show_background']=true;		
+		}
+		_this.show_dot_background();
 	}
 
 
@@ -1185,7 +1193,7 @@ function heatmap (data, opties) {
 	this.init_dotplot=function  () {
 		$('#dotplot_heatdots').on('click',_this.toggle_dotgradient);
 		$('#dotplot_show_dotplot').on('click',_this.toggle_dotplot);
-		$('#dotplot_show_heatmap').on('click',_this.toggle_heatmap);
+		$('#dotplot_show_heatmap').on('click',_this.toggle_dot_background);
 	 	$('.stats').on('mouseenter ',enter_selectie);
 	  	$('.stats').on('mouseout ',leave_selectie);  	
 		$("#dotplot_boxsize_val").on('keydown',_this.update_dotplot);
@@ -1194,6 +1202,7 @@ function heatmap (data, opties) {
 		if (_this.opties['dot_use_gradient']) {
 			$('#dot_use_gradient').addClass('active_selectie');
 		}
+		_this.show_dot_background();
 	}
 
 }
