@@ -8,8 +8,8 @@ from PyQt4.QtWebKit import *
 from PyQt4 import QtCore
 from time import sleep
 
-
-f=open(sys.argv[1],'r')
+infile=sys.argv[1]
+f=open(infile,'r')
 txt=f.read()
 f.close()
 txt=txt.replace('printinfo hier','printinfo hier\nvar print=true;\n')
@@ -24,26 +24,49 @@ web.load(QUrl("./tmp.html"))
 # alternatief: met gs conversie doen
 #gs -sDEVICE=pngalpha -sOutputFile=infile.png -r1200 infile.pdf -dBATCH
 
+def get_imgsize(filename):
+
+    f=open(filename)
+    imgwidth=500
+    imgheight=500
+    for line in f.readlines():
+      #  print line[:11]
+        if line[:11]=='"imgwidth":':
+            imgwidth=int(line[11:-2])
+        if line[:12]=='"imgheight":':
+            imgheight=int(line[12:-2])    
+    f.close()
+    return imgwidth, imgheight
+    
+        
+
+
 def print_pdf():
-    print 'print_pdf', filename
+    print 'print_pdf', outfile
+    width,height=get_imgsize(infile)
     printer = QPrinter(mode = QPrinter.ScreenResolution)
     printer.setPaperSize(QSizeF(640, 480), QPrinter.DevicePixel)
     printer.setOutputFormat(QPrinter.PdfFormat)
     printer.setPageMargins(0 , 0 , 0 , 0 , QPrinter.DevicePixel)
     printer.setFullPage(True)
-    printer.setOutputFileName(filename)    
+    printer.setOutputFileName(outfile)    
     web.print_(printer)
     #print_png()
     sys.exit(0)
 
+
+# TODO: take sizes from html
+#
 def print_png():
-    print 'print_png, output:', filename
+    print 'print_png, output:', outfile
     xpage = web.page()
    # print xpage.viewportSize()
    # print xpage. currentFrame().contentsSize()
     #1.33*1600
-    xpage.setViewportSize(xpage. currentFrame().contentsSize())    
-    image = QImage(QSize(640,480),QImage.Format_ARGB32)
+    xpage.setViewportSize(xpage. currentFrame().contentsSize())
+    width,height=get_imgsize(infile)
+    print width, height
+    image = QImage(QSize(width+200,height+150),QImage.Format_ARGB32)
     image.setDotsPerMeterX(1000*1200)
     image.setDotsPerMeterY(1000*1200)
 
@@ -63,17 +86,20 @@ def print_png():
     xpage.mainFrame().render(painter)
     painter.end()
    # sleep(1)
-    image.save(filename)    
+    image.save(outfile)    
     sys.exit(0) 
 
 #web.show()
-filename='out.png'
-if len(sys.argv)==2:
-	filename=sys.argv[1].replace('.html','.png')
+outfile='out.png'
+
+
+
+if len(sys.argv)==2:        
+	outfile=infile.replace('.html','.png')
 	printtype='png'
 if len(sys.argv)==3:    
-    printtype=sys.argv[2]
-    filename=sys.argv[1].replace('html',printtype)
+    printtype=sys.argv[2]    
+    outfile=infile.replace('html',printtype)
 if printtype=='pdf':
     print 'start_print_pdf'
     QObject.connect(web, SIGNAL("loadFinished(bool)"), print_pdf)    
