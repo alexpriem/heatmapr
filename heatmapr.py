@@ -138,6 +138,21 @@ class heatmap:
         for k,v in args.items():
             setattr(self,k,v)
 
+
+        if args['x_steps']>args['imgwidth']:
+            raise RuntimeError ('\n\nx_steps > imgwidth: (%s>%s)' % (args['x_steps'],args['imgwidth']))
+        if args['y_steps']>args['imgheight']:
+            raise RuntimeError ('\n\ny_steps > imgheight: (%s>%s)' % (args['y_steps'],args['imgheight']))
+
+
+        if int(args['x_steps'])>2000:
+            raise RuntimeError ('\n\nx_steps too large (>2000). (x_steps:%s)' % (args['x_steps']))
+        if int(args['y_steps'])>2000:
+            raise RuntimeError ('\n\ny_steps too large (>2000). (y_steps:%s)' % (args['y_steps']))
+        if int(args['imgwidth'])>2000:
+            raise RuntimeError ('\n\imgwidth too large (>2000). (imgwidth:%s)' % (args['imgwidth']))
+        if int(args['imgheight'])>2000:
+            raise RuntimeError ('\n\imgheight too large (>2000). (imgheight:%s)' % (args['imgheight']))
         
 
     def make_heatmap (self, args):
