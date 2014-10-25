@@ -14,7 +14,7 @@ transform_value=function  (val,transform, log_min) {
 	if (transform=='log') {
 		if (val>=0) {
 			if ((val>=0) && (val<=log_min)) {
-				return Math.log(log_min);   //null?
+				return Math.log(log_min)/Math.LN10;   //null?
 			}
 			val=Math.log(val)/Math.LN10;
 		} else {
@@ -96,7 +96,7 @@ function heatmap (data, opties) {
 
 	this.calc_minmax=function  () {
 		
-		console.log("calc_heatmap:", _this);
+		console.log("calc_minmax");
 		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
 		if (gradient_node.need_data_recalc==false) return;
@@ -106,9 +106,10 @@ function heatmap (data, opties) {
 		var weigh_y=opties.weighy;
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
-		var transform=opties.transform;
+		var transform=gradient_node.getAttribute('transform');
+		
+		console.log('calc_minmax:',x_steps, y_steps, size);
 		console.log('weighx/y:', weigh_x, weigh_y);
-		console.log('calc_heatmap:',x_steps, y_steps, size);
 		var data=_this.data;
 		
 		var ptr2=0;
@@ -213,11 +214,13 @@ function heatmap (data, opties) {
 			var gradmin=gradient_node.getAttribute('gradient_min');
 		}
 
-		console.log('gradmin/gradmax',gradmin,gradmax);
+		console.log('bin_data: transform, gradmin/gradmax',transform, gradmin,gradmax);
 		var gradmax=transform_value(gradmax,transform, log_min);
 		var gradmin=transform_value(gradmin,transform, log_min);
 
 		var delta=gradmax-gradmin;
+		console.log('bin_data, gradmin/gradmax',gradmin,gradmax);
+
 
 		var line=0;
 		for (i=0; i<opties.imgwidth*opties.imgheight; i++) {
@@ -237,8 +240,11 @@ function heatmap (data, opties) {
 		console.log('totalpixels,ptr:',totalpixels, opties.imgheight, opties.imgwidth);
 
 		console.log('val2index:',gradmin, delta,gradsteps);
+
+		j=0;
 		for (i=0; i<totalpixels; i++)	{	
 			val=transposebuffer[i];
+			
 
 			indexval=~~((val-gradmin)/(delta)*gradsteps);  					
 			if (indexval<0) indexval=0;
