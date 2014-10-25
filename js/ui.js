@@ -102,21 +102,25 @@ function heatmap (data, opties) {
 		if (gradient_node.need_data_recalc==false) return;
 		var log_min=gradient_node.getAttribute('log_min');
 
-		var weigh_x=opties.weighx;
-		var weigh_y=opties.weighy;
+		var weighx=opties.weighx;
+		var weighy=opties.weighy;
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
-		var transform=gradient_node.getAttribute('transform');
+		var transform=gradient_node.getAttribute('transform');		
 		
 		console.log('calc_minmax:',x_steps, y_steps, size);
-		console.log('weighx/y:', weigh_x, weigh_y);
+		console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
 		
 		var ptr2=0;
 		var maxval=data[0];	
 		var minval=data[0];
 		var xmean=_this.xmean;
-		var ymean=_this.ymean;		
+		var ymean=_this.ymean;
+		var sum_x=_this.sum_x;
+		var sum_y=_this.sum_y;
+		
+		console.log('xmean,ymean:\n', xmean, ymean)
 
 		size=gradient_node.size;		
 		for (var i=0; i<y_steps; i+=size) {
@@ -141,10 +145,10 @@ function heatmap (data, opties) {
 			
 				val=transform_value(val,transform, log_min);
 				
-				if (weigh_x) {
+				if (weighx) {
 					val=(val/sum_x[j])*xmean;
 				}
-				if (weigh_y) {
+				if (weighy) {
 					val=(val/sum_y[i])*ymean;
 				}			
 				_this.transposebuffer[ptr2]=val;			
@@ -244,6 +248,11 @@ function heatmap (data, opties) {
 		j=0;
 		for (i=0; i<totalpixels; i++)	{	
 			val=transposebuffer[i];
+
+			if ((val!=0) && (j<50)) {
+				console.log("%d", val);
+				j++;
+			}
 
 			indexval=~~((val-gradmin)/(delta)*gradsteps);  					
 			if (indexval<0) indexval=0;

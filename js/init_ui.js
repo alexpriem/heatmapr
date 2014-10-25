@@ -99,7 +99,8 @@ function init_page() {
         h.median_x=median_x[i];
         h.xmean=xmean[i];
         h.ymean=ymean[i];
-        
+        h.sum_x=sum_x[i];
+        h.sum_y=sum_y[i];
         h.draw_axes(); 
         heatmaps.push(h);
     }
