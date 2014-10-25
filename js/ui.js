@@ -707,7 +707,7 @@ function heatmap (data, opties) {
 					}
 					if (val<0) val=-val;
 					xval=i*dx+xmin+xoffset;
-					yval=j*dy+ymin+yoffset				
+					yval=(y_steps-j-1)*dy+ymin+yoffset				
 					for (k=0; k<val; k++) {
 						chart.append("svg:circle")
 							.attr("class","dot")

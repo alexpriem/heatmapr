@@ -1,9 +1,11 @@
+import sys
+sys.path.insert(0,'f:\\cbs\\heatmapr')
 import heatmapr
 
 
 
 
-args=dict(infile='data\\tvc902v2.csv',
+args=dict(infile='f:\\cbs\\heatmapr\\data\\tvc902v2.csv',
           sep=',',
           outfile='tvc902v',
           
@@ -21,14 +23,14 @@ args=dict(infile='data\\tvc902v2.csv',
                     
           gradmin=0,
           gradmax='max',
-          title="Lnsv mannen, maandtijdvak februari 2009",
+          title="Lnsv vrouwen, maandtijdvak februari 2009",
           ylabel="Loon",
           xlabel="Leeftijd",
           colormap='blue',
-          missing_color='min', #[128,128,128],
+          missing_color=[0,0,0,0], #'min', #[128,128,128],
           size='1',
           transform='linear',
-          dump_html=False,
+          dump_html=True,
           imgwidth=500,
           imgheight=500
           )

@@ -1,6 +1,5 @@
 import sys
 sys.path.insert(0,'f:\\cbs\\heatmapr')
-
 import heatmapr
 
 

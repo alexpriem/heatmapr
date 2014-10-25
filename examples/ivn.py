@@ -1,9 +1,11 @@
+import sys
+sys.path.insert(0,'f:\\cbs\\heatmapr')
 import heatmapr
 
 
 
 
-args=dict(infile='data\\inkomen_vermogen_neg.csv',
+args=dict(infile='..\\data\\inkomen_vermogen_neg.csv',
           sep=',',
           outfile='ivn',
           
@@ -37,7 +39,7 @@ args=dict(infile='data\\inkomen_vermogen_neg.csv',
           dot_dotsize=5,
           dot_boxsize=0.5,
           dot_use_gradient=True,
-          bimodal=True,
+          gradient_bimodal=True,
           gradient_invert=False,
 
           controltype='flat',
