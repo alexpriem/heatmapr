@@ -55,14 +55,9 @@ def print_pdf():
     sys.exit(0)
 
 
-# TODO: take sizes from html
-#
 def print_png():
     print 'print_png, output:', outfile
-    xpage = web.page()
-   # print xpage.viewportSize()
-   # print xpage. currentFrame().contentsSize()
-    #1.33*1600
+    xpage = web.page()        
     xpage.setViewportSize(xpage. currentFrame().contentsSize())
     width,height=get_imgsize(infile)
     print width, height
@@ -81,15 +76,15 @@ def print_png():
     painter = QPainter(image)
     painter.setRenderHint(QPainter.SmoothPixmapTransform);
     painter.setRenderHint(QPainter.Antialiasing);
-    painter.setRenderHint(QPainter.TextAntialiasing);
-    painter.setRenderHint(QPainter.HighQualityAntialiasing); 
+    #painter.setRenderHint(QPainter.TextAntialiasing);
+    #painter.setRenderHint(QPainter.HighQualityAntialiasing); 
     xpage.mainFrame().render(painter)
+    
     painter.end()
-   # sleep(1)
     image.save(outfile)    
-    sys.exit(0) 
+    sys.exit(0)   
 
-#web.show()
+web.show()
 outfile='out.png'
 
 
@@ -101,11 +96,11 @@ if len(sys.argv)==3:
     printtype=sys.argv[2]    
     outfile=infile.replace('html',printtype)
 if printtype=='pdf':
-    print 'start_print_pdf'
+    print 'start_print_pdf'    
     QObject.connect(web, SIGNAL("loadFinished(bool)"), print_pdf)    
     
 else:
-    print 'start_print_png'
+    print 'start_print_png'    
     QObject.connect(web, SIGNAL("loadFinished(bool)"), print_png)
 
   

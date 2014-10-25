@@ -244,7 +244,6 @@ function heatmap (data, opties) {
 		j=0;
 		for (i=0; i<totalpixels; i++)	{	
 			val=transposebuffer[i];
-			
 
 			indexval=~~((val-gradmin)/(delta)*gradsteps);  					
 			if (indexval<0) indexval=0;
