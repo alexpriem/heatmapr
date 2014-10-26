@@ -30,11 +30,11 @@ args=dict(infile='..\\data\\inkomen_vermogen_neg.csv',
           ylabel="Vermogen",
           fontsize=16,
           numticks=6,
-          
+
+          displaymode='dotplot',
           colormap='blue',
           size='1',
-          transform='linear',
-          use_dots=True,
+          transform='linear',          
           dot_color='blue',
           dot_dotsize=5,
           dot_boxsize=0.5,
@@ -43,7 +43,7 @@ args=dict(infile='..\\data\\inkomen_vermogen_neg.csv',
           gradient_invert=False,
 
           controltype='flat',
-          dump_html=True,
+          dump_html=False,
           imgwidth=500,
           imgheight=500
           

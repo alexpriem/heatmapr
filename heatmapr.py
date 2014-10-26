@@ -69,7 +69,7 @@ class heatmap:
             ['log_min',1,False,''],
             
 
-
+            ['displaymode','heatmap',False,''],
             ['stats_enabled', True, False,''],
             ['plot_mean', False, False,''],
             ['plot_mean_pixelsize',2, False,''],
@@ -82,8 +82,7 @@ class heatmap:
             ['info_datafile',None,False,''],
             ['info_pixelsize',2, False,''],
             ['info_color',[255,0,0,255], False,''],
-        
-            ['use_dots',False,False,''],
+                    
             ['dot_color','blue',False,''],
             ['dot_dotsize',5,False,''],
             ['dot_boxsize',0.6,False,''],

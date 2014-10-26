@@ -108,6 +108,8 @@ function heatmap (data, opties) {
 		var y_steps=opties.y_steps;
 		var transform=gradient_node.getAttribute('transform');		
 		
+		var size=gradient_node.size;		
+
 		console.log('calc_minmax:',x_steps, y_steps, size);
 		console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
@@ -119,10 +121,10 @@ function heatmap (data, opties) {
 		var ymean=_this.ymean;
 		var sum_x=_this.sum_x;
 		var sum_y=_this.sum_y;
-		
-		console.log('xmean,ymean:\n', xmean, ymean)
 
-		size=gradient_node.size;		
+		console.log('xmean,ymean:\n', xmean, ymean, size, typeof(size))
+
+		
 		for (var i=0; i<y_steps; i+=size) {
 			for (var j=0; j<x_steps;  j+=size) {		
 				val=0;
@@ -200,6 +202,7 @@ function heatmap (data, opties) {
 		var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
 		var imgheight=opties.imgheight;
 		var imgwidth=opties.imgwidth;
+		var size=gradient_node.size;
 
 		
 		var histmax=_this.histmax;
@@ -312,7 +315,7 @@ function heatmap (data, opties) {
 		console.log("draw_heatmap:");
 
 		var opties=_this.opties;
-		if (opties.use_dots) {
+		if (opties.displaymode=='dotplot') {
 			_this.draw_dotplot();
 		}
 
@@ -415,8 +418,8 @@ function heatmap (data, opties) {
 
 	this.init_print=function () {
 	   $('.print').on('click',_this.click_print);
-	   $('.print').on('mouseenter ',enter_selectie);
-	   $('.print').on('mouseout ',leave_selectie);
+	   $('.sidelist').on('mouseenter ',enter_selectie);
+	   $('.sidelist').on('mouseout ',leave_selectie);
 	}
 
 
@@ -434,6 +437,8 @@ function heatmap (data, opties) {
 		s+='import contour\n\n'
 		s+='args=dict(\n\t'
 		var firstkey=true;
+		
+
 		opties['default_colormap']=colormapname;
 		opties['default_size']=size;
 		opties['default_transform']=transform;
@@ -620,15 +625,66 @@ function heatmap (data, opties) {
 
 
 
-	// dotplot starts here 
+
+
+	this.draw_text=function  () {
+
+		console.log('draw text');
+		var opties=_this.opties;
+		var chart=this.chart;
+			var xmin=opties.x_min;
+			var xmax=opties.x_max+1;
+			var ymin=opties.y_min;
+			var ymax=opties.y_max+1;
+			var x_steps=opties.x_steps;
+			var y_steps=opties.y_steps;
+			var transform=opties.transform;
+
+	    	var dx=(xmax-xmin)/(x_steps);
+	    	var dy=(ymax-ymin)/(y_steps);
+
+
+		console.log('start text, size', size);
+		var xoffset=0.5*dx;
+		var yoffset=0.5*dy;
+		for (i=0; i<x_steps; i++){
+			for (j=0; j<y_steps; j++){
+				ptr=y_steps*j+i;				
+				val=_this.transposebuffer[ptr];
+			
+				if (val<0) val=-val;
+				xval=i*dx+xmin+xoffset;
+				yval=(y_steps-j-1)*dy+ymin+yoffset				
+				for (k=0; k<val; k++) {
+					chart.append("svg:text")
+						.attr("class","txt")
+	          			.attr("x", function (d,i) { return xScale(xval); } )
+	          			.attr("y", function (d) { return xScale(yval); } )
+	          			.attr("transform","translate(75,25)")	      
+	          			.text(function(d) { return val; });	          				          
+	          		}
+
+
+			}
+		}          	
+ 
+	   chart.selectAll(".txt")
+        .attr("font-family", "Corbel")
+        .attr("font-weight", "normal")
+        .attr('font-size',fontsize+'px');
+
+	}
+
+		// dotplot starts here 
 
 
 	this.draw_dotplot=function  () {
 
 
 		var opties=_this.opties;
-		if (opties['use_dots']) {	
+		if (opties.displaymode=='dotplot') {	
 			$('.dot').remove();
+			$('.dot_grid').remove();
 
 			var chart=this.chart;
 			var xmin=opties.x_min;
@@ -652,9 +708,10 @@ function heatmap (data, opties) {
 			var dot_color=opties.dot_color;
 			var use_gradient=opties.dot_use_gradient;
 			var bimodal=opties.gradient_bimodal;
+			var gradient_node=document.getElementById("cg_a");
 			if (use_gradient) {
 				
-				var gradient_node=document.getElementById("cg_a");
+				
 				if (gradient_node.hasAttribute('gradient_max_data')) {
 					var gradmax=gradient_node.getAttribute('gradient_max_data');
 				} else {
@@ -686,6 +743,9 @@ function heatmap (data, opties) {
 				var color='';						
 			}
 
+
+			var size=gradient_node.size
+			console.log('start dotplot, size', size);
 			var xoffset=0.5*dx-0.5*dot_boxsize*dx;
 			var yoffset=0.5*dy-0.5*dot_boxsize*dy;
 			for (i=0; i<x_steps; i++){
@@ -735,7 +795,36 @@ function heatmap (data, opties) {
 				}
 			}          	
 	   	}
+
+	var xoffset=0.5*dx;
+	var yoffset=0.5*dy;
+	var gridcolor='rgb(90,90,90)';
+	for (i=1; i<x_steps; i++){
+		xval=i*dx+xmin+xoffset;
+		chart.append("svg:line")
+			.attr('class','dot_grid')
+			.attr('stroke-width',0.25)
+			.attr('stroke',gridcolor)
+			.attr("x1", xScale(xval))
+            .attr("y1", yScale(ymin-dy+yoffset))
+            .attr("x2", xScale(xval))
+            .attr("y2", yScale(ymax-dy+yoffset));
+		}
+	for (j=0; j<y_steps; j++){
+		yval=(y_steps-j-1)*dy+ymin+yoffset;
+		chart.append("svg:line")
+			.attr('class','dot_grid')
+			.attr('stroke-width',0.25)
+			.attr('stroke',gridcolor)			
+			.attr("x1", xScale(xmin+dx+xoffset))
+            .attr("y1", yScale(yval))
+            .attr("x2", xScale(xmax+dx+xoffset))
+            .attr("y2", yScale(yval));
+		}
+
+
 	   	  	// dotplot done
+	   	console.log('dotplot done');
 	}
 
 
@@ -1135,6 +1224,56 @@ function heatmap (data, opties) {
 	}
 
 
+	this.update_display=function(displaymode) {
+
+		console.log('update_display',displaymode);
+		if (displaymode=='dotplot') {	        
+    	    $('.colormap-gradient').css("display","none");
+        	$('.dotplot-controls').css("display",""); 
+        	$('.text-controls').css("display","none"); 
+        	$('.txt').remove();
+        	_this.draw_dotplot();  
+	  	}
+	  	if (displaymode=='heatmap') {
+	  		$('.dotplot-controls').css("display","none"); 
+	  		$('.text-controls').css("display","none"); 
+	  		$('.colormap-gradient').css("display","");
+	  		$('.txt').remove();
+	  		$('.dot').remove();
+	  		$('.dot_grid').remove();
+	  		_this.draw_heatmap();
+	  	}
+	  	if (displaymode=='text') {
+	  		$('.text-controls').css("display",""); 
+	  		$('.dotplot-controls').css("display","none"); 
+	  		$('.text-controls').css("display",""); 
+	  		$('.colormap-gradient').css("display","");
+	  		$('.dot').remove();
+	  		$('.dot_grid').remove();
+	  		_this.draw_text();
+	  	}
+	}
+
+	this.click_change_display=function () {
+
+		var id=$(this).attr('id');
+		var f=$(this).attr('data-display');
+		console.log('click_change_display:',f);
+		_this.opties['displaymode']=f;
+		_this.update_display(f);
+	}
+
+
+	this.init_display=function (widget_id, transform) {
+
+	 	$('.display').on('click',_this.click_change_display);
+	 	$('.display').on('mouseenter ',enter_selectie);
+	  	$('.display').on('mouseout ',leave_selectie);  	
+
+		_this.update_display(_this.optiesdisplaymode);	  
+	}
+
+
 	this.update_dotplot=function  (e) {
 
 		console.log('update_gradient:');
@@ -1156,7 +1295,7 @@ function heatmap (data, opties) {
 		if(_this.opties['use_dots']){
 			$(this).removeClass('active_selectie');
 			_this.opties['use_dots']=false;
-			$('.dot').remove();
+			$('.dot').remove();			
 		} else{
 			$(this).addClass('active_selectie');
 			_this.opties['use_dots']=true;			
@@ -1177,6 +1316,19 @@ function heatmap (data, opties) {
 		}
 	}
 
+	this.show_dot_grid=function () {
+
+		console.log('show_dot_grid',_this.opties['dot_grid']);
+		if(_this.opties['dot_grid']){
+			$('#dotplot_grid').addClass('active_selectie');						
+			$('.dot_grid').show();
+		} else {
+			$('#dotplot_grid').removeClass('active_selectie');
+			$('.dot_grid').hide();			
+		}
+	}
+
+
 	this.toggle_dot_background=function ()
 	{
 		console.log('toggle_dot_background',opties['dot_show_background'] );	
@@ -1188,6 +1340,16 @@ function heatmap (data, opties) {
 		_this.show_dot_background();
 	}
 
+	this.toggle_dot_grid=function ()
+	{
+		console.log('toggle_dot_grid',opties['dot_grid'] );	
+		if(_this.opties['dot_grid']){	
+			_this.opties['dot_grid']=false;		
+		} else{			
+			_this.opties['dot_grid']=true;		
+		}
+		_this.show_dot_grid();
+	}
 
 	this.toggle_dotgradient=function ()
 	{
@@ -1207,6 +1369,7 @@ function heatmap (data, opties) {
 	this.init_dotplot=function  () {
 		$('#dotplot_heatdots').on('click',_this.toggle_dotgradient);
 		$('#dotplot_show_dotplot').on('click',_this.toggle_dotplot);
+		$('#dotplot_grid').on('click',_this.toggle_dot_grid);
 		$('#dotplot_show_heatmap').on('click',_this.toggle_dot_background);
 	 	$('.stats').on('mouseenter ',enter_selectie);
 	  	$('.stats').on('mouseout ',leave_selectie);  	

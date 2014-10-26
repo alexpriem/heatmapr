@@ -12,12 +12,12 @@ args=dict(infile='f:\\cbs\\heatmapr\\data\\tvc902v2.csv',
           x_var='lft',
           x_min=0,
           x_max=100,
-          x_steps=500,          
+          x_steps=100,          
 
           y_var='Lnsv',
           y_min=0,
           y_max=5000,
-          y_steps=500,
+          y_steps=100,
 
           weight_var='num',
                     
@@ -30,9 +30,9 @@ args=dict(infile='f:\\cbs\\heatmapr\\data\\tvc902v2.csv',
           missing_color=[0,0,0,0], #'min', #[128,128,128],
           size='1',
           transform='linear',
-          dump_html=True,
-          imgwidth=500,
-          imgheight=500
+          dump_html=False,
+          imgwidth=100,
+          imgheight=100
           )
 
 

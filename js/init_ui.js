@@ -119,14 +119,9 @@ function init_page() {
     h.init_stats();
     h.init_hist_xy();
     h.init_dotplot();
-    if (window_opties.use_dots) {
-        console.log('kill gradient');
-        $('.colormap-gradient').css("display","none");
-        $('.dotplot-controls').css("display","");     
-    } else {
-        console.log('kill dotplot');
-        $('.dotplot-controls').css("display","none");
-    }
+    h.init_display();
+
+    
  //   Pixastic.debug=true;
     document.title =window_opties.title;
     console.log('print=',print);
@@ -135,6 +130,8 @@ function init_page() {
         $('.gradient_vars').hide();
         $('.hist_2d').hide();
         $('#IE9_hack').hide();
+    } else {
+        $('#sel_print').hide();
     }
 }
 
