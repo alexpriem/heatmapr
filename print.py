@@ -84,7 +84,7 @@ def print_png():
     image.save(outfile)    
     sys.exit(0)   
 
-web.show()
+#web.show()
 outfile='out.png'
 
 

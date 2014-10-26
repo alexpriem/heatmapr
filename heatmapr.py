@@ -88,7 +88,9 @@ class heatmap:
             ['dot_boxsize',0.6,False,''],
             ['dot_use_gradient',False,False,''],
             ['dot_show_background',True,False,''],
-                                
+            
+            ['text_show_background',True,False,''],
+            
             ['weighx',False,False,''],
             ['weighy',False,False,''],
             

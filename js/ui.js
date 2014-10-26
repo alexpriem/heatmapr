@@ -316,8 +316,13 @@ function heatmap (data, opties) {
 
 		var opties=_this.opties;
 		if (opties.displaymode=='dotplot') {
-			_this.draw_dotplot();
+			_this.draw_dotplot();			
 		}
+		if (opties.displaymode=='text') {
+			_this.draw_text();
+		}
+
+		if ((opties.diplaymode=='text')  && (opties.text_show_background==false)) return;
 
 		_this.bin_data();		
 		_this.draw_histogram();
@@ -672,7 +677,11 @@ function heatmap (data, opties) {
         .attr("font-family", "Corbel")
         .attr("font-weight", "normal")
         .attr('font-size',fontsize+'px');
-
+        if (opties.text_show_background==false) {
+			$('.heatmap_canvas').hide();	
+		} else {
+			$('.heatmap_canvas').show();	
+		}
 	}
 
 		// dotplot starts here 
