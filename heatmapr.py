@@ -223,8 +223,6 @@ class heatmap:
 
 
 
-        for line in f:
-            
 
         linenr=0
         keys_x={}
