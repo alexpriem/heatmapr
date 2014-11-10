@@ -123,7 +123,7 @@ class heatmap:
                 raise RuntimeError('Unknown variable: %s' % varname)
 
 
-        colormaps=['blue','blue2','green', 'red','gray',
+        colormaps=['blue','blue_black','green', 'red','gray',
                     'terrain', 'coolwarm',
                     'hot', 'hot2','hot3', 'ygb']
         colormap=args['colormap']
@@ -182,8 +182,8 @@ class heatmap:
         
         xcolnr=cols.index(xcol)
         ycolnr=cols.index(ycol)
-        xmin=int(xmin)
-        xmax=int(xmax)
+        xmin=float(xmin)
+        xmax=float(xmax)
         xpixels=int(xpixels)
         if self.logx:            
             xmin=safelog10(xmin)
@@ -194,8 +194,8 @@ class heatmap:
             weightcolnr=cols.index(self.weight_var)
             
 
-        ymin=int(ymin)
-        ymax=int(ymax)
+        ymin=float(ymin)
+        ymax=float(ymax)
         ypixels=int(ypixels)
         if self.logy:            
             ymin=safelog10(ymin)
@@ -203,9 +203,6 @@ class heatmap:
 
         xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
         yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
-        print xfactor, yfactor
-        xfactorinv= (1.0*xpixels)/(xmax-xmin)
-        yfactorinv= (1.0*ypixels)/(ymax-ymin)
 
         self.xmin=xmin
         self.ymin=ymin
@@ -225,10 +222,15 @@ class heatmap:
         y_fuzz=float(self.y_fuzz)
 
 
+
+        for line in f:
+            
+
         linenr=0
         keys_x={}
         keys_y={}
         total=0
+                
         for line in f:
             if self.convert_comma:
                 line=line.replace(',','.')
