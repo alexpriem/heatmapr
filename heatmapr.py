@@ -93,6 +93,8 @@ class heatmap:
             
             ['weighx',False,False,''],
             ['weighy',False,False,''],
+
+            ['multimap', [],False,''],
             
             ['multi_nr', 0,False,''],
             ['multi_cols', 5,False,''],
@@ -103,7 +105,7 @@ class heatmap:
 
 
         self.module_dir=os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-        print self.module_dir 
+      
         
         defaultvars=[]
         for varinfo in defaults:
@@ -156,6 +158,44 @@ class heatmap:
             raise RuntimeError ('\n\imgheight too large (>2000). (imgheight:%s)' % (args['imgheight']))
         
 
+
+    def heatmap_to_js (self, heatmap):
+        s=''
+        gradmin=self.gradmin
+        gradmax=self.gradmax
+        
+        js='data.push([';
+        for row in heatmap:            
+            js+=','.join([str(col) for col in row])+',\n'
+            minrow=min(row)
+            maxrow=max(row)            
+            if minrow<gradmin:
+                gradmin=minrow
+            if maxrow>gradmax:
+                gradmax=maxrow   
+        js=js[:-2]+']);\n\n'
+        
+        return js
+
+
+    def heatmap_to_csv (self, heatmap, filename):
+        csv=''
+        gradmin=self.gradmin
+        gradmax=self.gradmax
+        f=open (filename,'w')
+        for row in heatmap:            
+            f.write(','.join([str(col) for col in row])+'\n')
+            minrow=min(row)
+            maxrow=max(row)            
+            if minrow<gradmin:
+                gradmin=minrow
+            if maxrow>gradmax:
+                gradmax=maxrow
+        f.close()
+        
+
+
+
     def make_heatmap (self, args):
 
 
@@ -189,6 +229,11 @@ class heatmap:
             xmin=safelog10(xmin)
             xmax=safelog10(xmax)
 
+        do_multimap=False
+        if len(self.multimap)>0:
+            multicols=[cols.index(m) for m in self.multimap]
+            do_multimap=True
+
         weightcolnr=None
         if self.weight_var is not None:
             weightcolnr=cols.index(self.weight_var)
@@ -216,7 +261,9 @@ class heatmap:
         if self.ylabel is None:
             self.ylabel=ycol            
 
+        heatmaps={}
         heatmap=[[0]*ypixels for i in range(xpixels)]
+        self.heatmap=heatmap
         
         x_fuzz=float(self.x_fuzz)
         y_fuzz=float(self.y_fuzz)
@@ -274,8 +321,21 @@ class heatmap:
                         hy=ypixels-1
             else:
                 continue
-                
             total+=val  #
+
+            
+            if do_multimap:
+                heatmapname=''
+                for splitcol in multicols:                    
+                    heatmapname+='_'+cols[splitcol]
+                heatmap=heatmaps.get(heatmapname,None)
+                if heatmap is None:
+                    heatmap=[[0]*ypixels for i in range(xpixels)]
+                    print 'define:', heatmapname
+                heatmap[hx][hy]+=val
+                heatmaps[heatmapname]=heatmap
+                heatmap=self.heatmap           
+            
             try:
                 heatmap[hx][hy]+=val
             except IndexError:
@@ -286,8 +346,6 @@ class heatmap:
 
 
             
-
-        self.heatmap=heatmap
         if self.stats_enabled:  # calculate mean
             avg_x={}
             for xpixel in range(0,xpixels):
@@ -385,22 +443,21 @@ class heatmap:
 # dump data
         js=''
         if self.multi_nr==0:
-                js='var data=[];\n'        
-        js+='data.push([';
+                js='var data=[];\n'                
     
         gradmin=self.heatmap[0][0]
         gradmax=gradmin
-        s=''
-        for row in self.heatmap:            
-            js+=','.join([str(col) for col in row])+',\n'
-            minrow=min(row)
-            maxrow=max(row)            
-            if minrow<gradmin:
-                gradmin=minrow
-            if maxrow>gradmax:
-                gradmax=maxrow   
-        js=js[:-2]+']);\n\n'
-   
+
+        if do_multimap==True:
+            datakeys=sorted(heatmaps.keys())
+            for filename in datakeys:
+                print filename
+                heatmap=heatmaps[filename]
+                js+=self.heatmap_to_js (heatmap)
+                self.heatmap_to_csv (heatmap,self.outfile+filename+'.csv')               
+            js+='var datakeys='+str(datakeys)+';\n'
+        if do_multimap==False:
+            js+=self.heatmap_to_js (self.heatmap)
 
         self.datamin=gradmin
         self.datamax=gradmax
