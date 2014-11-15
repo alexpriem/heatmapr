@@ -442,14 +442,15 @@ class heatmap:
 
 # dump data
         js=''
-        if self.multi_nr==0:
-                js='var data=[];\n'                
+        if self.multi_nr==0 and do_multimap==False:
+            js='var multimap=false;\nnr_heatmaps=%d;\n\nvar data=[];\n' % len(heatmaps)
     
         gradmin=self.heatmap[0][0]
         gradmax=gradmin
 
         if do_multimap==True:
             datakeys=sorted(heatmaps.keys())
+            js='var multimap=true;\nvar nr_heatmaps=1;\n\nvar data=[];\n' 
             for filename in datakeys:
                 print filename
                 heatmap=heatmaps[filename]
@@ -467,24 +468,29 @@ class heatmap:
 
         if self.multi_nr==0:
                 js+='var opties=[];\n'
-        js+='opties.push({'
+        optiejs='opties.push({'
         for k in sorted(args.keys()):
             v=args[k]
             if v is None:
-                js+='"%s":null,\n' % (k)                
+                optiejs+='"%s":null,\n' % (k)                
                 continue
             t=type(v)
             if t==str:            
-                js+='"%s":"%s",\n' % (k,v)
+                optiejs+='"%s":"%s",\n' % (k,v)
                 continue
             if t==bool:
                 if v:
-                    js+='"%s":true,\n' % (k)
+                    optiejs+='"%s":true,\n' % (k)
                 else:                    
-                    js+='"%s":false,\n' % (k)
+                    optiejs+='"%s":false,\n' % (k)
                 continue
-            js+='"%s":%s,\n' % (k,v)
-        js+='});\n\n'
+            optiejs+='"%s":%s,\n' % (k,v)
+        optiejs+='});\n\n'
+        if do_multimap:
+            for filename in datakeys:   # datakeys alleen gebruiken om te loopen over aantal opties
+                js+=optiejs
+        else:
+            js+=optiejs
 
         if self.multi_nr==0:
             js+='var sum_x=[];\n';

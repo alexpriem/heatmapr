@@ -91,12 +91,45 @@ function heatmap (data, opties) {
 
 
 
+	this.update_minmax=function (minval,maxval) {
 
+		console.log('update_minmax:min/max:',minval,maxval );
 
+		var opties=_this.opties;		
+		var gradient_node=document.getElementById("cg_a");
+		var gradmax=gradient_node.getAttribute('gradient_max');
+		var gradmin=gradient_node.getAttribute('gradient_min');
+		var gradsteps=gradient_node.getAttribute('gradient_steps');
 
-	this.calc_minmax=function  () {
+		if (gradmax=='max') {
+			gradient_node.setAttribute('gradient_max_data', maxval);		
+		} else {
+			if (gradient_node.hasAttribute('gradient_max_data')) {
+				gradient_node.removeAttribute ('gradient_max_data');			
+			}		
+		}
+		if (gradmin=='min') {
+			gradient_node.setAttribute('gradient_min_data', minval);		
+		} else {
+			if (gradient_node.hasAttribute('gradient_min_data')) {
+				gradient_node.removeAttribute ('gradient_min_data');			
+			}		
+		}
 		
-		console.log("calc_minmax");
+		if (opties.missing_color=='min'){
+			_this.missing_color=gradient_node.colormap[0];
+		} else {
+			_this.missing_color=opties.missing_color;
+		}	
+		
+	}		
+
+
+
+
+	this.bin_data=function  () {
+		
+		console.log("bin_data");
 		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
 		if (gradient_node.need_data_recalc==false) return;
@@ -110,7 +143,7 @@ function heatmap (data, opties) {
 		
 		var size=gradient_node.size;		
 
-		console.log('calc_minmax:',x_steps, y_steps, size);
+		console.log('bin_data:',x_steps, y_steps, size);
 		console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
 		
@@ -160,38 +193,13 @@ function heatmap (data, opties) {
 		}	//i
 
 
-		
-		var gradmax=gradient_node.getAttribute('gradient_max');
-		var gradmin=gradient_node.getAttribute('gradient_min');
-
-		var gradsteps=gradient_node.getAttribute('gradient_steps');
-		if (gradmax=='max') {
-			gradient_node.setAttribute('gradient_max_data', maxval);		
-		} else {
-			if (gradient_node.hasAttribute('gradient_max_data')) {
-				gradient_node.removeAttribute ('gradient_max_data');			
-			}		
-		}
-		if (gradmin=='min') {
-			gradient_node.setAttribute('gradient_min_data', minval);		
-		} else {
-			if (gradient_node.hasAttribute('gradient_min_data')) {
-				gradient_node.removeAttribute ('gradient_min_data');			
-			}		
-		}
-		console.log('calc_heatmap min/max:',minval,maxval );
-
-		if (opties.missing_color=='min'){
-			_this.missing_color=gradient_node.colormap[0];
-		} else {
-			_this.missing_color=opties.missing_color;
-		}	
+		_this.update_minmax(minval,maxval);		
 
 	}
 
 
 
-	this.bin_data=function  () {
+	this.spread_bins=function  () {
 
 		var opties=_this.opties;
 		var totalpixels=opties.x_steps*opties.y_steps;	
@@ -203,7 +211,6 @@ function heatmap (data, opties) {
 		var imgheight=opties.imgheight;
 		var imgwidth=opties.imgwidth;
 		var size=gradient_node.size;
-
 		
 		var histmax=_this.histmax;
 		var transposebuffer=_this.transposebuffer;
@@ -221,12 +228,12 @@ function heatmap (data, opties) {
 			var gradmin=gradient_node.getAttribute('gradient_min');
 		}
 
-		console.log('bin_data: transform, gradmin/gradmax',transform, gradmin,gradmax);
+		console.log('spread_bins: transform, gradmin/gradmax',transform, gradmin,gradmax);
 		var gradmax=transform_value(gradmax,transform, log_min);
 		var gradmin=transform_value(gradmin,transform, log_min);
 
 		var delta=gradmax-gradmin;
-		console.log('bin_data, gradmin/gradmax',gradmin,gradmax);
+		console.log('spread_bins, gradmin/gradmax',gradmin,gradmax);
 
 
 		var line=0;
@@ -324,7 +331,7 @@ function heatmap (data, opties) {
 
 		if ((opties.diplaymode=='text')  && (opties.text_show_background==false)) return;
 
-		_this.bin_data();		
+		_this.spread_bins();		
 		_this.draw_histogram();
 
 		var mapdata=_this.mapdata;
@@ -357,10 +364,12 @@ function heatmap (data, opties) {
 		console.log("draw_heatmap:",backbuffer.length);
 		for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 				indexval=backbuffer[i];
-				if ((indexval>0) && (nr<-50)) {
+				/*
+				if ((indexval>0) && (nr<50)) {
 							console.log(nr, i,j,indexval);
 							nr+=1;
 						}
+				*/
 				if ((indexval!=0) || (!_this.skipzero)) {	  // waardes die 0 zijn niet plotten
 					color=colormap[indexval];			
 		    		mapdata[j] =  color[0];  
@@ -1212,7 +1221,7 @@ function heatmap (data, opties) {
 			$(this).addClass('active_selectie');	
 		}
 		_this.opties[f]=state;		
-		_this.calc_minmax();
+		_this.bin_data();
 		_this.draw_heatmap();
 
 	}

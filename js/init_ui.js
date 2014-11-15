@@ -62,16 +62,16 @@ function init_all_heatmaps(heatmapdata) {
 }
 
 
-var calc_minmaxes=function () {
+var bin_alldata=function () {
 
-    for (var i=0; i<data.length; i++) {
-        heatmaps[i].calc_minmax();
-    }
+	for (var i=0; i<nr_heatmaps; i++) {
+        	heatmaps[i].bin_data();
+	    }
 }
 
 var draw_heatmaps=function() {
 
-    for (var i=0; i<data.length; i++) {
+    for (var i=0; i<nr_heatmaps; i++) {
         console.log('draw_heatmaps:',data.length,i);
         heatmaps[i].draw_heatmap();
         console.log('draw_heatmaps:',data.length,i);
@@ -81,11 +81,13 @@ var draw_heatmaps=function() {
 
 function init_page() {
   
-    
-    var nr_heatmaps=data.length;
-    console.log(data.length);
-    var heatmapinfo=[];    
-    for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
+   // console.log('init_page, # heatmaps:',data.length);    
+    if (multimap) {
+        var heatmapinfo=[0];        
+    } else {
+        var heatmapinfo=[];            
+        for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
+    }
 
     var heatmapdata={heatmaps:heatmapinfo};
     console.log(heatmapinfo, heatmapdata);
@@ -108,7 +110,7 @@ function init_page() {
     var window_opties=opties[0];
     set_gradient(window_opties);
     console.log(h);
-    topnode.preAttributeChangedCallback=calc_minmaxes;    
+    topnode.preAttributeChangedCallback=bin_alldata;    
     topnode.postAttributeChangedCallback=draw_heatmaps;        
     init_gradients(); 
 
