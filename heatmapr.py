@@ -1,4 +1,4 @@
-import random, os, sys, inspect
+import random, os, sys, inspect, json
 from math import log10
 
 
@@ -95,9 +95,11 @@ class heatmap:
             ['weighy',False,False,''],
 
             ['multimap', [],False,''],
+            ['multimap_labels',{},False,''],
             
             ['multi_nr', 0,False,''],
             ['multi_cols', 5,False,''],
+            
             
             ['controltype','notflat', False,''], 
             ['debuglevel',0, False,''],            
@@ -478,6 +480,8 @@ class heatmap:
             js+=colors.replace('data','multimap_colors')
 
             js+=self.heatmap_to_js (heatmaps[datakeys[0]])
+
+            js+='var multimap_labels='+json.dumps(self.multimap_labels)+';\n';
             
            # for filename in datakeys:
            #     print filename
