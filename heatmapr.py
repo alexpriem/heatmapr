@@ -1,4 +1,4 @@
-import random, os, sys, inspect, json
+import random, os, sys, inspect, json, bisect
 from math import log10
 
 
@@ -94,6 +94,9 @@ class heatmap:
             ['weighx',False,False,''],
             ['weighy',False,False,''],
 
+
+            ['relative_x', False,False,''],
+            ['relative_y', False,False,''],
             ['multimap', [],False,''],
             ['multimap_labels',{},False,''],
             
@@ -197,6 +200,19 @@ class heatmap:
         f.close()
         
 
+    def bin_keyvalues_to_hist (self, histdict, step):
+        pos=[]
+        sumk=0
+        histlist=sorted(histdict.keys())
+        for k in histlist:
+         #   print k, sumk, step                        
+            sumk+=histdict[k]
+            if sumk>step:
+                while (sumk>step):
+#                    print len(pos),k
+                    pos.append(k)
+                    sumk=sumk-step
+        return pos
 
 
     def make_heatmap (self, args):
@@ -273,6 +289,57 @@ class heatmap:
 
 
 
+        if self.relative_x or self.relative_y:
+            x_fullhist={}
+            y_fullhist={}        
+            linenr=0
+            for line in f:
+                linenr+=1
+                if linenr % 10000==0:
+                    print linenr
+                
+                if self.convert_comma:
+                    line=line.replace(',','.')                
+                cols=line.split(sep)
+                x=float(cols[xcolnr])
+                y=float(cols[ycolnr])
+                val=1
+                if weightcolnr is not None:
+                    val=float(cols[weightcolnr])
+                if self.relative_x:
+                    x_fullhist[x]=x_fullhist.get(x,0)+val
+                if self.relative_y:                    
+                    y_fullhist[y]=y_fullhist.get(y,0)+val
+            f.seek(0,0)
+            
+            if self.debuglevel==3:
+                print 'x-hist'
+                for k,v in x_fullhist.items():
+                    print k,v
+                print 'y-hist'
+                for k,v in y_fullhist.items():
+                    print k,v
+            if self.relative_x:
+                xhist=sorted(x_fullhist.keys())
+                N=sum(x_fullhist.values())
+                xhistpos=self.bin_keyvalues_to_hist (x_fullhist, N/(1.0*xpixels))
+                xhistpos_fuzz={}
+                for x in sorted(xhistpos):
+                    xhistpos_fuzz[y]=xhistpos.count(y)
+
+            if self.relative_y:
+                N=sum(y_fullhist.values())
+                yhist=sorted(y_fullhist.keys())
+                yhistpos=self.bin_keyvalues_to_hist (y_fullhist, N/(1.0*ypixels))                
+                yhistpos_fuzz=[]
+                for y in sorted(yhistpos):
+                    yhistpos_fuzz.append(yhistpos.count(y))
+
+        
+            
+
+                  
+
 
         linenr=0
         keys_x={}
@@ -301,29 +368,47 @@ class heatmap:
             val=1
             if weightcolnr is not None:
                 val=float(cols[weightcolnr])
-            if (x>=xmin and x<=xmax):
-                hx=int((x-xmin)/xfactor)                
-                if x_fuzz!=0:
-                    hx+=int(random.random()*x_fuzz)
+
+            if self.relative_x==False:                                                
+                if (x>=xmin and x<=xmax):
+                    hx=int((x-xmin)/xfactor)                
+                    if x_fuzz!=0:
+                        hx+=int(random.random()*x_fuzz)
+                        if hx>=xpixels:
+                            hx=xpixels-1                
+                else:
+                    continue
+                
+            if self.relative_x==True:
+                hx=bisect.bisect_left(xhistpos,x)
+                if (xhistpos_fuzz[hx]>1):
+                    hx+=int(random.random()*xhistpos_fuzz[hx])
                     if hx>=xpixels:
-                        hx=xpixels-1                
-            else:
-                continue
-            
+                        hx=xpixels-1  
+                        
             if self.stats_enabled:
                 x_hist=keys_x.get(hx,{})
                 num=x_hist.get(y,0)                
                 x_hist[y]=num+val
                 keys_x[hx]=x_hist
+
+            if self.relative_y==False:                
+                if (y>=ymin and y<=ymax):
+                    hy=int((y-ymin)/yfactor)
+                    if y_fuzz!=0:
+                        hy+=int(random.random()*y_fuzz)                
+                        if hy>ypixels:
+                            hy=ypixels-1
+                else:
+                    continue
                 
-            if (y>=ymin and y<=ymax):
-                hy=int((y-ymin)/yfactor)
-                if y_fuzz!=0:
-                    hy+=int(random.random()*y_fuzz)                
-                    if hy>ypixels:
-                        hy=ypixels-1
-            else:
-                continue
+            if self.relative_y==True:
+                hy=bisect.bisect_left(yhistpos,y)
+                if (yhistpos_fuzz[hy]>1):
+                    hy+=int(random.random()*yhistpos_fuzz[hy])
+                    if hy>=ypixels:
+                        hy=ypixels-1  
+                
             total+=val  #
 
             
@@ -345,7 +430,8 @@ class heatmap:
                 print 'IndexError (%d,%d), line nr %d:' % (hx,hy,linenr)
                 print 'inputdata:',line
                 sys.exit()
-                
+
+        
 
 
             
@@ -460,7 +546,7 @@ class heatmap:
 # dump data
         js=''
         if self.multi_nr==0 and do_multimap==False:
-            js='var multimap=false;\nnr_heatmaps=%d;\n\nvar data=[];\n' % len(heatmaps)
+            js='var multimap=false;\nnr_heatmaps=1;\n\nvar data=[];\n'
     
         gradmin=self.heatmap[0][0]
         gradmax=gradmin
