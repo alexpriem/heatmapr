@@ -323,9 +323,9 @@ class heatmap:
                 xhist=sorted(x_fullhist.keys())
                 N=sum(x_fullhist.values())
                 xhistpos=self.bin_keyvalues_to_hist (x_fullhist, N/(1.0*xpixels))
-                xhistpos_fuzz={}
+                xhistpos_fuzz=[]
                 for x in sorted(xhistpos):
-                    xhistpos_fuzz[y]=xhistpos.count(y)
+                    xhistpos_fuzz.append(xhistpos.count(x))
 
             if self.relative_y:
                 N=sum(y_fullhist.values())
