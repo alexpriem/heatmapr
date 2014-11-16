@@ -127,7 +127,8 @@ class heatmap:
 
         colormaps=['blue','blue_black','green', 'red','gray',
                     'terrain', 'coolwarm',
-                    'hot', 'hot2','hot3', 'ygb']
+                    'hot', 'hot2','hot3', 'ygb','qualitative',
+                    'qualitative14']
         colormap=args['colormap']
         if colormap not in colormaps:
             raise RuntimeError ('allowed colormaps: %s' % colormaps)

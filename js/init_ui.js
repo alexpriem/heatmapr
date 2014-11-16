@@ -2,7 +2,7 @@
 
 var c,s,ctx;
 var print=false;
-
+var datasets=null;
 // printinfo hier
 
 
@@ -89,6 +89,7 @@ function init_page() {
         for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
     }
 
+	datasets=data;
     var heatmapdata={heatmaps:heatmapinfo};
     console.log(heatmapinfo, heatmapdata);
     init_all_heatmaps(heatmapdata);
@@ -109,7 +110,7 @@ function init_page() {
 
     var window_opties=opties[0];
     set_gradient(window_opties);
-    console.log(h);
+    //console.log(h);
     topnode.preAttributeChangedCallback=bin_alldata;    
     topnode.postAttributeChangedCallback=draw_heatmaps;        
     init_gradients(); 
