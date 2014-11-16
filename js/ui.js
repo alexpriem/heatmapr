@@ -225,42 +225,48 @@ function heatmap (data, opties) {
 		var gradient_node=document.getElementById("cg_a");		
 		var log_min=gradient_node.getAttribute('log_min');
 
-		var data=datasets;
-		var maxval=data[0];	
-		var minval=data[0];
+		var maxval=multimap_vals[0][0];	
+		var minval=multimap_vals[0][0];
 
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
 		var transform=gradient_node.getAttribute('transform');		
 		var transposebuffer=_this.transposebuffer;
 		var transposebuffer_multi=_this.transposebuffer_multi;
+		var weighx=opties.weighx;
+		var weighy=opties.weighy;
+		var xmean=_this.xmean;
+		var ymean=_this.ymean;
+		var sum_x=_this.sum_x;
+		var sum_y=_this.sum_y;
 
 
+		var values=multimap_vals[0];
+		var colors=multimap_colors[0];
 		var datalength=data.length;
-		console.log("bin_data_multi", data.length);		
+		console.log("bin_data_multi", data.length, x_steps, y_steps);		
+		console.log("bin_data_multi", maxval,minval);		
 
 		var ptr2=0;
 		for (var i=0; i<y_steps; i++) {
 			for (var j=0; j<x_steps;  j++) {		
 				val=0;
-				ptr=j*y_steps+i;			
-				for (k=0; k<datalength;k++){
-					if (data[k][ptr]>val) {
-						val=data[k][ptr];
-						color=k;
-					}
-				}
-
+				ptr=j*y_steps+i;
+				val=values[ptr];					
 				if (val>maxval) maxval=val;
 				if (val<minval) minval=val;			
-				val=transform_value(val,transform, log_min);
+				//val=transform_value(val,transform, log_min);
 				
-				transposebuffer[ptr2]=val;		
-				transposebuffer_multi[ptr2]=color;
+				transposebuffer[ptr2]=val;						
+				transposebuffer_multi[ptr2]=colors[ptr];
 				ptr2++;					
 			} //j
-		//		console.log("i:",i);
+	//		console.log("i:",i);
 		}	//i
+
+		_this.transposebuffer=transposebuffer;
+		console.log('transposebuffer',transposebuffer);
+		//		console.log("i:",i);		
 		console.log('bin_data_multi:', minval, maxval);
 		_this.update_minmax(minval,maxval);		
 	}

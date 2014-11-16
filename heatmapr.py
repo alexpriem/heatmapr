@@ -128,7 +128,7 @@ class heatmap:
         colormaps=['blue','blue_black','green', 'red','gray',
                     'terrain', 'coolwarm',
                     'hot', 'hot2','hot3', 'ygb','qualitative',
-                    'qualitative14']
+                    'qualitative14','qualitative28']
         colormap=args['colormap']
         if colormap not in colormaps:
             raise RuntimeError ('allowed colormaps: %s' % colormaps)
@@ -412,6 +412,20 @@ class heatmap:
         print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
         print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))
 
+# multimaps aanmaken zo nodig
+
+        if do_multimap:
+            datakeys=sorted(heatmaps.keys())            
+            multimap_vals=[[0]*ypixels for i in range(xpixels)]
+            multimap_colors=[[0]*ypixels for i in range(xpixels)]
+            for x in range(0,xpixels):
+                for y in range(0,ypixels):
+                    vals=[heatmaps[k][x][y] for k in datakeys]
+                    maxval=max(vals)
+                    multimap_vals[x][y]=maxval
+                    multimap_colors[x][y]=vals.index(maxval)
+
+
 # test autoscaling
         cutoff=1
         min_x=xsum[0]
@@ -451,12 +465,26 @@ class heatmap:
 
         if do_multimap==True:
             datakeys=sorted(heatmaps.keys())
-            js='var multimap=true;\nvar nr_heatmaps=1;\n\nvar data=[];\n' 
-            for filename in datakeys:
-                print filename
-                heatmap=heatmaps[filename]
-                js+=self.heatmap_to_js (heatmap)
-                self.heatmap_to_csv (heatmap,self.outfile+filename+'.csv')               
+            js='var multimap=true;\n'
+            js+='var nr_heatmaps=1;\n\n'
+            js+='var data=[];\n'
+            js+='var multimap_vals=[];\n'
+            js+='var multimap_colors=[];\n'
+
+            
+            vals=self.heatmap_to_js(multimap_vals)
+            js+=vals.replace('data','multimap_vals')
+            colors=self.heatmap_to_js(multimap_colors)
+            js+=colors.replace('data','multimap_colors')
+
+            js+=self.heatmap_to_js (heatmaps[datakeys[0]])
+            
+           # for filename in datakeys:
+           #     print filename
+           #     heatmap=heatmaps[filename]
+           #     js+=self.heatmap_to_js (heatmap)
+           #     self.heatmap_to_csv (heatmap,self.outfile+filename+'.csv')
+                
             js+='var datakeys='+str(datakeys)+';\n'
         if do_multimap==False:
             js+=self.heatmap_to_js (self.heatmap)
