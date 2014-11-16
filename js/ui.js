@@ -390,10 +390,10 @@ function heatmap (data, opties) {
 		console.log('val2index:',gradmin, delta,gradsteps);
 
 		j=0;
+		
+
 		for (i=0; i<totalpixels; i++)	{	
 			val=transposebuffer[i];
-			multival=transposebuffer_multi[i];
-
 			if ((val!=0) && (j<50)) {
 				console.log("%d", val);
 				j++;
@@ -419,8 +419,7 @@ function heatmap (data, opties) {
 			//ptr=u*xstep+v*ystep*imgwidth;
 			for (cy=0; cy<ystep; cy++) {
 				for (cx=0; cx<xstep; cx++) {
-					backbuffer[ptr+cy*imgwidth+cx]=indexval;
-					backbuffer_multi[ptr+cy*imgwidth+cx]=multival;
+					backbuffer[ptr+cy*imgwidth+cx]=indexval;				
 					}
 				}
 			u++;
@@ -430,8 +429,26 @@ function heatmap (data, opties) {
 				v++;			
 				line=0;
 			}
-		}			//cy
-
+		} // for i
+		if (multimap) {
+			for (i=0; i<totalpixels; i++)	{	
+				multival=transposebuffer_multi[i];
+				ptr=(imgheight-v*ystep)*imgwidth; 
+				ptr+=u*xstep;
+				for (cy=0; cy<ystep; cy++) {
+					for (cx=0; cx<xstep; cx++) {							
+						backbuffer_multi[ptr+cy*imgwidth+cx]=multival;
+					}
+				}
+				u++;
+				line+=xstep;		
+				if (line>=imgwidth) {			
+					u=0;
+					v++;			
+					line=0;
+				}
+			}  // for i
+		} // multimap
 	//console.log('HISTMAX:',hist)
 	histmax=hist[0];
 	for (i=1; i<gradsteps; i++) 
