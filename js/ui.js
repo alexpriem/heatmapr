@@ -38,9 +38,9 @@ function heatmap (data, opties) {
 
 	this.chart=null;
 	this.backbuffer=null;
-	this.backbuffer_multi=null;
+	this.backbuffer_cats=null;
 	this.transposebuffer=null;
-	this.transposebuffer_multi=null;	
+	this.transposebuffer_cats=null;	
 	this.imgData=null;
 	this.mapdata=null;
 	this.data=data;
@@ -78,12 +78,12 @@ function heatmap (data, opties) {
 		try {
 		    _this.transposebuffer= new Float32Array  (transpose_size);
 		    if (multimap){
-		    	_this.transposebuffer_multi= new Float32Array  (transpose_size);
+		    	_this.transposebuffer_cats= new Float32Array  (transpose_size);
 		    }
 		    } catch(x){
 		    _this.transposebuffer= new Array  (transpose_size);		//IE fallback
 		    if (multimap){
-		    	_this.transposebuffer_multi= new Array  (transpose_size);
+		    	_this.transposebuffer_cats= new Array  (transpose_size);
 		    }
 
 		}
@@ -92,12 +92,12 @@ function heatmap (data, opties) {
 		try {
 		    _this.backbuffer= new Uint32Array  (imgsize);
 		    if (multimap){
-		    	_this.backbuffer_multi= new Uint32Array  (imgsize);
+		    	_this.backbuffer_cats= new Uint32Array  (imgsize);
 		    }
 		    } catch(x){
 		    _this.backbuffer= new Array  (imgsize);		//IE fallback		    
 		    if (multimap){
-		    	_this.backbuffer_multi= new Array  (imgsize);
+		    	_this.backbuffer_cats= new Array  (imgsize);
 		    }
 
 		}
@@ -232,7 +232,7 @@ function heatmap (data, opties) {
 		var y_steps=opties.y_steps;
 		var transform=gradient_node.getAttribute('transform');		
 		var transposebuffer=_this.transposebuffer;
-		var transposebuffer_multi=_this.transposebuffer_multi;
+		var transposebuffer_cats=_this.transposebuffer_cats;
 		var weighx=opties.weighx;
 		var weighy=opties.weighy;
 		var xmean=_this.xmean;
@@ -246,8 +246,9 @@ function heatmap (data, opties) {
 		var datalength=data.length;
 		console.log("bin_data_multi", data.length, x_steps, y_steps);		
 		console.log("bin_data_multi", maxval,minval);		
-
+		
 		var ptr2=0;
+		var nr=0;
 		for (var i=0; i<y_steps; i++) {
 			for (var j=0; j<x_steps;  j++) {		
 				val=0;
@@ -258,14 +259,14 @@ function heatmap (data, opties) {
 				//val=transform_value(val,transform, log_min);
 				
 				transposebuffer[ptr2]=val;						
-				transposebuffer_multi[ptr2]=colors[ptr];
+				transposebuffer_cats[ptr2]=colors[ptr];
 				ptr2++;					
 			} //j
 	//		console.log("i:",i);
 		}	//i
 
 		_this.transposebuffer=transposebuffer;
-		console.log('transposebuffer',transposebuffer);
+		_this.transposebuffer_cats=transposebuffer_cats;
 		//		console.log("i:",i);		
 		console.log('bin_data_multi:', minval, maxval);
 		_this.update_minmax(minval,maxval);		
@@ -346,9 +347,9 @@ function heatmap (data, opties) {
 		
 		var histmax=_this.histmax;
 		var transposebuffer=_this.transposebuffer;
-		var transposebuffer_multi=_this.transposebuffer_multi;
+		var transposebuffer_cats=_this.transposebuffer_cats;
 		var backbuffer=_this.backbuffer;
-		var backbuffer_multi=_this.backbuffer_multi;
+		var backbuffer_cats=_this.backbuffer_cats;
 
 
 		if (gradient_node.hasAttribute('gradient_max_data')) {
@@ -367,7 +368,7 @@ function heatmap (data, opties) {
 		var gradmin=transform_value(gradmin,transform, log_min);
 
 		var delta=gradmax-gradmin;
-		console.log('spread_bins, gradmin/gradmax',gradmin,gradmax);
+		console.log('spread_bins, gradmin/gradmax, multimap',gradmin,gradmax,multimap);
 
 
 		var line=0;
@@ -376,6 +377,7 @@ function heatmap (data, opties) {
 		}
 		xstep=xpix2img*size;
 		ystep=ypix2img*size;
+		console.log('xstep, ystep',xstep,ystep);
 		
 		u=0;
 		v=1;
@@ -394,10 +396,12 @@ function heatmap (data, opties) {
 
 		for (i=0; i<totalpixels; i++)	{	
 			val=transposebuffer[i];
+			/*
 			if ((val!=0) && (j<50)) {
 				console.log("%d", val);
 				j++;
 			}
+			*/
 
 			indexval=~~((val-gradmin)/(delta)*gradsteps);  					
 			if (indexval<0) indexval=0;
@@ -430,14 +434,21 @@ function heatmap (data, opties) {
 				line=0;
 			}
 		} // for i
+		u=0;
+		v=1;
+
 		if (multimap) {
+			var cat =null;
+			var nr=0;
+			console.log('multimap');
 			for (i=0; i<totalpixels; i++)	{	
-				multival=transposebuffer_multi[i];
+				cat=transposebuffer_cats[i];
+				nr+=1;
 				ptr=(imgheight-v*ystep)*imgwidth; 
 				ptr+=u*xstep;
 				for (cy=0; cy<ystep; cy++) {
 					for (cx=0; cx<xstep; cx++) {							
-						backbuffer_multi[ptr+cy*imgwidth+cx]=multival;
+						backbuffer_cats[ptr+cy*imgwidth+cx]=cat;
 					}
 				}
 				u++;
@@ -450,6 +461,7 @@ function heatmap (data, opties) {
 			}  // for i
 		} // multimap
 	//console.log('HISTMAX:',hist)
+	console.log('backbuffer_cats500:', backbuffer_cats[500]);
 	histmax=hist[0];
 	for (i=1; i<gradsteps; i++) 
 		if (hist[i]>histmax) histmax=hist[i];
@@ -489,7 +501,7 @@ function heatmap (data, opties) {
 
 		var mapdata=_this.mapdata;
 		var backbuffer=_this.backbuffer;	
-		var backbuffer_multi=_this.backbuffer_multi;	
+		var backbuffer_cats=_this.backbuffer_cats;	
 
 		/* eigenlijke heatmap plotten */
 
@@ -527,21 +539,26 @@ function heatmap (data, opties) {
 				
 				if ((indexval!=0) || (!_this.skipzero)) {	  // waardes die 0 zijn niet plotten
 					if (multimap){ 
-
-						cat=backbuffer_multi[i];
+						
+						cat=backbuffer_cats[i];
 						color=colormap[cat];					
 
-		    			mapdata[j] =  color[0];  
-		    			mapdata[j+1] = color[1];  
-		    			mapdata[j+2] = color[2];  
-		    			mapdata[j+3] = 0xff-indexval; 
+						if ((indexval>0) && (nr<550)) {
+							//console.log(nr, i,j,cat, color);
+							nr+=1;
+						}
+	
+			    			mapdata[j] =  color[0];  
+			    			mapdata[j+1] = color[1];  
+		    				mapdata[j+2] = color[2];  
+		    				mapdata[j+3] = 0xff; 
 
 					} else {
 						color=colormap[indexval];			
-		    			mapdata[j] =  color[0];  
-		    			mapdata[j+1] = color[1];  
-		    			mapdata[j+2] = color[2];  
-		    			mapdata[j+3] = 0xff; 
+		    				mapdata[j] =  color[0];  
+			    			mapdata[j+1] = color[1];  
+			    			mapdata[j+2] = color[2];  
+			    			mapdata[j+3] = 0xff; 
 		    		}
 				} else {
 					color=_this.missing_color;
