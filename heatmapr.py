@@ -1,5 +1,6 @@
-import random, os, sys, inspect, json, bisect
+import random, os, sys, inspect, json, bisect, datetime
 from math import log10
+from datetime.datetime import strptime
 
 
 def safelog10 (x):
@@ -30,12 +31,18 @@ class heatmap:
             ['x_max','',True,''],
             ['x_steps','',True,''],
             ['x_fuzz',0,False,''],
+            ['x_fill',0,False,''],
+            ['x_data_type','nominal',False,''],
+            ['x_dateformat','%Y%m%d',False,''],
             
             ['y_var','',True,''],
             ['y_min','',True,''],
             ['y_max','',True,''],
             ['y_steps','',True,''],
             ['y_fuzz',0,False,''],
+            ['y_fill',0,False,''],
+            ['y_data_type','nominal',False,''],
+            ['y_dateformat','%Y%m%d',False,''],
             
             ['weight_var',None,False,''],
 
@@ -165,6 +172,24 @@ class heatmap:
         
 
 
+ 	def munge_date (self, d, datatype, date_min):
+
+ 		if datatype=='date_year':
+ 			return d.year-date_min.year
+ 		if datatype=='date_quarter':
+ 			return (d.year-date_min.year)*4+(d.month)/4-(date_min.month)/4			
+ 		if datatype=='date_month':
+ 			return (d.year-date_min.year)*12+d.month-date_min.month
+ 		if datatype=='date_week':
+ 			return (d-date_min)/7
+ 		if datatype=='date_day':
+ 			return d-date_min
+ 		return d
+
+
+
+
+
     def heatmap_to_js (self, heatmap):
         s=''
         gradmin=self.gradmin
@@ -215,6 +240,9 @@ class heatmap:
         return pos
 
 
+
+
+
     def make_heatmap (self, args):
 
 
@@ -232,41 +260,49 @@ class heatmap:
         xcol=self.x_var.lower()
         xmin=self.x_min
         xmax=self.x_max
-        xpixels=self.x_steps
+        xpixels=int(self.x_steps)
 
         ycol=self.y_var.lower()
         ymin=self.y_min
         ymax=self.y_max
-        ypixels=self.y_steps
+        ypixels=int(self.y_steps)
         
+
+        x_datatype=self.x_datatype
+        y_datatype=self.y_datatype
+        x_dateformat=self.x_dateformat
+        y_dateformat=self.y_dateformat
         xcolnr=cols.index(xcol)
         ycolnr=cols.index(ycol)
-        xmin=float(xmin)
-        xmax=float(xmax)
-        xpixels=int(xpixels)
+        if x_data_type=='nominal':
+        	xmin=float(xmin)
+        	xmax=float(xmax)
+        else:
+	    	xmin_date=strptime(xmin,x_dateformat)	    	
+	    	xmax_date=strptime(xmax,x_dateformat)
+	        self.xmin_date=xmin_date
+    	    self.xmax_date=xmax_date
+	    	xmin=0
+	    	xmax=self.munge_date(xmax, x_datatype, xmin_date)
+
+        if y_data_type=='nominal':
+        	ymin=float(ymin)
+        	ymax=float(ymax)
+        else:
+	    	ymin_date=strptime(ymin,y_dateformat)	    	
+	    	ymax_date=strptime(ymax,y_dateformat)
+	        self.ymin_date=ymin_date
+    	    self.ymax_date=ymax_date
+	    	ymin=0
+			ymax=self.munge_date(ymax, y_datatype, ymin_date)
+            
+
         if self.logx:            
             xmin=safelog10(xmin)
             xmax=safelog10(xmax)
-
-        do_multimap=False
-        if len(self.multimap)>0:
-            multicols=[cols.index(m) for m in self.multimap]
-            do_multimap=True
-
-        weightcolnr=None
-        if self.weight_var is not None:
-            weightcolnr=cols.index(self.weight_var)
-            
-
-        ymin=float(ymin)
-        ymax=float(ymax)
-        ypixels=int(ypixels)
         if self.logy:            
             ymin=safelog10(ymin)
             ymax=safelog10(ymax)
-
-        xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
-        yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
 
         self.xmin=xmin
         self.ymin=ymin
@@ -275,18 +311,35 @@ class heatmap:
         self.xpixels=xpixels
         self.ypixels=ypixels
 
+        xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
+        yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
+
         if self.xlabel is None:
             self.xlabel=xcol
         if self.ylabel is None:
             self.ylabel=ycol            
 
+        weightcolnr=None
+        if self.weight_var is not None:
+            weightcolnr=cols.index(self.weight_var)
+
+        do_multimap=False
+        if len(self.multimap)>0:
+            multicols=[cols.index(m) for m in self.multimap]
+            do_multimap=True
+
+
         heatmaps={}
         heatmap=[[0]*ypixels for i in range(xpixels)]
         self.heatmap=heatmap
         
-        x_fuzz=float(self.x_fuzz)
-        y_fuzz=float(self.y_fuzz)
-
+        x_fuzz=int(self.x_fuzz)
+        y_fuzz=int(self.y_fuzz)
+        x_fill=int(self.x_fill)
+        y_fill=int(self.y_fill)
+        no_fill=False
+        if x_fill==0 and y_fill==0:
+        	no_fill=True
 
 
         if self.relative_x or self.relative_y:
@@ -301,8 +354,19 @@ class heatmap:
                 if self.convert_comma:
                     line=line.replace(',','.')                
                 cols=line.split(sep)
-                x=float(cols[xcolnr])
-                y=float(cols[ycolnr])
+		        
+		        if x_datatype=='nominal':
+        		    x=float(cols[xcolnr])
+        		else:
+        			x=strptime(cols[xcolnr],x_dateformat)
+        			x=self.munge_date(x, x_data_type, xmin_date)
+
+		        if y_datatype=='nominal':
+        		    y=float(cols[ycolnr])
+        		else:
+        			y=strptime(cols[ycolnr],y_dateformat)
+        			y=self.munge_date(y, y_data_type, ymin_date)
+
                 val=1
                 if weightcolnr is not None:
                     val=float(cols[weightcolnr])
@@ -355,16 +419,34 @@ class heatmap:
             
             cols=line.split(sep)
             try:
-                x=float(cols[xcolnr])
-                y=float(cols[ycolnr])
+		        if x_datatype=='nominal':
+        		    x=float(cols[xcolnr])
+        		else:
+        			x=strptime(cols[xcolnr],x_dateformat)
+        			x=self.munge_date(x, x_data_type, xmin_date)
+
+		        if y_datatype=='nominal':
+        		    y=float(cols[ycolnr])
+        		else:
+        			y=strptime(cols[ycolnr],y_dateformat)
+        			y=self.munge_date(y, y_data_type, ymin_date)
             except ValueError:
                 if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
                     self.convert_comma=True 
                     line=line.replace(',','.')
                     cols=line.split(sep)                    
-                    x=float(cols[xcolnr])
-                    y=float(cols[ycolnr])
-                    
+		        if x_datatype=='nominal':
+        		    x=float(cols[xcolnr])
+        		else:
+        			x=strptime(cols[xcolnr],x_dateformat)
+        			x=self.munge_date(x, x_data_type, xmin_date)
+
+		        if y_datatype=='nominal':
+        		    y=float(cols[ycolnr])        		    
+        		else:
+        			y=strptime(cols[ycolnr],y_dateformat)
+        			y=self.munge_date(y, y_data_type, ymin_date)
+                        	
             val=1
             if weightcolnr is not None:
                 val=float(cols[weightcolnr])
@@ -425,7 +507,12 @@ class heatmap:
                 heatmap=self.heatmap           
             
             try:
-                heatmap[hx][hy]+=val
+            	if no_fill:
+                	heatmap[hx][hy]+=val
+                else:
+                	for dx in xrange(x_fill):
+                		for dy in xrange(y_fill):
+                			heatmap[hx+dx][hy+dy]+=val
             except IndexError:
                 print 'IndexError (%d,%d), line nr %d:' % (hx,hy,linenr)
                 print 'inputdata:',line
