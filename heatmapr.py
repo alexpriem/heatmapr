@@ -1,6 +1,7 @@
-import random, os, sys, inspect, json, bisect, datetime
+import random, os, sys, inspect, json, bisect, gzip
 from math import log10
-from datetime.datetime import strptime
+import datetime #.datetime.strptime as strptime
+#from datetime.datetime import strptime
 
 
 def safelog10 (x):
@@ -69,6 +70,7 @@ class heatmap:
             
             ['title',None,False,''],
             ['dump_html',True,False,'full html output'],            
+            ['dump_csv',False,False,'dump output to csv'],    
             ['colormap','blue',False,''],
             ['missing_color','min',False,''],
             ['size','1',False,''],
@@ -125,7 +127,7 @@ class heatmap:
             defaultvars.append(varname)
             defaultval=varinfo[1]
             required=varinfo[2]
-            helptxt=varinfo[3]
+           # helptxt=varinfo[3]
             
             if not (varname in args):
                 if required:
@@ -172,26 +174,25 @@ class heatmap:
         
 
 
- 	def munge_date (self, d, datatype, date_min):
+    def munge_date (self, d, datatype, date_min):
 
- 		if datatype=='date_year':
- 			return d.year-date_min.year
- 		if datatype=='date_quarter':
- 			return (d.year-date_min.year)*4+(d.month)/4-(date_min.month)/4			
- 		if datatype=='date_month':
- 			return (d.year-date_min.year)*12+d.month-date_min.month
- 		if datatype=='date_week':
- 			return (d-date_min)/7
- 		if datatype=='date_day':
- 			return d-date_min
- 		return d
-
-
+            if datatype=='date_year':
+                    return d.year-date_min.year
+            if datatype=='date_quarter':
+                    return (d.year-date_min.year)*4+(d.month)/4-(date_min.month)/4			
+            if datatype=='date_month':
+                    return (d.year-date_min.year)*12+d.month-date_min.month
+            if datatype=='date_week':
+                    return (d-date_min)/7
+            if datatype=='date_day':
+                    return d-date_min
+            return d
 
 
 
-    def heatmap_to_js (self, heatmap):
-        s=''
+
+
+    def heatmap_to_js (self, heatmap):        
         gradmin=self.gradmin
         gradmax=self.gradmax
         
@@ -209,8 +210,7 @@ class heatmap:
         return js
 
 
-    def heatmap_to_csv (self, heatmap, filename):
-        csv=''
+    def heatmap_to_csv (self, heatmap, filename):        
         gradmin=self.gradmin
         gradmax=self.gradmax
         f=open (filename,'w')
@@ -255,7 +255,7 @@ class heatmap:
             f=open(self.infile)
         line=f.readline()        
         cols=[c.lower().strip() for c in line.split(sep)]
-        numcols=len(cols)
+       
         
         xcol=self.x_var.lower()
         xmin=self.x_min
@@ -268,34 +268,41 @@ class heatmap:
         ypixels=int(self.y_steps)
         
 
-        x_datatype=self.x_datatype
-        y_datatype=self.y_datatype
+        x_data_type=self.x_data_type
+        y_data_type=self.y_data_type
         x_dateformat=self.x_dateformat
         y_dateformat=self.y_dateformat
-        xcolnr=cols.index(xcol)
-        ycolnr=cols.index(ycol)
+        try:
+            xcolnr=cols.index(xcol)
+            ycolnr=cols.index(ycol)
+        except:
+            print 'column not found'
+            print 'xcolumn:',xcol, 
+            print 'ycolumn:',ycol
+            print 'columns:',cols
+            sys.exit()
         if x_data_type=='nominal':
         	xmin=float(xmin)
         	xmax=float(xmax)
         else:
-	    	xmin_date=strptime(xmin,x_dateformat)	    	
-	    	xmax_date=strptime(xmax,x_dateformat)
-	        self.xmin_date=xmin_date
-    	    self.xmax_date=xmax_date
-	    	xmin=0
-	    	xmax=self.munge_date(xmax, x_datatype, xmin_date)
+            xmin_date=datetime.datetime.strptime(xmin,x_dateformat)	    	
+            xmax_date=datetime.datetime.strptime(xmax,x_dateformat)
+            self.xmin_date=xmin_date
+            self.xmax_date=xmax_date
+            xmin=0
+            xmax=self.munge_date(xmax_date, x_data_type, xmin_date)
 
         if y_data_type=='nominal':
         	ymin=float(ymin)
         	ymax=float(ymax)
         else:
-	    	ymin_date=strptime(ymin,y_dateformat)	    	
-	    	ymax_date=strptime(ymax,y_dateformat)
-	        self.ymin_date=ymin_date
-    	    self.ymax_date=ymax_date
-	    	ymin=0
-			ymax=self.munge_date(ymax, y_datatype, ymin_date)
-            
+            ymin_date=datetime.datetime.strptime(ymin,y_dateformat)	    	
+            ymax_date=datetime.datetime.strptime(ymax,y_dateformat)
+            self.ymin_date=ymin_date
+            self.ymax_date=ymax_date
+            ymin=0
+            ymax=self.munge_date(ymax_date, y_data_type, ymin_date)
+       
 
         if self.logx:            
             xmin=safelog10(xmin)
@@ -355,17 +362,17 @@ class heatmap:
                     line=line.replace(',','.')                
                 cols=line.split(sep)
 		        
-		        if x_datatype=='nominal':
-        		    x=float(cols[xcolnr])
-        		else:
-        			x=strptime(cols[xcolnr],x_dateformat)
-        			x=self.munge_date(x, x_data_type, xmin_date)
+                if x_data_type=='nominal':
+                    x=float(cols[xcolnr])
+                else:
+                    x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                    x=self.munge_date(x, x_data_type, xmin_date)
 
-		        if y_datatype=='nominal':
-        		    y=float(cols[ycolnr])
-        		else:
-        			y=strptime(cols[ycolnr],y_dateformat)
-        			y=self.munge_date(y, y_data_type, ymin_date)
+                if y_data_type=='nominal':
+                    y=float(cols[ycolnr])
+                else:
+                    y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
+                    y=self.munge_date(y, y_data_type, ymin_date)
 
                 val=1
                 if weightcolnr is not None:
@@ -419,34 +426,43 @@ class heatmap:
             
             cols=line.split(sep)
             try:
-		        if x_datatype=='nominal':
-        		    x=float(cols[xcolnr])
-        		else:
-        			x=strptime(cols[xcolnr],x_dateformat)
-        			x=self.munge_date(x, x_data_type, xmin_date)
+                if x_data_type=='nominal':
+                    x=float(cols[xcolnr])
+                else:
+                    x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                   # print x
+                    x=self.munge_date(x, x_data_type, xmin_date)
+                    #print x
 
-		        if y_datatype=='nominal':
-        		    y=float(cols[ycolnr])
-        		else:
-        			y=strptime(cols[ycolnr],y_dateformat)
-        			y=self.munge_date(y, y_data_type, ymin_date)
+                if y_data_type=='nominal':
+        	    y=float(cols[ycolnr])
+                else:
+                      y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
+                      y=self.munge_date(y, y_data_type, ymin_date)
             except ValueError:
                 if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
                     self.convert_comma=True 
                     line=line.replace(',','.')
                     cols=line.split(sep)                    
-		        if x_datatype=='nominal':
-        		    x=float(cols[xcolnr])
-        		else:
-        			x=strptime(cols[xcolnr],x_dateformat)
-        			x=self.munge_date(x, x_data_type, xmin_date)
+                if x_data_type=='nominal':
+                    x=float(cols[xcolnr])
+                else:
+                    try:
+                        x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                        x=self.munge_date(x, x_data_type, xmin_date)
+                    except:
+                        continue
+                    
 
-		        if y_datatype=='nominal':
-        		    y=float(cols[ycolnr])        		    
-        		else:
-        			y=strptime(cols[ycolnr],y_dateformat)
-        			y=self.munge_date(y, y_data_type, ymin_date)
-                        	
+                if y_data_type=='nominal':
+                    try:
+                        y=float(cols[ycolnr])
+                    except:
+                        continue
+                else:
+                    y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
+                    y=self.munge_date(y, y_data_type, ymin_date)
+                            
             val=1
             if weightcolnr is not None:
                 val=float(cols[weightcolnr])
@@ -504,15 +520,20 @@ class heatmap:
                     print 'define:', heatmapname
                 heatmap[hx][hy]+=val
                 heatmaps[heatmapname]=heatmap
-                heatmap=self.heatmap           
-            
+                heatmap=self.heatmap
+                            
             try:
             	if no_fill:
-                	heatmap[hx][hy]+=val
-                else:
-                	for dx in xrange(x_fill):
-                		for dy in xrange(y_fill):
-                			heatmap[hx+dx][hy+dy]+=val
+                    heatmap[hx][hy]+=val
+                else:                    
+                    for dx in xrange(x_fill):
+                        if y_fill==0:
+                            heatmap[hx+dx][hy]+=val
+                        else:                            
+                            for dy in xrange(y_fill):
+                                if (hy+dy<ypixels) and (hx+dx<xpixels):
+                                    heatmap[hx+dx][hy+dy]+=val
+                	    
             except IndexError:
                 print 'IndexError (%d,%d), line nr %d:' % (hx,hy,linenr)
                 print 'inputdata:',line
@@ -520,7 +541,7 @@ class heatmap:
 
         
 
-
+        #print heatmap
             
         if self.stats_enabled:  # calculate mean
             avg_x={}
@@ -530,6 +551,7 @@ class heatmap:
                 if x_hist is None:
                     avg_x[xpixel]=0
                     continue
+
                 
                 avg=sum([k*v for k,v in x_hist.items()])/sum(x_hist.values())            
                 if avg<ymin:
@@ -638,6 +660,9 @@ class heatmap:
         gradmin=self.heatmap[0][0]
         gradmax=gradmin
 
+        if self.dump_csv:
+            self.heatmap_to_csv (heatmap,self.outfile+'.csv')
+
         if do_multimap==True:
             datakeys=sorted(heatmaps.keys())
             js='var multimap=true;\n'
@@ -656,6 +681,9 @@ class heatmap:
 
             js+='var multimap_labels='+json.dumps(self.multimap_labels)+';\n';
             
+            
+           
+             
            # for filename in datakeys:
            #     print filename
            #     heatmap=heatmaps[filename]
@@ -801,7 +829,7 @@ class heatmap:
             g=open(self.outfile+'.html','w')
             cssfrags=html.split('<link href="')
             g.write(cssfrags[0])
-            cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]            
+           # cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]            
 
             for cssfrag in cssfrags[1:]:
                 cssfile=cssfrag.split('"')

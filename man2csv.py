@@ -1,6 +1,4 @@
 import random, os, sys, inspect
-sys.path.insert(0,'f:\\cbs\\heatmapr')
-import man2csv
 
 
 class man2csv:
@@ -12,13 +10,30 @@ class man2csv:
     def read(self): 
         
         f=open(self.infile)        
-        g=open(self.outfile,'a')
+        if self.append:
+            g=open(self.outfile,'a')
+        else:
+            g=open(self.outfile,'w')
+            out=[variable['varname'] for variable in self.variables]
+            g.write(self.sep.join(out)+'\n') 
+        matches=self.matches
+
        
-        out=[variable['varname'] for variable in self.variables]
-       	g.write(self.sep.join(out)+'\n') 
         for line in f:
-        	out=[line[variable['pos_start']:variable['pos_end']] for variable in self.variables]
-        	g.write(self.sep.join(out)+'\n') 
+            out=[line[variable['pos_start']-1:variable['pos_end']] for variable in self.variables]
+            write=True
+            if len(matches)>0:
+                write=False
+                outdict={variable['varname']:line[variable['pos_start']-1:variable['pos_end']] for variable in self.variables}
+                for match in matches:
+                    dataval=outdict[match['varname']]
+                    matchval=match['value']
+                    if match['check']=='>=':
+                        #print dataval, matchval, dataval>matchval, dataval>=matchval
+                        if dataval>=matchval:
+                            write=True
+            if write:
+                g.write(self.sep.join(out)+'\n') 
 
 
 
@@ -28,7 +43,9 @@ class man2csv:
             ['infile',';',True,''],
             ['outfile',';',False,''],
             ['sep',';',False,''],
-            ['variables',[],'False,''],                       
+            ['append',False,False,''],
+            ['variables',[],False,''],
+            ['matches',[],False,'']            
         ]
        
 
