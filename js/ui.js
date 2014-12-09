@@ -461,7 +461,6 @@ function heatmap (data, opties) {
 			}  // for i
 		} // multimap
 	//console.log('HISTMAX:',hist)
-	console.log('backbuffer_cats500:', backbuffer_cats[500]);
 	histmax=hist[0];
 	for (i=1; i<gradsteps; i++) 
 		if (hist[i]>histmax) histmax=hist[i];
@@ -723,11 +722,8 @@ function heatmap (data, opties) {
 	  var logx=opties.logx;
 	  var logy=opties.logy;
 
-	  if (logx) xScale=d3.scale.log();     // naar object-namespace
-	  else	xScale=d3.scale.linear();
-	  if (logy) yScale=d3.scale.log();
-	  else	yScale=d3.scale.linear();
-	    
+	  var x_data_type=opties.x_data_type;
+
 	    
 	  var numticks=opties['numticks']
 	  var xmin=opties.x_min;
@@ -737,12 +733,31 @@ function heatmap (data, opties) {
 
 	  var imgwidth=opties.imgwidth;
 	  var imgheight=opties.imgheight;
-
 	  if ((logx) && (xmin<=0)) xmin=1;
-	  xScale.domain([xmin,xmax]);  
+	  if ((logy) && (ymin<=0)) ymin=1;
+
+	  if (logx) xScale=d3.scale.log();     // naar object-namespace
+	  else {
+	  		if (x_data_type=='nominal')	{
+	  				xScale=d3.scale.linear();
+	  				xScale.domain([xmin,xmax]);  
+	  				var x_data_type_simple='nominal';	  				
+	  			}
+	  		if ((x_data_type=='date_year' ) || (x_data_type=='date_quarter') || (x_data_type=='date_month') || (x_data_type=='date_week') || (x_data_type=='date_day')) 	{
+	  				xScale=d3.time.scale();
+	  				xScale.domain([opties.x_mindate,opties.x_maxdate]); 
+	  				console.log(opties.x_mindate,opties.x_maxdate);
+	  				var x_data_type_simple='date';
+	  			}
+	  	    }
+
+
+	  if (logy) yScale=d3.scale.log();
+	  else	yScale=d3.scale.linear();
+
 	  xScale.range([0,imgwidth]); 
 
-	  if ((logy) && (ymin<=0)) ymin=1;
+	  
 	  yScale.domain([ymax,ymin]);
 	  yScale.range([0,imgheight]); 
 	  
@@ -754,8 +769,6 @@ function heatmap (data, opties) {
 	  yAxis.scale(yScale)
 	  		.ticks(numticks)
 	       .orient("left");
-
-		
 
 
 	  fontsize=opties['fontsize'];
@@ -774,7 +787,7 @@ function heatmap (data, opties) {
 	  		.attr("fill","none")
 	  		
 	  chart.append("g")
-	        .attr("class","xaxis")
+	        .attr("class","xaxis mainx")
 	        .attr("transform","translate(75,"+(imgheight+25)+")")
 	        .attr('font-size','32px')
 	        .call(xAxis);
@@ -788,6 +801,17 @@ function heatmap (data, opties) {
 	  		.attr("font-weight", "normal")
 	  		.attr('font-size',fontsize+'px');
 
+	  var xlabeloffset=0;
+	  if (x_data_type_simple=='date') {
+	  	chart.selectAll(".mainx")
+	  			.selectAll(".tick >text")	  		
+	  			.attr("transform", "translate(-10,0)rotate(-45)")
+	  			.style("text-anchor", "end");
+		xlabeloffset=8;	
+	  	}
+
+
+
 	  chart.append("text")      // text label for the x axis
 	  		.attr("class","xaxis")
 	        .attr("x", imgwidth/2+70 )
@@ -795,7 +819,7 @@ function heatmap (data, opties) {
 	        .style("text-anchor", "middle")
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", fontsize+"px")
-	  		 .attr("transform","translate(0,"+(fontsize-15)+")")
+	  		 .attr("transform","translate(0,"+(fontsize-15)+xlabeloffset+")")
 	  		.attr("font-weight", "bold")
 	        .text(opties.xlabel);
 	  chart.append("text")      // text label for the x axis
@@ -1155,7 +1179,7 @@ function heatmap (data, opties) {
 		var backbuffer=_this.backbuffer;
 		var colormap=gradient_node.colormap;
 
-
+		return;
 
 		x=parseInt(evt.pageX-$(this).position().left-50);
 		y=parseInt(evt.pageY-$(this).position().top-25);
@@ -1179,7 +1203,12 @@ function heatmap (data, opties) {
 		var graphheight=0.25*imgheight;
 		delta=(xmax-xmin);
 		val=((x-25)/imgwidth)*delta+xmin;
-		xval=val.toFixed(2);
+		console.log(val, typeof(val));
+		if (val>1000){ 
+			xval=Math.round(val);
+		} else {
+			xval=Math.round(val*100)/100;
+		}		
 
 		/* text upper right corner */
 	 	chart.append("text")      
