@@ -35,6 +35,10 @@ class heatmap:
             ['x_fill',0,False,''],
             ['x_data_type','nominal',False,''],
             ['x_dateformat','%Y%m%d',False,''],
+            ['x_relative', False,False,''],
+            ['x_relative_min', 0,False,''],
+            ['x_relative_max', 100,False,''],
+
             
             ['y_var','',True,''],
             ['y_min','',True,''],
@@ -44,6 +48,9 @@ class heatmap:
             ['y_fill',0,False,''],
             ['y_data_type','nominal',False,''],
             ['y_dateformat','%Y%m%d',False,''],
+            ['y_relative', False,False,''],
+            ['y_relative_min', 0,False,''],
+            ['y_relative_max', 100,False,''],
             
             ['weight_var',None,False,''],
 
@@ -104,8 +111,6 @@ class heatmap:
             ['weighy',False,False,''],
 
 
-            ['relative_x', False,False,''],
-            ['relative_y', False,False,''],
             ['multimap', [],False,''],
             ['multimap_labels',{},False,''],
             
@@ -139,7 +144,7 @@ class heatmap:
                 raise RuntimeError('Unknown variable: %s' % varname)
 
 
-        colormaps=['blue','blue_black','green', 'red','gray',
+        colormaps=['blue','blue_white', 'blue_black','green', 'red','gray',
                     'terrain', 'coolwarm',
                     'hot', 'hot2','hot3', 'ygb','qualitative',
                     'qualitative14','qualitative28']
@@ -179,13 +184,13 @@ class heatmap:
             if datatype=='date_year':
                     return d.year-date_min.year
             if datatype=='date_quarter':
-                    return (d.year-date_min.year)*4+(d.month)/4-(date_min.month)/4			
+                    return (d.year-date_min.year)*4+(d.month)/4-(date_min.month)/4  
             if datatype=='date_month':
                     return (d.year-date_min.year)*12+d.month-date_min.month
-            if datatype=='date_week':
-                    return (d-date_min)/7
+            if datatype=='date_week':                     
+                    return ((d-date_min).days)/7
             if datatype=='date_day':
-                    return d-date_min
+                    return (d-date_min).days
             return d
 
 
@@ -237,6 +242,8 @@ class heatmap:
 #                    print len(pos),k
                     pos.append(k)
                     sumk=sumk-step
+        if sumk!=0:
+            pos.append(k)
         return pos
 
 
@@ -291,7 +298,10 @@ class heatmap:
             self.xmax_date=xmax_date
             xmin=0
             xmax=self.munge_date(xmax_date, x_data_type, xmin_date)
-
+            args['x_mindate']=xmin_date
+            args['x_maxdate']=xmax_date
+        
+        
         if y_data_type=='nominal':
         	ymin=float(ymin)
         	ymax=float(ymax)
@@ -349,7 +359,7 @@ class heatmap:
         	no_fill=True
 
 
-        if self.relative_x or self.relative_y:
+        if self.x_relative or self.y_relative:
             x_fullhist={}
             y_fullhist={}        
             linenr=0
@@ -377,11 +387,12 @@ class heatmap:
                 val=1
                 if weightcolnr is not None:
                     val=float(cols[weightcolnr])
-                if self.relative_x:
+                if self.x_relative:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
-                if self.relative_y:                    
+                if self.y_relative:                    
                     y_fullhist[y]=y_fullhist.get(y,0)+val
             f.seek(0,0)
+            f.readline()
             
             if self.debuglevel==3:
                 print 'x-hist'
@@ -390,7 +401,7 @@ class heatmap:
                 print 'y-hist'
                 for k,v in y_fullhist.items():
                     print k,v
-            if self.relative_x:
+            if self.x_relative:
                 xhist=sorted(x_fullhist.keys())
                 N=sum(x_fullhist.values())
                 xhistpos=self.bin_keyvalues_to_hist (x_fullhist, N/(1.0*xpixels))
@@ -398,7 +409,7 @@ class heatmap:
                 for x in sorted(xhistpos):
                     xhistpos_fuzz.append(xhistpos.count(x))
 
-            if self.relative_y:
+            if self.y_relative:
                 N=sum(y_fullhist.values())
                 yhist=sorted(y_fullhist.keys())
                 yhistpos=self.bin_keyvalues_to_hist (y_fullhist, N/(1.0*ypixels))                
@@ -467,7 +478,7 @@ class heatmap:
             if weightcolnr is not None:
                 val=float(cols[weightcolnr])
 
-            if self.relative_x==False:                                                
+            if self.x_relative==False:                                                
                 if (x>=xmin and x<=xmax):
                     hx=int((x-xmin)/xfactor)                
                     if x_fuzz!=0:
@@ -477,12 +488,15 @@ class heatmap:
                 else:
                     continue
                 
-            if self.relative_x==True:
+            if self.x_relative==True:
                 hx=bisect.bisect_left(xhistpos,x)
-                if (xhistpos_fuzz[hx]>1):
-                    hx+=int(random.random()*xhistpos_fuzz[hx])
-                    if hx>=xpixels:
-                        hx=xpixels-1  
+                try:
+                    if (xhistpos_fuzz[hx]>1):
+                        hx+=int(random.random()*xhistpos_fuzz[hx])
+                        if hx>=xpixels:
+                            hx=xpixels-1
+                except:
+                    print 'overflow, x:',  hx, len(xhistpos)
                         
             if self.stats_enabled:
                 x_hist=keys_x.get(hx,{})
@@ -490,7 +504,7 @@ class heatmap:
                 x_hist[y]=num+val
                 keys_x[hx]=x_hist
 
-            if self.relative_y==False:                
+            if self.y_relative==False:                
                 if (y>=ymin and y<=ymax):
                     hy=int((y-ymin)/yfactor)
                     if y_fuzz!=0:
@@ -500,13 +514,18 @@ class heatmap:
                 else:
                     continue
                 
-            if self.relative_y==True:
+            if self.y_relative==True:
                 hy=bisect.bisect_left(yhistpos,y)
-                if (yhistpos_fuzz[hy]>1):
-                    hy+=int(random.random()*yhistpos_fuzz[hy])
+                
+                if hy>=ypixels:
+                    hy=ypixels-1
+                try:
+                    if (yhistpos_fuzz[hy]>1):                                    
+                        hy+=int(random.random()*yhistpos_fuzz[hy])
                     if hy>=ypixels:
                         hy=ypixels-1  
-                
+                except:
+                    print 'overflow-y:',  hy, len(yhistpos)                    
             total+=val  #
 
             
@@ -709,7 +728,8 @@ class heatmap:
                 optiejs+='"%s":null,\n' % (k)                
                 continue
             t=type(v)
-            if t==str:            
+            if t==str:
+                v=v.replace('\\','/')
                 optiejs+='"%s":"%s",\n' % (k,v)
                 continue
             if t==bool:
@@ -717,6 +737,9 @@ class heatmap:
                     optiejs+='"%s":true,\n' % (k)
                 else:                    
                     optiejs+='"%s":false,\n' % (k)
+                continue
+            if isinstance(v, datetime.date):
+                optiejs+='"%s":new Date("%s")\n,' % (k,v.isoformat())
                 continue
             optiejs+='"%s":%s,\n' % (k,v)
         optiejs+='});\n\n'
