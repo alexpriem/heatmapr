@@ -723,7 +723,7 @@ function heatmap (data, opties) {
 	  var logy=opties.logy;
 
 	  var x_data_type=opties.x_data_type;
-
+	  var y_data_type=opties.y_data_type;
 	    
 	  var numticks=opties['numticks']
 	  var xmin=opties.x_min;
@@ -762,12 +762,22 @@ function heatmap (data, opties) {
 
 
 	  if (logy) yScale=d3.scale.log();
-	  else	yScale=d3.scale.linear();
+	  else	 {
+	  		if (y_data_type=='nominal')	{
+	  				yScale=d3.scale.linear();
+	  				yScale.domain([ymin,ymax]);  
+	  				var y_data_type_simple='nominal';	  				
+	  			}
+	  		if ((y_data_type=='date_year' ) || (y_data_type=='date_quarter') || (y_data_type=='date_month') || (y_data_type=='date_week') || (y_data_type=='date_day')) 	{
+	  				yScale=d3.time.scale();
+	  				yScale.domain([opties.y_mindate,opties.y_maxdate]); 
+	  				console.log(opties.y_mindate,opties.y_maxdate);
+	  				var y_data_type_simple='date';
+	  			}
+	  	    }
 
-	  xScale.range([0,imgwidth]); 
 
-	  
-	  yScale.domain([ymax,ymin]);
+	  xScale.range([0,imgwidth]); 	  	 
 	  yScale.range([0,imgheight]); 
 	  
 	  var xAxis=d3.svg.axis();
@@ -850,6 +860,15 @@ function heatmap (data, opties) {
 	  		.attr("font-weight", "bold")         
 	        .style("text-anchor", "middle")
 	        .text(opties.title);
+	        /*
+	  if (y_data_type_simple=='date') {
+	  	chart.selectAll(".mainy")
+	  			.selectAll(".tick >text")	  		
+	  			.attr("transform", "translate(-10,0)rotate(-45)")
+	  			.style("text-anchor", "end");
+		ylabeloffset=8;	
+	  	}
+	  	*/
 
 
 	}
