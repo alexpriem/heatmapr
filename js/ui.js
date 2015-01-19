@@ -730,6 +730,15 @@ function heatmap (data, opties) {
 	  var ymin=opties.y_min;
 	  var ymax=opties.y_max+1;   // off by one, again.
 	  var xmax=opties.x_max+1;
+	  if (opties.x_relative) {
+	  	xmin=opties.x_relative_min;
+	  	xmax=opties.x_relative_max;
+	  }
+	  if (opties.y_relative) {
+	  	ymin=opties.y_relative_min;
+	  	ymax=opties.y_relative_max;
+	  }
+	  
 
 	  var imgwidth=opties.imgwidth;
 	  var imgheight=opties.imgheight;
