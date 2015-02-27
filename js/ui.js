@@ -765,7 +765,7 @@ function heatmap (data, opties) {
 	  else	 {
 	  		if (y_data_type=='nominal')	{
 	  				yScale=d3.scale.linear();
-	  				yScale.domain([ymin,ymax]);
+	  				yScale.domain([ymax,ymin]);
 	  				var y_data_type_simple='nominal';
 	  			}
 	  		if ((y_data_type=='date_year' ) || (y_data_type=='date_quarter') || (y_data_type=='date_month') || (y_data_type=='date_week') || (y_data_type=='date_day')) 	{
@@ -799,8 +799,8 @@ function heatmap (data, opties) {
 			.attr("id",'dragrect')
 			.attr("x",0)
 			.attr("y",0)
-			.attr("height",imgheight)
-			.attr("width",imgwidth)
+			.attr("height",0)
+			.attr("width",0)
 			.attr("stroke",'black')
 			.attr("stroke-width",1)
 			.attr("fill","none")
@@ -1110,7 +1110,7 @@ function heatmap (data, opties) {
 	var histwidth=500;
 	var histheight=0.4*opties.imgheight;
 	var barwidth=500/gradsteps;
-	var hist_offset_x=125;
+	var hist_offset_x=150;
 	var hist=_this.hist;
 	var histmax=_this.histmax;
 
@@ -1206,7 +1206,7 @@ function heatmap (data, opties) {
 		var ymax=opties.y_max+1;   // off by one, again.
 		var ymin=opties.y_min;
 		var delta=(ymax-ymin);
-		var val=((y-25)/imgheight)*delta+ymin;
+		var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
 
 		return val;
 	}
@@ -1260,7 +1260,7 @@ function heatmap (data, opties) {
 		$('.hist_y').remove();
 		$('.pointinfotext').remove();
 
-		var offsetx_hist=100;  //distance between heatmap and side-histograms
+		var offsetx_hist=125;  //distance between heatmap and side-histograms
 		var offsety_hist=25;   // distance between bottom of screen & side-histograms
 		var offsetspace_hist=-40;   // distance between side-histograms
 		var graphheight=0.25*imgheight;
@@ -1461,27 +1461,27 @@ function heatmap (data, opties) {
 
 	  chart.append("svg:line")
 	 	.attr("class","hist_x")
-	    .attr("x1", 50)
-	    .attr("y1", y+25)
-	    .attr("x2",imgwidth+50)
-	    .attr("y2", y+25)
+	    .attr("x1", 75)
+	    .attr("y1", y)
+	    .attr("x2",imgwidth+75)
+	    .attr("y2", y)
 	    .style("stroke", "rgb(8,8,130)");
 
 
 	  chart.append("svg:line")
 	 	.attr("class","hist_y")
-	    .attr("x1", x+50)
+	    .attr("x1", x)
 	    .attr("y1", 25)
-	    .attr("x2", x+50)
+	    .attr("x2", x)
 	    .attr("y2", imgwidth+25)
 	    .style("stroke", "rgb(130,8,8)");
 	}
 
 
 	this.handle_drag=function(evt) {
-		if (_this.dragging) {
-			var svgEl= document.getElementById("dragrect");
-			var svgpos = svgEl.getBoundingClientRect();
+		if (_this.dragging==true) {
+
+			var svgEl= document.getElementById("dragrect");			
 			
 			var x=parseInt(evt.pageX-$(this).position().left);
 			var y=parseInt(evt.pageY-$(this).position().top);
@@ -1493,7 +1493,7 @@ function heatmap (data, opties) {
 			var xdelta=x-_this.x0;
 			var ydelta=y-_this.y0;
 
-			//console.log ('x:', _this.x0, _this.y0, x,y, xdelta, ydelta );
+			console.log ('dragging:', _this.x0, _this.y0, x,y, xdelta, ydelta );
       		      		
 			if (xdelta<0) {
 				svgEl.setAttribute("x",  x);
@@ -1527,6 +1527,8 @@ function heatmap (data, opties) {
 
 	this.end_dragging=function (evt) {
 		_this.dragging=false;
+		var opties=_this.opties;
+
 		console.log('end_drag');		
 		var svgEl= document.getElementById("dragrect");
 		svgEl.style.stroke = "#0000ff";
@@ -1535,10 +1537,32 @@ function heatmap (data, opties) {
 		var y=parseInt(evt.pageY-$(this).position().top);
 
 		console.log('x0, y0, x1,y1',_this.x0,_this.y0,x,y);
-		console.log(_this.x_to_world(_this.x0),
-					_this.y_to_world(_this.y0),
-					_this.x_to_world(x),	
-					_this.y_to_world(y));
+		$('#selectbox').remove();
+		if ((_this.x0==x) && (_this.y0==y))  		
+		{
+			var svgEl= document.getElementById("dragrect");	
+			svgEl.setAttribute("height",  0);
+			svgEl.setAttribute("width",  0);			
+			return;
+		}
+		
+
+
+		var s='python select.py ';
+		s+=opties.x_var + ' ' + _this.x_to_world(_this.x0).toFixed(2) + ' ' + _this.x_to_world(x).toFixed(2)+' ';
+		s+=opties.y_var + ' ' + _this.y_to_world(_this.y0).toFixed(2) + ' ' + _this.y_to_world(y).toFixed(2);
+		console.log(s);
+
+		
+		_this.chart.append("text")
+	    	.attr("id","selectbox")
+	        .attr("x", 75 )
+	        .attr("y", 50)
+	        .attr("font-family", "Corbel")
+	        .attr("font-size", "15px")
+	        .attr("font-weight", "bold")
+	        .text(s);
+		
 	}
 
 	this.init_hist_xy=function  () {
