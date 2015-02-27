@@ -7,7 +7,7 @@ transform_value=function  (val,transform, log_min) {
 		} else {
 			val=-Math.sqrt(-val);
 		}
-	}	
+	}
 	if (transform=='log') {
 		if (val>=0) {
 			if ((val>=0) && (val<=log_min)) {
@@ -19,8 +19,8 @@ transform_value=function  (val,transform, log_min) {
 				return -Math.log(log_min);
 			}
 			if (val<0) {
-				val=-Math.log(-val)/Math.LN10;					
-			}			
+				val=-Math.log(-val)/Math.LN10;
+			}
 		}
 	}
 	return val;
@@ -40,12 +40,12 @@ function heatmap (data, opties) {
 	this.backbuffer=null;
 	this.backbuffer_cats=null;
 	this.transposebuffer=null;
-	this.transposebuffer_cats=null;	
+	this.transposebuffer_cats=null;
 	this.imgData=null;
 	this.mapdata=null;
 	this.data=data;
 	this.opties=opties;
-	
+
 	var _this = this;
 
 	var xpix2img=parseInt(opties.imgwidth/opties.x_steps);
@@ -65,12 +65,12 @@ function heatmap (data, opties) {
 		var c=document.getElementById(canvas_el);
 	    c.setAttribute("width", imgwidth);
     	c.setAttribute("height", imgwidth);
-    	_this.ctx = c.getContext('2d'); 
+    	_this.ctx = c.getContext('2d');
     	var s=document.getElementById(svg_el);
     	s.setAttribute("width", imgwidth*2+100);
     	s.setAttribute("height", imgheight+100);
-       	 
-		_this.chart = d3.select('#'+svg_el);		
+
+		_this.chart = d3.select('#'+svg_el);
 
 		// first, create a new ImageData to contain our pixels
 		_this.imgData = _this.ctx.createImageData(imgwidth, imgheight); // width x height
@@ -95,7 +95,7 @@ function heatmap (data, opties) {
 		    	_this.backbuffer_cats= new Uint32Array  (imgsize);
 		    }
 		    } catch(x){
-		    _this.backbuffer= new Array  (imgsize);		//IE fallback		    
+		    _this.backbuffer= new Array  (imgsize);		//IE fallback
 		    if (multimap){
 		    	_this.backbuffer_cats= new Array  (imgsize);
 		    }
@@ -110,41 +110,41 @@ function heatmap (data, opties) {
 
 		console.log('update_minmax:min/max:',minval,maxval );
 
-		var opties=_this.opties;		
+		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
 		var gradmax=gradient_node.getAttribute('gradient_max');
 		var gradmin=gradient_node.getAttribute('gradient_min');
 		var gradsteps=gradient_node.getAttribute('gradient_steps');
 
 		if (gradmax=='max') {
-			gradient_node.setAttribute('gradient_max_data', maxval);		
+			gradient_node.setAttribute('gradient_max_data', maxval);
 		} else {
 			if (gradient_node.hasAttribute('gradient_max_data')) {
-				gradient_node.removeAttribute ('gradient_max_data');			
-			}		
+				gradient_node.removeAttribute ('gradient_max_data');
+			}
 		}
 		if (gradmin=='min') {
-			gradient_node.setAttribute('gradient_min_data', minval);		
+			gradient_node.setAttribute('gradient_min_data', minval);
 		} else {
 			if (gradient_node.hasAttribute('gradient_min_data')) {
-				gradient_node.removeAttribute ('gradient_min_data');			
-			}		
+				gradient_node.removeAttribute ('gradient_min_data');
+			}
 		}
-		
+
 		if (opties.missing_color=='min'){
 			_this.missing_color=gradient_node.colormap[0];
 		} else {
 			_this.missing_color=opties.missing_color;
-		}	
+		}
 		console.log('missing_color:',_this.missing_color);
-	}		
+	}
 
 
 
 
 	this.bin_data=function  () {
-		
-		console.log("bin_data");		
+
+		console.log("bin_data");
 		var gradient_node=document.getElementById("cg_a");
 		if (gradient_node.need_data_recalc==false) return;
 
@@ -157,27 +157,27 @@ function heatmap (data, opties) {
 		if (size==1) {
 			_this.bin_data_1 ();
 			return;
-		}			
+		}
 		if (size<1) {
 			console.error ('illegal size:',size);
 			return;
 		}
 
-		var opties=_this.opties;		
+		var opties=_this.opties;
 		var log_min=gradient_node.getAttribute('log_min');
 
 		var weighx=opties.weighx;
 		var weighy=opties.weighy;
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
-		var transform=gradient_node.getAttribute('transform');		
-			
+		var transform=gradient_node.getAttribute('transform');
+
 		console.log('bin_data:',x_steps, y_steps, size);
 		console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
-		
+
 		var ptr2=0;
-		var maxval=data[0];	
+		var maxval=data[0];
 		var minval=data[0];
 		var xmean=_this.xmean;
 		var ymean=_this.ymean;
@@ -187,50 +187,50 @@ function heatmap (data, opties) {
 
 		console.log('xmean,ymean:\n', xmean, ymean, size, typeof(size))
 
-		
+
 		for (var i=0; i<y_steps; i+=size) {
-			for (var j=0; j<x_steps;  j+=size) {		
+			for (var j=0; j<x_steps;  j+=size) {
 				val=0;
-				ptr=j*y_steps+i;				
+				ptr=j*y_steps+i;
 				for (cx=0; cx<size; cx++) {
 					for (cy=0; cy<size; cy++) {
 						val+=data[ptr+cx+cy*x_steps];
 					}
-				}				//cy		
+				}				//cy
 
-				val=val/(size*size);				
+				val=val/(size*size);
 				if (val>maxval) maxval=val;
-				if (val<minval) minval=val;			
+				if (val<minval) minval=val;
 				val=transform_value(val,transform, log_min);
-				
+
 				if (weighx) {
 					val=(val/sum_x[j])*xmean;
 				}
 				if (weighy) {
 					val=(val/sum_y[i])*ymean;
-				}			
-				transposebuffer[ptr2]=val;			
-				ptr2++;	
+				}
+				transposebuffer[ptr2]=val;
+				ptr2++;
 			} //j
 	//		console.log("i:",i);
 		}	//i
 
-		_this.update_minmax(minval,maxval);		
+		_this.update_minmax(minval,maxval);
 	}
 
 
 	this.bin_data_multi=function () {
 
-		console.log("bin_data_multi", datasets.length);		
-		var gradient_node=document.getElementById("cg_a");		
+		console.log("bin_data_multi", datasets.length);
+		var gradient_node=document.getElementById("cg_a");
 		var log_min=gradient_node.getAttribute('log_min');
 
-		var maxval=multimap_vals[0][0];	
+		var maxval=multimap_vals[0][0];
 		var minval=multimap_vals[0][0];
 
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
-		var transform=gradient_node.getAttribute('transform');		
+		var transform=gradient_node.getAttribute('transform');
 		var transposebuffer=_this.transposebuffer;
 		var transposebuffer_cats=_this.transposebuffer_cats;
 		var weighx=opties.weighx;
@@ -244,56 +244,56 @@ function heatmap (data, opties) {
 		var values=multimap_vals[0];
 		var colors=multimap_colors[0];
 		var datalength=data.length;
-		console.log("bin_data_multi", data.length, x_steps, y_steps);		
-		console.log("bin_data_multi", maxval,minval);		
-		
+		console.log("bin_data_multi", data.length, x_steps, y_steps);
+		console.log("bin_data_multi", maxval,minval);
+
 		var ptr2=0;
 		var nr=0;
 		for (var i=0; i<y_steps; i++) {
-			for (var j=0; j<x_steps;  j++) {		
+			for (var j=0; j<x_steps;  j++) {
 				val=0;
 				ptr=j*y_steps+i;
-				val=values[ptr];					
+				val=values[ptr];
 				if (val>maxval) maxval=val;
-				if (val<minval) minval=val;			
+				if (val<minval) minval=val;
 				//val=transform_value(val,transform, log_min);
-				
-				transposebuffer[ptr2]=val;						
+
+				transposebuffer[ptr2]=val;
 				transposebuffer_cats[ptr2]=colors[ptr];
-				ptr2++;					
+				ptr2++;
 			} //j
 	//		console.log("i:",i);
 		}	//i
 
 		_this.transposebuffer=transposebuffer;
 		_this.transposebuffer_cats=transposebuffer_cats;
-		//		console.log("i:",i);		
+		//		console.log("i:",i);
 		console.log('bin_data_multi:', minval, maxval);
-		_this.update_minmax(minval,maxval);		
+		_this.update_minmax(minval,maxval);
 	}
 
 
 
 	this.bin_data_1=function  () {
-		
-		console.log("bin_data_1");		
-		var gradient_node=document.getElementById("cg_a");		
 
-		var opties=_this.opties;		
+		console.log("bin_data_1");
+		var gradient_node=document.getElementById("cg_a");
+
+		var opties=_this.opties;
 		var log_min=gradient_node.getAttribute('log_min');
 
 		var weighx=opties.weighx;
 		var weighy=opties.weighy;
 		var x_steps=opties.x_steps;
 		var y_steps=opties.y_steps;
-		var transform=gradient_node.getAttribute('transform');		
-			
+		var transform=gradient_node.getAttribute('transform');
+
 		console.log('bin_data:',x_steps, y_steps, size);
 		console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
-		
+
 		var ptr2=0;
-		var maxval=data[0];	
+		var maxval=data[0];
 		var minval=data[0];
 		var xmean=_this.xmean;
 		var ymean=_this.ymean;
@@ -305,28 +305,28 @@ function heatmap (data, opties) {
 
 		ptr=0;
 		for (var i=0; i<y_steps; i++) {
-			for (var j=0; j<x_steps;  j++) {		
+			for (var j=0; j<x_steps;  j++) {
 				val=0;
 				ptr=j*y_steps+i;
-				val=data[ptr];					
+				val=data[ptr];
 				if (val>maxval) maxval=val;
-				if (val<minval) minval=val;			
+				if (val<minval) minval=val;
 				val=transform_value(val,transform, log_min);
-				
+
 				if (weighx) {
 					val=(val/sum_x[j])*xmean;
 				}
 				if (weighy) {
 					val=(val/sum_y[i])*ymean;
-				}			
-				transposebuffer[ptr2]=val;			
-				ptr2++;	
+				}
+				transposebuffer[ptr2]=val;
+				ptr2++;
 				ptr++;
 			} //j
 	//		console.log("i:",i);
 		}	//i
 
-		_this.update_minmax(minval,maxval);		
+		_this.update_minmax(minval,maxval);
 	}
 
 
@@ -335,7 +335,7 @@ function heatmap (data, opties) {
 	this.spread_bins=function  () {
 
 		var opties=_this.opties;
-		var totalpixels=opties.x_steps*opties.y_steps;	
+		var totalpixels=opties.x_steps*opties.y_steps;
 		var gradient_node=document.getElementById("cg_a");
 		var gradsteps=gradient_node.getAttribute('gradient_steps');
 		var transform=gradient_node.getAttribute('transform');
@@ -344,7 +344,7 @@ function heatmap (data, opties) {
 		var imgheight=opties.imgheight;
 		var imgwidth=opties.imgwidth;
 		var size=gradient_node.size;
-		
+
 		var histmax=_this.histmax;
 		var transposebuffer=_this.transposebuffer;
 		var transposebuffer_cats=_this.transposebuffer_cats;
@@ -355,7 +355,7 @@ function heatmap (data, opties) {
 		if (gradient_node.hasAttribute('gradient_max_data')) {
 			var gradmax=gradient_node.getAttribute('gradient_max_data');
 		} else {
-			var gradmax=gradient_node.getAttribute('gradient_max');	
+			var gradmax=gradient_node.getAttribute('gradient_max');
 		}
 		if (gradient_node.hasAttribute('gradient_min_data')) {
 			var gradmin=gradient_node.getAttribute('gradient_min_data');
@@ -378,7 +378,7 @@ function heatmap (data, opties) {
 		xstep=xpix2img*size;
 		ystep=ypix2img*size;
 		console.log('xstep, ystep',xstep,ystep);
-		
+
 		u=0;
 		v=1;
 		//console.log('xstep/ystep:',xstep,ystep, xpix2img, ypix2img, size);
@@ -392,9 +392,9 @@ function heatmap (data, opties) {
 		console.log('val2index:',gradmin, delta,gradsteps);
 
 		j=0;
-		
 
-		for (i=0; i<totalpixels; i++)	{	
+
+		for (i=0; i<totalpixels; i++)	{
 			val=transposebuffer[i];
 			/*
 			if ((val!=0) && (j<50)) {
@@ -403,19 +403,19 @@ function heatmap (data, opties) {
 			}
 			*/
 
-			indexval=~~((val-gradmin)/(delta)*gradsteps);  					
+			indexval=~~((val-gradmin)/(delta)*gradsteps);
 			if (indexval<0) indexval=0;
 			if (indexval>=gradsteps) indexval=gradsteps-1;
 
 			indexval=parseInt(indexval);
 			hist[indexval]++;
 			/*
-			if ((inv_grad)  && (indexval!=0)) {			
+			if ((inv_grad)  && (indexval!=0)) {
 					indexval=colormaplength-indexval;
 			}
 			*/
 
-			ptr=(imgheight-v*ystep)*imgwidth; 
+			ptr=(imgheight-v*ystep)*imgwidth;
 			ptr+=u*xstep;
 
 
@@ -423,14 +423,14 @@ function heatmap (data, opties) {
 			//ptr=u*xstep+v*ystep*imgwidth;
 			for (cy=0; cy<ystep; cy++) {
 				for (cx=0; cx<xstep; cx++) {
-					backbuffer[ptr+cy*imgwidth+cx]=indexval;				
+					backbuffer[ptr+cy*imgwidth+cx]=indexval;
 					}
 				}
 			u++;
-			line+=xstep;		
-			if (line>=imgwidth) {			
+			line+=xstep;
+			if (line>=imgwidth) {
 				u=0;
-				v++;			
+				v++;
 				line=0;
 			}
 		} // for i
@@ -441,33 +441,33 @@ function heatmap (data, opties) {
 			var cat =null;
 			var nr=0;
 			console.log('multimap');
-			for (i=0; i<totalpixels; i++)	{	
+			for (i=0; i<totalpixels; i++)	{
 				cat=transposebuffer_cats[i];
 				nr+=1;
-				ptr=(imgheight-v*ystep)*imgwidth; 
+				ptr=(imgheight-v*ystep)*imgwidth;
 				ptr+=u*xstep;
 				for (cy=0; cy<ystep; cy++) {
-					for (cx=0; cx<xstep; cx++) {							
+					for (cx=0; cx<xstep; cx++) {
 						backbuffer_cats[ptr+cy*imgwidth+cx]=cat;
 					}
 				}
 				u++;
-				line+=xstep;		
-				if (line>=imgwidth) {			
+				line+=xstep;
+				if (line>=imgwidth) {
 					u=0;
-					v++;			
+					v++;
 					line=0;
 				}
 			}  // for i
 		} // multimap
 	//console.log('HISTMAX:',hist)
 	histmax=hist[0];
-	for (i=1; i<gradsteps; i++) 
+	for (i=1; i<gradsteps; i++)
 		if (hist[i]>histmax) histmax=hist[i];
 
 	_this.histmax=histmax;
 	console.log(hist);
-		
+
 	//console.log('hist2:',backbuffer);
 	}
 
@@ -476,7 +476,7 @@ function heatmap (data, opties) {
 	/* draw_heatmap:
 		- heatmap uitrekenen
 		- minima/maxima bepalen
-	   - colormap tekenen; 
+	   - colormap tekenen;
 	   - heatmap tekenen.
 
 	*/
@@ -487,7 +487,7 @@ function heatmap (data, opties) {
 
 		var opties=_this.opties;
 		if (opties.displaymode=='dotplot') {
-			_this.draw_dotplot();			
+			_this.draw_dotplot();
 		}
 		if (opties.displaymode=='text') {
 			_this.draw_text();
@@ -495,12 +495,12 @@ function heatmap (data, opties) {
 
 		if ((opties.diplaymode=='text')  && (opties.text_show_background==false)) return;
 
-		_this.spread_bins();		
+		_this.spread_bins();
 		_this.draw_histogram();
 
 		var mapdata=_this.mapdata;
-		var backbuffer=_this.backbuffer;	
-		var backbuffer_cats=_this.backbuffer_cats;	
+		var backbuffer=_this.backbuffer;
+		var backbuffer_cats=_this.backbuffer_cats;
 
 		/* eigenlijke heatmap plotten */
 
@@ -511,7 +511,7 @@ function heatmap (data, opties) {
 	//	$('.dot').remove();		//remove dotplot
 		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
-		var size=gradient_node.size;	
+		var size=gradient_node.size;
 		console.log('draw_heatmap, size:',size);
 		var xstep=xpix2img*size;
 		var ystep=ypix2img*size;
@@ -523,7 +523,7 @@ function heatmap (data, opties) {
 		var median_x=_this.median_x;
 		var extradata=_this.extradata;
 		var cat=null;
-		
+
 	//	console.log('draw_heatmap, colormap:', colormap);
 
 		console.log("draw_heatmap:",backbuffer.length);
@@ -535,39 +535,39 @@ function heatmap (data, opties) {
 							nr+=1;
 						}
 				*/
-				
+
 				if ((indexval!=0) || (!_this.skipzero)) {	  // waardes die 0 zijn niet plotten
-					if (multimap){ 
-						
+					if (multimap){
+
 						cat=backbuffer_cats[i];
-						color=colormap[cat];					
+						color=colormap[cat];
 
 						if ((indexval>0) && (nr<550)) {
 							//console.log(nr, i,j,cat, color);
 							nr+=1;
 						}
-	
-			    			mapdata[j] =  color[0];  
-			    			mapdata[j+1] = color[1];  
-		    				mapdata[j+2] = color[2];  
-		    				mapdata[j+3] = 0xff; 
+
+			    			mapdata[j] =  color[0];
+			    			mapdata[j+1] = color[1];
+		    				mapdata[j+2] = color[2];
+		    				mapdata[j+3] = 0xff;
 
 					} else {
-						color=colormap[indexval];			
-		    				mapdata[j] =  color[0];  
-			    			mapdata[j+1] = color[1];  
-			    			mapdata[j+2] = color[2];  
-			    			mapdata[j+3] = 0xff; 
+						color=colormap[indexval];
+		    				mapdata[j] =  color[0];
+			    			mapdata[j+1] = color[1];
+			    			mapdata[j+2] = color[2];
+			    			mapdata[j+3] = 0xff;
 		    		}
 				} else {
 					color=_this.missing_color;
-					mapdata[j] =  color[0]; ;   
-		    		mapdata[j+1] = color[1]; ; 
-		    		mapdata[j+2] = color[2]; ; 
-		    		mapdata[j+3] = 0xff; 
+					mapdata[j] =  color[0]; ;
+		    		mapdata[j+1] = color[1]; ;
+		    		mapdata[j+2] = color[2]; ;
+		    		mapdata[j+3] = 0xff;
 		    	}
 
-			}	
+			}
 		if (opties['plot_mean']==true){
 			console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
 			color=opties['plot_mean_color'];
@@ -584,7 +584,7 @@ function heatmap (data, opties) {
 			color=opties['plot_median_color'];
 			for (i=0; i<median_x.length; i++) {
 				medval=median_x[i];
-				ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;			
+				ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;
 				mapdata[ptr]=color[0];
 				mapdata[ptr+1]=color[1];
 				mapdata[ptr+2]=color[2];
@@ -605,7 +605,7 @@ function heatmap (data, opties) {
 			}
 		}
 		console.log('putdata');
-		_this.ctx.putImageData(_this.imgData, 0, 0);		 
+		_this.ctx.putImageData(_this.imgData, 0, 0);
 	}
 
 
@@ -634,7 +634,7 @@ function heatmap (data, opties) {
 		s+='import contour\n\n'
 		s+='args=dict(\n\t'
 		var firstkey=true;
-		
+
 
 		opties['default_colormap']=colormapname;
 		opties['default_size']=size;
@@ -646,7 +646,7 @@ function heatmap (data, opties) {
 		console.log('transform=',transform);
 
 		var optiekeys=[];
-		for (key in opties) {		
+		for (key in opties) {
 	    	if (opties.hasOwnProperty(key)) {
 	    		optiekeys.push(key);
 	    	}
@@ -681,13 +681,13 @@ function heatmap (data, opties) {
 
 	    		}
 				if (typeof(val)=='string') {
-					s+=key+'="'+val+'"';	
+					s+=key+'="'+val+'"';
 				}
-	    		firstkey=false;    	
+	    		firstkey=false;
 	    }
 	    s+=')\nc=contour.contour()\nc.run_contour(args)\n';
 
-	    $('#printcode').html(s);	
+	    $('#printcode').html(s);
 	}
 
 	this.click_print=function  () {
@@ -699,7 +699,7 @@ function heatmap (data, opties) {
 	            cache: false,
 	            url: "/"+printtype,
 	            type: "GET"
-	            
+
 	        })
 	 		.done(print_ok)
 	 		.fail(print_fail);
@@ -724,7 +724,7 @@ function heatmap (data, opties) {
 
 	  var x_data_type=opties.x_data_type;
 	  var y_data_type=opties.y_data_type;
-	    
+
 	  var numticks=opties['numticks']
 	  var xmin=opties.x_min;
 	  var ymin=opties.y_min;
@@ -738,7 +738,7 @@ function heatmap (data, opties) {
 	  	ymin=opties.y_relative_min;
 	  	ymax=opties.y_relative_max;
 	  }
-	  
+
 
 	  var imgwidth=opties.imgwidth;
 	  var imgheight=opties.imgheight;
@@ -749,12 +749,12 @@ function heatmap (data, opties) {
 	  else {
 	  		if (x_data_type=='nominal')	{
 	  				xScale=d3.scale.linear();
-	  				xScale.domain([xmin,xmax]);  
-	  				var x_data_type_simple='nominal';	  				
+	  				xScale.domain([xmin,xmax]);
+	  				var x_data_type_simple='nominal';
 	  			}
 	  		if ((x_data_type=='date_year' ) || (x_data_type=='date_quarter') || (x_data_type=='date_month') || (x_data_type=='date_week') || (x_data_type=='date_day')) 	{
 	  				xScale=d3.time.scale();
-	  				xScale.domain([opties.x_mindate,opties.x_maxdate]); 
+	  				xScale.domain([opties.x_mindate,opties.x_maxdate]);
 	  				console.log(opties.x_mindate,opties.x_maxdate);
 	  				var x_data_type_simple='date';
 	  			}
@@ -765,23 +765,23 @@ function heatmap (data, opties) {
 	  else	 {
 	  		if (y_data_type=='nominal')	{
 	  				yScale=d3.scale.linear();
-	  				yScale.domain([ymin,ymax]);  
-	  				var y_data_type_simple='nominal';	  				
+	  				yScale.domain([ymin,ymax]);
+	  				var y_data_type_simple='nominal';
 	  			}
 	  		if ((y_data_type=='date_year' ) || (y_data_type=='date_quarter') || (y_data_type=='date_month') || (y_data_type=='date_week') || (y_data_type=='date_day')) 	{
 	  				yScale=d3.time.scale();
-	  				yScale.domain([opties.y_mindate,opties.y_maxdate]); 
+	  				yScale.domain([opties.y_mindate,opties.y_maxdate]);
 	  				console.log(opties.y_mindate,opties.y_maxdate);
 	  				var y_data_type_simple='date';
 	  			}
 	  	    }
 
 
-	  xScale.range([0,imgwidth]); 	  	 
-	  yScale.range([0,imgheight]); 
-	  
+	  xScale.range([0,imgwidth]);
+	  yScale.range([0,imgheight]);
+
 	  var xAxis=d3.svg.axis();
-	  var yAxis=d3.svg.axis();  
+	  var yAxis=d3.svg.axis();
 	  xAxis.scale(xScale)
 	  		.ticks(numticks)
 	       .orient("bottom");
@@ -795,6 +795,16 @@ function heatmap (data, opties) {
 	  //console.log(chart);
 	  var chart=_this.chart;
 
+		chart.append("rect")
+			.attr("id",'dragrect')
+			.attr("x",0)
+			.attr("y",0)
+			.attr("height",imgheight)
+			.attr("width",imgwidth)
+			.attr("stroke",'black')
+			.attr("stroke-width",1)
+			.attr("fill","none")
+
 	  chart.append("rect")
 	  		.attr("id",'IE9_hack')
 	  		.attr("x",0)
@@ -804,7 +814,7 @@ function heatmap (data, opties) {
 	  		.attr("stroke",'black')
 	  		.attr("stroke-width",0)
 	  		.attr("fill","none")
-	  		
+
 	  chart.append("g")
 	        .attr("class","xaxis mainx")
 	        .attr("transform","translate(75,"+(imgheight+25)+")")
@@ -814,7 +824,7 @@ function heatmap (data, opties) {
 	        .attr("class","yaxis")
 
 	        .attr("transform","translate(75,25)")
-	        .call(yAxis);        
+	        .call(yAxis);
 	  chart.selectAll(".tick >text")
 	  		.attr("font-family", "Corbel")
 	  		.attr("font-weight", "normal")
@@ -823,10 +833,10 @@ function heatmap (data, opties) {
 	  var xlabeloffset=0;
 	  if (x_data_type_simple=='date') {
 	  	chart.selectAll(".mainx")
-	  			.selectAll(".tick >text")	  		
+	  			.selectAll(".tick >text")
 	  			.attr("transform", "translate(-10,0)rotate(-45)")
 	  			.style("text-anchor", "end");
-		xlabeloffset=8;	
+		xlabeloffset=8;
 	  	}
 
 
@@ -847,7 +857,7 @@ function heatmap (data, opties) {
 	        .attr("y", 0)
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", fontsize+"px")
-	  		.attr("font-weight", "bold")        
+	  		.attr("font-weight", "bold")
 	        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
 	        .style("text-anchor", "middle")
 	        .text(opties.ylabel);
@@ -857,16 +867,16 @@ function heatmap (data, opties) {
 	        .attr("y", 15)
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", fontsize+"px")
-	  		.attr("font-weight", "bold")         
+	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
 	        .text(opties.title);
 	        /*
 	  if (y_data_type_simple=='date') {
 	  	chart.selectAll(".mainy")
-	  			.selectAll(".tick >text")	  		
+	  			.selectAll(".tick >text")
 	  			.attr("transform", "translate(-10,0)rotate(-45)")
 	  			.style("text-anchor", "end");
-		ylabeloffset=8;	
+		ylabeloffset=8;
 	  	}
 	  	*/
 
@@ -881,7 +891,7 @@ function heatmap (data, opties) {
 
 		console.log('draw text');
 		var opties=_this.opties;
-		var chart=this.chart;
+		var chart=_this.chart;
 			var xmin=opties.x_min;
 			var xmax=opties.x_max+1;
 			var ymin=opties.y_min;
@@ -899,48 +909,48 @@ function heatmap (data, opties) {
 		var yoffset=0.5*dy;
 		for (i=0; i<x_steps; i++){
 			for (j=0; j<y_steps; j++){
-				ptr=y_steps*j+i;				
+				ptr=y_steps*j+i;
 				val=_this.transposebuffer[ptr];
-			
+
 				if (val<0) val=-val;
 				xval=i*dx+xmin+xoffset;
-				yval=(y_steps-j-1)*dy+ymin+yoffset				
+				yval=(y_steps-j-1)*dy+ymin+yoffset
 				for (k=0; k<val; k++) {
 					chart.append("svg:text")
 						.attr("class","txt")
 	          			.attr("x", function (d,i) { return xScale(xval); } )
 	          			.attr("y", function (d) { return xScale(yval); } )
-	          			.attr("transform","translate(75,25)")	      
-	          			.text(function(d) { return val; });	          				          
+	          			.attr("transform","translate(75,25)")
+	          			.text(function(d) { return val; });
 	          		}
 
 
 			}
-		}          	
- 
+		}
+
 	   chart.selectAll(".txt")
         .attr("font-family", "Corbel")
         .attr("font-weight", "normal")
         .attr('font-size',fontsize+'px');
         if (opties.text_show_background==false) {
-			$('.heatmap_canvas').hide();	
+			$('.heatmap_canvas').hide();
 		} else {
-			$('.heatmap_canvas').show();	
+			$('.heatmap_canvas').show();
 		}
 	}
 
-		// dotplot starts here 
+		// dotplot starts here
 
 
 	this.draw_dotplot=function  () {
 
 
 		var opties=_this.opties;
-		if (opties.displaymode=='dotplot') {	
+		if (opties.displaymode=='dotplot') {
 			$('.dot').remove();
 			$('.dot_grid').remove();
 
-			var chart=this.chart;
+			var chart=_this.chart;
 			var xmin=opties.x_min;
 			var xmax=opties.x_max+1;
 			var ymin=opties.y_min;
@@ -958,18 +968,18 @@ function heatmap (data, opties) {
 
 			var dot_dotsize=opties.dot_dotsize;
 			var dot_boxsize=opties.dot_boxsize;
-			
+
 			var dot_color=opties.dot_color;
 			var use_gradient=opties.dot_use_gradient;
 			var bimodal=opties.gradient_bimodal;
 			var gradient_node=document.getElementById("cg_a");
 			if (use_gradient) {
-				
-				
+
+
 				if (gradient_node.hasAttribute('gradient_max_data')) {
 					var gradmax=gradient_node.getAttribute('gradient_max_data');
 				} else {
-					var gradmax=gradient_node.getAttribute('gradient_max');	
+					var gradmax=gradient_node.getAttribute('gradient_max');
 				}
 				if (gradient_node.hasAttribute('gradient_min_data')) {
 					var gradmin=gradient_node.getAttribute('gradient_min_data');
@@ -994,7 +1004,7 @@ function heatmap (data, opties) {
 					var delta=gradmax-gradmin;
 					var colormap=gradient_node.colormap;
 				}
-				var color='';						
+				var color='';
 			}
 
 
@@ -1004,29 +1014,29 @@ function heatmap (data, opties) {
 			var yoffset=0.5*dy-0.5*dot_boxsize*dy;
 			for (i=0; i<x_steps; i++){
 				for (j=0; j<y_steps; j++){
-					ptr=y_steps*j+i;				
+					ptr=y_steps*j+i;
 					val=_this.transposebuffer[ptr];
 					if (use_gradient) {
 			//			console.log(val);
 			//			console.log(colormap[val]);
-											
+
 						//console.log('setval:',bimodal,val,gradmin,gradcenter,gradmax);
-						if (bimodal) {						
+						if (bimodal) {
 							if (val>gradcenter) {
-								indexval=~~((val-gradcenter)/(delta)*gradsteps);  
+								indexval=~~((val-gradcenter)/(delta)*gradsteps);
 								if (indexval<0) indexval=0;
 								if (indexval>=gradsteps) indexval=gradsteps-1;
 								//console.log('take1:',indexval);
 								color=colormap[indexval];
-							} else {	
-								indexval=~~((val-gradmin)/(delta2)*gradsteps);  
+							} else {
+								indexval=~~((val-gradmin)/(delta2)*gradsteps);
 								//console.log('take2:',indexval);
 								if (indexval<0) indexval=0;
 								if (indexval>=gradsteps) indexval=gradsteps-1;
 								color=colormap2[indexval];
 							}
 						} else {
-							indexval=~~((val-gradmin)/(delta)*gradsteps); 
+							indexval=~~((val-gradmin)/(delta)*gradsteps);
 							if (indexval<0) indexval=0;
 							if (indexval>=gradsteps) indexval=gradsteps-1;
 							color=colormap[indexval];
@@ -1035,7 +1045,7 @@ function heatmap (data, opties) {
 					}
 					if (val<0) val=-val;
 					xval=i*dx+xmin+xoffset;
-					yval=(y_steps-j-1)*dy+ymin+yoffset				
+					yval=(y_steps-j-1)*dy+ymin+yoffset
 					for (k=0; k<val; k++) {
 						chart.append("svg:circle")
 							.attr("class","dot")
@@ -1047,7 +1057,7 @@ function heatmap (data, opties) {
 		          		}
 
 				}
-			}          	
+			}
 	   	}
 
 	var xoffset=0.5*dx;
@@ -1069,7 +1079,7 @@ function heatmap (data, opties) {
 		chart.append("svg:line")
 			.attr('class','dot_grid')
 			.attr('stroke-width',0.25)
-			.attr('stroke',gridcolor)			
+			.attr('stroke',gridcolor)
 			.attr("x1", xScale(xmin+dx+xoffset))
             .attr("y1", yScale(yval))
             .attr("x2", xScale(xmax+dx+xoffset))
@@ -1091,9 +1101,9 @@ function heatmap (data, opties) {
 	var gradient_node=document.getElementById("cg_a");
 	var gradmin=gradient_node.getAttribute('gradient_min');  //FIXME
 	var gradmax=gradient_node.getAttribute('gradient_max');
-	var gradsteps=gradient_node.getAttribute('gradient_steps');	
-	var colormap=gradient_node.colormap;	
-	var chart=this.chart;
+	var gradsteps=gradient_node.getAttribute('gradient_steps');
+	var colormap=gradient_node.colormap;
+	var chart=_this.chart;
 
 	var imgwidth=opties.imgwidth;
 	var imgheight=opties.imgheight;
@@ -1119,22 +1129,22 @@ function heatmap (data, opties) {
 	 	} else {
 	 		borderstyle="#5a5a5a";
 	 	}
-	 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight); 	
-	 		 	
+	 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight);
+
 	 	chart.append("rect")
 			.attr("class","hist_2d")
 			.attr("x",imgwidth+hist_offset_x+i*barwidth)
 			.attr("y",imgheight-(hist[i]/histmax)*histheight+25)
 			.attr("width",barwidth)
 			.attr("height",(hist[i]/histmax)*histheight)
-			.style("fill",colorstring)	
+			.style("fill",colorstring)
 			.style("stroke",borderstyle)
-			.style("stroke-width","1px");		
+			.style("stroke-width","1px");
 	 }
-		  
+
 	  console.log('hist:',opties.transform);
 	  var heatmap_hist_xScale=d3.scale.linear();
-	  
+
 	  heatmap_hist_xScale.range([0,gradsteps*barwidth]);
 	  heatmap_hist_xScale.domain([gradmin,gradmax]);
 
@@ -1142,14 +1152,14 @@ function heatmap (data, opties) {
 	  heatmap_hist_yScale.range([0,histheight]);
 	  heatmap_hist_yScale.domain([histmax,0]);
 
-	  
-	  var heatmap_hist_xAxis=d3.svg.axis(); 
-	  var heatmap_hist_yAxis=d3.svg.axis();   
-	  heatmap_hist_xAxis.scale(heatmap_hist_xScale)   
-	  		.ticks(5)    
+
+	  var heatmap_hist_xAxis=d3.svg.axis();
+	  var heatmap_hist_yAxis=d3.svg.axis();
+	  heatmap_hist_xAxis.scale(heatmap_hist_xScale)
+	  		.ticks(5)
 	       .orient("bottom");
-	  heatmap_hist_yAxis.scale(heatmap_hist_yScale)   
-	  		.ticks(5)    
+	  heatmap_hist_yAxis.scale(heatmap_hist_yScale)
+	  		.ticks(5)
 	       .orient("left");
 
 	  //console.log(chart);
@@ -1159,12 +1169,12 @@ function heatmap (data, opties) {
 	  chart.append("g")
 	        .attr("class","xaxis hist_2d")
 	        .attr("transform","translate("+offsetx+","+offsety+")")
-	        .call(heatmap_hist_xAxis); 
+	        .call(heatmap_hist_xAxis);
 	  offsety=imgheight-histheight+25;
 	  chart.append("g")
 	        .attr("class","yaxis hist_2d")
 	        .attr("transform","translate("+offsetx+","+offsety+")")
-	        .call(heatmap_hist_yAxis); 
+	        .call(heatmap_hist_yAxis);
 
 	  chart.selectAll('.hist_2d')
 	  		.selectAll('.tick >text')
@@ -1179,13 +1189,43 @@ function heatmap (data, opties) {
 	}
 
 
+	this.x_to_world=function (x) {
+		var opties=_this.opties;
+		var imgwidth=opties.imgwidth;
+		var xmax=opties.x_max+1;
+		var xmin=opties.x_min;
+		var delta=(xmax-xmin);
+		var val=((x-75)/imgwidth)*delta+xmin;
+
+		return val;
+	}
+
+	this.y_to_world=function (y) {
+		var opties=_this.opties;
+		var imgheight=opties.imgheight;
+		var ymax=opties.y_max+1;   // off by one, again.
+		var ymin=opties.y_min;
+		var delta=(ymax-ymin);
+		var val=((y-25)/imgheight)*delta+ymin;
+
+		return val;
+	}
+
 
 	this.update_hist_x_y=function  (evt) {
 
-		console.log("update_hist_x_y");	
+		//console.clear();
+		console.log("update_hist_x_y");
+		_this.dragging=false;
 
 		var opties=_this.opties;
 		var chart=_this.chart;
+
+		var ymax=opties.y_max+1;   // off by one, again.
+		var ymin=opties.y_min;
+		var xmax=opties.x_max+1;
+		var xmin=opties.x_min;
+
 		var gradient_node=document.getElementById("cg_a");
 		var gradmax=gradient_node.getAttribute('gradient_max');
 		var gradmin=gradient_node.getAttribute('gradient_min');
@@ -1199,47 +1239,43 @@ function heatmap (data, opties) {
 		}
 		var imgheight=opties.imgheight;
 		var imgwidth=opties.imgwidth;
-		var ymax=opties.y_max+1;   // off by one, again.
-		var xmax=opties.x_max+1;
-		var xmin=opties.x_min;
-		var ymin=opties.y_min;
 		var transposebuffer=_this.transposebuffer;
 		var backbuffer=_this.backbuffer;
 		var colormap=gradient_node.colormap;
 
-		return;
 
-		x=parseInt(evt.pageX-$(this).position().left-50);
-		y=parseInt(evt.pageY-$(this).position().top-25);
+		x=parseInt(evt.pageX-$(this).position().left);
+		y=parseInt(evt.pageY-$(this).position().top);
 		console.log(x, y);
 
 		if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
 			if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
-				//toggle_gradcontrols();					
+				//toggle_gradcontrols();
 			}
 			return false;
 		}
-		
+
 		$('.hist_2d').remove();
 		$('.hist_x').remove();
 		$('.hist_y').remove();
-		$('.pointinfotext').remove();	
+		$('.pointinfotext').remove();
 
 		var offsetx_hist=100;  //distance between heatmap and side-histograms
 		var offsety_hist=25;   // distance between bottom of screen & side-histograms
 		var offsetspace_hist=-40;   // distance between side-histograms
 		var graphheight=0.25*imgheight;
-		delta=(xmax-xmin);
-		val=((x-25)/imgwidth)*delta+xmin;
+
+		var val=_this.x_to_world(x);
 		console.log(val, typeof(val));
-		if (val>1000){ 
+		if (val>1000){
 			xval=Math.round(val);
 		} else {
 			xval=Math.round(val*100)/100;
-		}		
+		}
+
 
 		/* text upper right corner */
-	 	chart.append("text")      
+	 	chart.append("text")
 	    	.attr("class","pointinfotext")
 	        .attr("x", 1.5*imgwidth+100 )
 	        .attr("y", 50 )
@@ -1247,44 +1283,47 @@ function heatmap (data, opties) {
 	        .attr("font-size", "15px")
 	        .attr("font-weight", "bold")
 	        .text(opties.xlabel+':'+xval);
-			
-		delta=(ymax-ymin);
-		val=((imgheight-y)/imgheight)*delta+ymin;
+
+	    var val=_this.y_to_world(y);
 		yval=val.toFixed(0);
-		chart.append("text")      
+		chart.append("text")
 	    	.attr("class","pointinfotext")
 	        .attr("x", 1.5*imgwidth+100 )
 	        .attr("y", 50+16)
 	        .attr("font-family", "Corbel")
 	        .attr("font-size", "15px")
-	        .attr("font-weight", "bold")     
+	        .attr("font-weight", "bold")
 	        .text(opties.ylabel+':'+yval);
 
 		val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
-		chart.append("text")      
+		chart.append("text")
 	    	.attr("class","pointinfotext")
 	        .attr("x", 1.5*imgwidth+100 )
 	        .attr("y", 50+32)
 	        .attr("font-family", "Corbel")
 	        .attr("font-size", "15px")
-	        .attr("font-weight", "bold")             
+	        .attr("font-weight", "bold")
 	        .text('#count:'+val);
 
 
 
 	/* histogram y */
 
+	
+
 		histy_max=0;
-		for (i=0; i<imgwidth; i++) { 		
+		for (i=0; i<imgwidth; i++) {
 			val=backbuffer[y*imgheight+i];
 			if (val>histy_max) histy_max=val;
 		}
 
-		//console.log(histy_max);
-		
-		for (i=0; i<imgwidth; i++) { 	
-		 	val=backbuffer[y*imgheight+i];	 		 	
 
+		//console.log(histy_max);
+
+
+		for (i=0; i<imgwidth; i++) {
+		 	val=backbuffer[y*imgheight+i];
+		//	console.log('x,y:', imgwidth+offsetx_hist+i, parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist );
 		 	color=colormap[val];
 			chart.append("rect")
 				.attr("class","hist_y")
@@ -1293,20 +1332,20 @@ function heatmap (data, opties) {
 				.attr("width",1)
 				.attr("height",(val/histy_max)*graphheight)
 				.style("fill","rgb(8,8,0)")
-				.style("stroke","rgb(8,8,0)")			
+				.style("stroke","rgb(8,8,0)")
 				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				.style("stroke-width","1px");
 			 }
 
-			
+
 	histx_max=0;
-	for (i=0; i<imgheight; i++) { 	
+	for (i=0; i<imgheight; i++) {
 		 	val=backbuffer[i*imgwidth+x];
 		 	if (val>histx_max) histx_max=val;
 		 }
-		
-	for (i=0; i<imgheight; i++) { 	
+
+	for (i=0; i<imgheight; i++) {
 		 	val=backbuffer[i*imgwidth+x];
 		 	color=colormap[val];
 			chart.append("rect")
@@ -1317,43 +1356,43 @@ function heatmap (data, opties) {
 				.attr("height",(val/histx_max)*graphheight)
 				.style("fill","rgb(130,8,8)")
 				.style("stroke","rgb(130,8,8)")
-				
+
 				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				.style("stroke-width","1px");
 			 }
 
-	  
+
 
 	  var xxScale=d3.scale.linear();
 	  var yxScale=d3.scale.linear();
 	  var xyScale=d3.scale.linear();
 	  var yyScale=d3.scale.linear();
-	  
-	  xxScale.range([0,imgwidth]); 
+
+	  xxScale.range([0,imgwidth]);
 	  xxScale.domain([ymin,ymax]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
-	  xyScale.range([0,0.25*imgheight]); 
+	  xyScale.range([0,0.25*imgheight]);
 	  xyScale.domain([histy_max*(gradmax/gradsteps),0]);       // bug: what's called 'xscale'/'yscale' is on the wrong position
 
-	  yxScale.range([0,imgwidth]); 
-	  yxScale.domain([xmin,xmax]);   
-	  yyScale.range([0,0.25*imgheight]); 
+	  yxScale.range([0,imgwidth]);
+	  yxScale.domain([xmin,xmax]);
+	  yyScale.range([0,0.25*imgheight]);
 	  yyScale.domain([histx_max*(gradmax/gradsteps),0]);
 
 	  var xxAxis=d3.svg.axis();
-	  var xyAxis=d3.svg.axis();  
+	  var xyAxis=d3.svg.axis();
 	  var yxAxis=d3.svg.axis();
-	  var yyAxis=d3.svg.axis();  
-	  
-	  xxAxis.scale(xxScale)       
+	  var yyAxis=d3.svg.axis();
+
+	  xxAxis.scale(xxScale)
 	       .orient("bottom");
-	  xyAxis.scale(xyScale)       
+	  xyAxis.scale(xyScale)
 	       .orient("left");
-	  yxAxis.scale(yxScale)       
+	  yxAxis.scale(yxScale)
 	       .orient("bottom");
-	  yyAxis.scale(yyScale)       
+	  yyAxis.scale(yyScale)
 	       .orient("left");
-	  
+
 	  //console.log(chart);
 	  offsetx=imgwidth+offsetx_hist;
 	  offsetyx=imgheight+offsety_hist
@@ -1374,12 +1413,12 @@ function heatmap (data, opties) {
 
 	  chart.append("g")
 	        .attr("class","xaxis hist_y")
-	        .attr("transform","translate("+offsetx+","+offsetyx+")")        
-	        .call(xxAxis);        
+	        .attr("transform","translate("+offsetx+","+offsetyx+")")
+	        .call(xxAxis);
 	  chart.append("g")
 	        .attr("class","xaxis hist_y")
-	        .attr("transform","translate("+offsetx+","+offsetyy+")")        
-	        .call(xyAxis);        
+	        .attr("transform","translate("+offsetx+","+offsetyy+")")
+	        .call(xyAxis);
 
 	  chart.selectAll('.hist_x >text')
 	        .attr("font-family", "Corbel")
@@ -1415,10 +1454,10 @@ function heatmap (data, opties) {
 	        .attr("y", imgheight-graphheight+offsety_hist-offsetspace_hist-45 )
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", "16px")
-	  		.attr("font-weight", "bold")                
+	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
 	        .text(opties.ylabel+ '(voor '+opties.xlabel+'='+xval+')');
-		
+
 
 	  chart.append("svg:line")
 	 	.attr("class","hist_x")
@@ -1435,14 +1474,84 @@ function heatmap (data, opties) {
 	    .attr("y1", 25)
 	    .attr("x2", x+50)
 	    .attr("y2", imgwidth+25)
-	    .style("stroke", "rgb(130,8,8)");    
+	    .style("stroke", "rgb(130,8,8)");
 	}
 
+
+	this.handle_drag=function(evt) {
+		if (_this.dragging) {
+			var svgEl= document.getElementById("dragrect");
+			var svgpos = svgEl.getBoundingClientRect();
+			
+			var x=parseInt(evt.pageX-$(this).position().left);
+			var y=parseInt(evt.pageY-$(this).position().top);
+
+			
+			var xdelta=-(evt.clientX- _this.origX);
+			var ydelta=-(evt.clientY- _this.origY);
+			
+			var xdelta=x-_this.x0;
+			var ydelta=y-_this.y0;
+
+			//console.log ('x:', _this.x0, _this.y0, x,y, xdelta, ydelta );
+      		      		
+			if (xdelta<0) {
+				svgEl.setAttribute("x",  x);
+				svgEl.setAttribute("width",  -xdelta);
+			} else {
+				svgEl.setAttribute("x",   _this.x0 );
+				svgEl.setAttribute("width",  xdelta);
+			}
+						
+			if (ydelta<0) {
+				svgEl.setAttribute("y",  y);
+				svgEl.setAttribute("height",  -ydelta);
+			} else {
+				svgEl.setAttribute("y",   _this.y0 );
+				svgEl.setAttribute("height",  ydelta);
+			}
+
+			svgEl.style.stroke = "#ff0000";
+
+		}
+	}
+
+	this.init_dragging=function (evt) {
+		_this.dragging=true;
+		console.clear();
+		console.log('init_drag');
+		
+		_this.x0=parseInt(evt.pageX-$(this).position().left);
+		_this.y0=parseInt(evt.pageY-$(this).position().top);
+	}
+
+	this.end_dragging=function (evt) {
+		_this.dragging=false;
+		console.log('end_drag');		
+		var svgEl= document.getElementById("dragrect");
+		svgEl.style.stroke = "#0000ff";
+
+		var x=parseInt(evt.pageX-$(this).position().left);
+		var y=parseInt(evt.pageY-$(this).position().top);
+
+		console.log('x0, y0, x1,y1',_this.x0,_this.y0,x,y);
+		console.log(_this.x_to_world(_this.x0),
+					_this.y_to_world(_this.y0),
+					_this.x_to_world(x),	
+					_this.y_to_world(y));
+	}
 
 	this.init_hist_xy=function  () {
 
 		console.log('init_hist');
-		$(".heatmap_svg").on('click',_this.update_hist_x_y);
+		this.dragging=false;
+		$("#heatmap_container_0").on('mousedown', _this.init_dragging);
+		$("#heatmap_container_0").on('mousemove', _this.handle_drag);
+		$("#heatmap_container_0").on('mouseup', _this.end_dragging);
+		$("#heatmap_container_0").on('click',_this.update_hist_x_y);
+
+
+
 		//$("#heatmap_svg").on('mousedown',update_hist_x_y);
 	}
 
@@ -1455,13 +1564,13 @@ function heatmap (data, opties) {
 		var state=_this.opties[f];
 		if (state==true)	{
 			state=false;
-			$(this).removeClass('active_selectie');		
-		} 
+			$(this).removeClass('active_selectie');
+		}
 		else {
 			state=true;
-			$(this).addClass('active_selectie');	
+			$(this).addClass('active_selectie');
 		}
-		_this.opties[f]=state;		
+		_this.opties[f]=state;
 		_this.bin_data();
 		_this.draw_heatmap();
 
@@ -1474,7 +1583,7 @@ function heatmap (data, opties) {
 
 	 	$('.stats').on('click',_this.click_stats);
 	 	$('.stats').on('mouseenter ',enter_selectie);
-	  	$('.stats').on('mouseout ',leave_selectie);  	
+	  	$('.stats').on('mouseout ',leave_selectie);
 
 	  	$('.stats').each(function(i,obj){
 	  		var f=$(this).attr('data-stats');
@@ -1486,16 +1595,16 @@ function heatmap (data, opties) {
 	this.update_display=function(displaymode) {
 
 		console.log('update_display',displaymode);
-		if (displaymode=='dotplot') {	        
+		if (displaymode=='dotplot') {
     	    $('.colormap-gradient').css("display","none");
-        	$('.dotplot-controls').css("display",""); 
-        	$('.text-controls').css("display","none"); 
+        	$('.dotplot-controls').css("display","");
+        	$('.text-controls').css("display","none");
         	$('.txt').remove();
-        	_this.draw_dotplot();  
+        	_this.draw_dotplot();
 	  	}
 	  	if (displaymode=='heatmap') {
-	  		$('.dotplot-controls').css("display","none"); 
-	  		$('.text-controls').css("display","none"); 
+	  		$('.dotplot-controls').css("display","none");
+	  		$('.text-controls').css("display","none");
 	  		$('.colormap-gradient').css("display","");
 	  		$('.txt').remove();
 	  		$('.dot').remove();
@@ -1503,9 +1612,9 @@ function heatmap (data, opties) {
 	  		_this.draw_heatmap();
 	  	}
 	  	if (displaymode=='text') {
-	  		$('.text-controls').css("display",""); 
-	  		$('.dotplot-controls').css("display","none"); 
-	  		$('.text-controls').css("display",""); 
+	  		$('.text-controls').css("display","");
+	  		$('.dotplot-controls').css("display","none");
+	  		$('.text-controls').css("display","");
 	  		$('.colormap-gradient').css("display","");
 	  		$('.dot').remove();
 	  		$('.dot_grid').remove();
@@ -1527,16 +1636,16 @@ function heatmap (data, opties) {
 
 	 	$('.display').on('click',_this.click_change_display);
 	 	$('.display').on('mouseenter ',enter_selectie);
-	  	$('.display').on('mouseout ',leave_selectie);  	
+	  $('.display').on('mouseout ',leave_selectie);
 
-		_this.update_display(_this.optiesdisplaymode);	  
+		_this.update_display(_this.optiesdisplaymode);
 	}
 
 
 	this.update_dotplot=function  (e) {
 
 		console.log('update_gradient:');
-		if (e.keyCode == '13') {		
+		if (e.keyCode == '13') {
 			boxsize=$('#dotplot_boxsize_val').val();
 			dotsize=$('#dotplot_dotsize_val').val();
 			console.log('update_dotplot:',boxsize, dotsize);
@@ -1550,14 +1659,14 @@ function heatmap (data, opties) {
 
 	this.toggle_dotplot=function ()
 	{
-		console.log('toggle_dotplot',opties['use_dots'] );	
+		console.log('toggle_dotplot',opties['use_dots'] );
 		if(_this.opties['use_dots']){
 			$(this).removeClass('active_selectie');
 			_this.opties['use_dots']=false;
-			$('.dot').remove();			
+			$('.dot').remove();
 		} else{
 			$(this).addClass('active_selectie');
-			_this.opties['use_dots']=true;			
+			_this.opties['use_dots']=true;
 			_this.draw_dotplot();
 		}
 	}
@@ -1571,7 +1680,7 @@ function heatmap (data, opties) {
 			_this.draw_heatmap();
 		} else {
 			$('#dotplot_show_background').removeClass('active_selectie');
-			$('.heatmap_canvas').hide();			
+			$('.heatmap_canvas').hide();
 		}
 	}
 
@@ -1579,33 +1688,33 @@ function heatmap (data, opties) {
 
 		console.log('show_dot_grid',_this.opties['dot_grid']);
 		if(_this.opties['dot_grid']){
-			$('#dotplot_grid').addClass('active_selectie');						
+			$('#dotplot_grid').addClass('active_selectie');
 			$('.dot_grid').show();
 		} else {
 			$('#dotplot_grid').removeClass('active_selectie');
-			$('.dot_grid').hide();			
+			$('.dot_grid').hide();
 		}
 	}
 
 
 	this.toggle_dot_background=function ()
 	{
-		console.log('toggle_dot_background',opties['dot_show_background'] );	
-		if(_this.opties['dot_show_background']){	
-			_this.opties['dot_show_background']=false;		
-		} else{			
-			_this.opties['dot_show_background']=true;		
+		console.log('toggle_dot_background',opties['dot_show_background'] );
+		if(_this.opties['dot_show_background']){
+			_this.opties['dot_show_background']=false;
+		} else{
+			_this.opties['dot_show_background']=true;
 		}
 		_this.show_dot_background();
 	}
 
 	this.toggle_dot_grid=function ()
 	{
-		console.log('toggle_dot_grid',opties['dot_grid'] );	
-		if(_this.opties['dot_grid']){	
-			_this.opties['dot_grid']=false;		
-		} else{			
-			_this.opties['dot_grid']=true;		
+		console.log('toggle_dot_grid',opties['dot_grid'] );
+		if(_this.opties['dot_grid']){
+			_this.opties['dot_grid']=false;
+		} else{
+			_this.opties['dot_grid']=true;
 		}
 		_this.show_dot_grid();
 	}
@@ -1631,7 +1740,7 @@ function heatmap (data, opties) {
 		$('#dotplot_grid').on('click',_this.toggle_dot_grid);
 		$('#dotplot_show_heatmap').on('click',_this.toggle_dot_background);
 	 	$('.stats').on('mouseenter ',enter_selectie);
-	  	$('.stats').on('mouseout ',leave_selectie);  	
+	  	$('.stats').on('mouseout ',leave_selectie);
 		$("#dotplot_boxsize_val").on('keydown',_this.update_dotplot);
 		$("#dotplot_dotsize_val").on('keydown',_this.update_dotplot);
 

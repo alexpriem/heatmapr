@@ -1,9 +1,11 @@
+import sys
+sys.path.insert(0,'f:\\cbs\\heatmapr')
 import heatmapr
 
 
 
 
-args=dict(infile='data\ib_mv_2010_v.csv',
+args=dict(infile='..\data\ib_mv_2010_v.csv',
           sep=';',
           outfile='v',
           
