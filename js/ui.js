@@ -784,10 +784,12 @@ function heatmap (data, opties) {
 	  var yAxis=d3.svg.axis();
 	  xAxis.scale(xScale)
 	  		.ticks(numticks)
-	       .orient("bottom");
+	  		.tickFormat(d3.format("s"))
+	        .orient("bottom");
 	  yAxis.scale(yScale)
 	  		.ticks(numticks)
-	       .orient("left");
+	  		.tickFormat(d3.format("s"))
+	        .orient("left");
 
 
 	  fontsize=opties['fontsize'];
