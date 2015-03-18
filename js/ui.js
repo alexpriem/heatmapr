@@ -781,15 +781,43 @@ function heatmap (data, opties) {
 	  yScale.range([0,imgheight]);
 
 	  var xAxis=d3.svg.axis();
-	  var yAxis=d3.svg.axis();
+	  var yAxis=d3.svg.axis();	
 	  xAxis.scale(xScale)
-	  		.ticks(numticks)
-	  		.tickFormat(d3.format("s"))
+	  		.ticks(numticks)	  		
 	        .orient("bottom");
+	  if (x_data_type=='nominal') {
+	  	xAxis.tickFormat(d3.format("s"));
+	  }
+	  if (x_data_type=='date_year') {
+	  	xAxis.tickFormat(d3.time.format('%Y'));	
+	  }
+	  if (x_data_type=='date_month') {
+	  	xAxis.tickFormat(d3.time.format('%b %Y'));	
+	  }
+	  if (x_data_type=='date_week') {
+	  	xAxis.tickFormat(d3.time.format('%e %b %Y'));	
+	  }
+	  if (x_data_type=='date_day') {
+	  	xAxis.tickFormat(d3.time.format('%e %b %Y'));	
+	  }
 	  yAxis.scale(yScale)
 	  		.ticks(numticks)
-	  		.tickFormat(d3.format("s"))
 	        .orient("left");
+	  if (y_data_type=='nominal') {
+	  	yAxis.tickFormat(d3.format("s"));
+	  }
+	  if (y_data_type=='date_year') {
+	  	yAxis.tickFormat(d3.time.format('%Y'));	
+	  }
+	  if (y_data_type=='date_month') {
+	  	yAxis.tickFormat(d3.time.format('%b %Y'));	
+	  }
+	  if (y_data_type=='date_week') {
+	  	yAxis.tickFormat(d3.time.format('%e %b %Y'));	
+	  }
+	  if (y_data_type=='date_day') {
+	  	yAxis.tickFormat(d3.time.format('%e %b %Y'));	
+	  }
 
 
 	  fontsize=opties['fontsize'];

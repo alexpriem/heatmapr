@@ -190,8 +190,10 @@ class heatmap:
             if datatype=='date_week':                     
                     return ((d-date_min).days)/7
             if datatype=='date_day':
-                    return (d-date_min).days
-            return d
+                    return (d-date_min).days            
+
+            raise RuntimeError("x_data_type/y_datatype should be date_year, date_quarter, date_month, date_week or date_day, not '%s'" % datatype)
+            
 
 
 
@@ -301,7 +303,6 @@ class heatmap:
             args['x_mindate']=xmin_date
             args['x_maxdate']=xmax_date
         
-        
         if y_data_type=='nominal':
         	ymin=float(ymin)
         	ymax=float(ymax)
@@ -327,7 +328,7 @@ class heatmap:
         self.ymax=ymax
         self.xpixels=xpixels
         self.ypixels=ypixels
-
+        
         xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
         yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
 
@@ -456,7 +457,11 @@ class heatmap:
                     line=line.replace(',','.')
                     cols=line.split(sep)                    
                 if x_data_type=='nominal':
-                    x=float(cols[xcolnr])
+                    s=cols[xcolnr]
+                    if s!='':
+                        x=float(s)
+                    else:
+                        x=0
                 else:
                     try:
                         x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
@@ -466,10 +471,11 @@ class heatmap:
                     
 
                 if y_data_type=='nominal':
-                    try:
-                        y=float(cols[ycolnr])
-                    except:
-                        continue
+                    s=cols[ycolnr]
+                    if s!='':
+                        y=float(s)
+                    else:
+                        y=0
                 else:
                     y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
