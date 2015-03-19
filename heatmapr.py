@@ -26,7 +26,9 @@ class heatmap:
             ['infile',';',True,''],
             ['sep',';',False,''],
             ['convert_comma',False,False,''],
-            
+
+            ['x_fixedfile_startpos',None,False,''],
+            ['x_fixedfile_endpos',None,False,''],
             ['x_var','',True,''],
             ['x_min','',True,''],
             ['x_max','',True,''],
@@ -39,6 +41,9 @@ class heatmap:
             ['x_relative_min', 0,False,''],
             ['x_relative_max', 100,False,''],
 
+
+            ['y_fixedfile_startpos',None,False,''],
+            ['y_fixedfile_endpos',None,False,''],
             
             ['y_var','',True,''],
             ['y_min','',True,''],
@@ -300,8 +305,6 @@ class heatmap:
             self.xmax_date=xmax_date
             xmin=0
             xmax=self.munge_date(xmax_date, x_data_type, xmin_date)
-            args['x_mindate']=xmin_date
-            args['x_maxdate']=xmax_date
         
         if y_data_type=='nominal':
         	ymin=float(ymin)
@@ -462,13 +465,10 @@ class heatmap:
                         x=float(s)
                     else:
                         x=0
-                else:
-                    try:
-                        x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
-                        x=self.munge_date(x, x_data_type, xmin_date)
-                    except:
-                        continue
-                    
+                else:                    
+                    x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                    x=self.munge_date(x, x_data_type, xmin_date)
+
 
                 if y_data_type=='nominal':
                     s=cols[ycolnr]
@@ -482,8 +482,9 @@ class heatmap:
                             
             val=1
             if weightcolnr is not None:
-                val=float(cols[weightcolnr])
+                val=float(cols[weightcolnr])            
 
+            
             if self.x_relative==False:                                                
                 if (x>=xmin and x<=xmax):
                     hx=int((x-xmin)/xfactor)                
@@ -503,7 +504,8 @@ class heatmap:
                             hx=xpixels-1
                 except:
                     print 'overflow, x:',  hx, len(xhistpos)
-                        
+
+            
             if self.stats_enabled:
                 x_hist=keys_x.get(hx,{})
                 num=x_hist.get(y,0)                
@@ -546,7 +548,7 @@ class heatmap:
                 heatmap[hx][hy]+=val
                 heatmaps[heatmapname]=heatmap
                 heatmap=self.heatmap
-                            
+            
             try:
             	if no_fill:
                     heatmap[hx][hy]+=val

@@ -754,6 +754,8 @@ function heatmap (data, opties) {
 	  			}
 	  		if ((x_data_type=='date_year' ) || (x_data_type=='date_quarter') || (x_data_type=='date_month') || (x_data_type=='date_week') || (x_data_type=='date_day')) 	{
 	  				xScale=d3.time.scale();
+	  				opties.x_mindate=new Date(opties.x_min);
+	  				opties.x_maxdate=new Date(opties.x_max);
 	  				xScale.domain([opties.x_mindate,opties.x_maxdate]);
 	  				console.log(opties.x_mindate,opties.x_maxdate);
 	  				var x_data_type_simple='date';
@@ -769,6 +771,8 @@ function heatmap (data, opties) {
 	  				var y_data_type_simple='nominal';
 	  			}
 	  		if ((y_data_type=='date_year' ) || (y_data_type=='date_quarter') || (y_data_type=='date_month') || (y_data_type=='date_week') || (y_data_type=='date_day')) 	{
+	  				opties.y_mindate=new Date(opties.y_min);
+	  				opties.y_maxdate=new Date(opties.y_max);
 	  				yScale=d3.time.scale();
 	  				yScale.domain([opties.y_mindate,opties.y_maxdate]);
 	  				console.log(opties.y_mindate,opties.y_maxdate);
