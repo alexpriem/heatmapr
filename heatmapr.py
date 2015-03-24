@@ -465,8 +465,12 @@ class heatmap:
                         x=float(s)
                     else:
                         x=0
-                else:                    
-                    x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                else:
+                    s=cols[xcolnr]
+                    if s!='':
+                        x=datetime.datetime.strptime(s,x_dateformat)
+                    else:
+                        x=xmin_date
                     x=self.munge_date(x, x_data_type, xmin_date)
 
 
@@ -477,7 +481,11 @@ class heatmap:
                     else:
                         y=0
                 else:
-                    y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
+                    s=cols[ycolnr]
+                    if s!='':                        
+                        y=datetime.datetime.strptime(s,y_dateformat)
+                    else:
+                        y=ymin_date
                     y=self.munge_date(y, y_data_type, ymin_date)
                             
             val=1
