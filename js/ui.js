@@ -719,8 +719,8 @@ function heatmap (data, opties) {
 	  this.draw_axes=function  () {
 
 	  var opties=_this.opties;
-	  var logx=opties.logx;
-	  var logy=opties.logy;
+	  var x_log=opties.x_log;
+	  var y_log=opties.y_log;
 
 	  var x_data_type=opties.x_data_type;
 	  var y_data_type=opties.y_data_type;
@@ -742,10 +742,13 @@ function heatmap (data, opties) {
 
 	  var imgwidth=opties.imgwidth;
 	  var imgheight=opties.imgheight;
-	  if ((logx) && (xmin<=0)) xmin=1;
-	  if ((logy) && (ymin<=0)) ymin=1;
+	  if ((x_log) && (xmin<=0)) xmin=1;
+	  if ((y_log) && (ymin<=0)) ymin=1;
 
-	  if (logx) xScale=d3.scale.log();     // naar object-namespace
+	  if (x_log) {
+	  		xScale=d3.scale.log();     // naar object-namespace
+	  		xScale.domain([xmin,xmax]);
+	  	}
 	  else {
 	  		if (x_data_type=='nominal')	{
 	  				xScale=d3.scale.linear();
@@ -763,7 +766,10 @@ function heatmap (data, opties) {
 	  	    }
 
 
-	  if (logy) yScale=d3.scale.log();
+	  if (y_log) {
+	  		yScale=d3.scale.log();
+	  		yScale.domain([ymax,ymin]);
+	  	}
 	  else	 {
 	  		if (y_data_type=='nominal')	{
 	  				yScale=d3.scale.linear();
@@ -789,7 +795,7 @@ function heatmap (data, opties) {
 	  xAxis.scale(xScale)
 	  		.ticks(numticks)	  		
 	        .orient("bottom");
-	  if (x_data_type=='nominal') {
+	  if ((x_data_type=='nominal') && (!x_log)) {
 	  	xAxis.tickFormat(d3.format("s"));
 	  }
 	  if (x_data_type=='date_year') {
@@ -807,7 +813,7 @@ function heatmap (data, opties) {
 	  yAxis.scale(yScale)
 	  		.ticks(numticks)
 	        .orient("left");
-	  if (y_data_type=='nominal') {
+	  if ((y_data_type=='nominal') && (!y_log)) {
 	  	yAxis.tickFormat(d3.format("s"));
 	  }
 	  if (y_data_type=='date_year') {

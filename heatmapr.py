@@ -29,12 +29,14 @@ class heatmap:
 
             ['x_fixedfile_startpos',None,False,''],
             ['x_fixedfile_endpos',None,False,''],
+            
             ['x_var','',True,''],
             ['x_min','',True,''],
             ['x_max','',True,''],
             ['x_steps','',True,''],
             ['x_fuzz',0,False,''],
             ['x_fill',0,False,''],
+            ['x_log',False,False,''],
             ['x_data_type','nominal',False,''],
             ['x_dateformat','%Y%m%d',False,''],
             ['x_relative', False,False,''],
@@ -51,6 +53,7 @@ class heatmap:
             ['y_steps','',True,''],
             ['y_fuzz',0,False,''],
             ['y_fill',0,False,''],
+            ['y_log',False,False,''],
             ['y_data_type','nominal',False,''],
             ['y_dateformat','%Y%m%d',False,''],
             ['y_relative', False,False,''],
@@ -59,8 +62,8 @@ class heatmap:
             
             ['weight_var',None,False,''],
 
-            ['logx',False,False,''],
-            ['logy',False,False,''],
+            
+            
 
             ['gradmin',0,False,''],
             ['gradmax','max',False,''],
@@ -317,14 +320,15 @@ class heatmap:
             ymin=0
             ymax=self.munge_date(ymax_date, y_data_type, ymin_date)
        
-
-        if self.logx:            
+        x_log=self.x_log
+        if x_log:            
             xmin=safelog10(xmin)
             xmax=safelog10(xmax)
-        if self.logy:            
+        y_log=self.y_log
+        if y_log:            
             ymin=safelog10(ymin)
-            ymax=safelog10(ymax)
-
+            ymax=safelog10(ymax)        
+        
         self.xmin=xmin
         self.ymin=ymin
         self.xmax=xmax
@@ -444,7 +448,11 @@ class heatmap:
                 if x_data_type=='nominal':
                     x=float(cols[xcolnr])
                 else:
-                    x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                    s=cols[xcolnr]
+                    if s!='':
+                        x=datetime.datetime.strptime(s,x_dateformat)
+                    else:
+                        x=xmin_date
                    # print x
                     x=self.munge_date(x, x_data_type, xmin_date)
                     #print x
@@ -494,8 +502,11 @@ class heatmap:
 
             
             if self.x_relative==False:                                                
+                if x_log:
+                    x=safelog10(x)                        
                 if (x>=xmin and x<=xmax):
-                    hx=int((x-xmin)/xfactor)                
+                    hx=int((x-xmin)/xfactor)
+                    
                     if x_fuzz!=0:
                         hx+=int(random.random()*x_fuzz)
                         if hx>=xpixels:
@@ -520,7 +531,9 @@ class heatmap:
                 x_hist[y]=num+val
                 keys_x[hx]=x_hist
 
-            if self.y_relative==False:                
+            if self.y_relative==False:
+                if y_log:
+                    y=safelog10(y)
                 if (y>=ymin and y<=ymax):
                     hy=int((y-ymin)/yfactor)
                     if y_fuzz!=0:
