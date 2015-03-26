@@ -344,9 +344,14 @@ class heatmap:
         if self.ylabel is None:
             self.ylabel=ycol            
 
+        do_fixed=False
+        if x_fixedfile_startpos is not None and x_fixedfile_endpos is not None:
+            do_fixed=True
+    
         weightcolnr=None
-        if self.weight_var is not None:
+        if self.weight_var is not None and do_fixed is False:
             weightcolnr=cols.index(self.weight_var)
+            
 
         do_multimap=False
         if len(self.multimap)>0:
@@ -377,24 +382,35 @@ class heatmap:
                     print linenr
                 
                 if self.convert_comma:
-                    line=line.replace(',','.')                
-                cols=line.split(sep)
+                    line=line.replace(',','.')
+
+                val=1                
+                if not do_fixed:
+                    cols=line.split(sep)
+                    x_txt=cols[xcolnr]
+                    y_txt=cols[ycolnr]
+                    if weightcolnr is not None:
+                        val=float(cols[weightcolnr])
+                else:
+                    x_txt=line[x_fixedfile_startpos:x_fixedfile_endpos]
+                    y_txt=line[y_fixedfile_startpos:y_fixedfile_endpos]
+                    if weight_fixedfile_startpos is not None:
+                        val=float(line[weight_fixedfile_startpos:weight_fixedfile_endpos])
 		        
                 if x_data_type=='nominal':
-                    x=float(cols[xcolnr])
+                    x=float(x_txt)
                 else:
-                    x=datetime.datetime.strptime(cols[xcolnr],x_dateformat)
+                    x=datetime.datetime.strptime(x_txt,x_dateformat)
                     x=self.munge_date(x, x_data_type, xmin_date)
 
                 if y_data_type=='nominal':
-                    y=float(cols[ycolnr])
+                    y=float(y_txt)
                 else:
-                    y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
+                    y=datetime.datetime.strptime(y_txt,y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
 
-                val=1
-                if weightcolnr is not None:
-                    val=float(cols[weightcolnr])
+                
+                
                 if self.x_relative:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
                 if self.y_relative:                    
@@ -445,12 +461,25 @@ class heatmap:
             
             cols=line.split(sep)
             try:
-                if x_data_type=='nominal':
-                    x=float(cols[xcolnr])
+                val=1                
+                if not do_fixed:
+                    cols=line.split(sep)
+                    x_txt=cols[xcolnr]
+                    y_txt=cols[ycolnr]
+                    if weightcolnr is not None:
+                        val=float(cols[weightcolnr])
                 else:
-                    s=cols[xcolnr]
-                    if s!='':
-                        x=datetime.datetime.strptime(s,x_dateformat)
+                    x_txt=line[x_fixedfile_startpos:x_fixedfile_endpos]
+                    y_txt=line[y_fixedfile_startpos:y_fixedfile_endpos]
+                    if weight_fixedfile_startpos is not None:
+                        val=float(line[weight_fixedfile_startpos:weight_fixedfile_endpos])
+
+                
+                if x_data_type=='nominal':
+                    x=float(x_txt)
+                else:                  
+                    if x_txt!='':
+                        x=datetime.datetime.strptime(x_txt,x_dateformat)
                     else:
                         x=xmin_date
                    # print x
@@ -458,47 +487,43 @@ class heatmap:
                     #print x
 
                 if y_data_type=='nominal':
-        	    y=float(cols[ycolnr])
+        	    y=float(y_txt)
                 else:
-                      y=datetime.datetime.strptime(cols[ycolnr],y_dateformat)
+                    if y_txt!='':
+                        y=datetime.datetime.strptime(y_txt,y_dateformat)
+                    else:
+                        y=ymin_date
                       y=self.munge_date(y, y_data_type, ymin_date)
             except ValueError:
                 if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
                     self.convert_comma=True 
                     line=line.replace(',','.')
                     cols=line.split(sep)                    
-                if x_data_type=='nominal':
-                    s=cols[xcolnr]
-                    if s!='':
-                        x=float(s)
+                if x_data_type=='nominal':                    
+                    if x_txt!='':
+                        x=float(x_txt)
                     else:
                         x=0
-                else:
-                    s=cols[xcolnr]
-                    if s!='':
-                        x=datetime.datetime.strptime(s,x_dateformat)
+                else:                   
+                    if x_txt!='':
+                        x=datetime.datetime.strptime(x_txt,x_dateformat)
                     else:
                         x=xmin_date
                     x=self.munge_date(x, x_data_type, xmin_date)
 
 
-                if y_data_type=='nominal':
-                    s=cols[ycolnr]
-                    if s!='':
+                if y_data_type=='nominal':                    
+                    if y_txt!='':
                         y=float(s)
                     else:
                         y=0
-                else:
-                    s=cols[ycolnr]
-                    if s!='':                        
-                        y=datetime.datetime.strptime(s,y_dateformat)
+                else:                
+                    if y_txt!='':                        
+                        y=datetime.datetime.strptime(y_txt,y_dateformat)
                     else:
                         y=ymin_date
                     y=self.munge_date(y, y_data_type, ymin_date)
                             
-            val=1
-            if weightcolnr is not None:
-                val=float(cols[weightcolnr])            
 
             
             if self.x_relative==False:                                                
