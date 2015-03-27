@@ -59,8 +59,11 @@ class heatmap:
             ['y_relative', False,False,''],
             ['y_relative_min', 0,False,''],
             ['y_relative_max', 100,False,''],
-            
+
             ['weight_var',None,False,''],
+            ['weight_fixedfile_startpos',None,False,''],
+            ['weight_fixedfile_endpos',None,False,''],            
+            
 
             
             
@@ -289,6 +292,18 @@ class heatmap:
         y_data_type=self.y_data_type
         x_dateformat=self.x_dateformat
         y_dateformat=self.y_dateformat
+        
+        do_fixed=False
+        x_fixedfile_startpos=self.x_fixedfile_startpos
+        x_fixedfile_endpos=self.x_fixedfile_endpos
+        y_fixedfile_startpos=self.y_fixedfile_startpos
+        y_fixedfile_endpos=self.y_fixedfile_endpos
+        weight_fixedfile_startpos=self.weight_fixedfile_startpos
+        weight_fixedfile_endpos=self.weight_fixedfile_endpos        
+        if x_fixedfile_startpos is not None and x_fixedfile_endpos is not None:
+            do_fixed=True
+
+
         try:
             xcolnr=cols.index(xcol)
             ycolnr=cols.index(ycol)
@@ -344,9 +359,6 @@ class heatmap:
         if self.ylabel is None:
             self.ylabel=ycol            
 
-        do_fixed=False
-        if x_fixedfile_startpos is not None and x_fixedfile_endpos is not None:
-            do_fixed=True
     
         weightcolnr=None
         if self.weight_var is not None and do_fixed is False:
@@ -493,7 +505,7 @@ class heatmap:
                         y=datetime.datetime.strptime(y_txt,y_dateformat)
                     else:
                         y=ymin_date
-                      y=self.munge_date(y, y_data_type, ymin_date)
+                    y=self.munge_date(y, y_data_type, ymin_date)
             except ValueError:
                 if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
                     self.convert_comma=True 
