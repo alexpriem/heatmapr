@@ -128,12 +128,12 @@ def example_xy_date_YMD(f):
 
 
 funcs=[example_fixed,
-        #example_split1,
-    #example_xy_date_YMD,
-      #  example_x_date_YMD,        
-      #  example_x_date_year,
-     #   example_simple,
-    #    example_weight,        
+       example_split1,
+       example_xy_date_YMD,
+       example_x_date_YMD,        
+       example_x_date_year,
+       example_simple,
+       example_weight,        
         ]
 
 for f in funcs:

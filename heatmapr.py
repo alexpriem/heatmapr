@@ -938,10 +938,10 @@ class heatmap:
             jsfrags=html.split('<script src="')            
             for jsfrag in jsfrags[1:]:
                 jsfile=jsfrag.split('"')
-                if jsfile[0]=='js/data.js' and self.multi_nr!=0:
+                if jsfile[0]=='js/data.js':                    
                     continue
                 if self.debuglevel==2:
-                    print jsfile[0]
+                    print jsfile[0]                                
                 g.write('\n<script type="text/javascript">\n')
                 js=open(self.module_dir+'/'+jsfile[0],'r').read()    
                 g.write(js)
