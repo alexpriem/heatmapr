@@ -17,6 +17,7 @@ def safelog10 (x):
 
 class heatmap:
     def __init__(self):
+        self.js=''
         pass
 
 
@@ -126,7 +127,7 @@ class heatmap:
             ['multimap_labels',{},False,''],
             
             ['multi_nr', 0,False,''],
-            ['multi_cols', 5,False,''],
+            ['multi_cols', 3,False,''],
             
             
             ['controltype','notflat', False,''], 
@@ -740,7 +741,7 @@ class heatmap:
 # dump data
         js=''
         if self.multi_nr==0 and do_multimap==False:
-            js='var multimap=false;\nnr_heatmaps=1;\n\nvar data=[];\n'
+            js='var multimap=false;\nvar nr_heatmaps=1;\n\nvar data=[];\n'
     
         gradmin=self.heatmap[0][0]
         gradmax=gradmin
@@ -898,7 +899,7 @@ class heatmap:
         
                     
 
-        self.js=js
+        self.js=self.js+js
         if self.dump_html==False:
             if self.multi_nr==0:
                 f=open(self.module_dir+"/js/data.js","w")
@@ -906,6 +907,7 @@ class heatmap:
                 f=open(self.module_dir+"/js/data.js","a")
             f.write(js)
             f.close()
+            
 
         
 
@@ -936,7 +938,7 @@ class heatmap:
             jsfrags=html.split('<script src="')            
             for jsfrag in jsfrags[1:]:
                 jsfile=jsfrag.split('"')
-                if jsfile[0]=='js/data.js':
+                if jsfile[0]=='js/data.js' and self.multi_nr!=0:
                     continue
                 if self.debuglevel==2:
                     print jsfile[0]

@@ -3,6 +3,7 @@ sys.path.insert(0,'h:\\src\\heatmapr')
 import heatmapr
 
 
+# voor het uitvoeren van dit voorbeeld eerst 'python multisplit.py' uitvoeren.
 
 
 
@@ -33,12 +34,14 @@ args=dict(infile='',
           colormap='blue',
           size='1',
           transform='linear',
+
+          multi_cols=3,   # aantal heatmaps op een rij
           
           controltype='flat',
           dump_html=True,
           imgwidth=100,
-          imgheight=100,    
-          multimap=['color1']
+          imgheight=100,   
+          
           )
 
 j=0

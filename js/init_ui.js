@@ -41,24 +41,33 @@ function init_all_heatmaps(heatmapdata) {
     heatmapnode=document.getElementById('heatmap_div');
     heatmapnode.innerHTML =template(heatmapdata);
 
-    
-    startpos=200;
-    xpos=0;
-    ypos=50;
+    var opt=opties[0];    
+    var multi_cols=opt.multi_cols;
+    var width=opt.imgwidth+50;
+    var height=opt.imgheight+75;
+    var xpos=0;
+    var ypos=50;
     var i=0;
     var j=0;
-    for (i=0,j=0; i<data.length; i++,j++) {
+    for (i=0,j=1; i<data.length; i++,j++) {
+        console.log('container:',i,j);
         $('#heatmap_container_'+i).css('margin-left',xpos);        
-        $('#heatmap_container_'+i).css('top',ypos);        
-        xpos+=200;
-        if (j>2) {
-            ypos+=200;
+        $('#heatmap_container_'+i).css('top',ypos); 
+        if (j!=1) opties[i].ylabel='';
+        xpos+=width;
+        if (j==multi_cols) {
+            for (k=multi_cols; k>0; k--) {
+                opties[i-k+1].xlabel='';                
+            }
+            ypos+=height;
             xpos=0;
-            j=-1;
+            j=0;
         }
 
      //   $('#heatmap_container_'+i).css('left',xpos);       
     }
+    xpos=multi_cols*width;
+    $('.colormap-gradient').css('margin-left',xpos+'px')
 }
 
 
@@ -81,17 +90,19 @@ var draw_heatmaps=function() {
 
 function init_page() {
   
-   // console.log('init_page, # heatmaps:',data.length);    
+    console.log('init_page, # heatmaps:',data.length);    
+    console.log('multimap',multimap);    
+
     if (multimap) {
         var heatmapinfo=[0];        
     } else {
-        var heatmapinfo=[];            
+        var heatmapinfo=[];    
+        nr_heatmaps=data.length;        
         for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
     }
 
 	datasets=data;
     var heatmapdata={heatmaps:heatmapinfo};
-    console.log(heatmapinfo, heatmapdata);
     init_all_heatmaps(heatmapdata);
     
     heatmaps=[];
