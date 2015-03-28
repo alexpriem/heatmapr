@@ -304,16 +304,18 @@ class heatmap:
         if x_fixedfile_startpos is not None and x_fixedfile_endpos is not None:
             do_fixed=True
 
-
-        try:
-            xcolnr=cols.index(xcol)
-            ycolnr=cols.index(ycol)
-        except:
-            print 'column not found'
-            print 'xcolumn:',xcol, 
-            print 'ycolumn:',ycol
-            print 'columns:',cols
-            sys.exit()
+        if do_fixed==False:
+            try:
+                xcolnr=cols.index(xcol)
+                ycolnr=cols.index(ycol)
+            except:
+                
+                print 'column not found'
+                print 'xcolumn:',xcol, 
+                print 'ycolumn:',ycol
+                print 'columns:',cols
+                sys.exit()
+                
         if x_data_type=='nominal':
         	xmin=float(xmin)
         	xmax=float(xmax)
