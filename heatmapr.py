@@ -513,7 +513,9 @@ class heatmap:
                 if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
                     self.convert_comma=True 
                     line=line.replace(',','.')
-                    cols=line.split(sep)                    
+                    cols=line.split(sep)
+                    x_txt=cols[xcolnr]
+                    y_txt=cols[ycolnr]
                 if x_data_type=='nominal':                    
                     if x_txt!='':
                         x=float(x_txt)
@@ -529,7 +531,7 @@ class heatmap:
 
                 if y_data_type=='nominal':                    
                     if y_txt!='':
-                        y=float(s)
+                        y=float(y_txt)
                     else:
                         y=0
                 else:                
