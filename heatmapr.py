@@ -175,19 +175,25 @@ class heatmap:
 
 
         if args['x_steps']>args['imgwidth']:
-            raise RuntimeError ('\n\nx_steps > imgwidth: (%s>%s)' % (args['x_steps'],args['imgwidth']))
+            s='\n\nx_steps > imgwidth: (%s>%s)' % (args['x_steps'],args['imgwidth'])
+            raise RuntimeError (s)
         if args['y_steps']>args['imgheight']:
-            raise RuntimeError ('\n\ny_steps > imgheight: (%s>%s)' % (args['y_steps'],args['imgheight']))
+            s='\n\ny_steps > imgheight: (%s>%s)' % (args['y_steps'],args['imgheight'])
+            raise RuntimeError (s)
 
 
         if int(args['x_steps'])>2000:
-            raise RuntimeError ('\n\nx_steps too large (>2000). (x_steps:%s)' % (args['x_steps']))
+            s='\n\nx_steps too large (>2000). (x_steps:%s)' % (args['x_steps'])
+            raise RuntimeError (s)
         if int(args['y_steps'])>2000:
-            raise RuntimeError ('\n\ny_steps too large (>2000). (y_steps:%s)' % (args['y_steps']))
+            s='\n\ny_steps too large (>2000). (y_steps:%s)' % (args['y_steps'])
+            raise RuntimeError (s)
         if int(args['imgwidth'])>2000:
-            raise RuntimeError ('\n\imgwidth too large (>2000). (imgwidth:%s)' % (args['imgwidth']))
+            s='\n\imgwidth too large (>2000). (imgwidth:%s)' % (args['imgwidth'])
+            raise RuntimeError (s)
         if int(args['imgheight'])>2000:
-            raise RuntimeError ('\n\imgheight too large (>2000). (imgheight:%s)' % (args['imgheight']))
+            s='\n\imgheight too large (>2000). (imgheight:%s)' % (args['imgheight'])
+            raise RuntimeError (s)
         
 
 
@@ -203,8 +209,8 @@ class heatmap:
                     return ((d-date_min).days)/7
             if datatype=='date_day':
                     return (d-date_min).days            
-
-            raise RuntimeError("x_data_type/y_datatype should be date_year, date_quarter, date_month, date_week or date_day, not '%s'" % datatype)
+            s="x_data_type/y_datatype should be date_year, date_quarter, date_month, date_week or date_day, not '%s'" % datatype
+            raise RuntimeError(s)
             
 
 
