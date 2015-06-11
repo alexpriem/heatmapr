@@ -890,7 +890,7 @@ function heatmap (data, opties) {
 	  		.attr("font-size", fontsize+"px")
 	  		 .attr("transform","translate(0,"+(fontsize-15)+xlabeloffset+")")
 	  		.attr("font-weight", "bold")
-	        .text(opties.xlabel);
+	        .text(opties.x_label);
 	  chart.append("text")      // text label for the x axis
 	    	.attr("class","yaxis")
 	        .attr("x", 0 )
@@ -900,7 +900,7 @@ function heatmap (data, opties) {
 	  		.attr("font-weight", "bold")
 	        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
 	        .style("text-anchor", "middle")
-	        .text(opties.ylabel);
+	        .text(opties.y_label);
 	  chart.append("text")      // text label for the x axis
 	    	.attr("class","yaxis")
 	        .attr("x", imgwidth/2+70 )
@@ -1322,7 +1322,7 @@ function heatmap (data, opties) {
 	        .attr("font-family", "Corbel")
 	        .attr("font-size", "15px")
 	        .attr("font-weight", "bold")
-	        .text(opties.xlabel+':'+xval);
+	        .text(opties.x_label+':'+xval);
 
 	    var val=_this.y_to_world(y);
 		yval=val.toFixed(0);
@@ -1333,7 +1333,7 @@ function heatmap (data, opties) {
 	        .attr("font-family", "Corbel")
 	        .attr("font-size", "15px")
 	        .attr("font-weight", "bold")
-	        .text(opties.ylabel+':'+yval);
+	        .text(opties.y_label+':'+yval);
 
 		val=transposebuffer[(imgheight-y)/size*imgwidth+x/size];
 		chart.append("text")
@@ -1487,7 +1487,7 @@ function heatmap (data, opties) {
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", "16px")
 	  		.attr("font-weight", "bold")
-	        .text(opties.xlabel+ '(voor '+opties.ylabel+'='+yval+')');
+	        .text(opties.x_label+ '(voor '+opties.y_label+'='+yval+')');
 	  chart.append("text")      // text label for the x axis
 	    	.attr("class","yaxis hist_y")
 	        .attr("x", 1.5*imgwidth+offsetx_hist )
@@ -1496,7 +1496,7 @@ function heatmap (data, opties) {
 	  		.attr("font-size", "16px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
-	        .text(opties.ylabel+ '(voor '+opties.xlabel+'='+xval+')');
+	        .text(opties.y_label+ '(voor '+opties.x_label+'='+xval+')');
 
 
 	  chart.append("svg:line")

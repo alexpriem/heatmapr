@@ -35,7 +35,7 @@ class heatmap:
             ['x_label',None,False,''],
             ['x_min','',True,''],
             ['x_max','',True,''],
-            ['x_steps','',True,''],
+            ['x_steps',None,True,''],
             ['x_fuzz',0,False,''],
             ['x_fill',0,False,''],
             ['x_log',False,False,''],
@@ -53,7 +53,7 @@ class heatmap:
             ['y_label',None,False,''],
             ['y_min','',True,''],
             ['y_max','',True,''],
-            ['y_steps','',True,''],
+            ['y_steps',None,True,''],
             ['y_fuzz',0,False,''],
             ['y_fill',0,False,''],
             ['y_log',False,False,''],
@@ -171,26 +171,31 @@ class heatmap:
             setattr(self,k,v)
 
 
-        if args['x_steps']>args['imgwidth']:
-            s='\n\nx_steps > imgwidth: (%s>%s)' % (args['x_steps'],args['imgwidth'])
+        if self.x_steps>self.imgwidth:
+            s='\n\nx_steps > imgwidth: (%s>%s)' % (self.x_steps, self.imgwidth)
             raise RuntimeError (s)
-        if args['y_steps']>args['imgheight']:
-            s='\n\ny_steps > imgheight: (%s>%s)' % (args['y_steps'],args['imgheight'])
+        if self.y_steps>self.imgheight:
+            s='\n\ny_steps > imgheight: (%s>%s)' % (self.y_steps, self.imgheight)
             raise RuntimeError (s)
 
 
-        if int(args['x_steps'])>2000:
-            s='\n\nx_steps too large (>2000). (x_steps:%s)' % (args['x_steps'])
+        if int(self.x_steps)>2000:
+            s='\n\nx_steps too large (>2000). (x_steps:%s)' % (self.x_steps)
             raise RuntimeError (s)
-        if int(args['y_steps'])>2000:
-            s='\n\ny_steps too large (>2000). (y_steps:%s)' % (args['y_steps'])
+        if int(self.y_steps)>2000:
+            s='\n\ny_steps too large (>2000). (y_steps:%s)' % (self.y_steps)
             raise RuntimeError (s)
-        if int(args['imgwidth'])>2000:
-            s='\n\imgwidth too large (>2000). (imgwidth:%s)' % (args['imgwidth'])
+        if int(self.imgwidth)>2000:
+            s='\n\imgwidth too large (>2000). (imgwidth:%s)' % (self.imgwidth)
             raise RuntimeError (s)
-        if int(args['imgheight'])>2000:
-            s='\n\imgheight too large (>2000). (imgheight:%s)' % (args['imgheight'])
+        if int(self.imgheight)>2000:
+            s='\n\imgheight too large (>2000). (imgheight:%s)' % (self.imgheight)
             raise RuntimeError (s)
+
+        if self.x_steps is None:
+            self.x_steps=self.imgwidth
+        if self.y_steps is None:
+            self.y_steps=self.imgheight
         
 
 
@@ -365,7 +370,6 @@ class heatmap:
         if self.y_label is None:
             self.y_label=ycol            
 
-    
         weightcolnr=None
         if self.weight_var is not None and do_fixed is False:
             weightcolnr=cols.index(self.weight_var)
@@ -797,7 +801,7 @@ class heatmap:
                 js+='var opties=[];\n'
         optiejs='opties.push({'
         for k in sorted(args.keys()):
-            v=args[k]
+            v=getattr(self,k)
             if v is None:
                 optiejs+='"%s":null,\n' % (k)                
                 continue
