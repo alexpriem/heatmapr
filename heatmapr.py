@@ -32,6 +32,7 @@ class heatmap:
             ['x_fixedfile_endpos',None,False,''],
             
             ['x_var','',True,''],
+            ['x_label',None,False,''],
             ['x_min','',True,''],
             ['x_max','',True,''],
             ['x_steps','',True,''],
@@ -43,12 +44,13 @@ class heatmap:
             ['x_relative', False,False,''],
             ['x_relative_min', 0,False,''],
             ['x_relative_max', 100,False,''],
-
-
+            
+            
             ['y_fixedfile_startpos',None,False,''],
             ['y_fixedfile_endpos',None,False,''],
             
             ['y_var','',True,''],
+            ['y_label',None,False,''],
             ['y_min','',True,''],
             ['y_max','',True,''],
             ['y_steps','',True,''],
@@ -65,10 +67,6 @@ class heatmap:
             ['weight_fixedfile_startpos',None,False,''],
             ['weight_fixedfile_endpos',None,False,''],            
             
-
-            
-            
-
             ['gradmin',0,False,''],
             ['gradmax','max',False,''],
             ['gradsteps',40,False,''],
@@ -81,8 +79,7 @@ class heatmap:
             ['imgwidth',500,False,''],
             ['imgheight',500,False,''],
             ['outfile','',True,''],
-            ['xlabel',None,False,''],
-            ['ylabel',None,False,''],
+            
             ['fontsize',16,False,''],
             ['numticks',None,False,''],
             
@@ -363,10 +360,10 @@ class heatmap:
         xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
         yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
 
-        if self.xlabel is None:
-            self.xlabel=xcol
-        if self.ylabel is None:
-            self.ylabel=ycol            
+        if self.x_label is None:
+            self.x_label=xcol
+        if self.y_label is None:
+            self.y_label=ycol            
 
     
         weightcolnr=None
