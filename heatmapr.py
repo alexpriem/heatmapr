@@ -35,7 +35,7 @@ class heatmap:
             ['x_label',None,False,''],
             ['x_min','',True,''],
             ['x_max','',True,''],
-            ['x_steps',None,True,''],
+            ['x_steps',None,False,''],
             ['x_fuzz',0,False,''],
             ['x_fill',0,False,''],
             ['x_log',False,False,''],
@@ -53,7 +53,7 @@ class heatmap:
             ['y_label',None,False,''],
             ['y_min','',True,''],
             ['y_max','',True,''],
-            ['y_steps',None,True,''],
+            ['y_steps',None,False,''],
             ['y_fuzz',0,False,''],
             ['y_fill',0,False,''],
             ['y_log',False,False,''],
@@ -84,7 +84,7 @@ class heatmap:
             ['numticks',None,False,''],
             
             
-            ['title',None,False,''],
+            ['title','',False,''],
             ['dump_html',True,False,'full html output'],            
             ['dump_csv',False,False,'dump output to csv'],    
             ['colormap','blue',False,''],
@@ -170,6 +170,10 @@ class heatmap:
         for k,v in args.items():
             setattr(self,k,v)
 
+        if self.x_steps is None:
+            self.x_steps=self.imgwidth
+        if self.y_steps is None:
+            self.y_steps=self.imgheight
 
         if self.x_steps>self.imgwidth:
             s='\n\nx_steps > imgwidth: (%s>%s)' % (self.x_steps, self.imgwidth)
@@ -192,10 +196,6 @@ class heatmap:
             s='\n\imgheight too large (>2000). (imgheight:%s)' % (self.imgheight)
             raise RuntimeError (s)
 
-        if self.x_steps is None:
-            self.x_steps=self.imgwidth
-        if self.y_steps is None:
-            self.y_steps=self.imgheight
         
 
 
