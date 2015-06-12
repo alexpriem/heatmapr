@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,'h:\\src\\heatmapr')
+sys.path.insert(0,'e:\\src\\heatmapr')
 import heatmapr
 
 

@@ -1229,6 +1229,34 @@ function heatmap (data, opties) {
 	}
 
 
+
+	this.world_to_x=function (x) {
+		var opties=_this.opties;
+		var imgwidth=opties.imgwidth;
+		var xmax=opties.x_max+1;
+		var xmin=opties.x_min;
+		var delta=(xmax-xmin);
+		//var val=((x-75)/imgwidth)*delta+xmin;
+
+		var val=((x-xmin)/delta)*imgwidth+75
+
+		return val;
+	}
+
+	this.world_to_y=function (y) {
+		var opties=_this.opties;
+		var imgheight=opties.imgheight;
+		var ymax=opties.y_max+1;   // off by one, again.
+		var ymin=opties.y_min;
+		var delta=(ymax-ymin);
+		//var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
+
+		var val=imgheight-((y-ymin)/delta*imgheight)+15;
+		console.log('y,val:',y,val);
+		return val;
+	}
+
+
 	this.x_to_world=function (x) {
 		var opties=_this.opties;
 		var imgwidth=opties.imgwidth;
@@ -1812,6 +1840,20 @@ function heatmap (data, opties) {
 			$('#dot_use_gradient').addClass('active_selectie');
 		}
 		_this.show_dot_background();
+	}
+
+
+	this.click_annotation=function () {
+
+		console.log('click_annotation:', this.id);
+		a=_this.opties.annotate[this.id];
+		console.log('click_annotate, text:',a.text);
+
+	}
+
+
+	this.init_annotations=function () {
+		init_annotations (_this, _this.opties.annotate);
 	}
 
 }

@@ -134,6 +134,7 @@ function init_page() {
     h.init_hist_xy();
     h.init_dotplot();
     h.init_display();
+    h.init_annotations();
 
     
  //   Pixastic.debug=true;
