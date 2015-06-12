@@ -125,6 +125,8 @@ class heatmap:
             
             ['multi_nr', 0,False,''],
             ['multi_cols', 3,False,''],
+
+            ['annotate',{},False,''],
             
             
             ['controltype','notflat', False,''], 
