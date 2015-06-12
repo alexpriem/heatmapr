@@ -270,6 +270,20 @@ class heatmap:
 
 
 
+    def parse_minmax_range(self, value, data_type, dateformat, minmax, min_date=None):
+        datevalue=None
+        if data_type=='nominal':
+            value=float(value)        	
+        else:
+            datevalue=datetime.datetime.strptime(value,dateformat)	    	                
+            if minmax=='min':
+                value=0
+            if minmax=='max':
+                value=self.munge_date(datevalue, data_type, min_date)
+        return value, datevalue
+
+
+
 
 
     def make_heatmap (self, args):
@@ -323,28 +337,18 @@ class heatmap:
                 print 'ycolumn:',ycol
                 print 'columns:',cols
                 sys.exit()
-                
-        if x_data_type=='nominal':
-        	xmin=float(xmin)
-        	xmax=float(xmax)
-        else:
-            xmin_date=datetime.datetime.strptime(xmin,x_dateformat)	    	
-            xmax_date=datetime.datetime.strptime(xmax,x_dateformat)
-            self.xmin_date=xmin_date
-            self.xmax_date=xmax_date
-            xmin=0
-            xmax=self.munge_date(xmax_date, x_data_type, xmin_date)
+
+        xmin, xmin_date=self.parse_minmax_range(xmin, x_data_type, x_dateformat, 'min')
+        xmax, xmax_date=self.parse_minmax_range(xmax, x_data_type, x_dateformat, 'max', xmin_date)
+        ymin, ymin_date=self.parse_minmax_range(ymin, y_data_type, y_dateformat, 'min')
+        ymax, ymax_date=self.parse_minmax_range(ymax, y_data_type, y_dateformat, 'max', ymin_date)
         
-        if y_data_type=='nominal':
-        	ymin=float(ymin)
-        	ymax=float(ymax)
-        else:
-            ymin_date=datetime.datetime.strptime(ymin,y_dateformat)	    	
-            ymax_date=datetime.datetime.strptime(ymax,y_dateformat)
-            self.ymin_date=ymin_date
-            self.ymax_date=ymax_date
-            ymin=0
-            ymax=self.munge_date(ymax_date, y_data_type, ymin_date)
+        self.xmin_date=xmin_date
+        self.xmax_date=xmax_date
+        self.ymin_date=ymin_date
+        self.ymax_date=ymax_date
+        
+        
        
         x_log=self.x_log
         if x_log:            
