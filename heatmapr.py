@@ -362,8 +362,6 @@ class heatmap:
         self.xpixels=xpixels
         self.ypixels=ypixels
         
-        xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
-        yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
 
         if self.x_label is None:
             self.x_label=xcol
@@ -466,7 +464,8 @@ class heatmap:
         
             
 
-                  
+        xfactor= (xmax-xmin)/ (1.0*(xpixels-1))
+        yfactor= (ymax-ymin)/ (1.0*(ypixels-1))
 
 
         linenr=0
