@@ -495,8 +495,8 @@ function heatmap (data, opties) {
 
 		if ((opties.diplaymode=='text')  && (opties.text_show_background==false)) return;
 
-		_this.spread_bins();
-		_this.draw_histogram();
+		_this.spread_bins();	
+
 
 		var mapdata=_this.mapdata;
 		var backbuffer=_this.backbuffer;
@@ -1132,101 +1132,6 @@ function heatmap (data, opties) {
 	}
 
 
-	this.draw_histogram=function  () {
-
-	var opties=_this.opties;
-	console.log("draw_histogram:");
-	//console.log(colormap);
-
-	var gradient_node=document.getElementById("cg_a");
-	var gradmin=gradient_node.getAttribute('gradient_min');  //FIXME
-	var gradmax=gradient_node.getAttribute('gradient_max');
-	var gradsteps=gradient_node.getAttribute('gradient_steps');
-	var colormap=gradient_node.colormap;
-	var chart=_this.chart;
-
-	var imgwidth=opties.imgwidth;
-	var imgheight=opties.imgheight;
-	var histwidth=500;
-	var histheight=0.4*opties.imgheight;
-	var barwidth=500/gradsteps;
-	var hist_offset_x=150;
-	var hist=_this.hist;
-	var histmax=_this.histmax;
-
-
-
-	$('.hist_2d').remove();
-	$('.hist_x').remove();
-	$('.hist_y').remove();
-
-	console.log('DRAW_HISTOGRAM:',imgheight,histmax,histheight);
-	for (i=1; i<gradsteps; i++) {
-	 	color=colormap[i];
-	 	colorstring="rgb("+color[0]+","+color[1]+","+color[2]+")";
-	 	if (gradsteps>30) {
-	 		borderstyle=colorstring;
-	 	} else {
-	 		borderstyle="#5a5a5a";
-	 	}
-	 	//console.log(hist[i],histmax,imgheight-(hist[i]/histmax)*0.4*imgheight);
-
-	 	chart.append("rect")
-			.attr("class","hist_2d")
-			.attr("x",imgwidth+hist_offset_x+i*barwidth)
-			.attr("y",imgheight-(hist[i]/histmax)*histheight+25)
-			.attr("width",barwidth)
-			.attr("height",(hist[i]/histmax)*histheight)
-			.style("fill",colorstring)
-			.style("stroke",borderstyle)
-			.style("stroke-width","1px");
-	 }
-
-	  console.log('hist:',opties.transform);
-	  var heatmap_hist_xScale=d3.scale.linear();
-
-	  heatmap_hist_xScale.range([0,gradsteps*barwidth]);
-	  heatmap_hist_xScale.domain([gradmin,gradmax]);
-
-	  var heatmap_hist_yScale=d3.scale.linear();
-	  heatmap_hist_yScale.range([0,histheight]);
-	  heatmap_hist_yScale.domain([histmax,0]);
-
-
-	  var heatmap_hist_xAxis=d3.svg.axis();
-	  var heatmap_hist_yAxis=d3.svg.axis();
-	  heatmap_hist_xAxis.scale(heatmap_hist_xScale)
-	  		.ticks(5)
-	       .orient("bottom");
-	  heatmap_hist_yAxis.scale(heatmap_hist_yScale)
-	  		.ticks(5)
-	       .orient("left");
-
-	  //console.log(chart);
-	  offsetx=imgwidth+hist_offset_x;
-	  offsety=imgheight+25;
-
-	  chart.append("g")
-	        .attr("class","xaxis hist_2d")
-	        .attr("transform","translate("+offsetx+","+offsety+")")
-	        .call(heatmap_hist_xAxis);
-	  offsety=imgheight-histheight+25;
-	  chart.append("g")
-	        .attr("class","yaxis hist_2d")
-	        .attr("transform","translate("+offsetx+","+offsety+")")
-	        .call(heatmap_hist_yAxis);
-
-	  chart.selectAll('.hist_2d')
-	  		.selectAll('.tick >text')
-	        .attr("font-family", "Corbel")
-	  		.attr("font-size", "16px")
-	  		.attr("font-weight", "normal");
-	        /*
-	        .attr("class","yaxis hist_2d")
-	        .attr("transform","translate("+offsetx+","+offsety+")")
-	        .call(heatmap_hist_yAxis);*/
-
-	}
 
 
 
@@ -1323,7 +1228,6 @@ function heatmap (data, opties) {
 			return false;
 		}
 
-		$('.hist_2d').remove();
 		$('.hist_x').remove();
 		$('.hist_y').remove();
 		$('.pointinfotext').remove();
@@ -1848,6 +1752,27 @@ function heatmap (data, opties) {
 		console.log('click_annotation:', this.id);
 		a=_this.opties.annotate[this.id];
 		console.log('click_annotate, text:',a.text);
+
+
+		if (a.position=='top'){
+			y=50;
+		} else {
+			y=a.text_y_pos;
+		}
+
+		console.log('ypos:', y);
+		txt="<div class='annotation'>"+a.text+"</div>"; 
+		_this.chart.append('foreignObject')
+		    .attr("width", _this.opties.imgwidth)
+		    .attr("height", _this.opties.imgheight)
+		    .attr('x',_this.opties.imgwidth+100)
+		    .attr('y',y)
+		    .attr("class",'annotation')
+		    .attr("id",'annotation')
+   	        .append("xhtml:body")		       	        
+    		.html(txt);
+
+
 
 	}
 
