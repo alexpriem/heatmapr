@@ -1747,7 +1747,7 @@ function heatmap (data, opties) {
 	}
 
 
-	this.click_annotation=function () {
+	this.click_annotation=function (e) {
 
 		console.log('click_annotation:', this.id);
 		a=_this.opties.annotate[this.id];
@@ -1761,7 +1761,11 @@ function heatmap (data, opties) {
 		}
 
 		console.log('ypos:', y);
-		txt="<div class='annotation'>"+a.text+"</div>"; 
+
+		if (label in a) {
+			var label='<h3>'+label+'</h3>';
+		}
+		txt="<div class='annotation'>"+label+a.text+"</div>"; 
 		_this.chart.append('foreignObject')
 		    .attr("width", _this.opties.imgwidth)
 		    .attr("height", _this.opties.imgheight)
@@ -1773,7 +1777,7 @@ function heatmap (data, opties) {
     		.html(txt);
 
 
-
+    	e.stopPropagation();
 	}
 
 
