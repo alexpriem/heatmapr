@@ -185,3 +185,13 @@ background:red;
 	padding-left:125px;	
 	margin-top:25px;
 }
+
+
+#data_div {
+	padding-left:150px;	
+	margin-top:25px;	
+}
+#data_container {
+
+	position: absolute;	
+}

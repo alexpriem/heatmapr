@@ -14,14 +14,14 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
 
 
-    url(r'^heatmap/js/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/js'}),
-    url(r'^heatmap/img/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/img'}),
-    url(r'^heatmap/css/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/css'}),    
-    url(r'^heatmap/lib/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/lib'}),
+    url(r'^js/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/js'}),
+    url(r'^img/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/img'}),
+    url(r'^css/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/css'}),    
+    url(r'^lib/(?P<path>.*)$', 'django.views.static.serve', {'document_root':base_dir+'/lib'}),
                        
     url(r'^$', views.top, name='index'),
     url(r'^dataset/(?P<dataset>.*)/', views.dataset),
-    url(r'^heatmap/$', views.heatmap),
+    url(r'^heatmap/(?P<dataset>.*)/$', views.heatmap),
     url(r'^admin/', include(admin.site.urls)),
     
 )

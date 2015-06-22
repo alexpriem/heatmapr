@@ -2,13 +2,6 @@ import sys, glob, datetime, gzip
 from operator import itemgetter
 
  
-datadir='t:\\ib\\'
-#infile=datadir+'ib2010_1k.csv'
-infile=datadir+'ib2010.csv2'
-outfile='split/'
-match=['srtadr=1','h_ink=1']
-sep_in=';'
-sep_out=','
 verbose=2
        
 def prepmatch (matches):
@@ -37,10 +30,20 @@ def prepmatch (matches):
 
 
 
-def csv_select (infile, outfile, matchdict, matchtype):
+# todo:
+# 1-kolommen overnemen uit externe file.
+# 2-meer dan 500 kolommen: opslitsten in batches, multiple passes doen.
+# 3-subselecties aangeven (match)
+
+def csv_select (infile, outfile, sep_in, match=None):
 
 
-    
+    sep_out=','
+    if match is None:
+        matchdict, matchtype=prepmatch(match)
+    else:
+        matchdict={}
+        matchtype={}
     f=open (infile,'r')
     #f=gzip.open (infile,'r')
 
@@ -114,5 +117,3 @@ def csv_select (infile, outfile, matchdict, matchtype):
         f.close()
 
 
-matchdict, matchtype=prepmatch(match)
-csv_select (infile, outfile, matchdict, matchtype)
