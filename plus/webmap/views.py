@@ -32,13 +32,31 @@ def heatmap (request):
 
 
 
+def read_header (filename,sep=None):
+
+
+    f=open(filename,'r')
+    headerline=f.readline()
+    if sep is None:
+        sep=','
+        if len(headerline.split(sep))==1:
+            sep=';'
+            if len(headerline.split(';'))==1:
+                raise RuntimeError ('unknown separator')
+            
+    cols=[col.strip() for col in headerline.split(sep)]
+
+    return sep, cols
+
+
 def dataset (request, dataset):
 
     #print request.GET['dataset']
     datadir=request.GET['datadir']
-    
-    
-    sep=';'
-    data={'dataset':dataset, 'sep':sep}
+
+
+    sep,cols=read_header(datadir+'/'+dataset+'.csv')
+        
+    data={'dataset':dataset, 'sep':sep, 'cols':cols}
     return HttpResponse(cjson.encode(data))
 
