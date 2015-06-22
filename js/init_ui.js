@@ -4,7 +4,7 @@ var c,s,ctx;
 var print=false;
 var datasets=null;
 // printinfo hier
-
+var interactive=true;
 
 function set_gradient (opties) {
  
@@ -147,6 +147,11 @@ function init_page() {
         $('#IE9_hack').hide();
     } else {
         $('#sel_print').hide();
+    }
+
+
+ if ((interactive!=undefined) && (interactive==true)) {
+    init_interactive ();
     }
 }
 
