@@ -5,6 +5,7 @@ import os
 from django.contrib import admin
 admin.autodiscover()
 
+
 base_dir = os.path.dirname(os.path.dirname(__file__))+'/..'
 base_url = 'heatmap/'
 urlpatterns = patterns('',
