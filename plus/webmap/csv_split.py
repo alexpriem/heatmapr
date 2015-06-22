@@ -1,4 +1,4 @@
-import sys, glob, datetime, gzip
+import sys, glob, datetime, gzip, csv
 from operator import itemgetter
 
  
@@ -44,11 +44,13 @@ def csv_select (infile, outfile, sep_in, match=None):
     else:
         matchdict={}
         matchtype={}
-    f=open (infile,'r')
+    f=open (infile)
     #f=gzip.open (infile,'r')
 
+
+    c=csv.reader(f,delimiter=sep_in)
     
-    keys=f.readline().strip().split(sep_in)
+    keys=c.next()
     keys=[k.lower() for k in keys]    
 
     subkeys=[]
@@ -63,8 +65,8 @@ def csv_select (infile, outfile, sep_in, match=None):
         filedict[key]=open(outfile+key+'.csv','w')
 
 #    sys.exit()
-    for i in range(0,10):
-        cols=f.readline().split(sep_in)        
+#    for i in range(0,10):
+#        cols=f.readline().split(sep_in)        
         
     matchcols=[]
     matchvals=[]
@@ -77,11 +79,11 @@ def csv_select (infile, outfile, sep_in, match=None):
 
     i=0
     j=0
-    for line in f:
+    for line in c:
         i+=1
         if verbose==2 and i%1000==0:
-            print i, j
-        vals=line.strip().split(sep_in)
+            print i, j        
+        vals=line
        # print vals
         match=True
         for k,v in zip(matchcols,matchvals):

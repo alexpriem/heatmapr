@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from csv_split import csv_select
+from dictify import dictify_all_the_things
 
 
 
@@ -67,6 +68,23 @@ def read_header (filename,sep=None):
     return sep, cols
 
 
+def get_cols (datadir, dataset, infodir):
+    
+    try:
+        f=open(infodir+'/col_info.csv','r')
+        sep=f.readline().strip()[4:]
+        cols=[]
+        for line in f:
+            cols.append(line.strip())
+    except:        
+        sep,cols=read_header(datadir+'/'+dataset+'.csv')        
+        f=open(infodir+'/col_info.csv','w')
+        f.write('sep=%s\n' % sep)
+        for col in cols:
+            f.write(col+'\n')
+        f.close()
+    return sep, cols
+
 
 
 
@@ -82,35 +100,31 @@ def dataset (request, dataset):
     # kijken of info-dir bestaat
 
     infodir=datadir+'/'+dataset+'_info'
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)
+        state=0  # empty   
 
+    sep, cols=get_cols (datadir, dataset, infodir)
+
+    
     if action=='split':
         split_csv_file (datadir, dataset, infodir)
+
+    if action=='dictify':        
+        dictify_all_the_things (infodir, cols)
+
 
 
     if action=='clear1':  # full clean
         shutil.rmtree(infodir)
         msg='all cleared'
-
-    if not os.path.exists(infodir):
-        os.makedirs(infodir)
-        state=0  # empty
+        os.makedirs(infodir)  #infodir opnieuw aanmaken
+        cols=get_cols (datadir, dataset, infodir) # kolommen opnieuw inlezen
+        # rest als via init
+ 
 
 
     
-
-    try:
-        f=open(infodir+'/col_info.csv','r')
-        sep=f.readline().strip()[4:]
-        cols=[]
-        for line in f:
-            cols.append(line.strip())
-    except:        
-        sep,cols=read_header(datadir+'/'+dataset+'.csv')        
-        f=open(infodir+'/col_info.csv','w')
-        f.write('sep=%s\n' % sep)
-        for col in cols:
-            f.write(col+'\n')
-        f.close()
     
     columns=[]
     for col in cols:
