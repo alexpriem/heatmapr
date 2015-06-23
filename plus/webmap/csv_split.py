@@ -35,7 +35,7 @@ def prepmatch (matches):
 # 2-meer dan 500 kolommen: opslitsten in batches, multiple passes doen.
 # 3-subselecties aangeven (match)
 
-def csv_select (infile, outfile, sep_in, match=None):
+def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
 
 
     sep_out=','
@@ -82,8 +82,12 @@ def csv_select (infile, outfile, sep_in, match=None):
     for line in c:
         i+=1
         if verbose==2 and i%1000==0:
-            print i, j        
+            print i, j
+            
         vals=line
+        if global_recode is not None:
+            vals=[global_recode.get(val, val) for val in vals]
+                    
        # print vals
         match=True
         for k,v in zip(matchcols,matchvals):

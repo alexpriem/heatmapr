@@ -34,7 +34,7 @@ def heatmap (request, dataset):
 
 
 
-def split_csv_file (datadir, dataset, infodir):
+def split_csv_file (datadir, dataset, infodir, match, global_recode):
 
     splitdir=infodir+'/split'
     if not os.path.exists(splitdir):
@@ -45,10 +45,11 @@ def split_csv_file (datadir, dataset, infodir):
     infile=datadir+'/'+dataset+'.csv'
     outfile=infodir+'/split/'
     sep=','
-    match=[] # ['srtadr=1','h_ink=1']
+    if match is None:
+        match=[]    # ['srtadr=1','h_ink=1']
 
         
-    csv_select (infile, outfile, sep, match)
+    csv_select (infile, outfile, sep, match, global_recode)
 
 
 
@@ -106,20 +107,26 @@ def dataset (request, dataset):
 
     sep, cols=get_cols (datadir, dataset, infodir)
 
-    
+
+    g={'ND,1':'', 'ND,2':'', 'ND,3':'', 'ND,4':'', 'ND,5':'', 'ND,6':''}
     if action=='split':
-        split_csv_file (datadir, dataset, infodir)
+        split_csv_file (datadir, dataset, infodir, match=None, global_recode=g)
 
     if action=='dictify':        
         dictify_all_the_things (infodir, cols)
 
+    if action=='dictify':        
+        dict2type (infodir, cols)
 
 
-    if action=='clear1':  # full clean
-        shutil.rmtree(infodir)
+    if action=='clear_all':  # full clean
+        if os.path.exists(infodir+'/split'):        
+            shutil.rmtree(infodir+'/split')
+        if os.path.exists(infodir+'/hist'):
+            shutil.rmtree(infodir+'/hist')        
+        os.remove(infodir+'/col_info.csv')
         msg='all cleared'
-        os.makedirs(infodir)  #infodir opnieuw aanmaken
-        cols=get_cols (datadir, dataset, infodir) # kolommen opnieuw inlezen
+        sep, cols=get_cols (datadir, dataset, infodir) # kolommen opnieuw inlezen
         # rest als via init
  
 
