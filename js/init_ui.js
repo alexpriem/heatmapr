@@ -150,9 +150,10 @@ function init_page() {
     }
 
 
- if ((interactive!=undefined) && (interactive==true)) {
-    init_interactive ();
+    if (typeof (init_interactive) == 'function') { 
+        init_interactive(); 
     }
+ 
 }
 
 $( document ).ready(init_page);

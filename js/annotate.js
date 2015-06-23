@@ -76,15 +76,14 @@ function init_annotation (heatmap, name, a){
 		var y1=rect[0][1];
 		var y2=rect[1][1];
 		if (y2<y1)  {y1=y2;}
-
-		var y=heatmap.world_to_y(y1);
-		var y2=heatmap.world_to_y(heatmap.opties.y_max*0.9);
-
+		
+				var y1=heatmap.world_to_y(y1);
+				var y2=heatmap.world_to_y(heatmap.opties.y_max*0.9);			
 
 
 		chart.append("svg:path")
 			.attr("id",name)
-    		.attr("d", "M"+x1+","+y2+"L"+x1+","+y+"L"+x2+","+y+"L"+x2+","+y2)
+    		.attr("d", "M"+x1+","+y2+"L"+x1+","+y1+"L"+x2+","+y1+"L"+x2+","+y2)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
@@ -103,6 +102,113 @@ function init_annotation (heatmap, name, a){
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 	}
+
+
+	if ('area_down' in a) { 
+		opts=handle_options(a);
+
+		rect=a.area_down;
+		var x1=heatmap.world_to_x(rect[0][0]);
+		var x2=heatmap.world_to_x(rect[1][0]);
+		var y1=rect[0][1];
+		var y2=rect[1][1];
+		if (y2<y1)  {y1=y2;}
+		
+				var y1=heatmap.world_to_y(y1);
+				var y2=heatmap.world_to_y(heatmap.opties.y_max*0.9);			
+
+		chart.append("svg:path")
+			.attr("id",name)
+    		.attr("d", "M"+x1+","+y1+"L"+x1+","+y2+"L"+x2+","+y2+"L"+x2+","+y1)
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill",opts.fill)
+			.attr("fill-opacity",opts["fill-opacity"])
+			.attr('marker-end','url(#'+name+'_m)');
+
+      	chart.append("svg:path")
+    		.attr("d", "M"+(x2-5)+","+(y1-5)+"L"+x2+","+(y1)+"L"+(x2+5)+","+(y1-5))
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill","none");
+
+      	chart.append("svg:path")
+    		.attr("d", "M"+(x1-5)+","+(y1-5)+"L"+x1+","+(y1)+"L"+(x1+5)+","+(y1-5))
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill","none");
+	}
+
+	if ('area_right' in a) { 
+		opts=handle_options(a);
+
+		rect=a.area_right;
+		var x1=heatmap.world_to_x(rect[0][0]);
+		var x2=heatmap.world_to_x(rect[1][0]);
+		var y1=rect[0][1];
+		var y2=rect[1][1];
+		if (x2<x1)  {x1=x2;}
+		
+		var y1=heatmap.world_to_y(y1);
+		var y2=heatmap.world_to_y(y2);			
+
+		chart.append("svg:path")
+			.attr("id",name)
+    		.attr("d", "M"+x2+","+y2+"L"+x1+","+y2+"L"+x1+","+y1+"L"+x2+","+y1)
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill",opts.fill)
+			.attr("fill-opacity",opts["fill-opacity"])
+			.attr('marker-end','url(#'+name+'_m)');
+
+      	chart.append("svg:path")
+    		.attr("d", "M"+(x2-5)+","+(y1-5)+"L"+x2+","+(y1)+"L"+(x2-5)+","+(y1+5))
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill","none");
+
+      	chart.append("svg:path")
+    		.attr("d", "M"+(x2-5)+","+(y2-5)+"L"+x2+","+(y2)+"L"+(x2-5)+","+(y2+5))
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill","none");
+	}
+
+	if ('area_left' in a) { 
+		opts=handle_options(a);
+
+		rect=a.area_left;
+		var x1=heatmap.world_to_x(rect[0][0]);
+		var x2=heatmap.world_to_x(rect[1][0]);
+		var y1=rect[0][1];
+		var y2=rect[1][1];
+		if (x2<x1)  {x1=x2;}
+		
+		var y1=heatmap.world_to_y(y1);
+		var y2=heatmap.world_to_y(y2);			
+
+		chart.append("svg:path")
+			.attr("id",name)
+    		.attr("d", "M"+x1+","+y2+"L"+x2+","+y2+"L"+x2+","+y1+"L"+x1+","+y1)
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill",opts.fill)
+			.attr("fill-opacity",opts["fill-opacity"])
+			.attr('marker-end','url(#'+name+'_m)');
+
+      	chart.append("svg:path")
+    		.attr("d", "M"+(x1+5)+","+(y1-5)+"L"+x1+","+(y1)+"L"+(x1+5)+","+(y1+5))
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill","none");
+
+      	chart.append("svg:path")
+    		.attr("d", "M"+(x1+5)+","+(y2-5)+"L"+x1+","+(y2)+"L"+(x1+5)+","+(y2+5))
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"])
+			.attr("fill","none");
+	}
+
 
 	if ('polygon' in a) {		
 		p=a.polygon;
