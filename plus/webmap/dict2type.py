@@ -1,4 +1,4 @@
-import sys
+import os,sys
 import array
 
 
@@ -18,25 +18,10 @@ class typechecker ():
                              'unsigned long':'L',
                              'float':'f',
                              'double':'d'}
-        
-
-    def parse_header (self, headerfile):
-        
-        f=open(headerfile,'r')
-        filename=f.readline().split('=')[1].strip()
-        sep=f.readline().split('=')[1].strip()
-        cols=[]
-        cols=[col.strip() for col in f]
-        f.close()
-        self.sep=sep
-        self.cols=cols        
-        self.filename=filename        
-
 
 
     def update_num_records (self, variable):
-
-        f=open('hist\\%s.csv' % variable)
+        f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
         sumval=0
         for line in f:
@@ -50,7 +35,7 @@ class typechecker ():
     def get_type (self, variable):
 
         self.empty=False
-        f=open('hist\\%s.csv' % variable)
+        f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
         asciicount=0
         lines=0
@@ -94,10 +79,15 @@ class typechecker ():
 
     def get_range (self, variable,t, min_perc, max_perc):
 
+        if not os.path.exists(self.infodir+'/hists'):
+            os.makedirs(self.infodir+'/hists')
+
+        
+
         if self.empty:
             return 'char'
         
-        f=open('hist\\%s.csv' % variable)
+        f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
         maxlen=None
         min_val=None
@@ -150,7 +140,7 @@ class typechecker ():
         self.hist=hist
         # rewrite histogram keys in sorted order according to type
         if ((t=='int') or (t=='float')):
-            f=open('hists\\%s.csv' % variable,'w') 
+            f=open(self.infodir+'/hists/%s.csv' % variable,'w') 
             f.write('%s:nums\n' % variable)
             for k in sorted(hist.keys()):
                 val=hist[k]
@@ -211,6 +201,12 @@ class typechecker ():
 
     def  write_binfile (self, variable,datatype, subtype, minrange, maxrange):
 
+
+        
+        if not os.path.exists(self.infodir+'/splitbin'):
+            os.makedirs(self.infodir+'/splitbin')
+
+        
         print variable, subtype, minrange, maxrange, self.num_keys
         typecode=self.subtype2typecode[subtype] 
         if self.empty:
@@ -246,7 +242,7 @@ class typechecker ():
         data2=[]
 
         #print hist_keys
-        f=open('split\\%s.csv' % variable)
+        f=open(self.infodir+'/split/%s.csv' % variable)
         nr=0
         for line in f:
             nr+=1
@@ -287,7 +283,7 @@ class typechecker ():
         
         f.close()
 
-        f=open('splitbin\\%s.info' % variable,'wb')
+        f=open(self.infodir+'/splitbin/%s.info' % variable,'wb')
         f.write('min:%s\n' % minrange)
         f.write('max:%s\n' % maxrange)
         if num_keys>=1000:
@@ -297,7 +293,7 @@ class typechecker ():
         f.close()
         
         
-        f=open('splitbin\\%s.bin' % variable,'wb')
+        f=open(self.infodir+'/splitbin/%s.bin' % variable,'wb')
         if num_keys>255:
             data_array=array.array('H',data)
         else:
@@ -306,61 +302,45 @@ class typechecker ():
         f.close()
 
        # print datatype, self.subtype2typecode[subtype]
-        f=open('splitbin\\%s.fullbin' % variable,'wb')
+        f=open(self.infodir+'/splitbin/%s.fullbin' % variable,'wb')
        # print self.subtype2typecode[subtype],data2[:25]
        
         data_array=array.array(typecode,data2)
         data_array.tofile(f)
         f.close()
+
+
+    def analyse(self):
+        g=open(self.infodir+'/col_types.csv','w')
+        g.write('filename=%s\n' % self.filename)
+        g.write('sep=%s\n' % self.sep)
+        for col in self.cols:
+            if col=='.':
+                break
+            self.datatype=self.get_type(col)    
+            self.subtype=self.get_range(col,self.datatype, 0.01, 0.99)
+            self.typecode=self.subtype2typecode[self.subtype]    
+            
+            s='%s,%s,%s,%s,' % (col,self.datatype,self.subtype,self.typecode)
+            s+=' '*(40-len(s))
+            s+='%s,\t%s,%s,\t%s,%s,%s\n' % (             
+                      str(self.num_keys),
+                      str(self.min_val), str(self.max_val),
+                      str(self.min_range), str(self.min_range2), str(self.max_range))
+            g.write(s)
+
+    def writebin(self):
+        for col in self.cols:
+            if col=='.':
+                break
+            self.datatype=self.get_type(col)    
+            self.subtype=self.get_range(col,self.datatype, 0.01, 0.99)
+            self.typecode=self.subtype2typecode[self.subtype]        
+            self.write_binfile (col,self.datatype,self.subtype, self.min_range, self.max_range)
         
 
     
 
-headerfile=sys.argv[1]
-t=typechecker()
-t.parse_header(headerfile)
-
-analyze=False
-writebin=True
-
-t.update_num_records(t.cols[0])
-outfile=headerfile+'2'
-
-
-if analyze:
-    g=open(headerfile+'2','w')
-    g.write('filename=%s\n' % t.filename)
-    g.write('sep=%s\n' % t.sep)
-    for col in t.cols:
-        if col=='.':
-            break
-        t.datatype=t.get_type(col)    
-        t.subtype=t.get_range(col,t.datatype, 0.01, 0.99)
-        t.typecode=t.subtype2typecode[t.subtype]    
-        
-        s='%s,%s,%s,%s,' % (col,t.datatype,t.subtype,t.typecode)
-        s+=' '*(40-len(s))
-        s+='%s,\t%s,%s,\t%s,%s,%s\n' % (             
-                  str(t.num_keys),
-                  str(t.min_val), str(t.max_val),
-                  str(t.min_range), str(t.min_range2), str(t.max_range))
-        g.write(s)
-
-
-
-if writebin:
-    for col in t.cols:
-        if col=='.':
-            break
-        t.datatype=t.get_type(col)    
-        t.subtype=t.get_range(col,t.datatype, 0.01, 0.99)
-        t.typecode=t.subtype2typecode[t.subtype]        
-        t.write_binfile (col,t.datatype,t.subtype, t.min_range, t.max_range)
-    
-    
-
-sys.exit()
-        
 
     
     

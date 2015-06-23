@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from csv_split import csv_select
 from dictify import dictify_all_the_things
+from dict2type import typechecker
 
 
 
@@ -25,7 +26,7 @@ def heatmap (request, dataset):
     print request #.META
     
     #print dataset
-    template = loader.get_template('bitmap.html')
+    template = loader.get_template('ibitmap.html')
 
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
@@ -100,7 +101,7 @@ def dataset (request, dataset):
 
     # kijken of info-dir bestaat
 
-    infodir=datadir+'/'+dataset+'_info'
+    infodir=datadir+'/'+dataset+'_info'    
     if not os.path.exists(infodir):
         os.makedirs(infodir)
         state=0  # empty   
@@ -115,8 +116,16 @@ def dataset (request, dataset):
     if action=='dictify':        
         dictify_all_the_things (infodir, cols)
 
-    if action=='dictify':        
-        dict2type (infodir, cols)
+    if action=='dict2type':
+        t=typechecker()
+        t.sep=sep
+        t.cols=cols
+        t.filename=dataset
+        t.infodir=infodir
+        t.update_num_records(t.cols[0])
+        t.analyse()
+        t.writebin()
+        
 
 
     if action=='clear_all':  # full clean
