@@ -19,7 +19,7 @@ def render_to_403(*args, **kwargs):
         args = []
         args.append('403.html')              
 
-    httpresponse_kwargs = {'mimetype': kwargs.pop('mimetype', None)}
+    httpresponse_kwargs = {'type': kwargs.pop('mimetype', None)}
     response = HttpResponseForbidden(loader.render_to_string(*args, **kwargs), **httpresponse_kwargs)              
     return response  
 
@@ -45,7 +45,7 @@ class UserBasedExceptionMiddleWare(object):
                 errortxt += "%s\n" % tb
             if request.META.get('REMOTE_ADDR')=='127.0.0.1':
                 print errortxt #ook naar console loggen bij ontwikkelserver
-            return HttpResponseServerError(errortxt, mimetype='text/html')
+            return HttpResponseServerError(errortxt, content_type='text/html')
         
         if isinstance(exception, Http403):
             if settings.DEBUG:
