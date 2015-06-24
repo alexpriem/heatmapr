@@ -143,8 +143,8 @@ def dataset (request, dataset):
     
     
     columns=[]
-    for col in cols:
-         columns.append({'colname':col, 'type':'--','label':'--','enabled':True})
+    for i,col in enumerate(cols):
+         columns.append({'nr':i, 'colname':col, 'type':'--','label':'--','enabled':True})
         
         
         
