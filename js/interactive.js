@@ -34,7 +34,7 @@ var click_action=function () {
 
 	console.log('click_action');	
 	var dataset='best2010';
-	var datadir='h:/data';
+	var datadir='e:/data';
 
 	$.ajax({url:"/dataset/"+dataset, 
 			type: "GET",
@@ -74,7 +74,7 @@ function init_interactive (){
 
 
 	var dataset="best2010";
-	var datadir='h:/data';
+	var datadir='e:/data';
 	$.ajax({url:"/dataset/"+dataset, 
 			type: "GET",
 			data:{dataset:dataset,datadir:datadir, action:'init'}, 

@@ -189,7 +189,7 @@
     <a href="#" id="dict2type" class="data_action"> Derive types </a>    
     <a href="#" id="makehist" class="data_action"> Make fullhist</a>    
     <a href="#" id="clearhist" class="data_action"> Clear hist</a>   
-  <table >  
+  <table class="table table-striped" >  
   	<tr> 
   			<th> Enabled </th>
   			<th> Name </th>
@@ -197,8 +197,8 @@
   			<th> Label </th>
   	</tr>
       {{#cols}}      
-          <tr>              
-          		<td>  </td>
+          <tr >              
+          		<td> <div class="checkbox"> <label><input type="checkbox">  </label> </div>  </td>
           		<td> {{colname}} </td>
           		<td> {{type}} </td>
           		<td> {{label}} </td>
