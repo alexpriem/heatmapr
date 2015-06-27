@@ -156,7 +156,7 @@ class typechecker ():
                 
 
             
-        
+        print variable, ' range' , min_val, max_val
         self.min_val=min_val
         self.max_val=max_val
         self.max_len=maxlen
@@ -200,8 +200,6 @@ class typechecker ():
 
 
     def  write_binfile (self, variable,datatype, subtype, minrange, maxrange):
-
-
         
         if not os.path.exists(self.infodir+'/splitbin'):
             os.makedirs(self.infodir+'/splitbin')

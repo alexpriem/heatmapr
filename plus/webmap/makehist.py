@@ -4,23 +4,10 @@ from collections import defaultdict
 
 
 
-
-
-def parse_header (headerfile):
-    f=open(headerfile,'r')
-    filename=f.readline().split('=')[1].strip()
-    sep=f.readline().split('=')[1].strip()    
-    cols=[col.strip() for col in f]    
-    f.close()   
-    return filename, sep, cols
-
-
-
-
-def make_hist (variabele):
+def make_hist (infodir, variabele):
 
     try:
-        f=open('splitbin\\%s.info' % variabele, 'r' )
+        f=open(infodir+'\\splitbin\\%s.info' % variabele, 'r' )
     except:        
         print 'skipping %s, no data' % variabele
         return
@@ -39,7 +26,7 @@ def make_hist (variabele):
     print num_keys
     
     try:
-        f=open('splitbin\\%s.bin' % variabele,'r')
+        f=open(infodir+'splitbin\\%s.bin' % variabele,'r')
     except:
         return
     if num_keys<256:
@@ -56,14 +43,13 @@ def make_hist (variabele):
     for d in data:
         counts[d]+=1
     print '%s done' % variabele
-    f=open('histo\\%s.csv' % variabele , 'w')
+    histdir=infodir+'/histo' 
+    if not os.path.exists(histdir ):
+        os.makedirs(histdir)
+    f=open(histdir+'/%s.csv' % variabele , 'w')
     for k in sorted(counts.keys()):
         v=counts[k]
         f.write('%s,%s\n' % (k,v))
     f.close()
           
 
-
-filename, sep, cols=parse_header(sys.argv[1])
-for col in cols:
-    make_hist(col)

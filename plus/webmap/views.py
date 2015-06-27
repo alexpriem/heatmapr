@@ -5,6 +5,7 @@ from django.template import RequestContext, loader
 from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
+from makehist import make_hist
 
 
 
@@ -126,13 +127,21 @@ def dataset (request, dataset):
         t.analyse()
         t.writebin()
         
+    if action=='sorthist':
+        for col in cols:
+            make_hist(infodir, col)
+        
 
 
     if action=='clear_all':  # full clean
         if os.path.exists(infodir+'/split'):        
             shutil.rmtree(infodir+'/split')
         if os.path.exists(infodir+'/hist'):
-            shutil.rmtree(infodir+'/hist')        
+            shutil.rmtree(infodir+'/hist')
+        if os.path.exists(infodir+'/splitbin'):        
+            shutil.rmtree(infodir+'/splitbin')
+        if os.path.exists(infodir+'/histo'):
+            shutil.rmtree(infodir+'/histo') 
         os.remove(infodir+'/col_info.csv')
         msg='all cleared'
         sep, cols=get_cols (datadir, dataset, infodir) # kolommen opnieuw inlezen
