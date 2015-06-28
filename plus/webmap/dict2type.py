@@ -1,4 +1,4 @@
-import os,sys
+import os,sys,math
 import array
 
 
@@ -34,47 +34,123 @@ class typechecker ():
     #
     def get_type (self, variable):
 
+        if variable=='dummy':
+            f={}
+            f['datatype']=0
+            f['float_t']=0
+            f['int_t']=0
+            f['str_t']=0
+            f['float_min']=0
+            f['float_max']=0
+            f['int_min']=0
+            f['int_max']=0
+            f['empty']=0
+            f['num_keys']=0
+            f['min_val']=0
+            f['max_val']=0
+            return f
+        
         self.empty=False
         f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
-        asciicount=0
-        lines=0
-        def_float=False
-        datatype='float'
-        sumval=0    
+        
+        lines=0        
+        float_t=0
+        int_t=0
+        str_t=0
+        empty=0
+        int_min=None
+        int_max=None
+        float_min=None
+        float_max=None
+        
         for line in f:            
             lines+=1
-            key,val=line.strip().split(':')
-            newtype=''
-            d=key            
+            key,val=line.strip().split(':')            
+            if key=='':
+                empty=1
+                continue            
             try:
-                v=float(d)
-            except:
-                print 'err:',d                
-                return 'char'            
-
-           # print datatype,v,d
-            if len(key)>=2:
-                if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float
-                    return 'char'                
-            if v.is_integer():
-                datatype='int'
-            else:
-                print line,v,d
-                def_float=True
-                
-                return 'float'
+                v=float(key)
+            except:                
+                str_t+=1
+                continue
             
-            if (asciicount>2):
-                return 'char'            
+            if len(key)>=2:
+                if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float                
+                    str_t+=1
+                    continue
                 
+            if math.isinf(v):
+                str_t+=1
+                continue
+            
+            if v.is_integer():
+                int_t+=1
+                i=int(v)
+                if int_min is None or i<int_min:
+                    int_min=i
+                if int_max is None or i>int_max:
+                    int_max=i                
+            else:
+                float_t+=1                
+                if float_min is None or v<float_min:
+                    float_min=v
+                if float_max is None or v>float_max:
+                    float_max=v
+                            
+        print variable, int_t, float_t, str_t
 
-        if lines==0:
-            print 'empty file:%s' % variable
-            self.empty=True
-            return 'char'
+
+        min_val=None
+        if int_min is not None:
+            min_val=int_min;
+        if float_min is not None:
+            min_val=float_min;
+            if int_min is not None:
+                if int_min<float_min:
+                    min_val=int_min
+
+        max_val=None
+        if int_max is not None:
+            max_val=int_max;
+        if float_max is not None:
+            max_val=float_max;
+            if int_max is not None:
+                if int_max>float_max:
+                    max_val=int_max
+                    
+
+        num_keys=lines
+        datatype='complex'
+        if (float_t!=0) and (str_t==0):
+            datatype='float'
+        if (float_t==0) and  (int_t!=0) and (str_t==0):
+            datatype='int'
+        if (float_t==0) and  (int_t==0) and (str_t!=0):
+            datatype='char'
+        if (str_t==1) or (int_t==1) or (float_t==1):
+            if (num_keys==1) or ((num_keys==2) and (empty==1)):
+                datatype='single_'+datatype
+        if (empty==1) and (num_keys==1):
+            datatype='empty'
         
-        return datatype
+
+        f={}
+        f['datatype']=datatype
+        f['float_t']=float_t
+        f['int_t']=int_t
+        f['str_t']=str_t
+        f['float_min']=float_min
+        f['float_max']=float_max
+        f['int_min']=int_min
+        f['int_max']=int_max
+        f['empty']=empty
+        f['num_keys']=num_keys
+        f['min_val']=min_val
+        f['max_val']=max_val    
+        return f
+
 
 
     def get_range (self, variable,t, min_perc, max_perc):
@@ -315,19 +391,31 @@ class typechecker ():
         for col in self.cols:
             if col=='.':
                 break
-            self.datatype=self.get_type(col)    
-            self.subtype=self.get_range(col,self.datatype, 0.01, 0.99)
-            self.typecode=self.subtype2typecode[self.subtype]    
+            f=self.get_type(col)
+            f['col']=col
+            self.data_info=f
+           # self.datatype=f['datatype']
+           # try:
+           #     self.subtype=self.get_range(col,self.datatype, 0.01, 0.99)
+           #     self.typecode=self.subtype2typecode[self.subtype]
+           # except:
+           #     self.subtype=''
+           #     self.typecode=''
+
             
-            s='%s,%s,%s,%s,' % (col,self.datatype,self.subtype,self.typecode)
-            s+=' '*(40-len(s))
-            s+='%s,\t%s,%s,\t%s,%s,%s\n' % (             
-                      str(self.num_keys),
-                      str(self.min_val), str(self.max_val),
-                      str(self.min_range), str(self.min_range2), str(self.max_range))
+            #s='%s,%s,%s,%s,' % (col,self.datatype,self.subtype,self.typecode)
+            #s+=' '*(40-len(s))
+            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d' %f 
+            s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
+            s+=',\t%(int_min)s,%(int_max)s' % f
+            s+=',\t%(float_min)s,%(float_max)s' % f
+            s+=',\t%(min_val)s,%(max_val)s' % f
+            s+='\n'
+                      
             g.write(s)
 
     def writebin(self):
+        return
         for col in self.cols:
             if col=='.':
                 break
