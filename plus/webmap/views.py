@@ -137,10 +137,6 @@ def dataset (request, dataset):
         t.analyse()
         t.writebin()
         
-    if action=='sorthist':
-        for col in cols:
-            make_hist(infodir, col)
-        
 
 
     if action=='clear_all':  # full clean
@@ -187,6 +183,14 @@ def dataset (request, dataset):
         c.next()
         for line in c:
             types[line[0]]=line[1]
+
+
+    # sorthist kan pas als je types van kolommen hebt
+    # 
+
+    if action=='sorthist':
+        for col in cols:
+            make_hist(infodir, col)
         
         
             
