@@ -23,8 +23,8 @@ def top (request):
 
 def heatmap (request, dataset):
 
-    print request.path
-    print request #.META
+    #print request.path
+    #print request #.META
     
     #print dataset
     template = loader.get_template('ibitmap.html')

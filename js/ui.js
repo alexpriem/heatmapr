@@ -1157,7 +1157,7 @@ function heatmap (data, opties) {
 		//var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
 
 		var val=imgheight-((y-ymin)/delta*imgheight)+15;
-		console.log('y,val:',y,val);
+		//console.log('y,val:',y,val);
 		return val;
 	}
 

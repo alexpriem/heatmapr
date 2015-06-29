@@ -17,7 +17,7 @@ function handle_options (options) {
 	var new_options={};
 	for (var o in defaults) {
   		if (defaults.hasOwnProperty(o)) {  			
-  			console.log(o, options[o],defaults[o]);
+  	//		console.log(o, options[o],defaults[o]);
   			if (options.hasOwnProperty(o)) {
   				new_options[o]=options[o];
   			} else {
@@ -25,7 +25,7 @@ function handle_options (options) {
   			}  		 
 	  }
 	}
-	console.log ('NEW_OPT',new_options);
+//	console.log ('handle_options:',new_options);
 	return new_options;
 }
 
@@ -40,9 +40,9 @@ function init_annotation (heatmap, name, a){
 	if ('area' in a) { 
 		//handle area
 
-		console.log(a.area);
+	//	console.log(a.area);
 		opts=handle_options(a);
-		console.log('area:',a,opts);
+	//	console.log('area:',a,opts);
 
 		rect=a.area;
 		var x=heatmap.world_to_x(rect[0][0]);    // map to svg coord from heatmap coord
@@ -233,7 +233,7 @@ function init_annotation (heatmap, name, a){
 	}
 
 
-	console.log('heatmap',heatmap);
+	//console.log('heatmap',heatmap);
 	$('#'+name).on('click',heatmap.click_annotation);
 	$('#'+name).on('hover',heatmap.show_area);
 }
@@ -243,7 +243,7 @@ function init_annotations (heatmap, annotations) {
 
 	for (var a in annotations) {
   		if (annotations.hasOwnProperty(a)) {
-  			console.log(a);
+  			//console.log(a);
     		init_annotation (heatmap, a, annotations[a]);
 	  }
 	}
