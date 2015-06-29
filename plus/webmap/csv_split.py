@@ -72,17 +72,15 @@ def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
     matchvals=[]
     for matchkey, matchval in matchdict.items():        
         matchcols.append(keys.index(matchkey))
-        matchvals.append(matchval)
-
-
-            
+        matchvals.append(matchval) 
+           
 
     i=0
     j=0
-    for line in c:
-        i+=1
+    for line in c:        
         if verbose==2 and i%1000==0:
             print i, j
+        i+=1
             
         vals=line
         if global_recode is not None:
@@ -112,9 +110,13 @@ def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
 
         j+=1
 
-        # data uitschrijven                
-        for key in subkeys:            
-            val=vals[subcolnr[key]]
+        # data uitschrijven
+        
+        for key in subkeys:
+            try:
+                val=vals[subcolnr[key]]
+            except:
+                print j, key                
             f=filedict[key]
             f.write('%s\n' % val)
         

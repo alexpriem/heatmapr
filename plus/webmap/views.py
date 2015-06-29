@@ -1,4 +1,4 @@
-import os,sys, cjson, shutil
+import os,sys, cjson, shutil, csv
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
@@ -149,11 +149,27 @@ def dataset (request, dataset):
  
 
 
-    
+    # read labels
+
+    f=None
+    try:
+        f=open(infodir+'/labels.csv')
+    except:
+        pass
+    labels={}
+    if f is not None:    
+        c=csv.reader(f,delimiter=',')
+        for line in c:
+            labels[line[0]]=line[1]
+                
+            
+        
+            
+            
     
     columns=[]
     for i,col in enumerate(cols):
-         columns.append({'nr':i, 'colname':col, 'type':'--','label':'--','enabled':True})
+         columns.append({'nr':i, 'colname':col, 'type':'--','label':labels.get(col,''),'enabled':True})
         
         
         
