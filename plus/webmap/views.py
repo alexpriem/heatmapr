@@ -97,6 +97,16 @@ def dataset (request, dataset):
     #print request.GET['dataset']
     action=request.GET['action']    
     datadir=request.GET['datadir']
+
+    filter_set={}
+    for k in request.GET.keys():        
+        if k[:7]=='filter_':
+            val=request.GET[k]
+            if val=='true':
+                filter_set[k[7:]]=True
+            else:
+                filter_set[k[7:]]=False
+    #print filter_set
     msg=''
         
 
@@ -161,15 +171,33 @@ def dataset (request, dataset):
         c=csv.reader(f,delimiter=',')
         for line in c:
             labels[line[0]]=line[1]
+        f.close()
                 
-            
+    # read types
+
+    f=None
+    try:
+        f=open(infodir+'/col_types.csv')
+    except:
+        pass
+    types={}
+    if f is not None:
+        c=csv.reader(f,delimiter=',')
+        c.next()
+        c.next()
+        for line in c:
+            types[line[0]]=line[1]
+        
         
             
             
     
     columns=[]
     for i,col in enumerate(cols):
-         columns.append({'nr':i, 'colname':col, 'type':'--','label':labels.get(col,''),'enabled':True})
+        t=types.get(col,'--')
+        if filter_set.get(t)==False:
+            continue            
+        columns.append({'nr':i, 'colname':col, 'type':types.get(col,'--'),'label':labels.get(col,''),'enabled':True})
         
         
         

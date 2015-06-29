@@ -14,20 +14,38 @@ var handle_ajax_error=function (result) {
 }
 
 
-var click_action=function () {
+function update_state  (action) {
 
-	console.log('click_action');	
 	var dataset='best2010';
 	var datadir='e:/data';
 
+	var data={dataset:dataset,datadir:datadir, 'action':action};
+  
+	 for (var item in filter) {	 	
+         if (filter.hasOwnProperty(item)) {
+            var clicked=filter[item];
+            if (clicked) {
+            		data['filter_'+item]=true;
+            	}
+            else {data['filter_'+item]=false;}
+         } //if clicked
+     }  //for
+
+
 	$.ajax({url:"/dataset/"+dataset, 
 			type: "GET",
-			data:{dataset:dataset,datadir:datadir, action:this.id}, 
+			'data':data,
 			success: handle_ajax,
 			error: handle_ajax_error,
-
 		});
+}
 
+
+
+var click_action=function () {
+
+	console.log('click_action');	
+	update_state(this.id);
 }
 
 
@@ -50,14 +68,8 @@ var click_filter=function () {
 		$('#toggle_'+filter_item).addClass('btn-info').removeClass('btn-default');
 		}
 
-	$.ajax({url:"/dataset/"+dataset, 
-			type: "GET",
-			data:{dataset:dataset,datadir:datadir, action:this.id}, 
-			success: handle_ajax,
-			error: handle_ajax_error,
 
-		});
-
+	update_state('init');
 }
 
 
@@ -132,15 +144,5 @@ function init_interactive (){
     $('.leftbox').hide();
 
    
-
-
-	var dataset="best2010";
-	var datadir='e:/data';
-	$.ajax({url:"/dataset/"+dataset, 
-			type: "GET",
-			data:{dataset:dataset,datadir:datadir, action:'init'}, 
-			success: handle_ajax,
-			error: handle_ajax_error,
-
-		});
+   update_state('init');
 } 
