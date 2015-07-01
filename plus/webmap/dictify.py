@@ -20,7 +20,7 @@ def dictify(infodir, colname):
 
     f=open (outfile,'w')
     f.write('%s:num\n' % colname)
-    for k in sorted (hist.keys()):        
+    for k in sorted (hist.keys()):        # alfabetisch gesorteerd, dwz 10<2 !!!
         f.write('%s:%d\n' % (k,hist[k]))
 
 

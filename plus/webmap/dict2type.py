@@ -34,26 +34,28 @@ class typechecker ():
     #
     def get_type (self, variable):
 
+        info={}
+        info['col']=variable
         if variable=='dummy':
-            f={}
-            f['datatype']=0
-            f['float_t']=0
-            f['int_t']=0
-            f['str_t']=0
-            f['float_min']=0
-            f['float_max']=0
-            f['int_min']=0
-            f['int_max']=0
-            f['empty']=0
-            f['num_keys']=0
-            f['min_val']=0
-            f['max_val']=0
-            return f
+            d={}
+            info['datatype']=0
+            info['float_t']=0
+            info['int_t']=0
+            info['str_t']=0
+            info['float_min']=0
+            info['float_max']=0
+            info['int_min']=0
+            info['int_max']=0
+            info['empty']=0
+            info['num_keys']=0
+            info['min_val']=0
+            info['max_val']=0
+            return info
         
         self.empty=False
         f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
-        
+
         lines=0        
         float_t=0
         int_t=0
@@ -63,12 +65,17 @@ class typechecker ():
         int_max=None
         float_min=None
         float_max=None
-        
+        sumval=0
+
+        hist={}
+        self.hist=hist
         for line in f:            
             lines+=1
-            key,val=line.strip().split(':')            
+            key,val=line[:-1].split(':')
+            k=key
             if key=='':
                 empty=1
+                hist['']=val
                 continue            
             try:
                 v=float(key)
@@ -83,25 +90,29 @@ class typechecker ():
                 
             if math.isinf(v):
                 str_t+=1
-                continue
+                continue                
             
-            if v.is_integer():
+            if v.is_integer():                
                 int_t+=1
                 i=int(v)
+                k=i
                 if int_min is None or i<int_min:
                     int_min=i
                 if int_max is None or i>int_max:
                     int_max=i                
             else:
+                k=v
                 float_t+=1                
                 if float_min is None or v<float_min:
                     float_min=v
                 if float_max is None or v>float_max:
                     float_max=v
-                            
+
+            hist[k]=val
+            
         print variable, int_t, float_t, str_t
 
-
+        
         min_val=None
         if int_min is not None:
             min_val=int_min;
@@ -134,35 +145,25 @@ class typechecker ():
                 datatype='single_'+datatype
         if (empty==1) and (num_keys==1):
             datatype='empty'
-        
-
-        f={}
-        f['datatype']=datatype
-        f['float_t']=float_t
-        f['int_t']=int_t
-        f['str_t']=str_t
-        f['float_min']=float_min
-        f['float_max']=float_max
-        f['int_min']=int_min
-        f['int_max']=int_max
-        f['empty']=empty
-        f['num_keys']=num_keys
-        f['min_val']=min_val
-        f['max_val']=max_val    
-        return f
+                
+        info['datatype']=datatype
+        info['float_t']=float_t
+        info['int_t']=int_t
+        info['str_t']=str_t
+        info['float_min']=float_min
+        info['float_max']=float_max
+        info['int_min']=int_min
+        info['int_max']=int_max
+        info['empty']=empty
+        info['num_keys']=num_keys
+        info['min_val']=min_val
+        info['max_val']=max_val    
+        return info
 
 
 
     def get_range (self, variable,t, min_perc, max_perc):
 
-        if not os.path.exists(self.infodir+'/hists'):
-            os.makedirs(self.infodir+'/hists')
-
-        
-
-        if self.empty:
-            return 'char'
-        
         f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
         maxlen=None
@@ -272,6 +273,60 @@ class typechecker ():
 
 
 
+    def sort_histogram (self, variable):
+
+
+      #  min_records=minbound*self.num_records # 0.01 percentiel
+      #  max_records=maxbound*self.num_records # 0.99 percentiel
+
+        datatype=self.data_info['datatype']
+        empty=self.data_info['empty']
+
+    
+        hist=self.hist
+        
+        f=open(self.infodir+'/hist/%s.csv' % variable)
+        header=f.readline()
+        s="""
+        if datatype=='char':
+            for line in f:          # optimalization for speed
+                key,val=line[:-1].split(':')
+                hist[key]=val
+        if datatype=='int' and empty==0:
+            for line in f:        
+                key,val=line[:-1].split(':')
+                hist[int(key)]=val
+        if datatype=='float' and empty==0:
+            for line in f:        
+                key,val=line[:-1].split(':')
+                hist[float(key)]=val\
+                                  
+        if hist=={}:                    
+            for line in f:                
+                key,val=line[:-1].split(':')
+                try:
+                    key=int(key)
+                except:
+                    try:
+                        key=float(key)
+                    except:
+                        pass
+                hist[key]=int(val)
+                """
+                                        
+        histdir=self.infodir+'/hists'
+        if not os.path.exists(histdir):
+            os.makedirs(histdir)        
+        outfile=histdir+'/%s.csv' % variable
+    
+        f=open (outfile,'w')
+        f.write(header)
+        
+        for k in sorted (hist.keys()):        # alfabetisch gesorteerd, dwz 10<2 !!!
+            f.write('%s:%s\n' % (str(k),hist[k]))
+        f.close()
+
+
 
 
 
@@ -279,6 +334,7 @@ class typechecker ():
         
         if not os.path.exists(self.infodir+'/splitbin'):
             os.makedirs(self.infodir+'/splitbin')
+            
 
         
         print variable, subtype, minrange, maxrange, self.num_keys
@@ -391,25 +447,15 @@ class typechecker ():
         for col in self.cols:
             if col=='.':
                 break
-            f=self.get_type(col)
-            f['col']=col
-            self.data_info=f
-           # self.datatype=f['datatype']
-           # try:
-           #     self.subtype=self.get_range(col,self.datatype, 0.01, 0.99)
-           #     self.typecode=self.subtype2typecode[self.subtype]
-           # except:
-           #     self.subtype=''
-           #     self.typecode=''
-
+            f=self.data_info=self.get_type(col)
+            self.sort_histogram(col)
             
-            #s='%s,%s,%s,%s,' % (col,self.datatype,self.subtype,self.typecode)
-            #s+=' '*(40-len(s))
-            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d' %f 
+            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d' % f 
             s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
             s+=',\t%(int_min)s,%(int_max)s' % f
             s+=',\t%(float_min)s,%(float_max)s' % f
             s+=',\t%(min_val)s,%(max_val)s' % f
+            
             s+='\n'
                       
             g.write(s)
@@ -424,11 +470,4 @@ class typechecker ():
             self.typecode=self.subtype2typecode[self.subtype]        
             self.write_binfile (col,self.datatype,self.subtype, self.min_range, self.max_range)
         
-
-    
-
-
-    
-    
-
 
