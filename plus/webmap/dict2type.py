@@ -282,38 +282,10 @@ class typechecker ():
         datatype=self.data_info['datatype']
         empty=self.data_info['empty']
 
-    
-        hist=self.hist
         
         f=open(self.infodir+'/hist/%s.csv' % variable)
         header=f.readline()
-        s="""
-        if datatype=='char':
-            for line in f:          # optimalization for speed
-                key,val=line[:-1].split(':')
-                hist[key]=val
-        if datatype=='int' and empty==0:
-            for line in f:        
-                key,val=line[:-1].split(':')
-                hist[int(key)]=val
-        if datatype=='float' and empty==0:
-            for line in f:        
-                key,val=line[:-1].split(':')
-                hist[float(key)]=val\
-                                  
-        if hist=={}:                    
-            for line in f:                
-                key,val=line[:-1].split(':')
-                try:
-                    key=int(key)
-                except:
-                    try:
-                        key=float(key)
-                    except:
-                        pass
-                hist[key]=int(val)
-                """
-                                        
+
         histdir=self.infodir+'/hists'
         if not os.path.exists(histdir):
             os.makedirs(histdir)        
@@ -321,9 +293,10 @@ class typechecker ():
     
         f=open (outfile,'w')
         f.write(header)
-        
-        for k in sorted (hist.keys()):        # alfabetisch gesorteerd, dwz 10<2 !!!
-            f.write('%s:%s\n' % (str(k),hist[k]))
+
+        self.sorted_keys=sorted(self.hist.keys())
+        for k in self.sorted_keys:                 
+            f.write('%s:%s\n' % (str(k),hist[k]))    # FIXME: csv.write
         f.close()
 
 
@@ -334,27 +307,8 @@ class typechecker ():
         
         if not os.path.exists(self.infodir+'/splitbin'):
             os.makedirs(self.infodir+'/splitbin')
-            
-
-        
-        print variable, subtype, minrange, maxrange, self.num_keys
-        typecode=self.subtype2typecode[subtype] 
-        if self.empty:
-            print 'skipping, empty file'
-            return 
-
-#        if (datatype=='int' or datatype=='float') and (maxrange is None or minrange is None):
-#            return
-
-#        if (maxrange==minrange) :
-#            print 'skipping, minrange=maxrange'
-#            return
-        num_keys=self.num_keys
-        if num_keys<8192:
-            return
-        
-        #print self.hist
-        hist_keys=sorted(self.hist.keys())
+                    
+        hist_keys=self.sorted_keys
         hist_index={}
         for i,k in enumerate(hist_keys):
             hist_index[k]=i
@@ -366,6 +320,8 @@ class typechecker ():
         if num_keys==1:
             print 'skipping, no data'
             return
+
+        
         if datatype=='char':
             typecode='H'
         data=[]
@@ -375,70 +331,33 @@ class typechecker ():
         f=open(self.infodir+'/split/%s.csv' % variable)
         nr=0
         for line in f:
-            nr+=1
-            
-            s=line.strip()
-            if datatype=='int':
+            nr+=1        
+            s=line[:-1]
+            val=s
+            try:
+                val=int(s)
+            except:
                 try:
-                    d=int(float(s))
+                    val=float(s)
                 except:
-                    if s=='' or s=='-':
-                        d=0
-                    else:
-                        print line
-                        raise RuntimeError
-                if d<-2147483648L:
-                    d=-2147483648L
-                if d>2147483648L:
-                    d=2147483648L
-            
+                    pass
 
-                    
-            if datatype=='float':
-                try:
-                    d=float(s)
-                except:
-                    s=s.strip()
-                    if s=='' or s=='-':
-                        d=0.0
-            if datatype=='char':                
-                d=hist_index[s]
-                data2.append(d)
-                continue
-
-            val=hist_index[d]
-            data.append(val)
-            data2.append(d)
-
+            d=hist_index[val]
+            data2.append(d)            
         
         f.close()
-
-        f=open(self.infodir+'/splitbin/%s.info' % variable,'wb')
-        f.write('min:%s\n' % minrange)
-        f.write('max:%s\n' % maxrange)
-        if num_keys>=1000:
-            f.write('num_keys:1000\n' )
-        else:
-            f.write('num_keys:%s\n' % num_keys)
-        f.close()
-        
-        
-        f=open(self.infodir+'/splitbin/%s.bin' % variable,'wb')
-        if num_keys>255:
-            data_array=array.array('H',data)
-        else:
-            data_array=array.array('B',data)
-        data_array.tofile(f)
-        f.close()
-
-       # print datatype, self.subtype2typecode[subtype]
-        f=open(self.infodir+'/splitbin/%s.fullbin' % variable,'wb')
-       # print self.subtype2typecode[subtype],data2[:25]
        
-        data_array=array.array(typecode,data2)
+        f=open(self.infodir+'/splitbin/%s.bin' % variable,'wb')
+        if num_keys<256:
+            data_array=array.array('B',data)
+        if num_keys>256 and num_keys<65536:        
+            data_array=array.array('H',data)
+        if num_keys>65536:        
+            data_array=array.array('L',data)        
         data_array.tofile(f)
         f.close()
 
+ 
 
     def analyse(self):
         g=open(self.infodir+'/col_types.csv','w')
