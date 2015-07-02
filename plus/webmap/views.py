@@ -134,9 +134,7 @@ def dataset (request, dataset):
         t.filename=dataset
         t.infodir=infodir
         t.update_num_records(t.cols[0])
-        t.analyse()
-        t.writebin()
-        
+        t.analyse()                
 
 
     if action=='clear_all':  # full clean

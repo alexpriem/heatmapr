@@ -68,47 +68,50 @@ class typechecker ():
         sumval=0
 
         hist={}
+        hist_string={}
         self.hist=hist
+        self.hist_string=hist_string
         for line in f:            
             lines+=1
             key,val=line[:-1].split(':')
-            k=key
+            val=int(val)
+            hist_string[key]=val            
             if key=='':
                 empty=1
-                hist['']=val
-                continue            
+                hist['']=val                    
             try:
                 v=float(key)
             except:                
                 str_t+=1
+                hist[key]=val
                 continue
             
             if len(key)>=2:
                 if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float                
                     str_t+=1
+                    hist[key]=val
                     continue
                 
             if math.isinf(v):
                 str_t+=1
+                hist[key]=val
                 continue                
             
             if v.is_integer():                
                 int_t+=1
                 i=int(v)
-                k=i
                 if int_min is None or i<int_min:
                     int_min=i
                 if int_max is None or i>int_max:
-                    int_max=i                
-            else:
-                k=v
+                    int_max=i
+                hist[i]=val
+            else:                
                 float_t+=1                
                 if float_min is None or v<float_min:
                     float_min=v
                 if float_max is None or v>float_max:
                     float_max=v
-
-            hist[k]=val
+                hist[v]=val
             
         print variable, int_t, float_t, str_t
 
@@ -166,7 +169,7 @@ class typechecker ():
 
 
 
-    def sort_histogram (self, variable, minbound, maxbound):
+    def sort_histogram (self, variable, minbound, maxbound):     
 
         numeric=((self.data_info['int_t']!=0) or (self.data_info['float_t']!=0))
         min_range=None
@@ -277,23 +280,27 @@ class typechecker ():
 
 
 
-    def  write_binfile (self, variable,datatype, subtype, minrange, maxrange):
+    def  write_binfile (self, variable):
         
         if not os.path.exists(self.infodir+'/splitbin'):
             os.makedirs(self.infodir+'/splitbin')
-                    
-        hist_keys=self.sorted_keys
-        hist_index={}
-        for i,k in enumerate(hist_keys):
-            hist_index[k]=i
-       # print hist_keys
 
+        num_keys=self.num_keys            
         if num_keys>65535:
             print 'skipping, too much keys'
             return
         if num_keys==1:
             print 'skipping, no data'
             return
+
+
+
+        hist_keys=sorted(self.hist_string)
+        hist_index={}        
+        for i,k in enumerate(hist_keys):
+            hist_index[k]=i
+       # print hist_keys
+                
 
         data=[]
         data2=[]
@@ -304,20 +311,16 @@ class typechecker ():
         for line in f:
             nr+=1        
             s=line[:-1]
-            val=s
-            try:
-                val=int(s)
+            try:                
+                d=hist_index[s]
             except:
-                try:
-                    val=float(s)
-                except:
-                    pass
-
-            d=hist_index[val]
+                print 'key', s
+                print hist_keys
+                raise RuntimeError
             data2.append(d)            
         
         f.close()
-       
+        
         f=open(self.infodir+'/splitbin/%s.bin' % variable,'wb')
         if num_keys<256:
             data_array=array.array('B',data)
@@ -343,6 +346,7 @@ class typechecker ():
             f=self.data_info=self.get_type (col)
             self.sort_histogram (col, 0.01, 0.99)
             self.write_histogram (col)
+            self.write_binfile (col)
             
             
             s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d' % f 
