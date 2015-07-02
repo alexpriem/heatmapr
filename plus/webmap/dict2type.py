@@ -162,122 +162,18 @@ class typechecker ():
 
 
 
-    def get_range (self, variable,t, min_perc, max_perc):
-
-        f=open(self.infodir+'/hist/%s.csv' % variable)
-        f.readline()
-        maxlen=None
-        min_val=None
-        max_val=None
-        min_records=min_perc*self.num_records
-        max_records=max_perc*self.num_records
-        min_range=None
-        max_range=None
-        sumval=0
-        hist={}        
-        for line in f:            
-            key,val=line[:-1].split(':')
-            if key=='':
-                sumval+=int(val)
-                hist['']=val
-                continue
-            if t=='int':
-                d=int(key)
-                if min_val is None or d<min_val:
-                    min_val=d
-                if max_val is None or d>max_val:
-                    max_val=d
-                    
-            if t=='float':
-                d=float(key)    
-                if min_val is None or d<min_val:
-                    min_val=d
-                if max_val is None or d>max_val:
-                    max_val=d
-
-            if t=='int' or t=='float':
-                sumval+=int(val)           
-               # print t,key,d
-                if min_range is None and sumval>min_records:
-                    min_range=d
-                if max_range is None and sumval>max_records:
-                    max_range=d
-
-            if t=='char':
-                d=key
-                if maxlen is None or len(key)>maxlen:
-                    maxlen=len(key)
-                    
-            hist[d]=val
-        #print sorted(hist.keys())
-        f.close()
-
-        
-        self.num_keys=len(hist.keys())        
-        self.hist=hist
-        # rewrite histogram keys in sorted order according to type
-        if ((t=='int') or (t=='float')):
-            f=open(self.infodir+'/hists/%s.csv' % variable,'w') 
-            f.write('%s:nums\n' % variable)
-            for k in sorted(hist.keys()):
-                val=hist[k]
-                f.write('%s:%s\n' % (str(k),str(val)))
-            f.close()
-
-        self.min_range2=min_range
-        self.min_range=min_range
-        self.max_range=max_range
-        if max_range is not None:            
-            if min_range>0 and min_range<max_range*0.1:
-                self.min_range2=0        
-                
-
-            
-        print variable, ' range' , min_val, max_val
-        self.min_val=min_val
-        self.max_val=max_val
-        self.max_len=maxlen
-        
-        if t=='int':
-            if ((min_val>=0) and (max_val<255)):
-                return 'unsigned char' # 0..255
-
-            if ((min_val>-126) and (max_val<127)):
-                return 'signed char'   # -126..127
-
-            if ((min_val>=0) and (max_val<65535)):
-                return 'unsigned short'  # 0..65535
-
-            if ((min_val>-32767) and (max_val<32767)):
-                return 'signed short'  # -32767..32767
-
-            if ((min_val>=0) and (max_val<4294967296L)):
-                return 'unsigned long'  # 0..4294967296L
-
-            if ((min_val>-2147483648L) and (max_val<2147483648L)):
-                return 'signed long'   # -2147483648L..2147483648L
-            return 'unsigned long'
-
-        if t=='float':
-            if ((min_val>-1e+30) and (max_val<1e+30)):
-                return 'float'
-            return 'double'
-        
-        
-        if t=='char':
-            self.max_val=maxlen    
-            return 'char'
-
-#        print variabele, min_range, max_range
 
 
 
+    def sort_histogram (self, variable, minbound, maxbound):
 
-    def sort_histogram (self, variable):
-
-
-      #  min_records=minbound*self.num_records # 0.01 percentiel
-      #  max_records=maxbound*self.num_records # 0.99 percentiel
+        numeric=((self.data_info['int_t']!=0) or (self.data_info['float_t']!=0))
+        if (numeric):
+            min_records=minbound*self.num_records # 0.01 percentiel
+            max_records=maxbound*self.num_records # 0.99 percentiel
+            min_range=None
+            max_range=None
+            sumval=0
 
         datatype=self.data_info['datatype']
         empty=self.data_info['empty']
@@ -294,11 +190,58 @@ class typechecker ():
         f=open (outfile,'w')
         f.write(header)
 
-        self.sorted_keys=sorted(self.hist.keys())
-        for k in self.sorted_keys:                 
-            f.write('%s:%s\n' % (str(k),hist[k]))    # FIXME: csv.write
-        f.close()
+        hist=self.hist
+        self.sorted_keys=sorted(hist.keys())
+        for k in self.sorted_keys:
 
+            if (int_t!=0) or (float_t!=0):
+                sumval+=int(hist[k])
+                if min_range is None and sumval>min_records:
+                    min_range=k
+                if max_range is None and sumval>max_records:
+                    max_range=k
+            f.write('%s:%s\n' % (str(k),hist[k]))    # FIXME: csv.write
+        self.data_info['hist_min']=min_range
+        self.data_info['hist_max']=max_range
+        f.close()
+        
+
+
+
+        # todo: histogram uitschrijven zonder grenzen
+        
+    def write_histogram (self, variable):
+
+        if not os.path.exists(self.infodir+'/hista'):
+            os.makedirs(self.infodir+'/hista')
+
+        data_info=self.data_info
+        num_keys=self.num_keys
+        if num_keys==1:
+            return
+        
+        numeric=((data_info['int_t']!=0) and (data_info['float_t']!=0))
+        if not(numeric):    # numeriek en alles met <10 keys:  behandelen als classificatie
+            return
+        if num_keys<10:
+            return
+
+        bins=100
+        if num_keys<100:
+            bins=num_keys
+
+
+        minx=data_info['hist_min']   
+        maxx=data_info['hist_max']
+        if data_info['min_val']==0:
+            minx=0
+
+        dx=(maxx-minx)/steps         # swap van relatieve space naar absolute space, kan fout gaan ;-)
+        for k in self.sorted_keys:
+            if k<minx:
+                continue
+            sumval+=int(hist[k])
+                
 
 
 
@@ -321,9 +264,6 @@ class typechecker ():
             print 'skipping, no data'
             return
 
-        
-        if datatype=='char':
-            typecode='H'
         data=[]
         data2=[]
 
@@ -357,36 +297,30 @@ class typechecker ():
         data_array.tofile(f)
         f.close()
 
- 
+
+
+     
 
     def analyse(self):
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
+        g.write('col,datatype, \tnum_keys, empty, index, float_t, int_t,str_t, \tint_min, int_max, \tfloat_min, \tfloat_max, \tmin, max, \tmin_hist, max_hist\n');
         for col in self.cols:
             if col=='.':
                 break
-            f=self.data_info=self.get_type(col)
-            self.sort_histogram(col)
+            f=self.data_info=self.get_type (col)
+            self.sort_histogram (col, 0.01, 0.99)
+            self.write_histogram (col)
+            
             
             s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d' % f 
             s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
             s+=',\t%(int_min)s,%(int_max)s' % f
             s+=',\t%(float_min)s,%(float_max)s' % f
             s+=',\t%(min_val)s,%(max_val)s' % f
+            s+=',\t%(hist_min)s,%(hist_max)s' % f
             
             s+='\n'
                       
             g.write(s)
-
-    def writebin(self):
-        return
-        for col in self.cols:
-            if col=='.':
-                break
-            self.datatype=self.get_type(col)    
-            self.subtype=self.get_range(col,self.datatype, 0.01, 0.99)
-            self.typecode=self.subtype2typecode[self.subtype]        
-            self.write_binfile (col,self.datatype,self.subtype, self.min_range, self.max_range)
-        
-
