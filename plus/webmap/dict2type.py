@@ -157,7 +157,8 @@ class typechecker ():
         info['empty']=empty
         info['num_keys']=num_keys
         info['min_val']=min_val
-        info['max_val']=max_val    
+        info['max_val']=max_val
+        self.num_keys=lines
         return info
 
 
@@ -168,11 +169,11 @@ class typechecker ():
     def sort_histogram (self, variable, minbound, maxbound):
 
         numeric=((self.data_info['int_t']!=0) or (self.data_info['float_t']!=0))
+        min_range=None
+        max_range=None
         if (numeric):
             min_records=minbound*self.num_records # 0.01 percentiel
             max_records=maxbound*self.num_records # 0.99 percentiel
-            min_range=None
-            max_range=None
             sumval=0
 
         datatype=self.data_info['datatype']
@@ -194,7 +195,7 @@ class typechecker ():
         self.sorted_keys=sorted(hist.keys())
         for k in self.sorted_keys:
 
-            if (int_t!=0) or (float_t!=0):
+            if  numeric:
                 sumval+=int(hist[k])
                 if min_range is None and sumval>min_records:
                     min_range=k
@@ -233,15 +234,45 @@ class typechecker ():
 
         minx=data_info['hist_min']   
         maxx=data_info['hist_max']
-        if data_info['min_val']==0:
+        if data_info['min_val']<=0 and minx>0:
             minx=0
+        if maxx=='':
+            maxx=data_info['max_val']
+        if (maxx-minx)==0:
+            return
 
-        dx=(maxx-minx)/steps         # swap van relatieve space naar absolute space, kan fout gaan ;-)
-        for k in self.sorted_keys:
-            if k<minx:
+        print '[%s][%s]' % (minx, maxx)
+        dx=(maxx-minx)/(1.0*bins)       # swap van relatieve space naar absolute space, kan fout gaan ;-)
+        if (dx==0):
+            print data_info
+            print bins, minx, maxx, dx, key
+        j=0
+        histogram=[0]*(bins+1)
+        hist=self.hist
+        sorted_keys=self.sorted_keys
+
+        
+        for key in sorted_keys:
+            if ((key<minx) or (key>maxx)):
                 continue
-            sumval+=int(hist[k])
+            binnr=int((key-minx)/dx)
+            try:            
+                histogram[binnr]+=int(hist[key])
+            except:
+                print data_info
+                print bins, binnr, minx, maxx, dx, key
+                raise RuntimeError
+
+        f=open(self.infodir+'/hista/%s.csv' % variable,'w')
+        f.write('bin_min,val\n') 
+        for i,y in enumerate(histogram):
+            f.write('%d,%d\n' % (minx+i*dx,y))
+        f.close()
+            
                 
+            
+            
+            
 
 
 
