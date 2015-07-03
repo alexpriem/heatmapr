@@ -1,4 +1,4 @@
-import os,sys,math
+import os, sys, math, csv
 import array
 
 
@@ -22,7 +22,7 @@ class typechecker ():
 
     def update_num_records (self, variable):
         f=open(self.infodir+'/hist/%s.csv' % variable)
-        f.readline()
+        f.readline()        
         sumval=0
         for line in f:
             key,val=line[:-1].split(':')
@@ -55,7 +55,7 @@ class typechecker ():
         self.empty=False
         f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
-
+        c=csv.reader (f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         lines=0        
         float_t=0
         int_t=0
@@ -71,10 +71,9 @@ class typechecker ():
         hist_string={}
         self.hist=hist
         self.hist_string=hist_string
-        for line in f:            
+        for line in c:            
             lines+=1
-            key,val=line[:-1].split(':')
-            val=int(val)
+            key,val=line[0],int(line[1])                        
             hist_string[key]=val            
             if key=='':
                 empty=1
@@ -133,8 +132,8 @@ class typechecker ():
             if int_max is not None:
                 if int_max>float_max:
                     max_val=int_max
-                    
-
+                            
+            
         num_keys=lines
         datatype='complex'
         if (float_t!=0) and (str_t==0):
@@ -162,6 +161,11 @@ class typechecker ():
         info['min_val']=min_val
         info['max_val']=max_val
         self.num_keys=lines
+        unique_index=0
+        if len(hist)==self.num_records:
+            unique_index=1
+        info['unique_index']=unique_index
+        
         return info
 
 
@@ -191,8 +195,9 @@ class typechecker ():
             os.makedirs(histdir)        
         outfile=histdir+'/%s.csv' % variable
     
-        f=open (outfile,'w')
+        f=open (outfile,'wb')
         f.write(header)
+        c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)        
 
         hist=self.hist
         self.sorted_keys=sorted(hist.keys())
@@ -204,7 +209,7 @@ class typechecker ():
                     min_range=k
                 if max_range is None and sumval>max_records:
                     max_range=k
-            f.write('%s:%s\n' % (str(k),hist[k]))    # FIXME: csv.write
+            c.writerow([str(k),hist[k]])   
         self.data_info['hist_min']=min_range
         self.data_info['hist_max']=max_range
         f.close()
@@ -266,10 +271,11 @@ class typechecker ():
                 print bins, binnr, minx, maxx, dx, key
                 raise RuntimeError
 
-        f=open(self.infodir+'/hista/%s.csv' % variable,'w')
-        f.write('bin_min,val\n') 
+        f=open(self.infodir+'/hista/%s.csv' % variable,'wb')        
+        f.write('bin_min,val\n')
+        c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for i,y in enumerate(histogram):
-            f.write('%d,%d\n' % (minx+i*dx,y))
+            c.writerow([minx+i*dx,y])
         f.close()
             
                 
@@ -287,7 +293,7 @@ class typechecker ():
 
         num_keys=self.num_keys            
         if num_keys>65535:
-            print 'skipping, too much keys'
+            print 'skipping, too many keys'
             return
         if num_keys==1:
             print 'skipping, no data'
@@ -339,7 +345,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('col,datatype, \tnum_keys, empty, index, float_t, int_t,str_t, \tint_min, int_max, \tfloat_min, \tfloat_max, \tmin, max, \tmin_hist, max_hist\n');
+        g.write('col,datatype, \tnum_keys, empty, unique_index, float_t, int_t,str_t, \tint_min, int_max, \tfloat_min, \tfloat_max, \tmin, max, \tmin_hist, max_hist\n');
         for col in self.cols:
             if col=='.':
                 break
@@ -349,8 +355,8 @@ class typechecker ():
             self.write_binfile (col)
             
             
-            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d' % f 
-            s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
+            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d,%(unique_index)d' % f 
+            s+=',\t%(float_t)d,%(int_t)d,%(str_t)d' % f            
             s+=',\t%(int_min)s,%(int_max)s' % f
             s+=',\t%(float_min)s,%(float_max)s' % f
             s+=',\t%(min_val)s,%(max_val)s' % f

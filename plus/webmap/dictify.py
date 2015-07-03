@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, csv
 
 
 
@@ -18,10 +18,12 @@ def dictify(infodir, colname):
 
     outfile=histdir+'\\%s.csv' % colname
 
-    f=open (outfile,'w')
-    f.write('%s:num\n' % colname)
+    f=open (outfile,'wb')
+    c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    c.writerow([colname,'num'])
     for k in sorted (hist.keys()):        # alfabetisch gesorteerd, dwz 10<2 !!!
-        f.write('%s:%d\n' % (k,hist[k]))
+        c.writerow([k,hist[k]])
+    f.close()
 
 
 def dictify_all_the_things(infodir, cols):
