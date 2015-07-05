@@ -71,6 +71,20 @@ def read_header (filename,sep=None):
     return sep, cols
 
 
+
+def plot_hist (infodir, variable):
+    
+    
+    f=open(infodir+'/hista/%.csv' % variable)
+    c=csv.reader(f,delimiter=',')
+    data=[]
+    for line in c:
+        data.append(line)
+    return data
+
+    
+
+
 def get_cols (datadir, dataset, infodir):
     
     try:
@@ -120,8 +134,9 @@ def dataset (request, dataset):
     sep, cols=get_cols (datadir, dataset, infodir)
 
 
-    g={'ND,1':'', 'ND,2':'', 'ND,3':'', 'ND,4':'', 'ND,5':'', 'ND,6':''}
+
     if action=='split':
+        g={'ND,1':'', 'ND,2':'', 'ND,3':'', 'ND,4':'', 'ND,5':'', 'ND,6':''}
         split_csv_file (datadir, dataset, infodir, match=None, global_recode=g)
 
     if action=='dictify':        
@@ -189,8 +204,10 @@ def dataset (request, dataset):
     if action=='sorthist':
         for col in cols:
             make_hist(infodir, col)
-        
-        
+
+        data={'dataset':dataset, 'sep':sep, 'columns':columns, 'msg':msg}
+        return HttpResponse(cjson.encode(data))
+
             
             
     
@@ -200,6 +217,12 @@ def dataset (request, dataset):
         if filter_set.get(t)==False:
             continue            
         columns.append({'nr':i, 'colname':col, 'type':types.get(col,'--'),'label':labels.get(col,''),'enabled':True})
+        
+    if action=='plothist':
+        data={}
+        for col in columns:
+            data[col]=plot_hist(infodir,col['colname'])
+            return HttpResponse(cjson.encode(data))
         
         
         
