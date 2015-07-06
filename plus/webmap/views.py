@@ -27,7 +27,7 @@ def heatmap (request, dataset):
     #print request #.META
     
     #print dataset
-    template = loader.get_template('ibitmap.html')
+    template = loader.get_template('data.html')
 
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
