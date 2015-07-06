@@ -345,22 +345,24 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('col,datatype, \tnum_keys, empty, unique_index, float_t, int_t,str_t, \tint_min, int_max, \tfloat_min, \tfloat_max, \tmin, max, \tmin_hist, max_hist\n');
+        g.write('colname,datatype,tnum_keys,empty,unique_index,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,min_hist,max_hist\n');
         for col in self.cols:
             if col=='.':
                 break
+#            if col!='AR181':
+#                continue
             f=self.data_info=self.get_type (col)
             self.sort_histogram (col, 0.01, 0.99)
             self.write_histogram (col)
             self.write_binfile (col)
             
             
-            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d,%(unique_index)d' % f 
-            s+=',\t%(float_t)d,%(int_t)d,%(str_t)d' % f            
-            s+=',\t%(int_min)s,%(int_max)s' % f
-            s+=',\t%(float_min)s,%(float_max)s' % f
-            s+=',\t%(min_val)s,%(max_val)s' % f
-            s+=',\t%(hist_min)s,%(hist_max)s' % f
+            s='%(col)s,%(datatype)s,     %(num_keys)d,%(empty)d,%(unique_index)d' % f 
+            s+=',    %(float_t)d,%(int_t)d,%(str_t)d' % f            
+            s+=',    %(int_min)s,%(int_max)s' % f
+            s+=',    %(float_min)s,%(float_max)s' % f
+            s+=',    %(min_val)s,%(max_val)s' % f
+            s+=',    %(hist_min)s,%(hist_max)s' % f
             
             s+='\n'
                       

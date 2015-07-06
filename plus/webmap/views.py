@@ -91,6 +91,22 @@ def get_cols (datadir, dataset, infodir):
 
 
 
+def get_plot (infodir, dataset):
+    
+    try:
+        f=open(infodir+'/hista/%s.csv' % dataset,'r')
+    except:
+        print dataset+':[]'
+        return []
+    f.readline()
+    c=csv.reader(f,delimiter=':')
+    plot=[]
+    for row in c:        
+        plot.append([row[0],row[1]])
+    f.close()
+    print dataset+':[%d]' % (len(plot))
+    return plot
+
 
 def dataset (request, dataset):
 
@@ -169,40 +185,66 @@ def dataset (request, dataset):
                 
     # read types
 
-    f=None
+    f=None    
     try:
         f=open(infodir+'/col_types.csv')
     except:
         pass
-    types={}
+    f.readline()
+    f.readline()
     if f is not None:
-        c=csv.reader(f,delimiter=',')
-        c.next()
-        c.next()
-        for line in c:
-            types[line[0]]=line[1]
-
-
+        int_cols=['num_keys','empty','unique_index',
+              'float_t','int_t','str_t','int_min','int_max']
+        float_cols=['float_min','float_max','min','max']
+        c=csv.DictReader(f,delimiter=',')
+        col_info=[]
+        for row in c:
+          #  print line            
+            for c in int_cols:
+                try:
+                    row[c]=int(float(row[c]))
+                except:
+                    row[c]=''
+            for c in float_cols:
+                try:
+                    row[c]=float(row[c])
+                except:
+                    row[c]=''
+            col_info.append(row)
+            
     # sorthist kan pas als je types van kolommen hebt
     # 
 
     if action=='sorthist':
         for col in cols:
             make_hist(infodir, col)
-        
-        
             
-            
-    
+      
     columns=[]
-    for i,col in enumerate(cols):
-        t=types.get(col,'--')
-        if filter_set.get(t)==False:
-            continue            
-        columns.append({'nr':i, 'colname':col, 'type':types.get(col,'--'),'label':labels.get(col,''),'enabled':True})
+    j=0
+    for i,col in enumerate(cols):   # aantal cols >=aantal cols in col_type.csv
+        info=col_info[j]
+      #  print col
+        if (col!=info['colname']):
+            continue
+        j+=1
         
+        if filter_set.get(info['datatype'])==False:
+            continue
+
+        column=info
+        column['nr']=i
+        column['enabled']=True
+        column['label']=labels.get(col,'')
+        columns.append(column)
+     
         
+    if action=='makeplot':    
+        for i,rowinfo in enumerate(columns):        
+            rowinfo['data']=get_plot(infodir, rowinfo['colname'])
+            columns[i]=rowinfo
+
         
-    data={'dataset':dataset, 'sep':sep, 'columns':columns, 'msg':msg}
+    data={'dataset':dataset, 'sep':sep, 'columns':columns, 'msg':msg, 'action':action}
     return HttpResponse(cjson.encode(data))
 
