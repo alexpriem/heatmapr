@@ -97,6 +97,12 @@ var handle_ajax=function (result) {
 
 	console.log('handle_ajax');
 	r=JSON.parse(result);
+
+	if (r.action=='makeplot') {
+		plot_histograms(r);
+		return;
+	}
+
     var source   = $("#datacols-template").html();        
     var template = Handlebars.compile(source); 
 
@@ -116,6 +122,80 @@ var handle_ajax=function (result) {
 
 
 }
+
+
+
+function plot_histogram (chart, col){
+
+
+	height=200;
+	width=200;
+	bin_width=2;
+	data=col.data;
+
+	if ((col.min=='') || (col.max=='')) return;
+	
+	console.log (col.colname, data.length, col.datatype, col.min, col.max); 
+
+	for (var i=0; i<data.length; i++) {
+
+		x=data[i][0];
+		y=data[i][1];
+		var	val=y/col.max*height;
+
+		console.log('val:',x,y,val);
+		chart.append("rect")	
+				.attr("class","hist")
+				.attr("x",i*bin_width)
+				.attr("y",0)
+				.attr("width",1)
+				.attr("height",val)
+				.style("fill","rgb(8,8,0)")
+				.style("stroke","rgb(8,8,0)")
+				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+				.style("stroke-width","1px");				
+		}	
+}
+
+
+function plot_histograms(r) {
+
+    width=200;
+    height=200;
+	
+	data_div=document.getElementById('data_container');
+    s='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>\n';
+
+	columns=r.columns;
+	for (var i=0; i<columns.length; i++) {
+		col=columns[i];
+		data=col.data;
+		if (data.length!=0) {
+			s+='<svg class="chart" id="chart_'+col.nr+'"></svg>\n';
+		}		
+	}
+
+	data_div.innerHTML =s;
+
+	for (var i=0; i<columns.length; i++) {
+		col=columns[i];
+		data=col.data;
+		if (data.length!=0) {
+			var chart = d3.select("#chart_"+col.nr)
+    						.attr("width", width)
+    						.attr("height", height);
+    		svg=plot_histogram(chart, col);
+		}	
+	}
+
+
+	html='';
+
+
+}
+
+
 
 function init_interactive (){
 
