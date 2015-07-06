@@ -43,7 +43,6 @@ def split_csv_file (datadir, dataset, infodir, match, global_recode):
         os.makedirs(splitdir)
         state=0  # empty
 
-
     infile=datadir+'/'+dataset+'.csv'
     outfile=infodir+'/split/'
     sep=','
@@ -97,15 +96,17 @@ def get_plot (infodir, dataset):
         f=open(infodir+'/hista/%s.csv' % dataset,'r')
     except:
         print dataset+':[]'
-        return []
+        return [],0,0,0,0
     f.readline()
     c=csv.reader(f,delimiter=':')
     plot=[]
+    minx,miny=c.next()    #  1st row contains minx, miny
+    maxx,maxy=c.next()    #  2nd row contains maxx, maxy
     for row in c:        
         plot.append([row[0],row[1]])
     f.close()
     print dataset+':[%d]' % (len(plot))
-    return plot
+    return plot, minx, miny, maxx, maxy
 
 
 def dataset (request, dataset):
@@ -241,7 +242,9 @@ def dataset (request, dataset):
         
     if action=='makeplot':    
         for i,rowinfo in enumerate(columns):        
-            rowinfo['data']=get_plot(infodir, rowinfo['colname'])
+            rowinfo['data'],    \
+            rowinfo['minx'], rowinfo['miny'], \
+            rowinfo['maxx'], rowinfo['maxy']=get_plot(infodir, rowinfo['colname'])
             columns[i]=rowinfo
 
         

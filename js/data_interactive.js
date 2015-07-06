@@ -130,8 +130,15 @@ function plot_histogram (chart, col){
 
 	height=200;
 	width=200;
-	bin_width=2;
+	plotwidth=0.8*width
+	plotheight=0.8*height
+	yoffset=0.1*height
+	xoffset=0.2*height
+	bin_width= plotwidth/100.0;
 	data=col.data;
+	maxy=col.maxy;
+	fontsize=15;
+	numticks=5;
 
 	if ((col.min=='') || (col.max=='')) return;
 	
@@ -141,13 +148,47 @@ function plot_histogram (chart, col){
 
 		x=data[i][0];
 		y=data[i][1];
-		var	val=y/col.max*height;
+		var	val=y/maxy*height;
 
-		console.log('val:',x,y,val);
+		xScale=d3.scale.linear();
+	  	xScale.domain([col.minx,col.maxx]);
+	  	xScale.range([0,width]);
+
+
+		yScale=d3.scale.linear();
+	  	yScale.domain([col.maxy,col.miny]);	  	
+	    yScale.range([yoffset,plotheight+yoffset]);
+
+	    var xAxis=d3.svg.axis();
+	  	var yAxis=d3.svg.axis();	
+	  	xAxis.scale(xScale)
+	  		.ticks(numticks)	  		
+	        .orient("bottom");
+	    xAxis.tickFormat(d3.format("s"));
+	  	yAxis.scale(yScale)
+	  		.ticks(numticks)	  		
+	        .orient("left");
+	    yAxis.tickFormat(d3.format("s"));
+
+		chart.append("g")
+	        .attr("class","xaxis mainx")
+	        .attr("transform","translate("+(xoffset)+","+(height-yoffset)+")")
+	        .attr('font-size','15px')
+	        .call(xAxis);
+
+
+		chart.append("g")
+	        .attr("class","yaxis mainy")
+	        .attr("transform","translate("+(xoffset)+",0)")
+	        .attr('font-size','12px')
+	        .call(yAxis);
+
+
+		console.log('val:',x,y,val, height-val);
 		chart.append("rect")	
 				.attr("class","hist")
-				.attr("x",i*bin_width)
-				.attr("y",0)
+				.attr("x",i*bin_width+xoffset)
+				.attr("y",plotheight-val+yoffset)
 				.attr("width",1)
 				.attr("height",val)
 				.style("fill","rgb(8,8,0)")
@@ -155,6 +196,18 @@ function plot_histogram (chart, col){
 				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				.style("stroke-width","1px");				
+
+
+	  chart.append("text")      // text label for the x axis
+	    	.attr("class","yaxis")
+	        .attr("x", width/2+70 )
+	        .attr("y", 15)
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", fontsize+"px")
+	  		.attr("font-weight", "bold")
+	        .style("text-anchor", "middle")
+	        .text(col.colname);
+
 		}	
 }
 
