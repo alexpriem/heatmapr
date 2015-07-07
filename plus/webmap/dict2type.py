@@ -225,6 +225,12 @@ class typechecker ():
             os.makedirs(self.infodir+'/hista')
 
         data_info=self.data_info
+        data_info['maxy2']=None
+        data_info['maxy3']=None        
+        data_info['sparse1']=False
+        data_info['sparse2']=False
+
+        
         num_keys=self.num_keys
         if num_keys==1:
             return
@@ -273,10 +279,31 @@ class typechecker ():
 
         f=open(self.infodir+'/hista/%s.csv' % variable,'wb')        
         f.write('bin_min,val\n')
+
+        h=sorted(histogram)
+        maxy=h[-1]
+        maxy2=h[-2]
+        maxy3=h[-3]
+
+        data_info['maxy2']=maxy2
+        data_info['maxy3']=maxy3
+        if maxy>10*maxy2:
+            data_info['sparse1']=True
+            if maxy2>10*maxy3:
+                data_info['sparse2']=True
+
+        
+    
+        miny=h[0]
         c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        c.writerow([minx,miny])
+        c.writerow([maxx,maxy])
+        c.writerow([maxy2,maxy3])
         for i,y in enumerate(histogram):
             c.writerow([minx+i*dx,y])
         f.close()
+
+        self.data_info=data_info
             
                 
             
@@ -345,7 +372,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('col,datatype, \tnum_keys, empty, unique_index, float_t, int_t,str_t, \tint_min, int_max, \tfloat_min, \tfloat_max, \tmin, max, \tmin_hist, max_hist\n');
+        g.write('colname,datatype,num_keys,empty,unique_index,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,min_hist,max_hist, maxy2,maxy3,sparse1,sparse2\n');
         for col in self.cols:
             if col=='.':
                 break
@@ -355,12 +382,14 @@ class typechecker ():
             self.write_binfile (col)
             
             
-            s='%(col)s,%(datatype)s, \t%(num_keys)d,%(empty)d,%(unique_index)d' % f 
-            s+=',\t%(float_t)d,%(int_t)d,%(str_t)d' % f            
-            s+=',\t%(int_min)s,%(int_max)s' % f
-            s+=',\t%(float_min)s,%(float_max)s' % f
-            s+=',\t%(min_val)s,%(max_val)s' % f
-            s+=',\t%(hist_min)s,%(hist_max)s' % f
+            s='%(col)s,%(datatype)s,%(num_keys)d,%(empty)d,%(unique_index)d' % f 
+            s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
+            s+=',%(int_min)s,%(int_max)s' % f
+            s+=',%(float_min)s,%(float_max)s' % f
+            s+=',%(min_val)s,%(max_val)s' % f
+            s+=',%(hist_min)s,%(hist_max)s' % f
+            s+=',%(maxy2)s,%(maxy3)s' % f
+            s+=',%(sparse1)s,%(sparse2)s' % f
             
             s+='\n'
                       

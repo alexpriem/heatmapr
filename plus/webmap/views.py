@@ -90,23 +90,30 @@ def get_cols (datadir, dataset, infodir):
 
 
 
-def get_plot (infodir, dataset):
-    
+def get_plot (infodir, rowinfo):
+
+    variable=rowinfo['colname']
     try:
-        f=open(infodir+'/hista/%s.csv' % dataset,'r')
+        f=open(infodir+'/hista/%s.csv' % variable,'r')
     except:
-        print dataset+':[]'
-        return [],0,0,0,0
+        print variable+':[]'
+        rowinfo['data']=[]
+        return rowinfo
     f.readline()
     c=csv.reader(f,delimiter=':')
     plot=[]
-    minx,miny=c.next()    #  1st row contains minx, miny
-    maxx,maxy=c.next()    #  2nd row contains maxx, maxy
+            
+    rowinfo['minx'], rowinfo['miny']=c.next()    #  1st row contains minx, miny
+    rowinfo['maxx'], rowinfo['maxy']=c.next()    #  2nd row contains maxx, maxy
+    rowinfo['maxy2'], rowinfo['maxy3']=c.next()    #  2nd row contains maxx, maxy
+
+   
     for row in c:        
         plot.append([row[0],row[1]])
     f.close()
-    print dataset+':[%d]' % (len(plot))
-    return plot, minx, miny, maxx, maxy
+    print variable+':[%d]' % (len(plot))
+    rowinfo['data']=plot
+    return rowinfo
 
 
 def dataset (request, dataset):
@@ -186,19 +193,19 @@ def dataset (request, dataset):
                 
     # read types
 
-    f=None    
+    f=None
+    col_info=[]
     try:
         f=open(infodir+'/col_types.csv')
     except:
         pass
-    f.readline()
-    f.readline()
     if f is not None:
+        f.readline()
+        f.readline()
         int_cols=['num_keys','empty','unique_index',
               'float_t','int_t','str_t','int_min','int_max']
         float_cols=['float_min','float_max','min','max']
-        c=csv.DictReader(f,delimiter=',')
-        col_info=[]
+        c=csv.DictReader(f,delimiter=',')        
         for row in c:
           #  print line            
             for c in int_cols:
@@ -212,39 +219,53 @@ def dataset (request, dataset):
                 except:
                     row[c]=''
             col_info.append(row)
-            
+
+    have_col_info= (len(col_info)>0)
+    
     # sorthist kan pas als je types van kolommen hebt
     # 
 
-    if action=='sorthist':
+    if action=='sorthist' and len(col_info)>0:
         for col in cols:
             make_hist(infodir, col)
             
       
-    columns=[]
     j=0
-    for i,col in enumerate(cols):   # aantal cols >=aantal cols in col_type.csv
-        info=col_info[j]
-      #  print col
-        if (col!=info['colname']):
-            continue
-        j+=1
-        
-        if filter_set.get(info['datatype'])==False:
-            continue
+    columns=[]
 
-        column=info
-        column['nr']=i
-        column['enabled']=True
-        column['label']=labels.get(col,'')
-        columns.append(column)
+    if not(have_col_info):
+        for i,col in enumerate(cols):
+            column={}
+            column['nr']=i+1
+            column['colname']=col
+            column['enabled']=True
+            column['label']=labels.get(col,'')            
+            columns.append(column)
+        
+    col_info_length=len(col_info)
+    if have_col_info:
+        for i,col in enumerate(cols):   # aantal cols >=aantal cols in col_type.csv
+            info=col_info[j]
+          #  print col
+            if (col!=info['colname']):
+                continue
+            j+=1
+            if j>=col_info_length:
+                msg='incomplete column list'
+                break
+            if filter_set.get(info['datatype'])==False:
+                continue
+
+            column=info
+            column['nr']=i+1
+            column['enabled']=True
+            column['label']=labels.get(col,'')
+            columns.append(column)
      
         
-    if action=='makeplot':    
-        for i,rowinfo in enumerate(columns):        
-            rowinfo['data'],    \
-            rowinfo['minx'], rowinfo['miny'], \
-            rowinfo['maxx'], rowinfo['maxy']=get_plot(infodir, rowinfo['colname'])
+    if action=='makeplot':        
+        for i,rowinfo in enumerate(columns):            
+            rowinfo=get_plot(infodir, rowinfo)
             columns[i]=rowinfo
 
         

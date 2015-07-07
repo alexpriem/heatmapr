@@ -103,7 +103,12 @@ var handle_ajax=function (result) {
 		return;
 	}
 
+
+	if (r.action=='info') {
+		var source   = $("#info-template").html();   			
+	} else {
     var source   = $("#datacols-template").html();        
+	}
     var template = Handlebars.compile(source); 
 
 
@@ -113,7 +118,9 @@ var handle_ajax=function (result) {
   	//console.log(columns);
     data_div=document.getElementById('data_container');
     data_div.innerHTML ='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>'+template(columns);
-    
+        
+	$("#infotable").tablesorter(); 
+
 
     $('.data_action').on("click",click_action);
     $('.data_filter').on("click",click_filter);
@@ -131,7 +138,8 @@ function plot_histogram (chart, col){
 	height=200;
 	width=200;
 	plotwidth=0.8*width
-	plotheight=0.8*height
+	plotheight=0.7*height
+	delta=height-plotheight;
 	yoffset=0.1*height
 	xoffset=0.2*height
 	bin_width= plotwidth/100.0;
@@ -140,7 +148,7 @@ function plot_histogram (chart, col){
 	fontsize=15;
 	numticks=5;
 
-	if ((col.min=='') || (col.max=='')) return;
+	if ((col.miny=='') || (col.maxy=='')) return;
 	
 	console.log (col.colname, data.length, col.datatype, col.min, col.max); 
 
@@ -154,9 +162,18 @@ function plot_histogram (chart, col){
 	  	xScale.domain([col.minx,col.maxx]);
 	  	xScale.range([0,width]);
 
-
+	  	maxy=col.maxy;
+	  	var extrascale='';
+	  	if(col.maxy>10*col.maxy2) {
+	  		maxy=col.maxy2;
+	  		extrascale='*';
+	  		if(col.maxy2>10*col.maxy3) {
+	  			maxy=col.maxy2;
+	  			extrascale='**';
+	  		}
+	  	}
 		yScale=d3.scale.linear();
-	  	yScale.domain([col.maxy,col.miny]);	  	
+	  	yScale.domain([maxy,col.miny]);	  	
 	    yScale.range([yoffset,plotheight+yoffset]);
 
 	    var xAxis=d3.svg.axis();
@@ -169,6 +186,7 @@ function plot_histogram (chart, col){
 	  		.ticks(numticks)	  		
 	        .orient("left");
 	    yAxis.tickFormat(d3.format("s"));
+
 
 		chart.append("g")
 	        .attr("class","xaxis mainx")
@@ -184,11 +202,11 @@ function plot_histogram (chart, col){
 	        .call(yAxis);
 
 
-		console.log('val:',x,y,val, height-val);
+		//console.log('val:',x,y,val, height-val);
 		chart.append("rect")	
 				.attr("class","hist")
 				.attr("x",i*bin_width+xoffset)
-				.attr("y",plotheight-val+yoffset)
+				.attr("y",plotheight-val+delta-yoffset)
 				.attr("width",1)
 				.attr("height",val)
 				.style("fill","rgb(8,8,0)")
@@ -206,7 +224,7 @@ function plot_histogram (chart, col){
 	  		.attr("font-size", fontsize+"px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
-	        .text(col.colname);
+	        .text(col.colname+extrascale);
 
 		}	
 }
@@ -225,7 +243,7 @@ function plot_histograms(r) {
 		col=columns[i];
 		data=col.data;
 		if (data.length!=0) {
-			s+='<svg class="chart" id="chart_'+col.nr+'"></svg>\n';
+			s+='<svg class="chart" id="chart_'+col.nr+'"data-dataset="'+col.colname+'"></svg>\n';
 		}		
 	}
 
@@ -234,10 +252,13 @@ function plot_histograms(r) {
 	for (var i=0; i<columns.length; i++) {
 		col=columns[i];
 		data=col.data;
-		if (data.length!=0) {
+		console.log(col.colname, data.length);
+		if (data.length!=0) {					
+			console.log(col.colname);
 			var chart = d3.select("#chart_"+col.nr)
     						.attr("width", width)
     						.attr("height", height);
+    		console.log(col.colname);
     		svg=plot_histogram(chart, col);
 		}	
 	}
