@@ -47,7 +47,7 @@
           </td>
     </tr>
     <tr>
-          <td  colspan=8"> 
+          <td  colspan="8"> 
               <a href="#" id="filter_empty"  class="data_filter btn btn-info" data-filter="empty"> Empty</a>        
               <a href="#" id="filter_single" class="data_filter btn btn-info"data-filter="single"> Single </a>
               <a href="#" id="filter_int"    class="data_filter btn btn-info" data-filter="int"> Int </a>    
@@ -66,7 +66,7 @@
   <tbody>
       {{#cols}}      
           <tr >              
-          		<td>  <div> <i class="fa fa-lg fa-square-o"></i> <i class="fa fa-lg fa-check-square"> </i></div>
+          		<td>  
                     <div class="checkbox checkbox-primary"> <input type="checkbox" id="checkbox_{{nr}}"  style="styled"> 
                    <label for="checkbox_{{nr}}"> </label> </div>  </td>
           		<td> {{colname}} </td>
@@ -125,9 +125,11 @@
 
         <th> min </th>
         <th> max </th>
+        <th> avg </th>
 
-        <th> min_hist </th>
-        <th> max_hist </td>
+        <th> 1% </th>
+        <th> (median)  50% </th>
+        <th> 99% </th>
     </tr>
     </thead>
     <tbody>    
@@ -160,9 +162,11 @@
 
               <td> {{min}} </td>
               <td> {{max}} </td>
+              <td> {{avg}} </td>
 
-              <td> {{min_hist}} </td>
-              <td> {{max_hist}} </td>
+              <td> {{perc01}} </td>
+              <td> {{perc50}} </td>
+              <td> {{perc99}} </td>
              
           </tr>               
       {{/cols}}      

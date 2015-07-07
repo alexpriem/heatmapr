@@ -142,7 +142,13 @@ function plot_histogram (chart, col){
 	delta=height-plotheight;
 	yoffset=0.1*height
 	xoffset=0.2*height
-	bin_width= plotwidth/100.0;
+	bins=col.num_keys;
+	if (bins>100) bins=100;
+	bin_width= plotwidth/bins;
+	console.log('bin_width:', bin_width, col.num_keys)
+	if (bin_width>20) {
+		bin_width=20;
+	}
 	data=col.data;
 	maxy=col.maxy;
 	fontsize=15;
@@ -207,7 +213,7 @@ function plot_histogram (chart, col){
 				.attr("class","hist")
 				.attr("x",i*bin_width+xoffset)
 				.attr("y",plotheight-val+delta-yoffset)
-				.attr("width",1)
+				.attr("width",bin_width)
 				.attr("height",val)
 				.style("fill","rgb(8,8,0)")
 				.style("stroke","rgb(8,8,0)")

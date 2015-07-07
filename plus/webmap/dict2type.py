@@ -66,6 +66,7 @@ class typechecker ():
         float_min=None
         float_max=None
         sumval=0
+        avgsum=0        
 
         hist={}
         hist_string={}
@@ -95,7 +96,8 @@ class typechecker ():
                 str_t+=1
                 hist[key]=val
                 continue                
-            
+
+            avgsum+=v*val            
             if v.is_integer():                
                 int_t+=1
                 i=int(v)
@@ -103,7 +105,7 @@ class typechecker ():
                     int_min=i
                 if int_max is None or i>int_max:
                     int_max=i
-                hist[i]=val
+                hist[i]=val                
             else:                
                 float_t+=1                
                 if float_min is None or v<float_min:
@@ -160,6 +162,7 @@ class typechecker ():
         info['num_keys']=num_keys
         info['min_val']=min_val
         info['max_val']=max_val
+        info['avg']=avgsum/self.num_records
         self.num_keys=lines
         unique_index=0
         if len(hist)==self.num_records:
@@ -202,7 +205,6 @@ class typechecker ():
         hist=self.hist
         self.sorted_keys=sorted(hist.keys())
         for k in self.sorted_keys:
-
             if  numeric:
                 sumval+=int(hist[k])
                 if min_range is None and sumval>min_records:
@@ -210,9 +212,11 @@ class typechecker ():
                 if max_range is None and sumval>max_records:
                     max_range=k
             c.writerow([str(k),hist[k]])   
-        self.data_info['hist_min']=min_range
-        self.data_info['hist_max']=max_range
+        self.data_info['perc01']=min_range
+        self.data_info['perc50']=0
+        self.data_info['perc99']=max_range
         f.close()
+
         
 
 
@@ -246,8 +250,8 @@ class typechecker ():
             bins=num_keys
 
 
-        minx=data_info['hist_min']   
-        maxx=data_info['hist_max']
+        minx=data_info['perc01']   
+        maxx=data_info['perc99']
         if data_info['min_val']<=0 and minx>0:
             minx=0
         if maxx=='':
@@ -304,6 +308,8 @@ class typechecker ():
         f.close()
 
         self.data_info=data_info
+        
+
             
                 
             
@@ -372,7 +378,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('colname,datatype,num_keys,empty,unique_index,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,min_hist,max_hist, maxy2,maxy3,sparse1,sparse2\n');
+        g.write('colname,datatype,num_keys,empty,unique_index,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
         for col in self.cols:
             if col=='.':
                 break
@@ -387,7 +393,7 @@ class typechecker ():
             s+=',%(int_min)s,%(int_max)s' % f
             s+=',%(float_min)s,%(float_max)s' % f
             s+=',%(min_val)s,%(max_val)s' % f
-            s+=',%(hist_min)s,%(hist_max)s' % f
+            s+=',%(avg)s,%(perc01)s,%(perc50)s,%(perc99)s' % f
             s+=',%(maxy2)s,%(maxy3)s' % f
             s+=',%(sparse1)s,%(sparse2)s' % f
             

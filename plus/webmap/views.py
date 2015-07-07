@@ -218,13 +218,19 @@ def dataset (request, dataset):
                     row[c]=float(row[c])
                 except:
                     row[c]=''
-            row['sparse1']=False                    
+            if row['colname']=='AR94':
+                print row
+            
             if row['sparse1']=='True':
                 row['sparse1']=True
-            row['sparse2']=False                    
+            else:
+                row['sparse1']=False                        
             if row['sparse2']=='True':
-                row['sparse2']=True            
-                
+                row['sparse2']=True
+            else:
+                row['sparse2']=False
+            if row['colname']=='AR94':
+                print row
             col_info.append(row)
 
     have_col_info= (len(col_info)>0)
