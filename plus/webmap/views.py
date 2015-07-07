@@ -229,8 +229,6 @@ def dataset (request, dataset):
                 row['sparse2']=True
             else:
                 row['sparse2']=False
-            if row['colname']=='AR94':
-                print row
             col_info.append(row)
 
     have_col_info= (len(col_info)>0)
