@@ -66,7 +66,9 @@
   <tbody>
       {{#cols}}      
           <tr >              
-          		<td> <div class="checkbox checkbox-primary"> <input type="checkbox" id="checkbox_{{nr}}"  style="styled">  <label for="checkbox_{{nr}}"> </label> </div>  </td>
+          		<td>  <div> <i class="fa fa-lg fa-square-o"></i> <i class="fa fa-lg fa-check-square"> </i></div>
+                    <div class="checkbox checkbox-primary"> <input type="checkbox" id="checkbox_{{nr}}"  style="styled"> 
+                   <label for="checkbox_{{nr}}"> </label> </div>  </td>
           		<td> {{colname}} </td>
           		<td> {{datatype}} </td>
           		<td> {{label}} </td>
@@ -96,7 +98,7 @@
           </td>
     </tr>
     <tr>
-          <td  colspan=8"> 
+          <td  colspan="8"> 
               <a href="#" id="filter_empty"  class="data_filter btn btn-info" data-filter="empty"> Empty</a>        
               <a href="#" id="filter_single" class="data_filter btn btn-info"data-filter="single"> Single </a>
               <a href="#" id="filter_int"    class="data_filter btn btn-info" data-filter="int"> Int </a>    
@@ -138,8 +140,19 @@
               <td> {{num_keys}} </td>
               <td> {{empty}} </td>
               <td> {{unique_index}} </td>
-              <td> {{sparse1}} </td>
-              <td> {{sparse2}} </td>
+              <td> 
+                   {{#if sparse1}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}                    
+              </td>
+              <td>  {{#if sparse2}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}
+              </td>
 
               <td> {{float_t}} </td>
               <td> {{int_t}} </td>

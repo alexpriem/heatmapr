@@ -106,7 +106,7 @@ def get_plot (infodir, rowinfo):
     rowinfo['minx'], rowinfo['miny']=c.next()    #  1st row contains minx, miny
     rowinfo['maxx'], rowinfo['maxy']=c.next()    #  2nd row contains maxx, maxy
     rowinfo['maxy2'], rowinfo['maxy3']=c.next()    #  2nd row contains maxx, maxy
-
+    
    
     for row in c:        
         plot.append([row[0],row[1]])
@@ -218,6 +218,13 @@ def dataset (request, dataset):
                     row[c]=float(row[c])
                 except:
                     row[c]=''
+            row['sparse1']=False                    
+            if row['sparse1']=='True':
+                row['sparse1']=True
+            row['sparse2']=False                    
+            if row['sparse2']=='True':
+                row['sparse2']=True            
+                
             col_info.append(row)
 
     have_col_info= (len(col_info)>0)
