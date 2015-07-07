@@ -114,7 +114,7 @@
 
         <th> num_keys </th>
         <th> empty </th>
-        <th> unique_index </th>
+        <th> unique index </th>
 
         <th> sparse1 </th>
         <th> sparse2 </th>
@@ -135,19 +135,34 @@
     <tbody>    
       {{#cols}}      
           <tr >              
-              <td> <div class="checkbox checkbox-primary"> <input type="checkbox" id="checkbox_{{nr}}"  style="styled">  <label for="checkbox_{{nr}}"> </label> </div>  </td>
+              <td> <div class="checkbox checkbox-primary"> 
+                      <input type="checkbox" id="checkbox_{{nr}}"  style="styled">  
+                      <label for="checkbox_{{nr}}"> </label> 
+                    </div>  
+              </td>
               <td> {{colname}} </td>
               <td> {{datatype}} </td>
               <td> {{label}} </td>
               <td> {{num_keys}} </td>
-              <td> {{empty}} </td>
-              <td> {{unique_index}} </td>
-              <td> 
-                   {{#if sparse1}}
+              <td> {{#if empty}}
                        <div><i class="fa fa-lg fa-check-square"> </i></div>
                    {{else}}
                        <div><i class="fa fa-lg fa-square-o"> </i></div>
                    {{/if}}                    
+              </td>
+              <td> 
+                   {{#if unique_index}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}                    
+               </td>
+              <td> 
+               {{#if sparse1}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}
               </td>
               <td>  {{#if sparse2}}
                        <div><i class="fa fa-lg fa-check-square"> </i></div>
