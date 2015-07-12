@@ -2,6 +2,9 @@ import os,sys, cjson, shutil, csv
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import RequestContext, loader
+from django.views.decorators.csrf import csrf_exempt
+
+
 from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
@@ -32,6 +35,57 @@ def heatmap (request, dataset):
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
+
+
+# helperfunction to read simple csv-file to a dict
+
+def read_csvfile (filename):
+    f=None
+    try:
+        f=open(filename)
+    except:
+        pass
+    labels={}
+    if f is not None:    
+        c=csv.reader(f,delimiter=',')
+        for line in c:
+            labels[line[0]]=line[1]
+        f.close()
+    return labels
+
+
+def read_filterfile (filename):
+    f=None
+    try:
+        f=open(filename)
+    except:
+        pass
+    matchui=[]
+    matches=[]
+    if f is not None:    
+        c=csv.DictReader(f,delimiter=',')
+        for line in c:
+            matchui.append(line)
+            matches.append(line['key']+line['compare']+str(line['value']))
+        f.close()
+    return matches, matchui
+
+
+def read_recodefile (filename):
+    f=None
+    try:
+        f=open(filename)
+    except:
+        pass
+    labelset=[]
+    labeldict={}
+    if f is not None:    
+        c=csv.reader(f,delimiter=',')
+        for line in c:
+            labelset.append({'key':line[0],'value':line[1]})
+            labeldict[line[0]]=line[1]
+        f.close()
+    return labeldict,labelset
 
 
 
@@ -68,6 +122,9 @@ def read_header (filename,sep=None):
             
     cols=[col.strip() for col in headerline.split(sep)]    
     return sep, cols
+
+
+
 
 
 def get_cols (datadir, dataset, infodir):
@@ -114,6 +171,39 @@ def get_plot (infodir, rowinfo):
     print variable+':[%d]' % (len(plot))
     rowinfo['data']=plot
     return rowinfo
+
+
+@csrf_exempt
+def set_filter (request, dataset):
+
+    print 'set_filter'
+    datadir=request.POST['datadir']
+    print request.POST.keys()
+    cols=request.POST.getlist('filtercols[]')
+    comps=request.POST.getlist('filtercompares[]')
+    values=request.POST.getlist('filtervalues[]')
+
+    
+    infodir=datadir+'/'+dataset+'_info'    
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)    
+
+    f=open (infodir+'/filter.csv','wb')
+    c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    print cols, comps, values
+    c.writerow(['key','compare','value']);
+    for col,comp,value in zip(cols,comps,values):        
+        col=col.strip()
+        comp=comp.strip()
+        value=value.strip()
+        if (col!='') and (comp in ['=','<','>', '<=','>=','!=']):
+            c.writerow([col,comp,value])
+    f.close()
+    
+    data={'msg':''}
+    return HttpResponse(cjson.encode(data))
+        
+
 
 
 def dataset (request, dataset):
@@ -177,20 +267,12 @@ def dataset (request, dataset):
  
 
 
-    # read labels
+    # read labels, filter/recode-rules
 
-    f=None
-    try:
-        f=open(infodir+'/labels.csv')
-    except:
-        pass
-    labels={}
-    if f is not None:    
-        c=csv.reader(f,delimiter=',')
-        for line in c:
-            labels[line[0]]=line[1]
-        f.close()
-                
+    labels=read_csvfile (infodir+'/labels.csv')
+    filterdict, filterset=read_filterfile (infodir+'/filters.csv')
+    recodedict, recodeset=read_recodefile (infodir+'/recodes.csv')
+    
     # read types
 
     f=None
@@ -280,6 +362,13 @@ def dataset (request, dataset):
             columns[i]=rowinfo
 
         
-    data={'dataset':dataset, 'sep':sep, 'columns':columns, 'msg':msg, 'action':action}
+    data={'dataset':dataset,
+          'sep':sep,
+          'columns':columns,
+          'msg':msg,
+          'action':action,
+          'filters':filterset,
+          'recodes':recodeset}
+    
     return HttpResponse(cjson.encode(data))
 

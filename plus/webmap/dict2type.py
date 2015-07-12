@@ -200,7 +200,7 @@ class typechecker ():
     
         f=open (outfile,'wb')
         f.write(header)
-        c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)        
+        c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)        
 
         hist=self.hist
         self.sorted_keys=sorted(hist.keys())

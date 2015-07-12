@@ -37,17 +37,19 @@
     <tr>
           <td colspan="8">
                   <a href="#" id="clear_all" class="data_action btn btn-default"> Clear all</a>        
+                  <a href="#" id="filtersetup" class="data_action btn btn-default"> Filter-setup </a>
+                  <a href="#" id="recodesetup" class="data_action btn btn-default"> Recode-setup </a>
                   <a href="#" id="split" class="data_action btn btn-default"> Split </a>
                   <a href="#" id="dictify" class="data_action btn btn-default"> Dictify </a>    
-                  <a href="#" id="dict2type" class="data_action btn btn-default"> Derive types </a>  
-                  <a href="#" id="info" class="data_action btn btn-default"> Info </a>    
+                  <a href="#" id="dict2type" class="data_action btn btn-default"> Derive types </a>    
+                  <a href="#" id="info" class="data_action btn btn-default"> Info </a>  
                   <a href="#" id="sorthist" class="data_action btn btn-default"> Sort hist</a>    
                   <a href="#" id="makeplot" class="data_action btn btn-default"> Make histplot</a>    
                   <a href="#" id="clearhist" class="data_action btn btn-default"> Clear hist</a>   
           </td>
     </tr>
     <tr>
-          <td  colspan="8"> 
+          <td  colspan="8"> Filter:
               <a href="#" id="filter_empty"  class="data_filter btn btn-info" data-filter="empty"> Empty</a>        
               <a href="#" id="filter_single" class="data_filter btn btn-info"data-filter="single"> Single </a>
               <a href="#" id="filter_int"    class="data_filter btn btn-info" data-filter="int"> Int </a>    
@@ -88,6 +90,8 @@
     <tr>
           <td colspan="8">
                   <a href="#" id="clear_all" class="data_action btn btn-default"> Clear all</a>        
+                  <a href="#" id="filtersetup" class="data_action btn btn-default"> Filter-setup </a>
+                  <a href="#" id="recodesetup" class="data_action btn btn-default"> Recode-setup </a>
                   <a href="#" id="split" class="data_action btn btn-default"> Split </a>
                   <a href="#" id="dictify" class="data_action btn btn-default"> Dictify </a>    
                   <a href="#" id="dict2type" class="data_action btn btn-default"> Derive types </a>    
@@ -98,7 +102,7 @@
           </td>
     </tr>
     <tr>
-          <td  colspan="8"> 
+          <td  colspan="8"> Filter:
               <a href="#" id="filter_empty"  class="data_filter btn btn-info" data-filter="empty"> Empty</a>        
               <a href="#" id="filter_single" class="data_filter btn btn-info"data-filter="single"> Single </a>
               <a href="#" id="filter_int"    class="data_filter btn btn-info" data-filter="int"> Int </a>    
@@ -191,10 +195,39 @@
   </script>
 
 
+
+
+<script id="filter-template" type="text/x-handlebars-template">
+<form role="form">
+	<div class="form-group">
+	<table class="table-striped">
+	<thead>
+	<tr> <th> Kolom </th>
+		 <th>	Vergelijking </th>
+		 <th> Waarde</th> </tr>
+	<thead>
+	<tbody>
+	{{#rows}}
+	   <tr class="filter_row" id="filter_row_{{@index}}"> 
+	   		<td> <input  class="filtercol form-control form-control2" value="{{key}}"></td> 	 
+	   		<td> <input  class="filtercomp form-control form-control2" value="{{compare}}"> </td> 
+	   		<td> <input   class="filtervalue form-control form-control2" value="{{value}}"> </td> 
+	   		<td> <a href  class="del deleteicon fa fa-times" data-rownr="{{@index}}" > </a> 
+	   		 	<a href   class="add addicon fa fa-plus" data-rownr="{{@index}}" > </a> 	   			
+	   		</td> 
+	   	</tr>
+	{{/rows}}
+	<tbody>
+	</table>
+	</div>
+
+	<a href="#" id="update_filter"  class="update_filter btn btn-info"> Update filter</a>  
+	<a href="#" id="update_filteredit"  class="update_filter btn btn-info"> Undo</a>  
+
+</form>
+</script>
+
 {% endverbatim  %}
-
-
-
 
     <ul class="nav nav-pills">
         <li class="active"><a id="tab_heatmap" href="#heatmap_div" data-toggle="tab" >Heatmap</a></li>
@@ -215,4 +248,6 @@
 
 </body>
 </html>
+
+
 

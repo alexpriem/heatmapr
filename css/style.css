@@ -200,3 +200,22 @@ th {
 
 font-weight: bold;
 }
+
+
+.form-control2 {
+    width:100px;
+}
+
+.deleteicon{
+position:relative;
+padding-left:10px;
+top:-12px;
+color:#A94444;
+}
+
+.addicon{
+position:relative;
+top:-12px;
+padding-left:5px;
+color:#407640;
+}

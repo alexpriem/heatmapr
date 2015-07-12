@@ -1,3 +1,6 @@
+var dataset='best2010';
+var datadir='e:/data';
+
 
 var filter={'empty':false,
 			'single':false,
@@ -5,6 +8,8 @@ var filter={'empty':false,
 			'float':true,
 			'string':true};
 			
+
+
 
 
 var handle_ajax_error=function (result) {
@@ -16,8 +21,7 @@ var handle_ajax_error=function (result) {
 
 function update_state  (action) {
 
-	var dataset='best2010';
-	var datadir='e:/data';
+	
 
 	var data={dataset:dataset,datadir:datadir, 'action':action};
   
@@ -92,6 +96,92 @@ function update_filter() {
 }
 
 
+/* filter-button at top, for selecting rows in csv. Needs separate tab */
+
+
+var filter_add_row=function() {
+
+	rownr=$(this).attr("data-rownr");
+	fcols=$('.filtercol');
+	newrownr=fcols.length;
+	newrow=$('#filter_row_'+rownr).clone();
+	console.log('add:',newrow.attr('id'))
+	newrow.attr('id','filter_row_'+newrownr);
+	$('#filter_row_'+rownr).after(newrow);
+	return false;
+}
+
+var filter_del_row=function() {
+
+	rownr=$(this).attr("data-rownr");
+	console.log(rownr);
+	$('#filter_row_'+rownr).remove();
+	return false;
+}
+
+var filter_undo_edit=function() {
+	
+	return false;
+}
+
+var filter_update=function() {
+	
+	console.log('filter_update');
+
+	filtercols=[];
+	fcols=$('.filtercol');
+	fcols.each(function(index) { filtercols.push($(this).val());   });
+	filtercomp=[];
+	fcomp=$('.filtercomp');
+	fcomp.each(function(index) { filtercomp.push($(this).val());   });
+	filtervalues=[];
+	fvalues=$('.filtervalue');
+	fvalues.each(function(index) { filtervalues.push($(this).val());   });
+	
+
+	data={'filtercols':filtercols,'filtercompares':filtercomp,'filtervalues':filtervalues, 'datadir':datadir};
+
+	console.log(data);
+	$.ajax({url:"/set_filter/"+dataset+'/', 
+			type: "POST",
+			'data':data,
+			success: handle_ajax,
+			error: handle_ajax_error,
+		});
+	return false;
+}
+
+function show_filters(r){
+
+
+	data_div=document.getElementById('data_container');
+    s='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>\n';
+
+	var source   = $("#filter-template").html();   				
+    var template = Handlebars.compile(source); 
+    console.log(r.filters);
+    
+    s+='<h3>Filter</h3>'
+
+    s+=template({'rows':r.filters});
+	
+	data_div.innerHTML =s;
+
+	$('#update_filter').on('click',filter_update);
+	$('#update_filteredit').on('click',filter_undo_edit);
+	$('.del').on('click',filter_del_row);
+	$('.add').on('click',filter_add_row);
+
+  
+}
+
+
+function show_recodeset(r){
+
+	
+}
+
+
 var handle_ajax=function (result) {
 
 
@@ -100,6 +190,16 @@ var handle_ajax=function (result) {
 
 	if (r.action=='makeplot') {
 		plot_histograms(r);
+		return;
+	}
+
+	if (r.action=='filtersetup') {
+		show_filters(r);
+		return;
+	}
+
+	if (r.action=='recodesetup') {
+		show_recodeset(r);
 		return;
 	}
 
