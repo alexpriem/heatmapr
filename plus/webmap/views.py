@@ -75,14 +75,16 @@ def read_recodefile (filename):
     f=None
     try:
         f=open(filename)
+        f.readline()
     except:
         pass
+    
     labelset=[]
     labeldict={}
     if f is not None:    
         c=csv.reader(f,delimiter=',')
         for line in c:
-            labelset.append({'key':line[0],'value':line[1]})
+            labelset.append({'value':line[0],'replacement':line[1]})
             labeldict[line[0]]=line[1]
         f.close()
     return labeldict,labelset
@@ -189,8 +191,7 @@ def set_filter (request, dataset):
         os.makedirs(infodir)    
 
     f=open (infodir+'/filter.csv','wb')
-    c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    print cols, comps, values
+    c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)    
     c.writerow(['key','compare','value']);
     for col,comp,value in zip(cols,comps,values):        
         col=col.strip()
@@ -202,10 +203,37 @@ def set_filter (request, dataset):
     
     data={'msg':''}
     return HttpResponse(cjson.encode(data))
+
+
+@csrf_exempt
+def set_recode (request, dataset):
+
+    print 'set_recode'
+    datadir=request.POST['datadir']
+    print request.POST.keys()
+    vals=request.POST.getlist('values[]')
+    replacements=request.POST.getlist('replacements[]')
+    
+    infodir=datadir+'/'+dataset+'_info'    
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)    
+
+    f=open (infodir+'/recodes.csv','wb')
+    c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    c.writerow(['value','replacement']);
+    for val,replacement in zip(vals,replacements):        
+        val=val.strip()        
+        replacement=replacement.strip()
+        if (val!=''):
+            c.writerow([val,replacement])
+    f.close()
+    
+    data={'msg':''}
+    return HttpResponse(cjson.encode(data))
         
 
 
-
+@csrf_exempt
 def dataset (request, dataset):
 
     #print request.GET['dataset']
@@ -361,7 +389,7 @@ def dataset (request, dataset):
             rowinfo=get_plot(infodir, rowinfo)
             columns[i]=rowinfo
 
-        
+
     data={'dataset':dataset,
           'sep':sep,
           'columns':columns,

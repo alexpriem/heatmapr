@@ -227,6 +227,37 @@
 </form>
 </script>
 
+
+
+<script id="recode-template" type="text/x-handlebars-template">
+<form role="form">
+	<div class="form-group">
+	<table class="table-striped">
+	<thead>
+	<tr> <th> Waarde </th>
+		 
+		 <th> Vervanging</th> </tr>
+	<thead>
+	<tbody>
+	{{#rows}}
+	   <tr class="recode_row" id="recode_row_{{@index}}"> 
+	   		<td> <input  class="recodevalues form-control form-control2" value="{{value}}"></td> 	 	   		
+	   		<td> <input   class="recodereplacements form-control form-control2" value="{{replacement}}"> </td> 
+	   		<td> <a href  class="del deleteicon fa fa-times" data-rownr="{{@index}}" > </a> 
+	   		 	<a href   class="add addicon fa fa-plus" data-rownr="{{@index}}" > </a> 	   			
+	   		</td> 
+	   	</tr>
+	{{/rows}}
+	<tbody>
+	</table>
+	</div>
+
+	<a href="#" id="update_recode"  class="update_recode btn btn-info"> Update vervangingen</a>  
+	<a href="#" id="update_recode_edit"  class="update_recode btn btn-info"> Undo</a>  
+
+</form>
+</script>
+
 {% endverbatim  %}
 
     <ul class="nav nav-pills">

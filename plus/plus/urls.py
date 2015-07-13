@@ -22,6 +22,7 @@ urlpatterns = patterns('',
     url(r'^$', views.top, name='index'),
 
     url(r'^set_filter/(?P<dataset>.*)/', views.set_filter),
+    url(r'^set_recode/(?P<dataset>.*)/', views.set_recode),
     url(r'^dataset/(?P<dataset>.*)/', views.dataset),
     url(r'^heatmap/(?P<dataset>.*)/$', views.heatmap),
     url(r'^admin/', include(admin.site.urls)),
