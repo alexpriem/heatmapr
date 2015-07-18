@@ -186,18 +186,23 @@ def get_plot (infodir, rowinfo):
 
 @csrf_exempt
 def histogram (request, dataset, variabele):
-
-    print 'ok'
+    
     if request.is_ajax()==True:
-        print 'ajax'
+        cmd=request.GET['cmd']
+        
         datadir='e:/data'
         infodir=datadir+'/'+dataset+'_info'    
         if not os.path.exists(infodir):
             os.makedirs(infodir)    
-
-        rowinfo={'colname':variabele}
-        plotdata=get_plot(infodir, rowinfo)
-        data={'action':'makeplot','data':plotdata}
+        if cmd=='init':
+            rowinfo={'colname':variabele}
+            plotdata=get_plot(infodir, rowinfo)
+            data={'action':'makeplot','data':plotdata}
+        if cmd=='resize':
+            print 'RESIZE'
+            rowinfo={'colname':variabele}
+            plotdata=get_plot(infodir, rowinfo)
+            data={'action':'makeplot','data':plotdata}
         
         return HttpResponse(cjson.encode(data))
     template = loader.get_template('single_histogram.html')
