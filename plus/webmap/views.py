@@ -152,10 +152,13 @@ def get_cols (datadir, dataset, infodir):
 
 
 def get_plot (infodir, rowinfo):
-
+    
     variable=rowinfo['colname']
+    print 'get_plot:',variable
     try:
+        print infodir+'/hista/%s.csv' % variable
         f=open(infodir+'/hista/%s.csv' % variable,'r')
+        
     except:
         print variable+':[]'
         rowinfo['data']=[]
@@ -175,6 +178,32 @@ def get_plot (infodir, rowinfo):
     print variable+':[%d]' % (len(plot))
     rowinfo['data']=plot
     return rowinfo
+
+
+
+
+
+
+@csrf_exempt
+def histogram (request, dataset, variabele):
+
+    print 'ok'
+    if request.is_ajax()==True:
+        print 'ajax'
+        datadir='e:/data'
+        infodir=datadir+'/'+dataset+'_info'    
+        if not os.path.exists(infodir):
+            os.makedirs(infodir)    
+
+        rowinfo={'colname':variabele}
+        plotdata=get_plot(infodir, rowinfo)
+        data={'action':'makeplot','data':plotdata}
+        
+        return HttpResponse(cjson.encode(data))
+    template = loader.get_template('single_histogram.html')
+
+    context = RequestContext(request, {'dataset':dataset,'histogram':variabele})
+    return HttpResponse(template.render(context))
 
 
 @csrf_exempt
