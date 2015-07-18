@@ -65,8 +65,9 @@ def read_filterfile (filename):
     if f is not None:    
         c=csv.DictReader(f,delimiter=',')
         for line in c:
-            matchui.append(line)
-            matches.append(line['key']+line['compare']+str(line['value']))
+            if len(line)==3:
+                matchui.append(line)
+                matches.append(line['key']+line['compare']+str(line['value']))
         f.close()
     return matches, matchui
 
@@ -84,8 +85,9 @@ def read_recodefile (filename):
     if f is not None:    
         c=csv.reader(f,delimiter=',')
         for line in c:
-            labelset.append({'value':line[0],'replacement':line[1]})
-            labeldict[line[0]]=line[1]
+            if len(line)==2:
+                labelset.append({'value':line[0],'replacement':line[1]})
+                labeldict[line[0]]=line[1]
         f.close()
     return labeldict,labelset
 
@@ -328,8 +330,6 @@ def dataset (request, dataset):
                     row[c]=float(row[c])
                 except:
                     row[c]=''
-            if row['colname']=='AR94':
-                print row
             
             if row['sparse1']=='True':
                 row['sparse1']=True

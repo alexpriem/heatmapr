@@ -115,7 +115,19 @@ var filter_del_row=function() {
 
 	rownr=$(this).attr("data-rownr");
 	console.log(rownr);
-	$('#filter_row_'+rownr).remove();
+	
+
+	rows=$('.filtercol');
+	if (rows.length>1) {
+		$('#filter_row_'+rownr).remove();
+	}  else {					// inputboxes niet verwijderen maar leeg maken.
+		$(rows[0]).val('');			
+		rows=$('.filtercomp');
+		$(rows[0]).val('');
+		rows=$('.filtervalue');
+		$(rows[0]).val('');
+
+	}
 	return false;
 }
 
@@ -138,6 +150,17 @@ var filter_update=function() {
 	fvalues=$('.filtervalue');
 	fvalues.each(function(index) { filtervalues.push($(this).val());   });
 	
+	// rudimentary check on empty cols.
+	filterlen=filtercols.length;
+	for (i=0; i<filterlen) {
+		col=filtercols[i];
+		if (col=='') {
+			filterlen-=1;
+			filtercols.splice(i,1);
+			filtercomp.splice(i,1);
+			filtervalues.splice(i,1);
+		}
+	}
 
 	data={'filtercols':filtercols,'filtercompares':filtercomp,'filtervalues':filtervalues, 'datadir':datadir};
 
@@ -173,7 +196,15 @@ var recode_del_row=function() {
 
 	rownr=$(this).attr("data-rownr");
 	console.log(rownr);
-	$('#recode_row_'+rownr).remove();
+	
+	rows=$('.recodevalues');
+	if (rows.length>1) {
+		$('#recode_row_'+rownr).remove();
+	}  else {					// inputboxes niet verwijderen maar leeg maken.
+		$(rows[0]).val('');			
+		rows=$('.recodereplacements');
+		$(rows[0]).val('');
+	}
 	return false;
 }
 
@@ -222,6 +253,9 @@ function show_filters(r){
     
     s+='<h3>Filter</h3>'
 
+    if ((r.filters.length)==0){
+    	r.filters.push({'key':'','compare':'','value':''})    
+    }
     s+=template({'rows':r.filters});
 	
 	data_div.innerHTML =s;
@@ -245,8 +279,10 @@ function show_recodeset(r){
 	var source   = $("#recode-template").html();   				
     var template = Handlebars.compile(source);     
     
+    if (r.recodes.length==0) {
+    	r.recodes.push({'value':'','replacement':''})    
+    }
     s+='<h3>Filter</h3>'
-
     s+=template({'rows':r.recodes});
 	
 	data_div.innerHTML =s;
