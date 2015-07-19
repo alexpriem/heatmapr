@@ -152,7 +152,7 @@ var filter_update=function() {
 	
 	// rudimentary check on empty cols.
 	filterlen=filtercols.length;
-	for (i=0; i<filterlen) {
+	for (i=0; i<filterlen;i++) {
 		col=filtercols[i];
 		if (col=='') {
 			filterlen-=1;
@@ -326,7 +326,7 @@ var handle_ajax=function (result) {
 
 
   //  columns={cols:[{colname:'asdfasdf'},{colname:'asasdf'}]};
-  	var columns={cols:r.columns};
+  	var columns={cols:r.columns,dataset:r.dataset};
 
   	//console.log(columns);
     data_div=document.getElementById('data_container');
