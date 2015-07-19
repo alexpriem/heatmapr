@@ -58,7 +58,7 @@ function plot_single_histogram (chart, col){
 
 		x=data[i][0];
 		y=data[i][1];
-		console.log(x,y);
+		//console.log(x,y);
 		var	val=y/maxy*height;
 
 		xScale=d3.scale.linear();
@@ -185,7 +185,7 @@ function init_histogram (r) {
 
 	$('.range').on('keyup',checkresize);
 	data_div=document.getElementById('histogram_container');
-    s='<h3>'+r.msg+'</h3>\n';
+    s='';
     histogram=r.data;
     console.log('histogram:',r,histogram);
 	s+='<svg class="chart" id="chart_0" data-dataset="'+histogram.colname+'"></svg>\n';
