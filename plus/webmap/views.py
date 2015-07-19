@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
-from makehist import make_hist
+from makehist import make_hist2
 
 
 
@@ -199,9 +199,26 @@ def histogram (request, dataset, variabele):
             plotdata=get_plot(infodir, rowinfo)
             data={'action':'makeplot','data':plotdata}
         if cmd=='resize':
-            print 'RESIZE'
+            minx=float(request.GET.get('minx',0))
+            maxx=float(request.GET.get('maxx',100))
+            bins=int(request.GET.get('bins',100))
+            print 'RESIZE',minx,maxx,bins
+            
+            
             rowinfo={'colname':variabele}
             plotdata=get_plot(infodir, rowinfo)
+            rowinfo['minx']=minx
+            rowinfo['maxx']=maxx
+
+            
+            histogram, sorted_hist=make_hist2 (infodir, variabele,minx,maxx,bins)
+            plotdata['data']=histogram            
+            rowinfo['maxy']=sorted_hist[-1]
+            rowinfo['maxy2']=sorted_hist[-2]
+            rowinfo['maxy3']=sorted_hist[-3]
+
+
+            
             data={'action':'makeplot','data':plotdata}
         
         return HttpResponse(cjson.encode(data))
@@ -377,13 +394,7 @@ def dataset (request, dataset):
 
     have_col_info= (len(col_info)>0)
     
-    # sorthist kan pas als je types van kolommen hebt
-    # 
 
-    if action=='sorthist' and len(col_info)>0:
-        for col in cols:
-            make_hist(infodir, col)
-            
       
     j=0
     columns=[]
