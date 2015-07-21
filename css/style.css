@@ -250,3 +250,37 @@ color:#407640;
 	margin-top:0px;
 	background-color:gray;
 }
+
+
+#form_x_var  {
+ padding-left:50px;
+ width:200px;
+}
+
+#form_y_var  {
+ padding-left:50px;
+ width:200px;
+}
+
+.spacer {
+	padding-left:50px;
+
+}
+
+.xyinput{
+	padding-top:10px;
+	width:150px;
+}
+
+.xylabel {
+	//vertical-align:middle;
+}
+
+.parameter {
+	margin-top:25px;
+
+}
+
+#spacer1{
+height:20px;
+}

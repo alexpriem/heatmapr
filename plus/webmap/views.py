@@ -22,6 +22,34 @@ def top (request):
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
 
+
+@csrf_exempt
+def makemap (request, dataset):
+
+    #print request.path
+    #print request #.META
+    if request.is_ajax()==True:
+        x_var=request.POST['x_var']
+        y_var=request.POST['y_var']
+        print x_var, y_var
+        data={'msg':'ok'}
+        return HttpResponse(cjson.encode(data))
+    #print dataset
+    datadir='e:/data'
+    infodir=datadir+'/'+dataset+'_info'
+    col_info=get_col_types(infodir)
+    #print col_info
+    colnames=[]
+    for col in col_info:
+        if col['num_keys']>20:
+            colnames.append(col['colname'])
+        
+
+    template = loader.get_template('makemap.html')    
+    context = RequestContext(request, {'colnames':colnames, 'dataset':dataset})
+    return HttpResponse(template.render(context))
+
+
     
 
 def heatmap (request, dataset):
@@ -91,6 +119,46 @@ def read_recodefile (filename):
         f.close()
     return labeldict,labelset
 
+
+
+def get_col_types(infodir):
+    f=None
+    col_info=[]
+    try:
+        f=open(infodir+'/col_types.csv')
+    except:
+        pass
+    if f is not None:
+        f.readline()
+        f.readline()
+        int_cols=['num_keys','empty','unique_index',
+              'float_t','int_t','str_t','int_min','int_max']
+        float_cols=['float_min','float_max','min','max']
+        c=csv.DictReader(f,delimiter=',')        
+        for row in c:
+          #  print line            
+            for c in int_cols:
+                try:
+                    row[c]=int(float(row[c]))
+                except:
+                    row[c]=''
+            for c in float_cols:
+                try:
+                    row[c]=float(row[c])
+                except:
+                    row[c]=''
+            
+            if row['sparse1']=='True':
+                row['sparse1']=True
+            else:
+                row['sparse1']=False                        
+            if row['sparse2']=='True':
+                row['sparse2']=True
+            else:
+                row['sparse2']=False
+            col_info.append(row)
+
+    return col_info
 
 
 
@@ -356,41 +424,8 @@ def dataset (request, dataset):
     
     # read types
 
-    f=None
-    col_info=[]
-    try:
-        f=open(infodir+'/col_types.csv')
-    except:
-        pass
-    if f is not None:
-        f.readline()
-        f.readline()
-        int_cols=['num_keys','empty','unique_index',
-              'float_t','int_t','str_t','int_min','int_max']
-        float_cols=['float_min','float_max','min','max']
-        c=csv.DictReader(f,delimiter=',')        
-        for row in c:
-          #  print line            
-            for c in int_cols:
-                try:
-                    row[c]=int(float(row[c]))
-                except:
-                    row[c]=''
-            for c in float_cols:
-                try:
-                    row[c]=float(row[c])
-                except:
-                    row[c]=''
-            
-            if row['sparse1']=='True':
-                row['sparse1']=True
-            else:
-                row['sparse1']=False                        
-            if row['sparse2']=='True':
-                row['sparse2']=True
-            else:
-                row['sparse2']=False
-            col_info.append(row)
+
+    col_info=get_col_types(infodir)
 
     have_col_info= (len(col_info)>0)
     
