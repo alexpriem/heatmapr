@@ -267,20 +267,61 @@ color:#407640;
 
 }
 
-.xyinput{
-	padding-top:10px;
-	width:150px;
+.xyinput{	
+	margin-top:10px;
+	display:inline;
+    width: 100px;
+    height: 34px;
+    padding: 10px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    background-color: #FFF;
+    background-image: none;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    float:right;
 }
 
+
 .xylabel {
-	//vertical-align:middle;
+	display:inline;
+	vertical-align:middle;
+	color: #333;
+	float:right;
+
 }
+
+.xyinput2{	
+	display:inline;
+    width: 100px;
+    height: 34px;
+    padding: 10px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    background-color: #FFF;
+    background-image: none;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    float:right;
+}
+
 
 .parameter {
 	margin-top:25px;
 
 }
 
-#spacer1{
-height:20px;
+.spacer{
+height:50px;
+vertical-align: bottom;
+}
+
+#x_min,#x_max,#y_min,#y_max,#x_steps,#y_steps, #grad_min, #grad_max{
+	width:100px;
 }

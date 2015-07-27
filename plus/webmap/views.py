@@ -9,6 +9,7 @@ from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
 from makehist import make_hist2
+import heatmap
 
 
 
@@ -24,35 +25,72 @@ def top (request):
 
 
 @csrf_exempt
-def makemap (request, dataset):
+def make_heatmap (request, dataset):
+
+
+    datadir='e:/data'
+    infodir=datadir+'/'+dataset+'_info'
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)
+    if not os.path.exists(infodir+'/heatmaps'):
+        os.makedirs(infodir+'/heatmaps')
 
     #print request.path
     #print request #.META
+    defaults=dict(          
+            sep=',',
+          x_var='AR66',
+          x_min=0,
+          x_max=50,
+          x_steps=500,
+
+          y_var='AR67',
+          y_min=0,
+          y_max=5000,
+          y_steps=500,
+
+          grad_min=0,
+          grad_max='max',
+          grad_steps=20
+            )
+
     if request.is_ajax()==True:
-        x_var=request.POST['x_var']
-        y_var=request.POST['y_var']
-        print x_var, y_var
+        #print request.POST
+        args={}    
+        for k in defaults.keys():
+            val=request.POST[k]
+            try:
+                v=float(val)                
+                if v.is_integer():
+                    args[k]=int(v)                    
+                else:
+                    args[k]=v                    
+            except:                
+                args[k]=val
+        args['infodir']=infodir
+        args['outfile']=args['x_var']+'_'+args['y_var']
+        print args
+        h=heatmap.heatmap()
+        h.make_heatmap(args)        
         data={'msg':'ok'}
         return HttpResponse(cjson.encode(data))
     #print dataset
-    datadir='e:/data'
-    infodir=datadir+'/'+dataset+'_info'
     col_info=get_col_types(infodir)
     #print col_info
     colnames=[]
     for col in col_info:
         if col['num_keys']>20:
             colnames.append(col['colname'])
-        
 
+    defaults_json=cjson.encode(defaults)
     template = loader.get_template('makemap.html')    
-    context = RequestContext(request, {'colnames':colnames, 'dataset':dataset})
+    context = RequestContext(request, {'colnames':colnames, 'dataset':dataset,'defaults':defaults,'defaults_json':defaults_json})
     return HttpResponse(template.render(context))
 
 
     
 
-def heatmap (request, dataset):
+def view_heatmap (request, dataset):
 
     #print request.path
     #print request #.META
@@ -166,8 +204,7 @@ def split_csv_file (datadir, dataset, infodir, match, global_recode):
 
     splitdir=infodir+'/split'
     if not os.path.exists(splitdir):
-        os.makedirs(splitdir)
-        state=0  # empty
+        os.makedirs(splitdir)        
 
     infile=datadir+'/'+dataset+'.csv'
     outfile=infodir+'/split/'
@@ -378,7 +415,6 @@ def dataset (request, dataset):
     infodir=datadir+'/'+dataset+'_info'    
     if not os.path.exists(infodir):
         os.makedirs(infodir)
-        state=0  # empty   
 
     sep, cols=get_cols (datadir, dataset, infodir)
 

@@ -37,91 +37,87 @@
 <div class="container">
 <h4>Data</h4>  
 
-<div class="row">
-  <div  class=" col-sm-4" id="form_x_var" >
+<table> 
+<tr><td colspan=2>
+  <div id="form_x_var" >
     <label for="combo_x">X:</label>
-    <select class="combobox" id="combo_x">
+    <select class="xyinput2 combobox" id="x_var">
       <option></option>
       {% for colname in colnames %}
       <option value="{{colname}}">{{colname}}</option>
       {% endfor %}
     </select>
- </div>
+ </td>
 
- <div class="col-sm-1"></div>
-
-
-  <div  class="col-sm-4 " id="form_y_var" >
+ <td colspan=2>
+  <div  id="form_y_var" >
     <label for="combo_y">Y:</label>
-    <select class="combobox" id="combo_y">
+    <select class="xyinput2 combobox" id="y_var">
       <option></option>
       {% for colname in colnames %}
       <option value="{{colname}}">{{colname}}</option>
       {% endfor %}
     </select>
- </div>
-</div >
+  </div >
+  </td>
+  </tr>
 
 
-<div class="row" id="spacer1">
-</div>
-
-
-<div class="row">
-      <div class=" col-sm-3 xyinput">
-          <label class="col-sm-4 control-label" for="x_min">Min</label>
-          <div class="col-sm-4"><input class="form-control input-sm  " id="x_min" name="x_min" type="text" value=""></div>
-      </div>      
-
-      <div class="col-sm-4  xyinput">
-          <label class="col-sm-2   control-label" for="y_min">Min</label>
-          <div class="col-sm-4"><input class="form-control input-sm " id="y_min" name="y_min" type="text" value=""></div>
-      </div>
+<tr>
+  <td class=""  >
+          <label class="xylabel" for="x_min">Min</label> </td>
+          <td>
+          <input class="xyinput" id="x_min" name="x_min" type="text" value="">
+  </td>
+  <td class="">
+          <label class="xylabel" for="y_min">Min</label></td><td>
+          <input class="xyinput" id="y_min" name="y_min" type="text" value="">
+  </td>
+</tr>
       
-
-</div>      
-
-<div class="row">
-      <div class=" col-sm-3  xyinput">  
-          <label class="col-sm-4 control-label" for="y_max">Max</label>
-          <div class="col-sm-4"><input class="form-control input-sm" id="y_max" name="y_max" type="text" value=""></div> 
-      </div>
-
-      <div class=" col-sm-4 xyinput">  
-          <label class="col-sm-2 control-label" for="x_max">Max</label>
-          <div class="col-sm-4"><input class="form-control input-sm" id="x_max" name="x_max" type="text" value=""></div> 
-      </div>
-</div>
+  <tr>
+  <td class="">
+          <label class="xylabel" for="x_max">Max</label></td><td>
+          <input class="xyinput" id="x_max" name="x_max" type="text" value="">
+  </td>
+  <td class="">  
+          <label class="xylabel" for="y_max">Max</label></td><td>
+          <input class="xyinput" id="y_max" name="x_max" type="text" value="">
+  </td>
+  </tr>
 
 
-<div class="row">
-      <div class="col-sm-3  xyinput">
-        <label class="col-sm-4 control-label" for="x_steps">Steps</label>
-        <div class="col-sm-4">  <input class="form-control input-sm " id="x_steps" name="x_steps" type="text" value=""></div>
-      </div>
+<tr>
+      <td class="">
+        <label class="xylabel" for="x_steps">Steps</label></td><td>
+         <input class="xyinput " id="x_steps" name="x_steps" type="text" value="">      
+      </td>
+      <td  class="">
+        <label class="xylabel" for="y_steps">Steps</label></td><td>
+         <input class="xyinput " id="y_steps" name="y_steps" type="text" value="">
+      </td>
+</tr>
 
-
-      <div class="col-sm-4  xyinput">
-        <label class="col-sm-2 control-label" for="y_steps">Steps</label>
-        <div class="col-sm-4">  <input class="form-control input-sm " id="y_steps" name="y_steps" type="text" value=""></div>
-      </div>
-</div>
-
-<h4>Gradient </h4>  
-<div class="row">
-      <div class="col-sm-3  xyinput">
-        <label class="col-sm-4 control-label" for="grad_min">Min</label>
-        <div class="col-sm-4">  <input class="form-control input-sm " id="grad_min" name="grad_min" type="text" value=""></div>
-      </div>
-</div>
-<div class="row">
-      <div class="col-sm-3  xyinput">
-        <label class="col-sm-4 control-label" for="grad_max">Max</label>
-        <div class="col-sm-4">  <input class="form-control input-sm " id="grad_max" name="grad_max" type="text" value=""></div>
-      </div>
-
-</div>
-
+<tr><th class="spacer">Gradient </th> <tr>
+<tr >
+      <td class="">
+        <label class="xylabel" for="grad_min">Min</label></td><td>
+         <input class="xyinput " id="grad_min" name="grad_min" type="text" value="">
+      </td>
+</tr>
+<tr >
+      <td class="">
+        <label class="xylabel" for="grad_max">Max</label></td><td>
+        <input class="xyinput " id="grad_max" name="grad_max" type="text" value="">
+      </td>
+</tr>
+<tr >
+      <td class="">
+        <label class="xylabel" for="grad_steps">Steps</label></td><td>
+        <input class="xyinput " id="grad_steps" name="grad_steps" type="text" value="">
+      </td>
+</tr>
+</table>
 
 
 </div>
@@ -130,6 +126,9 @@
 <a href="#" id="makemap" class="btn btn-primary"> Maak heatmap</a>
 
 
+  <script> 
+  var defaults={{defaults|safe}};
+  </script>
   <script src="/js/makemap.js"></script>
 </body>
 </html>

@@ -24,7 +24,7 @@ class heatmap:
     def check_args(self, args):    # alleen defaults zetten.
 
         defaults=[
-            ['infile',';',True,''],
+            ['infodir','',True,''],
             ['sep',';',False,''],
             ['convert_comma',False,False,''],
 
@@ -67,9 +67,9 @@ class heatmap:
             ['weight_fixedfile_startpos',None,False,''],
             ['weight_fixedfile_endpos',None,False,''],            
             
-            ['gradmin',0,False,''],
-            ['gradmax','max',False,''],
-            ['gradsteps',40,False,''],
+            ['grad_min',0,False,''],
+            ['grad_max','max',False,''],
+            ['grad_steps',40,False,''],
             
             ['gradient_invert',False,False,''],
             ['gradcenter',50,False,''],
@@ -222,35 +222,35 @@ class heatmap:
 
 
     def heatmap_to_js (self, heatmap):        
-        gradmin=self.gradmin
-        gradmax=self.gradmax
+        grad_min=self.grad_min
+        grad_max=self.grad_max
         
         js='data.push([';
         for row in heatmap:            
             js+=','.join([str(col) for col in row])+',\n'
             minrow=min(row)
             maxrow=max(row)            
-            if minrow<gradmin:
-                gradmin=minrow
-            if maxrow>gradmax:
-                gradmax=maxrow   
+            if minrow<grad_min:
+                grad_min=minrow
+            if maxrow>grad_max:
+                grad_max=maxrow   
         js=js[:-2]+']);\n\n'
         
         return js
 
 
     def heatmap_to_csv (self, heatmap, filename):        
-        gradmin=self.gradmin
-        gradmax=self.gradmax
+        grad_min=self.grad_min
+        grad_max=self.grad_max
         f=open (filename,'w')
         for row in heatmap:            
             f.write(','.join([str(col) for col in row])+'\n')
             minrow=min(row)
             maxrow=max(row)            
-            if minrow<gradmin:
-                gradmin=minrow
-            if maxrow>gradmax:
-                gradmax=maxrow
+            if minrow<grad_min:
+                grad_min=minrow
+            if maxrow>grad_max:
+                grad_max=maxrow
         f.close()
         
 
@@ -290,17 +290,12 @@ class heatmap:
 
     def make_heatmap (self, args):
 
+        print 'make_heatmap'
 
         self.check_args(args)
-                        
-        sep=self.sep
-        if self.infile[-3:]=='.gz':
-            f=gzip.open(self.infile)
-        else:
-            f=open(self.infile)
-        line=f.readline()        
-        cols=[c.lower().strip() for c in line.split(sep)]
-       
+
+                    
+        sep=self.sep       
         
         xcol=self.x_var.lower()
         xmin=self.x_min
@@ -311,35 +306,14 @@ class heatmap:
         ymin=self.y_min
         ymax=self.y_max
         ypixels=int(self.y_steps)
-        
 
+        weight_var=self.weight_var
+        
         x_data_type=self.x_data_type
         y_data_type=self.y_data_type
         x_dateformat=self.x_dateformat
         y_dateformat=self.y_dateformat
         
-        do_fixed=False
-        x_fixedfile_startpos=self.x_fixedfile_startpos
-        x_fixedfile_endpos=self.x_fixedfile_endpos
-        y_fixedfile_startpos=self.y_fixedfile_startpos
-        y_fixedfile_endpos=self.y_fixedfile_endpos
-        weight_fixedfile_startpos=self.weight_fixedfile_startpos
-        weight_fixedfile_endpos=self.weight_fixedfile_endpos        
-        if x_fixedfile_startpos is not None and x_fixedfile_endpos is not None:
-            do_fixed=True
-
-        if do_fixed==False:
-            try:
-                xcolnr=cols.index(xcol)
-                ycolnr=cols.index(ycol)
-            except:
-                
-                print 'column not found'
-                print 'xcolumn:',xcol, 
-                print 'ycolumn:',ycol
-                print 'columns:',cols
-                sys.exit()
-
         xmin, xmin_date=self.parse_minmax_range(xmin, x_data_type, x_dateformat, 'min')
         xmax, xmax_date=self.parse_minmax_range(xmax, x_data_type, x_dateformat, 'max', xmin_date)
         ymin, ymin_date=self.parse_minmax_range(ymin, y_data_type, y_dateformat, 'min')
@@ -373,10 +347,6 @@ class heatmap:
             self.x_label=xcol
         if self.y_label is None:
             self.y_label=ycol            
-
-        weightcolnr=None
-        if self.weight_var is not None and do_fixed is False:
-            weightcolnr=cols.index(self.weight_var)
             
 
         do_multimap=False
@@ -411,17 +381,11 @@ class heatmap:
                     line=line.replace(',','.')
 
                 val=1                
-                if not do_fixed:
-                    cols=line.split(sep)
-                    x_txt=cols[xcolnr]
-                    y_txt=cols[ycolnr]
-                    if weightcolnr is not None:
-                        val=float(cols[weightcolnr])
-                else:
-                    x_txt=line[x_fixedfile_startpos:x_fixedfile_endpos]
-                    y_txt=line[y_fixedfile_startpos:y_fixedfile_endpos]
-                    if weight_fixedfile_startpos is not None:
-                        val=float(line[weight_fixedfile_startpos:weight_fixedfile_endpos])
+                cols=line.split(sep)
+                x_txt=cols[xcolnr]
+                y_txt=cols[ycolnr]
+                if weight_var is not None:
+                    val=float(cols[weightcolnr])
 		        
                 if x_data_type=='nominal':
                     x=float(x_txt)
@@ -434,8 +398,6 @@ class heatmap:
                 else:
                     y=datetime.datetime.strptime(y_txt,y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
-
-                
                 
                 if self.x_relative:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
@@ -478,29 +440,25 @@ class heatmap:
         keys_x={}
         keys_y={}
         total=0
-                
-        for line in f:
+
+        fx=open(self.infodir+'/split/%s.csv' % xcol)
+        fy=open(self.infodir+'/split/%s.csv' % ycol)
+        if (weight_var is not None):
+            fweight=open(self.infodir+'/split/%s.csv' % weight_var)
+        for x_txt, y_txt in zip (fx, fy):
+
+            if x_txt=='\n' or y_txt=='\n':
+                continue
             if self.convert_comma:
                 line=line.replace(',','.')
             linenr+=1
             if linenr % 10000==0:
-                print linenr
-            
-            cols=line.split(sep)
+                print linenr                        
             try:
                 val=1                
-                if not do_fixed:
-                    cols=line.split(sep)
-                    x_txt=cols[xcolnr]
-                    y_txt=cols[ycolnr]
-                    if weightcolnr is not None:
-                        val=float(cols[weightcolnr])
-                else:
-                    x_txt=line[x_fixedfile_startpos:x_fixedfile_endpos]
-                    y_txt=line[y_fixedfile_startpos:y_fixedfile_endpos]
-                    if weight_fixedfile_startpos is not None:
-                        val=float(line[weight_fixedfile_startpos:weight_fixedfile_endpos])
-
+                if weight_var is not None:
+                    val=fweight.readline()
+                    
                 
                 if x_data_type=='nominal':
                     x=float(x_txt)
@@ -522,12 +480,10 @@ class heatmap:
                         y=ymin_date
                     y=self.munge_date(y, y_data_type, ymin_date)
             except ValueError:
-                if (',' in cols[xcolnr]) or (',' in cols[ycolnr]):
+                if (',' in x_txt) or (',' in y_txt):
                     self.convert_comma=True 
-                    line=line.replace(',','.')
-                    cols=line.split(sep)
-                    x_txt=cols[xcolnr]
-                    y_txt=cols[ycolnr]
+                    x_txt=x_txt.replace(',','.')
+                    y_txt=y_txt.replace(',','.')
                 if x_data_type=='nominal':                    
                     if x_txt!='':
                         x=float(x_txt)
@@ -543,6 +499,7 @@ class heatmap:
 
                 if y_data_type=='nominal':                    
                     if y_txt!='':
+                        print 'y_txt:', y_txt
                         y=float(y_txt)
                     else:
                         y=0
@@ -759,8 +716,8 @@ class heatmap:
         if self.multi_nr==0 and do_multimap==False:
             js='var multimap=false;\nvar nr_heatmaps=1;\n\nvar data=[];\n'
     
-        gradmin=self.heatmap[0][0]
-        gradmax=gradmin
+        grad_min=self.heatmap[0][0]
+        grad_max=grad_min
 
         if self.dump_csv:
             self.heatmap_to_csv (heatmap,self.outfile+'.csv')
@@ -796,11 +753,11 @@ class heatmap:
         if do_multimap==False:
             js+=self.heatmap_to_js (self.heatmap)
 
-        self.datamin=gradmin
-        self.datamax=gradmax
+        self.datamin=grad_min
+        self.datamax=grad_max
         
-        if getattr(self,'gradmax') is None:
-            self.gradmax=gradmax        
+        if getattr(self,'grad_max') is None:
+            self.grad_max=grad_max        
 
         if self.multi_nr==0:
                 js+='var opties=[];\n'
@@ -916,73 +873,18 @@ class heatmap:
                     
 
         self.js=self.js+js
-        if self.dump_html==False:
-            if self.multi_nr==0:
-                f=open(self.module_dir+"/js/data.js","w")
-            else:
-                f=open(self.module_dir+"/js/data.js","a")
-            f.write(js)
-            f.close()
+        
+        if self.multi_nr==0:
+            f=open(self.infodir+"/heatmaps/%s.js" % self.outfile,"w")
+        else:
+            f=open(self.infodir+"/heatmaps/%s.js"% self.outfile ,"a")
+        f.write(js)
+        f.close()
             
 
         
 
-
-#    def write_html (self, args):
         
-        if self.dump_html:
-            html=open (self.module_dir+'/bitmap.html','r').read()
-            
-            g=open(self.outfile+'.html','w')
-            cssfrags=html.split('<link href="')
-            g.write(cssfrags[0])
-           # cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]            
-
-            for cssfrag in cssfrags[1:]:
-                cssfile=cssfrag.split('"')
-                if self.debuglevel==2:
-                    print cssfile[0]
-                g.write('\n<style>\n')
-                css=open(self.module_dir+'/'+cssfile[0],"r").read()
-                g.write(css)
-                g.write('\n</style>\n')
-
-            g.write('\n<script type="text/javascript">\n')            
-            g.write(self.js)
-            g.write('\n</script>\n')
-            
-            jsfrags=html.split('<script src="')            
-            for jsfrag in jsfrags[1:]:
-                jsfile=jsfrag.split('"')
-                if jsfile[0]=='js/data.js':                    
-                    continue
-                if self.debuglevel==2:
-                    print jsfile[0]                                
-                g.write('\n<script type="text/javascript">\n')
-                js=open(self.module_dir+'/'+jsfile[0],'r').read()    
-                g.write(js)
-                g.write('\n</script>\n')
-
-            body=html.split("<body>")
-
-            g.write("</head>\n")
-            g.write("<body>\n")
-
-
-            body=body[1]
-            jsfrags=body.split('<script  src="')
-            for jsfrag in jsfrags[1:]:                
-                jsfile=jsfrag.split('"')
-                js_end=jsfrag.split('\n')[0]                
-              #  print jsfile[0]
-                js_txt='\n<script type="text/javascript">\n'
-                js_txt+=open(self.module_dir+'/'+jsfile[0],'r').read()    
-                js_txt+='\n</script>\n'
-              #  print js_txt
-                body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
-                
-            g.write(body)
-            g.close()
 
 
 
