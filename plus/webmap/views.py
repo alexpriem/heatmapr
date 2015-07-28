@@ -102,12 +102,35 @@ def serve_heatmap_js (request, dataset, path):
     return HttpResponse(txt, content_type='application/liquid')
 
 
-def view_heatmap (request, dataset, x_var, y_var, indexnr=0):
+def view_heatmaps (request, dataset):
 
     #print request.path
     #print request #.META
     
     #print dataset
+    template = loader.get_template('heatmaps.html')
+    datadir='e:/data'
+    heatmapdir=datadir+'/'+dataset+'_info/heatmaps/'
+    heatmapfiles=os.listdir(heatmapdir)
+    heatmaps=[]
+    for h in heatmapfiles:
+        x,y,index=h.split('_')
+        title='--'
+        heatmaps.append({'x':x,'y':y,'title':title,'filename':h})
+    args={'dataset':dataset,'heatmaps':heatmaps}
+    
+    context = RequestContext(request, args)
+    return HttpResponse(template.render(context))
+
+
+def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
+
+    #print request.path
+    #print request #.META
+    
+    #print dataset
+    if indexnr is None:
+        indexnr=0
     template = loader.get_template('heatmap.html')
     datadir='e:/data'
     infodir=datadir+'/'+dataset+'_info'

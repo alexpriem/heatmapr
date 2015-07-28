@@ -29,6 +29,7 @@ urlpatterns = patterns('',
     
     url(r'^heatmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', views.view_heatmap),
     url(r'^heatmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', views.view_heatmap),
+    url(r'^heatmap/(?P<dataset>.*)/$', views.view_heatmaps),
     url(r'^data/(?P<dataset>.*)/$', views.view_data),
     url(r'^dataset/(?P<dataset>.*)/', views.dataset),    
     url(r'^makemap/(?P<dataset>.*)/$', views.make_heatmap),
