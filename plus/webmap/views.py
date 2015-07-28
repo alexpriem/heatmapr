@@ -41,17 +41,17 @@ def make_heatmap (request, dataset):
             sep=',',
           x_var='AR66',
           x_min=0,
-          x_max=50,
+          x_max=500000,
           x_steps=500,
 
           y_var='AR67',
           y_min=0,
-          y_max=5000,
+          y_max=500000,
           y_steps=500,
 
-          grad_min=0,
-          grad_max='max',
-          grad_steps=20
+          gradmin=0,
+          gradmax=20,
+          gradsteps=20
             )
 
     if request.is_ajax()==True:
@@ -68,7 +68,7 @@ def make_heatmap (request, dataset):
             except:                
                 args[k]=val
         args['infodir']=infodir
-        args['outfile']=args['x_var']+'_'+args['y_var']
+        args['outfile']=args['x_var']+'_'+args['y_var']+'_0'
         print args
         h=heatmap.heatmap()
         h.make_heatmap(args)        
@@ -88,9 +88,35 @@ def make_heatmap (request, dataset):
     return HttpResponse(template.render(context))
 
 
-    
 
-def view_heatmap (request, dataset):
+def serve_heatmap_js (request, dataset, path):
+
+    datadir='e:/data'
+    js_file='%s/%s_info/heatmaps/%s' % (datadir,dataset, path)
+    print js_file
+    f=open(js_file)
+    txt=f.read()
+    f.close()
+    
+    print 'filesize:', len(txt)
+    return HttpResponse(txt, content_type='application/liquid')
+
+
+def view_heatmap (request, dataset, x_var, y_var, indexnr=0):
+
+    #print request.path
+    #print request #.META
+    
+    #print dataset
+    template = loader.get_template('heatmap.html')
+    datadir='e:/data'
+    infodir=datadir+'/'+dataset+'_info'
+    args={'dataset':dataset,'x_var':x_var,'y_var':y_var,'indexnr':indexnr,'infodir':infodir}
+    context = RequestContext(request, args)
+    return HttpResponse(template.render(context))
+
+
+def view_data (request, dataset):
 
     #print request.path
     #print request #.META
@@ -100,7 +126,6 @@ def view_heatmap (request, dataset):
 
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
-
 
 
 # helperfunction to read simple csv-file to a dict

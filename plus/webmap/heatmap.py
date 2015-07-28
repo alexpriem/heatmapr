@@ -67,9 +67,9 @@ class heatmap:
             ['weight_fixedfile_startpos',None,False,''],
             ['weight_fixedfile_endpos',None,False,''],            
             
-            ['grad_min',0,False,''],
-            ['grad_max','max',False,''],
-            ['grad_steps',40,False,''],
+            ['gradmin',0,False,''],
+            ['gradmax','max',False,''],
+            ['gradsteps',40,False,''],
             
             ['gradient_invert',False,False,''],
             ['gradcenter',50,False,''],
@@ -222,35 +222,35 @@ class heatmap:
 
 
     def heatmap_to_js (self, heatmap):        
-        grad_min=self.grad_min
-        grad_max=self.grad_max
+        gradmin=self.gradmin
+        gradmax=self.gradmax
         
         js='data.push([';
         for row in heatmap:            
             js+=','.join([str(col) for col in row])+',\n'
             minrow=min(row)
             maxrow=max(row)            
-            if minrow<grad_min:
-                grad_min=minrow
-            if maxrow>grad_max:
-                grad_max=maxrow   
+            if minrow<gradmin:
+                gradmin=minrow
+            if maxrow>gradmax:
+                gradmax=maxrow   
         js=js[:-2]+']);\n\n'
         
         return js
 
 
     def heatmap_to_csv (self, heatmap, filename):        
-        grad_min=self.grad_min
-        grad_max=self.grad_max
+        gradmin=self.gradmin
+        gradmax=self.gradmax
         f=open (filename,'w')
         for row in heatmap:            
             f.write(','.join([str(col) for col in row])+'\n')
             minrow=min(row)
             maxrow=max(row)            
-            if minrow<grad_min:
-                grad_min=minrow
-            if maxrow>grad_max:
-                grad_max=maxrow
+            if minrow<gradmin:
+                gradmin=minrow
+            if maxrow>gradmax:
+                gradmax=maxrow
         f.close()
         
 
@@ -716,8 +716,8 @@ class heatmap:
         if self.multi_nr==0 and do_multimap==False:
             js='var multimap=false;\nvar nr_heatmaps=1;\n\nvar data=[];\n'
     
-        grad_min=self.heatmap[0][0]
-        grad_max=grad_min
+        gradmin=self.heatmap[0][0]
+        gradmax=gradmin
 
         if self.dump_csv:
             self.heatmap_to_csv (heatmap,self.outfile+'.csv')
@@ -753,22 +753,23 @@ class heatmap:
         if do_multimap==False:
             js+=self.heatmap_to_js (self.heatmap)
 
-        self.datamin=grad_min
-        self.datamax=grad_max
+        self.datamin=gradmin
+        self.datamax=gradmax
         
-        if getattr(self,'grad_max') is None:
-            self.grad_max=grad_max        
+        if getattr(self,'gradmax') is None:
+            self.gradmax=gradmax        
 
         if self.multi_nr==0:
                 js+='var opties=[];\n'
-        optiejs='opties.push({'
+        optiejs='opties.push({\n'
         for k in sorted(args.keys()):
             v=getattr(self,k)
             if v is None:
                 optiejs+='"%s":null,\n' % (k)                
                 continue
             t=type(v)
-            if t==str:
+            
+            if (t==str) or (t==unicode):                
                 v=v.replace('\\','/')
                 optiejs+='"%s":"%s",\n' % (k,v)
                 continue
