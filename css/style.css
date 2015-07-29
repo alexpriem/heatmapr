@@ -325,3 +325,18 @@ vertical-align: bottom;
 #x_min,#x_max,#y_min,#y_max,#x_steps,#y_steps, #grad_min, #grad_max{
 	width:100px;
 }
+
+#div_ymax {
+	vertical-align:top;
+}
+#div_ymin {
+	vertical-align:bottom;
+}
+
+
+#div_xmax {
+	float:right;
+}
+#div_xmin {
+	float:left;	
+}

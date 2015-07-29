@@ -222,8 +222,15 @@ class typechecker ():
 
 
         # todo: histogram uitschrijven zonder grenzen
+        # indikken van aantal keys in histogram tot max 100.
+
+    def write_histogram_alphanumeric (self, variable):
+
+
+        return
         
-    def write_histogram (self, variable):
+        
+    def write_histogram_100 (self, variable): 
 
         if not os.path.exists(self.infodir+'/hista'):
             os.makedirs(self.infodir+'/hista')
@@ -240,16 +247,18 @@ class typechecker ():
             return
         
         numeric=((data_info['int_t']!=0) and (data_info['float_t']!=0))
-        if not(numeric):    # numeriek en alles met <10 keys:  behandelen als classificatie
+        if not(numeric):    # numeriek en alles met <14 keys:  behandelen als classificatie
+            self.write_histogram_alphanumeric (variable)
             return
-        if num_keys<10:
+        if num_keys<14:
+            self.write_histogram_alphanumeric(variable)
             return
 
         bins=100
         if num_keys<100:
             bins=num_keys
 
-
+        
         minx=data_info['perc01']   
         maxx=data_info['perc99']
         if data_info['min_val']<=0 and minx>0:
@@ -384,7 +393,7 @@ class typechecker ():
                 break
             f=self.data_info=self.get_type (col)
             self.sort_histogram (col, 0.01, 0.99)
-            self.write_histogram (col)
+            self.write_histogram_100 (col)
             self.write_binfile (col)
             
             

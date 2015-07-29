@@ -6,18 +6,22 @@
 function init_page() {
  
 
+	var url=window.location.href;
+	var data=url.split('/');	
+	var dataset=data[4];
+	var variabele=data[5];
+	console.log('init_page:',dataset,variabele);
 
-	var dataset="best2010";
-	var variabele="AR26";
 
-	data={cmd:'init'};
+	init_histogram(histogram);
+/*	data={cmd:'reset'};
  	$.ajax({url:"/histogram/"+dataset+"/"+variabele, 
 			type: "GET",
 			'data':data,
 			success: hist_handle_ajax,
 			error: hist_handle_ajax_error,
 		});
-  //init_histogram(); 
+  */
 
 }
 

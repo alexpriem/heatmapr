@@ -75,7 +75,7 @@ def make_heatmap (request, dataset):
         data={'msg':'ok'}
         return HttpResponse(cjson.encode(data))
     #print dataset
-    col_info=get_col_types(infodir)
+    col_info, coltypes_bycol=get_col_types(infodir)
     #print col_info
     colnames=[]
     for col in col_info:
@@ -210,6 +210,7 @@ def read_recodefile (filename):
 def get_col_types(infodir):
     f=None
     col_info=[]
+    coltypes_bycol={}
     try:
         f=open(infodir+'/col_types.csv')
     except:
@@ -243,8 +244,12 @@ def get_col_types(infodir):
             else:
                 row['sparse2']=False
             col_info.append(row)
+            colname=row['colname']
+            coltypes_bycol[colname]=row
+        f.close()
 
-    return col_info
+
+    return col_info,coltypes_bycol
 
 
 
@@ -303,30 +308,81 @@ def get_cols (datadir, dataset, infodir):
 
 
 
+def get_plot_alphanumeric (infodir,variable, rowinfo):
 
-def get_plot (infodir, rowinfo):
-    
-    variable=rowinfo['colname']
+    print 'get_plot_alphanumeric'
+    f=open(infodir+'/hists/%s.csv' % variable,'r')
+    f.readline()
+    c=csv.reader(f,delimiter=':')
+    data=[]
+    maxnum=0
+    for row in c:        
+        x,num=row[0],row[1]
+        try:
+            x=float(x)
+            if x.is_integer():
+                x=int(x)
+        except:
+            pass
+        num=int(num)
+        if num>maxnum:
+            maxnum=num
+        data.append([x,num])
+    f.close()
+    print rowinfo
+    rowinfo['data']=data
+
+    num_keys=rowinfo['num_keys']
+    if num_keys<14:
+        rowinfo['minx'], rowinfo['miny']=0,rowinfo['min']
+        rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
+        rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
+    else:
+        rowinfo['minx'], rowinfo['miny']=rowinfo['perc01'],rowinfo['min']
+        rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
+        rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
+
+
+    return rowinfo
+
+
+def get_plot (infodir, variable):
+
+
+    col_info, coltypes_bycol=get_col_types(infodir)
+
+    rowinfo=coltypes_bycol[variable]
+    print type(coltypes_bycol)
+    print type(rowinfo)
     print 'get_plot:',variable
+
     try:
         print infodir+'/hista/%s.csv' % variable
-        f=open(infodir+'/hista/%s.csv' % variable,'r')
-        
+        f=open(infodir+'/hista/%s.csv' % variable,'r')        
     except:
-        print variable+':[]'
-        rowinfo['data']=[]
-        return rowinfo
+        return get_plot_alphanumeric(infodir, variable, rowinfo)
+
+    # numerieke data
+    
     f.readline()
     c=csv.reader(f,delimiter=':')
     plot=[]
-            
-    rowinfo['minx'], rowinfo['miny']=c.next()    #  1st row contains minx, miny
-    rowinfo['maxx'], rowinfo['maxy']=c.next()    #  2nd row contains maxx, maxy
-    rowinfo['maxy2'], rowinfo['maxy3']=c.next()    #  2nd row contains maxx, maxy
-    
-   
-    for row in c:        
-        plot.append([row[0],row[1]])
+
+    # FIXME: bijwerken met info uit coltypes
+    minx,miny=c.next()    #  1st row contains minx, miny
+    rowinfo['minx'], rowinfo['miny']=float(minx), float(miny)
+    maxx,maxy=c.next()    #  2nd row contains maxx, maxy
+    rowinfo['maxx'], rowinfo['maxy']=float(maxx), float(maxy)
+    maxy2,maxy3=c.next()
+    rowinfo['maxy2'], rowinfo['maxy3']=float(maxy2),float(maxy3)  #  2nd row contains maxx, maxy
+
+    for row in c:
+        x,num=row[0],row[1]
+        x=float(x)
+        if x.is_integer():
+            x=int(x)
+        num=int(num)
+        plot.append([x,num])
     f.close()
     print variable+':[%d]' % (len(plot))
     rowinfo['data']=plot
@@ -338,28 +394,25 @@ def get_plot (infodir, rowinfo):
 
 
 @csrf_exempt
-def histogram (request, dataset, variabele):
+def histogram (request, dataset, variable):
+
+    datadir='e:/data'
+    infodir=datadir+'/'+dataset+'_info'
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)    
+
     
     if request.is_ajax()==True:
-        cmd=request.GET['cmd']
-        
-        datadir='e:/data'
-        infodir=datadir+'/'+dataset+'_info'    
-        if not os.path.exists(infodir):
-            os.makedirs(infodir)    
-        if cmd=='init':
-            rowinfo={'colname':variabele}
-            plotdata=get_plot(infodir, rowinfo)
-            data={'action':'makeplot','data':plotdata}
+        cmd=request.GET['cmd']            
+        if cmd=='reset':           
+            rowinfo=get_plot(infodir, variable)
+            data={'action':'makeplot','data':rowinfo}  # plus histogram
         if cmd=='resize':
             minx=float(request.GET.get('minx',0))
             maxx=float(request.GET.get('maxx',100))
             bins=int(request.GET.get('bins',100))
             print 'RESIZE',minx,maxx,bins
-            
-            
-            rowinfo={'colname':variabele}
-            plotdata=get_plot(infodir, rowinfo)
+            rowinfo=get_plot(infodir, variable)
             rowinfo['minx']=minx
             rowinfo['maxx']=maxx
 
@@ -370,14 +423,18 @@ def histogram (request, dataset, variabele):
             rowinfo['maxy2']=sorted_hist[-2]
             rowinfo['maxy3']=sorted_hist[-3]
 
-
-            
             data={'action':'makeplot','data':plotdata}
         
         return HttpResponse(cjson.encode(data))
-    template = loader.get_template('single_histogram.html')
 
-    context = RequestContext(request, {'dataset':dataset,'histogram':variabele})
+    template = loader.get_template('single_histogram.html')
+    rowinfo=get_plot(infodir, variable) # plus histogram
+    print 'got rowinfo'
+    histogram_json=cjson.encode(rowinfo)
+    context = RequestContext(request, {'dataset':dataset,
+                                       'colname':variable,                                       
+                                       'histogram':histogram_json})
+    print 'got context'    
     return HttpResponse(template.render(context))
 
 
@@ -509,7 +566,7 @@ def dataset (request, dataset):
     # read types
 
 
-    col_info=get_col_types(infodir)
+    col_info, coltypes_bycol=get_col_types(infodir)
 
     have_col_info= (len(col_info)>0)
     

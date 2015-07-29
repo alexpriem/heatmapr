@@ -27,24 +27,36 @@
 
 <div id="errorbox"> </div>
 
-<h3> {{dataset}}/{{histogram}} </h3>
-<div class="container" > 
+<h3> {{dataset}}/{{colname}} </h3>
 
- <div class="row">
-        <div class="col-sm-1" > 
-            <div class="yrange" id="maxydiv" ><label for="maxy"> Maxy </label> <input id="maxy" type="text" class="form-control range" value=""></div>
-            <div class="yrange" id="minydiv"> <label for="miny"> Miny </label>  <input id="miny" type="text" class="form-control range" value=""> </div>
-        </div>
-        <div class="col-sm-8">
+
+<table>
+<tr>
+    <td>  <div id="div_ymax"> <label for="maxy"> Maxy </label> <input id="maxy" type="text" class="form-control range" value=""> </div>
+
+         <div id="div_ymin"><label for="miny"> Miny </label>  <input id="miny" type="text" class="form-control range" value=""> </div>
+    </td>
+    <td>
                   <div id="histogram_container"> </div>
-                  <div class="xrange" id="minxdiv"><label for="minx"> Minx </label><input id="minx" type="text" class="form-control range" value=""> </div>       
-                  <div class="xrange" id="maxxdiv"> <label for="maxx"> Maxx </label><input id="maxx" type="text" class="form-control range" value="">   </div>
-        <div class="col-sm-3"> </div>
- </div>
+    </td>
+    <td></td>
+</tr>
 
+<tr>
+    <td></td>
+    <td>              
+        <div id="div_xmin"> <label for="minx"> Minx </label><input id="minx" type="text" class="form-control range" value="">  </div>
+        <div id="div_xmax"> <label for="maxx"> Maxx </label><input id="maxx" type="text" class="form-control range" value="">  </div>
+    </td>
+</tr>
+</table>
 
 </div>
 
+
+<script   type="text/javascript"> 
+var histogram={{histogram|safe}};
+</script>
 
 <script  src="/js/hist_init_ui.js" type="text/javascript"> </script>
 

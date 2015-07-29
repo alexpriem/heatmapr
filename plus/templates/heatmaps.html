@@ -23,7 +23,7 @@
 <body>
 
 
-<h3>{{dataset}}</h3>
+<h3><a href="/data/{{dataset}}">{{dataset}}</a></h3>
 
 <table class="table table-striped" id="overview">
 
@@ -32,8 +32,8 @@
 {% for heatmap in heatmaps %}
 <tr>
 <td> {{heatmap.filename}}</td>
-<td> {{heatmap.x}}</td>
-<td> {{heatmap.y}}</td>
+<td> <a href="/histogram/{{dataset}}/{{heatmap.x}}"> {{heatmap.x}}</a> </td>
+<td> <a href="/histogram/{{dataset}}/{{heatmap.y}}"> {{heatmap.y}}</a> </td>
 <td> {{heatmap.title}}</td>
 </tr>
 {% endfor %}

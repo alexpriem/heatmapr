@@ -60,11 +60,11 @@ def make_hist2 (infodir, variabele, minx, maxx, bins):
     f=open(infodir+'/hists/%s.csv' % variabele)
     f.readline()
     print type(minx), type(maxx), type(bins)
-    c=csv.reader(f, delimiter=',')
+    c=csv.reader(f, delimiter=':')
     binsize=(maxx-minx)/(bins*1.0)
     histogram=[0]*(bins+1)
     for row in c:
-       # print row
+        #print row
         try:
             x=float(row[0])
         except:
@@ -82,8 +82,8 @@ def make_hist2 (infodir, variabele, minx, maxx, bins):
     sorted_hist=sorted(histogram)
     
     histogram=[[(minx+i*binsize),h] for i,h in enumerate(histogram)]
-#    for x in histogram:
-        #print x[0],x[1]
+   # for x in histogram:
+   #     print x[0],x[1]
     return histogram, sorted_hist
         
             
