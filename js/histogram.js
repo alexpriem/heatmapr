@@ -112,7 +112,29 @@ function plot_single_histogram (chart, histogram){
 	style='filled';
                       
 
-
+	if (histogram.num_keys<14){
+		colormap=colormap_qualitative(histogram.num_keys);		
+		for (i=0; i<data.length; i++) {
+				x=data[i][0];
+				y=data[i][1];	
+				var color=colormap[i];	
+				var colortxt='rgb('+color[0]+','+color[1]+','+color[2]+')';
+				var	val=y/maxy*height;
+				console.log(colormap[i]);
+				chart.append("rect")	
+						.attr("class","hist")
+						.attr("x",i*bin_width+xoffset)
+						.attr("y",plotheight-val+delta-yoffset)
+						.attr("width",bin_width)
+						.attr("height",val)
+						.style("fill",colortxt)
+						.style("stroke","rgb(8,8,0)")
+						//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
+						//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+						.style("stroke-width","1px");				
+			}
+		return;
+	}
 	data.push(data[0]);
 	if (style=='filled') {
 		var linefunction=d3.svg.line()
