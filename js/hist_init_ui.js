@@ -23,6 +23,8 @@ function init_page() {
 		});
   */
 
+  $('#log').on('click',click_log);
+
 }
 
 $( document ).ready(init_page);

@@ -334,11 +334,11 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
 
     num_keys=rowinfo['num_keys']
     if num_keys<14:
-        rowinfo['minx'], rowinfo['miny']=0,rowinfo['min']
+        rowinfo['minx'], rowinfo['miny']=rowinfo['min'],0
         rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
         rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
     else:
-        rowinfo['minx'], rowinfo['miny']=rowinfo['perc01'],rowinfo['min']
+        rowinfo['minx'], rowinfo['miny']=rowinfo['min'],0
         rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
         rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
 

@@ -1,12 +1,37 @@
 
 var width=500;
 var height=500;
+var log=false;
+
+var current_histogram=null;
 
 var hist_handle_ajax_error=function (result) {
 
 	$('#errorbox').html('<code>' +result.status+ ' ' + result.statusText + ' <pre>'+result.responseText+"</pre>")
 	$('#heatmap_div').hide();
 }
+
+
+
+
+function safe_log  (val,log_min) {
+		
+	if (val>=0) {
+		if ((val>=0) && (val<=log_min)) {
+			return Math.log(log_min)/Math.LN10;   //null?
+		}
+		val=Math.log(val)/Math.LN10;
+	} else {
+		if ((val<=0) && (val>=-log_min)) {
+			return -Math.log(log_min);
+		}
+		if (val<0) {
+			val=-Math.log(-val)/Math.LN10;
+		}
+	}
+	return val;
+}
+
 
 
 
@@ -22,8 +47,24 @@ var hist_handle_ajax=function (result) {
 }
 
 
+
+
+function click_log () {
+
+	if (log==true) {
+		log=false;
+	} else {
+		log=true;
+	}	
+	init_histogram(histogram);
+}
+
+
 function plot_single_histogram (chart, histogram){
 
+
+
+	
 	console.log('plot_single_histogram',histogram);
 
 	plotwidth=0.8*width
@@ -58,7 +99,7 @@ function plot_single_histogram (chart, histogram){
 
 	xScale=d3.scale.linear();
   	xScale.domain([histogram.minx,histogram.maxx]);
-  	xScale.range([xoffset,width]);
+  	xScale.range([0,width]);
 
   	maxy=histogram.maxy;
   	var extrascale='';
@@ -70,9 +111,17 @@ function plot_single_histogram (chart, histogram){
   			extrascale='**';
   		}
   	}
-	yScale=d3.scale.linear();
+  	if (log==false) {
+		yScale=d3.scale.linear();
+	} else {
+		yScale=d3.scale.log();
+		if (histogram.miny==0) {
+			histogram.miny=1;
+		}
+	} 
+
   	yScale.domain([maxy,histogram.miny]);	  	
-    yScale.range([0,plotheight+2*yoffset]);
+    yScale.range([0,height-yoffset-15]);
 
     var xAxis=d3.svg.axis();
   	var yAxis=d3.svg.axis();	
@@ -110,6 +159,7 @@ function plot_single_histogram (chart, histogram){
 
 
 	style='filled';
+	style='line';
                       
 
 	if (histogram.num_keys<14){
@@ -119,27 +169,32 @@ function plot_single_histogram (chart, histogram){
 				y=data[i][1];	
 				var color=colormap[i];	
 				var colortxt='rgb('+color[0]+','+color[1]+','+color[2]+')';
-				var	val=y/maxy*height;
-				console.log(colormap[i]);
+
+				console.log(yScale(y), height,yoffset)								
 				chart.append("rect")	
 						.attr("class","hist")
-						.attr("x",i*bin_width+xoffset)
-						.attr("y",plotheight-val+delta-yoffset)
+						.attr("x",xScale(x))
+						.attr("y",yScale(y)) //yScale(y))
+						
+						//.attr("x",i*bin_width+xoffset)
+						//.attr("y",plotheight-val+delta-yoffset)
 						.attr("width",bin_width)
-						.attr("height",val)
+						.attr("height",height-yScale(y)-yoffset)
 						.style("fill",colortxt)
-						.style("stroke","rgb(8,8,0)")
-						//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-						//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
+						.style("stroke","rgb(32,32,0)")						
 						.style("stroke-width","1px");				
 			}
 		return;
 	}
-	data.push(data[0]);
+	
 	if (style=='filled') {
+		if (bins>=100) {
+			data.push(data[0]);
+		}
 		var linefunction=d3.svg.line()
                       .x(function(d) { console.log(d[0], xScale(d[0])); return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); })
+                      					
 					  .interpolate('step-after');
 
 		var lineGraph = chart.append("path")
@@ -149,12 +204,14 @@ function plot_single_histogram (chart, histogram){
                             .attr("fill", "blue");
          }
 	if (style=='line') {
+		data.push(data[0]);
 		var linefunction=d3.svg.line()
                       .x(function(d) { console.log(d[0], xScale(d[0])); return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); });
 					  
 		var lineGraph = chart.append("path")
                             .attr("d", linefunction(data))
+                            .attr("fill",'none')
                             .attr("stroke", "blue")
 	                        .attr("stroke-width", 2);
 		}
@@ -215,7 +272,7 @@ var checkresize=function (e) {
 
 function init_histogram (histogram) {
 
-
+	current_histogram=histogram;
 	console.log(histogram);
 	$('.range').on('keyup',checkresize);
 	data_div=document.getElementById('histogram_container');
