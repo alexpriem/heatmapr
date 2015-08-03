@@ -221,7 +221,8 @@ def get_col_types(infodir):
         int_cols=['num_keys','empty','unique_index',
               'float_t','int_t','str_t','int_min','int_max']
         float_cols=['float_min','float_max','min','max']
-        c=csv.DictReader(f,delimiter=',')        
+        c=csv.DictReader(f,delimiter=',')
+        linenr=0
         for row in c:
           #  print line            
             for c in int_cols:
@@ -243,9 +244,11 @@ def get_col_types(infodir):
                 row['sparse2']=True
             else:
                 row['sparse2']=False
+            row['colnr']=linenr
             col_info.append(row)
             colname=row['colname']
             coltypes_bycol[colname]=row
+            linenr+=1
         f.close()
 
 
@@ -342,14 +345,13 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
         rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
         rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
 
-
     return rowinfo
 
 
-def get_plot (infodir, variable):
+def get_plot (infodir, variable, col_info=None, coltypes_bycol=None):
 
-
-    col_info, coltypes_bycol=get_col_types(infodir)
+    if col_info is None:
+        col_info, coltypes_bycol=get_col_types(infodir)
 
     rowinfo=coltypes_bycol[variable]
     print type(coltypes_bycol)
@@ -400,19 +402,19 @@ def histogram (request, dataset, variable):
     infodir=datadir+'/'+dataset+'_info'
     if not os.path.exists(infodir):
         os.makedirs(infodir)    
+    col_info, coltypes_bycol=get_col_types(infodir)
 
-    
     if request.is_ajax()==True:
         cmd=request.GET['cmd']            
         if cmd=='reset':           
-            rowinfo=get_plot(infodir, variable)
+            rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol)
             data={'action':'makeplot','data':rowinfo}  # plus histogram
         if cmd=='resize':
             minx=float(request.GET.get('minx',0))
             maxx=float(request.GET.get('maxx',100))
             bins=int(request.GET.get('bins',100))
             print 'RESIZE',minx,maxx,bins
-            rowinfo=get_plot(infodir, variable)
+            rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol)
             rowinfo['minx']=minx
             rowinfo['maxx']=maxx
 
@@ -428,11 +430,21 @@ def histogram (request, dataset, variable):
         return HttpResponse(cjson.encode(data))
 
     template = loader.get_template('single_histogram.html')
-    rowinfo=get_plot(infodir, variable) # plus histogram
+    rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol) # plus histogram
+    colnr=rowinfo['colnr']
+    prevvar=''
+    if colnr>0:
+        prevvar=col_info[colnr-1]['colname']
+    nextvar=''
+    if colnr<len(col_info):
+        nextvar=col_info[colnr+1]['colname']
+
     print 'got rowinfo'
     histogram_json=cjson.encode(rowinfo)
     context = RequestContext(request, {'dataset':dataset,
-                                       'colname':variable,                                       
+                                       'prevcolname':prevvar,
+                                       'colname':variable,
+                                       'nextcolname':nextvar,
                                        'histogram':histogram_json})
     print 'got context'    
     return HttpResponse(template.render(context))

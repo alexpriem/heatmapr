@@ -28,8 +28,12 @@
 
 <div id="errorbox"> </div>
 
-<h3> {{dataset}}/{{colname}} </h3>
 
+<ul class="header">
+<li class="sideways"><a href="/histogram/{{dataset}}/{{prevcolname}}">{{dataset}}/{{prevcolname}}</a></li>
+<li class="mainway"> {{dataset}}/{{colname}} </li> 
+<li class="sideways"><a href="/histogram/{{dataset}}/{{nextcolname}}">{{dataset}}/{{nextcolname}}</a></li>
+</ul>
 
 <table>
 <tr>

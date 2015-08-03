@@ -204,7 +204,7 @@ function plot_single_histogram (chart, histogram){
                             .attr("fill", "blue");
          }
 	if (style=='line') {
-		data.push(data[0]);
+		//data.push(data[0]);
 		var linefunction=d3.svg.line()
                       .x(function(d) { console.log(d[0], xScale(d[0])); return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); });

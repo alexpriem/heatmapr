@@ -378,3 +378,20 @@ vertical-align: bottom;
 #div_xmin {
 	float:left;	
 }
+
+
+
+.header {
+
+}
+
+.sideways {
+	font-size:14px;
+	display: inline; 
+	list-style-type: none;
+}
+.mainway {
+	font-size:22px;
+	display: inline; 
+	list-style-type: none;
+}
