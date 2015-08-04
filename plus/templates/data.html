@@ -121,9 +121,12 @@
         <th> num_keys </th>
         <th> empty </th>
         <th> unique index </th>
+        <th> single_value </th>
+        <th> bi_value </th>
+        <th> string_garbage </th>
 
-        <th> sparse1 </th>
-        <th> sparse2 </th>
+        <th> log1 </th>
+        <th> log2 </th>
 
         <th> float_t </th>
         <th> int_t </th>
@@ -163,6 +166,26 @@
                        <div><i class="fa fa-lg fa-square-o"> </i></div>
                    {{/if}}                    
                </td>
+                <td> {{#if single_value}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}                    
+              </td>
+                <td> {{#if bi_value}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}                    
+              </td>
+
+               <td> {{#if string_garbage}}
+                       <div><i class="fa fa-lg fa-check-square"> </i></div>
+                   {{else}}
+                       <div><i class="fa fa-lg fa-square-o"> </i></div>
+                   {{/if}}                    
+              </td>
+
               <td> 
                {{#if sparse1}}
                        <div><i class="fa fa-lg fa-check-square"> </i></div>

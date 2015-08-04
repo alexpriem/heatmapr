@@ -78,7 +78,9 @@ class typechecker ():
             hist_string[key]=val            
             if key=='':
                 empty=1
-                hist['']=val                    
+                str_t+=1
+                hist['']=val
+                continue
             try:
                 v=float(key)
             except:                
@@ -137,27 +139,43 @@ class typechecker ():
                             
             
         num_keys=lines
-        datatype='complex'
-        if (float_t!=0) and (str_t==0):
+        datatype='char'
+        realstr=str_t-empty
+        if (float_t!=0) and (realstr<=0):
             datatype='float'
-        if (float_t==0) and  (int_t!=0) and (str_t==0):
+        if (float_t==0) and  (int_t!=0) and (realstr<=0):
             datatype='int'
-        if (float_t==0) and  (int_t==0) and (str_t!=0):
+        if (float_t==0) and  (int_t!=0) and (realstr<=0):
+            datatype='int'
+        if (float_t==0) and  (int_t==0) and (realstr>=0):
             datatype='char'
-        if (str_t==1) or (int_t==1) or (float_t==1):
-            if (num_keys==1) or ((num_keys==2) and (empty==1)):
-                datatype='single_'+datatype
+        if (num_keys>100) and (str_t>50):     # voor het geval van een kleine fractie ints/floats
+            datatype='char'
         if (empty==1) and (num_keys==1):
             datatype='empty'
-                
+
+
+        single_value=(num_keys==1)
+        bi_value=(num_keys==2)
+        string_garbage=False
+        #print (float_t+int_t)>str_t, (str_t-empty), ((str_t-empty)>0 and (str_t-empty<10))
+        if ((float_t+int_t)>str_t) and ((str_t-empty)>0 and (str_t-empty<10)):
+            string_garbage=True
+
+
+
         info['datatype']=datatype
         info['float_t']=float_t
+        info['string_garbage']=string_garbage
+        info['single_value']=single_value
+        info['bi_value']=bi_value
         info['int_t']=int_t
         info['str_t']=str_t
         info['float_min']=float_min
         info['float_max']=float_max
         info['int_min']=int_min
         info['int_max']=int_max
+
         info['empty']=empty
         info['num_keys']=num_keys
         info['min_val']=min_val
@@ -335,10 +353,10 @@ class typechecker ():
 
         num_keys=self.num_keys            
         if num_keys>65535:
-            print 'skipping, too many keys'
+         #   print 'write_binfile:skipping, too many keys'
             return
         if num_keys==1:
-            print 'skipping, no data'
+        #    print 'write_binfile:skipping, no data'
             return
 
 
@@ -387,7 +405,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('colname,datatype,num_keys,empty,unique_index,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
+        g.write('colname,datatype,num_keys,empty,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
         for col in self.cols:
             if col=='.':
                 break
@@ -395,9 +413,9 @@ class typechecker ():
             self.sort_histogram (col, 0.01, 0.99)
             self.write_histogram_100 (col)
             self.write_binfile (col)
-            
-            
-            s='%(col)s,%(datatype)s,%(num_keys)d,%(empty)d,%(unique_index)d' % f 
+
+            s='%(col)s,%(datatype)s,%(num_keys)d,%(empty)d,%(unique_index)d' % f
+            s+=',%(string_garbage)s,%(single_value)s,%(bi_value)s' %f
             s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
             s+=',%(int_min)s,%(int_max)s' % f
             s+=',%(float_min)s,%(float_max)s' % f

@@ -221,6 +221,7 @@ def get_col_types(infodir):
         int_cols=['num_keys','empty','unique_index',
               'float_t','int_t','str_t','int_min','int_max']
         float_cols=['float_min','float_max','min','max']
+        bool_cols=['sparse1','sparse2','string_garbage','single_value','bi_value']
         c=csv.DictReader(f,delimiter=',')
         linenr=0
         for row in c:
@@ -235,15 +236,13 @@ def get_col_types(infodir):
                     row[c]=float(row[c])
                 except:
                     row[c]=''
-            
-            if row['sparse1']=='True':
-                row['sparse1']=True
-            else:
-                row['sparse1']=False                        
-            if row['sparse2']=='True':
-                row['sparse2']=True
-            else:
-                row['sparse2']=False
+
+
+            for c in bool_cols:
+                if row[c]=='True':
+                    row[c]=True
+                if row[c]=='False':
+                    row[c]=False
             row['colnr']=linenr
             col_info.append(row)
             colname=row['colname']
