@@ -322,6 +322,11 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
     for row in c:
         key,num=row[0],row[1]
         num=int(num)
+        if len(key)>=2:
+            if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float
+                stringdata.append([key,num])
+                continue
+
         if num>maxnum:
             maxnum=num
         try:
@@ -499,7 +504,7 @@ def histogram (request, dataset, variable):
     if colnr>0:
         prevvar=col_info[colnr-1]['colname']
     nextvar=''
-    if colnr<len(col_info):
+    if colnr<len(col_info)-1:
         nextvar=col_info[colnr+1]['colname']
 
     rowinfo['labels']=get_labels(infodir,variable)
