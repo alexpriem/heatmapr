@@ -63,7 +63,10 @@ function click_log () {
 function plot_single_histogram (chart, histogram){
 
 	console.log('plot_single_histogram',histogram);
-	if (!('data' in histogram)) {
+	data=histogram.data;
+	stringdata=histogram.stringdata;
+	console.log('plot_single_histogram',histogram, data.length, stringdata.length);
+	if ((data.length==0) && ((stringdata.length>20) || (stringdata.length==0))) {
 		$('#single_value').text ("Teveel niet-numerieke data: "+histogram.num_keys+" unieke waardes.");
 		$('#overview').hide();
 		return
@@ -90,8 +93,6 @@ function plot_single_histogram (chart, histogram){
 
 	plotwidth=0.8*width
 	plotheight=0.7*height
-	data=histogram.data;
-	stringdata=histogram.stringdata;
 	delta=height-plotheight;
 	yoffset=50;
 	xoffset=50;
@@ -120,8 +121,13 @@ function plot_single_histogram (chart, histogram){
 	console.log (histogram.colname, data.length, histogram.datatype, histogram.miny, histogram.maxy); 
 
 	xScale=d3.scale.linear();	
-  	xScale.domain([histogram.minx,histogram.maxx]);
-  	xScale.range([xoffset,width-xoffset]);
+	xScale.domain([histogram.minx,histogram.maxx]);
+
+	if (data.length>1) {
+  		xScale.range([xoffset,width-xoffset]);
+  	} else {
+  		xScale.range([xoffset,2*xoffset]);    // eigenlijk categorieindeling voor klein aantal keys
+  	}
 
 
   	maxy=histogram.maxy;
@@ -152,7 +158,7 @@ function plot_single_histogram (chart, histogram){
 	style='line';
                       
 
-	if (histogram.num_keys<14){
+	if (histogram.num_keys<14){				 // eigenlijk categorieindeling voor klein aantal keys
 		xScale.domain([histogram.minx,histogram.maxx+0.5]);
 		colormap=colormap_qualitative(histogram.num_keys);		
 		for (i=0; i<data.length; i++) {
@@ -211,10 +217,17 @@ function plot_single_histogram (chart, histogram){
 		}
 
   	var xAxis=d3.svg.axis();
-  	var yAxis=d3.svg.axis();	
-  	xAxis.scale(xScale)
-  		.ticks(numticks)	  		
-        .orient("bottom");
+  	var yAxis=d3.svg.axis();
+  	if (data.length>1) {	
+  		xAxis.scale(xScale)
+  			.ticks(numticks)	  		
+        	.orient("bottom");
+	} else {
+  		xAxis.scale(xScale)
+  			.ticks(0)	  		
+        	.orient("bottom");		
+	}
+
     xAxis.tickFormat(d3.format("s"));
   	yAxis.scale(yScale)
   		.ticks(numticks)	  		
@@ -270,12 +283,17 @@ function plot_single_histogram (chart, histogram){
 	  	console.log(labels,range);
 	  //	xScale2.domain(labels);
 	  //	xScale2.domain(range);
-	  	xScale2.range([width+xoffset,width+xoffset+stringdata.length*50]);
+
+		var startpos=width+xoffset;			
+		if (data.length<=1) {
+			startpos=3*xoffset;
+		}
+	  	xScale2.range([startpos,startpos+stringdata.length*50]);
 	  	xScale2.domain([0,stringdata.length]);
 
     	var xAxis2=d3.svg.axis();
     	xAxis2.scale(xScale2)
-  				.ticks(numticks)	  		
+  				.ticks(0)	  		
         		.orient("bottom");
 		chart.append("g")
 	        .attr("class","xaxis mainx")
@@ -294,7 +312,7 @@ function plot_single_histogram (chart, histogram){
 
 				chart.append("rect")	
 					.attr("class","hist")
-					.attr("x",width+xoffset+i*50)
+					.attr("x",startpos+i*50)
 					.attr("y",yScale(y)) //yScale(y))
 					
 					//.attr("x",i*bin_width+xoffset)
@@ -304,8 +322,8 @@ function plot_single_histogram (chart, histogram){
 					.style("fill",colortxt)
 					.style("stroke","rgb(32,32,0)")						
 					.style("stroke-width","1px");
-					var x=width+xoffset+i*50;
-					var y=height-20;
+				var x=startpos+i*50-15;
+				var y=height-20;
 				chart.append("text")
 					        .attr("x", 10)
 					        .attr("y", 10)
@@ -315,6 +333,15 @@ function plot_single_histogram (chart, histogram){
 	        				.style("text-anchor", "middle")
 	        				.text(labels[i])
 	        				.attr("transform","translate("+(x)+","+(y)+")rotate(-45)")
+	        	var y=height-50;
+	        	chart.append("line")
+	        				.attr("x1", x+25)
+                          	.attr("y1", y)
+                         	.attr("x2", x+25)
+                         	.attr("y2", y+5)
+                         	.attr("stroke-width", 1)
+                         	.attr("stroke", "black");
+
 
 				}
 
@@ -385,9 +412,13 @@ function init_histogram (histogram) {
 	s+='<svg class="chart" id="chart_0" data-dataset="'+histogram.colname+'"></svg>\n';
 	
 	data_div.innerHTML =s;
-	
+
+	var extrawidth=0;
+	if ('stringdata' in histogram)	{
+		extrawidth=histogram.stringdata.length*50+75;
+	}
 	var chart = d3.select("#chart_0")
-					.attr("width", width+75+histogram.stringdata.length*50)
+					.attr("width", width+extrawidth)
 					.attr("height", height);	
 	svg=plot_single_histogram(chart, histogram);
 }
