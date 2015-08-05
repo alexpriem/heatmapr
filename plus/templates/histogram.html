@@ -30,12 +30,14 @@
 
 
 <ul class="header">
-<li class="sideways"><a href="/histogram/{{dataset}}/{{prevcolname}}">{{dataset}}/{{prevcolname}}</a></li>
+<li class="sideways">{% if prevcolname %} <a href="/histogram/{{dataset}}/{{prevcolname}}">{{dataset}}/{{prevcolname}}</a> {% endif %}</li>
 <li class="mainway"> {{dataset}}/{{colname}} </li> 
-<li class="sideways"><a href="/histogram/{{dataset}}/{{nextcolname}}">{{dataset}}/{{nextcolname}}</a></li>
+<li class="sideways">{% if nextcolname %} <a href="/histogram/{{dataset}}/{{nextcolname}}">{{dataset}}/{{nextcolname}}</a> {% endif %}</li>
 </ul>
 
-<table>
+
+<p id="single_value">  </p>
+<table id="overview">
 <tr>
     <td>  <div id="div_ymax"> <label for="maxy"> Maxy </label> <input id="maxy" type="text" class="xyinput" value=""> </div>
 

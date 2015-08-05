@@ -64,6 +64,22 @@ function plot_single_histogram (chart, histogram){
 
 
 
+	if (histogram.num_keys==1) {
+		keyval=histogram.data[0][0];
+		num=histogram.data[0][1];
+		if (!histogram.empty) {
+			$('#single_value').text ("1 waarde ("+keyval+"):"+num+' records');
+		} else {
+			$('#single_value').text ("Lege variabele, "+num+' records');
+		}
+		$('#overview').hide();
+	}
+
+	if (!('data' in histogram)) {
+		$('#single_value').text ("Teveel niet-numerieke data: "+histogram.num_keys+" unieke waardes.");
+		$('#overview').hide();
+	}
+
 	
 	console.log('plot_single_histogram',histogram);
 
@@ -99,7 +115,7 @@ function plot_single_histogram (chart, histogram){
 
 	xScale=d3.scale.linear();
   	xScale.domain([histogram.minx,histogram.maxx]);
-  	xScale.range([0,width]);
+  	xScale.range([xoffset,width]);
 
   	maxy=histogram.maxy;
   	var extrascale='';
@@ -137,7 +153,7 @@ function plot_single_histogram (chart, histogram){
 
 	chart.append("g")
         .attr("class","xaxis mainx")
-        .attr("transform","translate("+(xoffset)+","+(height-yoffset)+")")
+        .attr("transform","translate(0,"+(height-yoffset)+")")
         .attr('font-size','15px')
         .call(xAxis);
 
@@ -192,7 +208,7 @@ function plot_single_histogram (chart, histogram){
 			data.push(data[0]);
 		}
 		var linefunction=d3.svg.line()
-                      .x(function(d) { console.log(d[0], xScale(d[0])); return xScale(d[0]); })
+                      .x(function(d) { console.log(d[0], d[1],xScale(d[0])); return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); })
                       					
 					  .interpolate('step-after');
@@ -206,7 +222,7 @@ function plot_single_histogram (chart, histogram){
 	if (style=='line') {
 		//data.push(data[0]);
 		var linefunction=d3.svg.line()
-                      .x(function(d) { console.log(d[0], xScale(d[0])); return xScale(d[0]); })
+                      .x(function(d) { console.log(d[0],d[1], xScale(d[0])); return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); });
 					  
 		var lineGraph = chart.append("path")

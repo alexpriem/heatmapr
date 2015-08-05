@@ -315,10 +315,10 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
     print 'get_plot_alphanumeric'
     f=open(infodir+'/hists/%s.csv' % variable,'r')
     f.readline()
-    c=csv.reader(f,delimiter=':')
+    c=csv.reader(f,delimiter=',')
     data=[]
     maxnum=0
-    for row in c:        
+    for row in c:
         x,num=row[0],row[1]
         try:
             x=float(x)
@@ -331,7 +331,6 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
             maxnum=num
         data.append([x,num])
     f.close()
-    print rowinfo
     rowinfo['data']=data
 
     num_keys=rowinfo['num_keys']
@@ -402,6 +401,7 @@ def histogram (request, dataset, variable):
     if not os.path.exists(infodir):
         os.makedirs(infodir)    
     col_info, coltypes_bycol=get_col_types(infodir)
+    rowinfo=coltypes_bycol[variable]
 
     if request.is_ajax()==True:
         cmd=request.GET['cmd']            
@@ -428,8 +428,10 @@ def histogram (request, dataset, variable):
         
         return HttpResponse(cjson.encode(data))
 
-    template = loader.get_template('single_histogram.html')
-    rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol) # plus histogram
+    template = loader.get_template('histogram.html')
+    if not(rowinfo['datatype']=='char' and rowinfo['num_keys']>100):
+        rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol) # plus histogram
+
     colnr=rowinfo['colnr']
     prevvar=''
     if colnr>0:
