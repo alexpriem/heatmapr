@@ -317,21 +317,26 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
     f.readline()
     c=csv.reader(f,delimiter=',')
     data=[]
+    stringdata=[]
     maxnum=0
     for row in c:
-        x,num=row[0],row[1]
-        try:
-            x=float(x)
-            if x.is_integer():
-                x=int(x)
-        except:
-            pass
+        key,num=row[0],row[1]
         num=int(num)
         if num>maxnum:
             maxnum=num
-        data.append([x,num])
+        try:
+            numeric_key=float(key)
+            if numeric_key.is_integer():
+                numeric_key=int(numeric_key)
+        except:
+            stringdata.append([key,num])
+            continue
+        data.append([numeric_key,num])
     f.close()
+    print data
+    print stringdata
     rowinfo['data']=data
+    rowinfo['stringdata']=stringdata
 
     num_keys=rowinfo['num_keys']
     if num_keys<14:
@@ -344,6 +349,46 @@ def get_plot_alphanumeric (infodir,variable, rowinfo):
         rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
 
     return rowinfo
+
+
+
+def get_label(filehandle, labeldict):
+        c=csv.reader(filehandle,delimiter=',')
+        for row in c:
+            key,label=row[0],row[1]
+            try:
+                key=float(key)
+                if key.is_integer():
+                    key=int(key)
+            except:
+                pass
+            labeldict[key]=label
+        return labeldict
+
+
+def get_labels (infodir, variabele):
+
+    f=None
+    try:
+        f=open(infodir+'/labels/defaults.csv','r')
+    except:
+        pass
+    labels={}
+    if f is not None:
+        labels=get_label(f, labels)
+
+    f=None
+    try:
+        f=open(infodir+'/labels/%s.csv' % variabele,'r')
+    except:
+        pass
+    if f is not None:
+        labels=get_label(f, labels)
+    return labels
+
+
+
+
 
 
 def get_plot (infodir, variable, col_info=None, coltypes_bycol=None):
@@ -428,6 +473,9 @@ def histogram (request, dataset, variable):
         
         return HttpResponse(cjson.encode(data))
 
+
+
+
     template = loader.get_template('histogram.html')
     if not(rowinfo['datatype']=='char' and rowinfo['num_keys']>100):
         rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol) # plus histogram
@@ -439,6 +487,8 @@ def histogram (request, dataset, variable):
     nextvar=''
     if colnr<len(col_info):
         nextvar=col_info[colnr+1]['colname']
+
+    rowinfo['labels']=get_labels(infodir,variable)
 
     print 'got rowinfo'
     histogram_json=cjson.encode(rowinfo)
