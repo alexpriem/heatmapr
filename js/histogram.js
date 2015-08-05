@@ -62,33 +62,39 @@ function click_log () {
 
 function plot_single_histogram (chart, histogram){
 
-
+	console.log('plot_single_histogram',histogram);
+	if (!('data' in histogram)) {
+		$('#single_value').text ("Teveel niet-numerieke data: "+histogram.num_keys+" unieke waardes.");
+		$('#overview').hide();
+		return
+	}
 
 	if (histogram.num_keys==1) {
-		keyval=histogram.data[0][0];
-		num=histogram.data[0][1];
+		if (histogram.data.length==1) {
+			keyval=histogram.data[0][0];
+			num=histogram.data[0][1];
+		} else {
+			keyval=histogram.stringdata[0][0];
+			num=histogram.stringdata[0][1];
+		}
 		if (!histogram.empty) {
 			$('#single_value').text ("1 waarde ("+keyval+"):"+num+' records');
 		} else {
 			$('#single_value').text ("Lege variabele, "+num+' records');
 		}
 		$('#overview').hide();
-	}
-
-	if (!('data' in histogram)) {
-		$('#single_value').text ("Teveel niet-numerieke data: "+histogram.num_keys+" unieke waardes.");
-		$('#overview').hide();
+		return
 	}
 
 	
-	console.log('plot_single_histogram',histogram);
 
 	plotwidth=0.8*width
 	plotheight=0.7*height
 	data=histogram.data;
+	stringdata=histogram.stringdata;
 	delta=height-plotheight;
-	yoffset=0.1*height
-	xoffset=0.2*height
+	yoffset=50;
+	xoffset=50;
 	bins=data.length;
 	if (bins>100) bins=100;
 	bin_width= plotwidth/bins;
@@ -113,9 +119,10 @@ function plot_single_histogram (chart, histogram){
 	
 	console.log (histogram.colname, data.length, histogram.datatype, histogram.miny, histogram.maxy); 
 
-	xScale=d3.scale.linear();
+	xScale=d3.scale.linear();	
   	xScale.domain([histogram.minx,histogram.maxx]);
-  	xScale.range([xoffset,width]);
+  	xScale.range([xoffset,width-xoffset]);
+
 
   	maxy=histogram.maxy;
   	var extrascale='';
@@ -139,7 +146,71 @@ function plot_single_histogram (chart, histogram){
   	yScale.domain([maxy,histogram.miny]);	  	
     yScale.range([0,height-yoffset-15]);
 
-    var xAxis=d3.svg.axis();
+  
+
+	style='filled';
+	style='line';
+                      
+
+	if (histogram.num_keys<14){
+		xScale.domain([histogram.minx,histogram.maxx+0.5]);
+		colormap=colormap_qualitative(histogram.num_keys);		
+		for (i=0; i<data.length; i++) {
+				x=data[i][0];
+				y=data[i][1];	
+				var color=colormap[i];	
+				var colortxt='rgb('+color[0]+','+color[1]+','+color[2]+')';
+
+				console.log(yScale(y), height,yoffset)								
+				chart.append("rect")	
+						.attr("class","hist")
+						.attr("x",xScale(x))
+						.attr("y",yScale(y)) //yScale(y))
+						
+						//.attr("x",i*bin_width+xoffset)
+						//.attr("y",plotheight-val+delta-yoffset)
+						.attr("width",bin_width)
+						.attr("height",height-yScale(y)-yoffset)
+						.style("fill",colortxt)
+						.style("stroke","rgb(32,32,0)")						
+						.style("stroke-width","1px");				
+			}		
+	}
+	
+
+
+
+
+
+	if ((style=='filled') && (histogram.num_keys>=14)) {
+		if (bins>=100) {
+			data.push(data[0]);
+		}
+		var linefunction=d3.svg.line()
+                      .x(function(d) { console.log(d[0], d[1],xScale(d[0])); return xScale(d[0]); })
+                      .y(function(d) { return yScale(d[1]); })                      					
+					  .interpolate('step-after');
+
+		var lineGraph = chart.append("path")
+                            .attr("d", linefunction(data))
+                            .attr("stroke", "blue")
+	                        .attr("stroke-width", 2)
+                            .attr("fill", "blue");
+         }
+	if ((style=='line') && (histogram.num_keys>=14)) {
+		//data.push(data[0]);
+		var linefunction=d3.svg.line()
+                      .x(function(d) { console.log(d[0],d[1], xScale(d[0])); return xScale(d[0]); })
+                      .y(function(d) { return yScale(d[1]); });
+					  
+		var lineGraph = chart.append("path")
+                            .attr("d", linefunction(data))
+                            .attr("fill",'none')
+                            .attr("stroke", "blue")
+	                        .attr("stroke-width", 2);
+		}
+
+  	var xAxis=d3.svg.axis();
   	var yAxis=d3.svg.axis();	
   	xAxis.scale(xScale)
   		.ticks(numticks)	  		
@@ -149,6 +220,7 @@ function plot_single_histogram (chart, histogram){
   		.ticks(numticks)	  		
         .orient("left");
     yAxis.tickFormat(d3.format("s"));
+
 
 
 	chart.append("g")
@@ -174,62 +246,78 @@ function plot_single_histogram (chart, histogram){
 	        .text(histogram.colname+extrascale);
 
 
-	style='filled';
-	style='line';
-                      
+// missings/strings in histogram data
 
-	if (histogram.num_keys<14){
-		colormap=colormap_qualitative(histogram.num_keys);		
-		for (i=0; i<data.length; i++) {
-				x=data[i][0];
-				y=data[i][1];	
+    if (stringdata.length>0) {
+    	console.log('adding stringdata');
+	  	xScale2=d3.scale.linear();	  		  	
+	  	var range=[];
+	  	var labels=[];
+	  	var values=[];
+	  	for (i=0; i<stringdata.length;i++) {
+	  		range.push(i);
+	  		var key=stringdata[i][0];
+	  		values.push(stringdata[i][1]);
+	  		if (key in histogram.labels) {
+	  			labels.push(histogram.labels[key]);
+	  		} else {
+	  			if (key=='') {
+	  				key='(leeg)';
+	  			}
+	  			labels.push(key);
+	  		}	  		
+	  	}
+	  	console.log(labels,range);
+	  //	xScale2.domain(labels);
+	  //	xScale2.domain(range);
+	  	xScale2.range([width+xoffset,width+xoffset+stringdata.length*50]);
+	  	xScale2.domain([0,stringdata.length]);
+
+    	var xAxis2=d3.svg.axis();
+    	xAxis2.scale(xScale2)
+  				.ticks(numticks)	  		
+        		.orient("bottom");
+		chart.append("g")
+	        .attr("class","xaxis mainx")
+	        .attr("transform","translate(0,"+(height-yoffset)+")")
+	        .attr('font-size','15px')
+	        .call(xAxis2);
+
+
+		colormap=colormap_qualitative(stringdata.length);		
+		for (i=0; i<stringdata.length; i++){
+				x=stringdata[i][0];
+				y=stringdata[i][1];
+
 				var color=colormap[i];	
 				var colortxt='rgb('+color[0]+','+color[1]+','+color[2]+')';
 
-				console.log(yScale(y), height,yoffset)								
 				chart.append("rect")	
-						.attr("class","hist")
-						.attr("x",xScale(x))
-						.attr("y",yScale(y)) //yScale(y))
-						
-						//.attr("x",i*bin_width+xoffset)
-						//.attr("y",plotheight-val+delta-yoffset)
-						.attr("width",bin_width)
-						.attr("height",height-yScale(y)-yoffset)
-						.style("fill",colortxt)
-						.style("stroke","rgb(32,32,0)")						
-						.style("stroke-width","1px");				
-			}
-		return;
-	}
-	
-	if (style=='filled') {
-		if (bins>=100) {
-			data.push(data[0]);
-		}
-		var linefunction=d3.svg.line()
-                      .x(function(d) { console.log(d[0], d[1],xScale(d[0])); return xScale(d[0]); })
-                      .y(function(d) { return yScale(d[1]); })
-                      					
-					  .interpolate('step-after');
+					.attr("class","hist")
+					.attr("x",width+xoffset+i*50)
+					.attr("y",yScale(y)) //yScale(y))
+					
+					//.attr("x",i*bin_width+xoffset)
+					//.attr("y",plotheight-val+delta-yoffset)
+					.attr("width",bin_width)
+					.attr("height",height-yScale(y)-yoffset)
+					.style("fill",colortxt)
+					.style("stroke","rgb(32,32,0)")						
+					.style("stroke-width","1px");
+					var x=width+xoffset+i*50;
+					var y=height-20;
+				chart.append("text")
+					        .attr("x", 10)
+					        .attr("y", 10)
+	        				.attr("font-family", "Corbel")
+	  						.attr("font-size", fontsize+"px")
+	  						.attr("font-weight", "bold")
+	        				.style("text-anchor", "middle")
+	        				.text(labels[i])
+	        				.attr("transform","translate("+(x)+","+(y)+")rotate(-45)")
 
-		var lineGraph = chart.append("path")
-                            .attr("d", linefunction(data))
-                            .attr("stroke", "blue")
-	                        .attr("stroke-width", 2)
-                            .attr("fill", "blue");
-         }
-	if (style=='line') {
-		//data.push(data[0]);
-		var linefunction=d3.svg.line()
-                      .x(function(d) { console.log(d[0],d[1], xScale(d[0])); return xScale(d[0]); })
-                      .y(function(d) { return yScale(d[1]); });
-					  
-		var lineGraph = chart.append("path")
-                            .attr("d", linefunction(data))
-                            .attr("fill",'none')
-                            .attr("stroke", "blue")
-	                        .attr("stroke-width", 2);
+				}
+
 		}
 
 }
@@ -299,7 +387,7 @@ function init_histogram (histogram) {
 	data_div.innerHTML =s;
 	
 	var chart = d3.select("#chart_0")
-					.attr("width", width)
+					.attr("width", width+75+histogram.stringdata.length*50)
 					.attr("height", height);	
 	svg=plot_single_histogram(chart, histogram);
 }
