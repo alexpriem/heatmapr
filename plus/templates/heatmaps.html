@@ -31,7 +31,7 @@
 </tr>
 {% for heatmap in heatmaps %}
 <tr>
-<td> {{heatmap.filename}}</td>
+<td> <a href="/heatmap/{{dataset}}/{{heatmap.x}}/{{heatmap.y}}/"> {{heatmap.filename}}</a>  </td>
 <td> <a href="/histogram/{{dataset}}/{{heatmap.x}}"> {{heatmap.x}}</a> </td>
 <td> <a href="/histogram/{{dataset}}/{{heatmap.y}}"> {{heatmap.y}}</a> </td>
 <td> {{heatmap.title}}</td>
