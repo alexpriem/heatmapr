@@ -53,14 +53,14 @@ def make_hist (infodir, variabele):
 
 
 
-          
+
+
 
 def make_hist2 (infodir, variabele, minx, maxx, bins):
     
     f=open(infodir+'/hists/%s.csv' % variabele)
     f.readline()
-    print type(minx), type(maxx), type(bins)
-    c=csv.reader(f, delimiter=':')
+    c=csv.reader(f, delimiter=',')
     binsize=(maxx-minx)/(bins*1.0)
     histogram=[0]*(bins+1)
     for row in c:
@@ -88,4 +88,58 @@ def make_hist2 (infodir, variabele, minx, maxx, bins):
         
             
         
-    
+
+def get_data(infodir, variabele):
+
+    f=open(infodir+'/hists/%s.csv' % variabele)
+    f.readline()
+    c=csv.reader(f, delimiter=',')
+    data=[]
+    for row in c:
+        x,num=row[0],row[1]
+        try:
+            x=float(row[0])
+            if x.is_integer():
+                x=int(x)
+        except:
+            pass
+        data.append([x,int(num)])
+    return data
+
+
+
+
+def make_hist3 (data, minx, maxx, bins):
+
+    binsize=(maxx-minx)/(bins*1.0)
+    histogram=[0]*(bins+1)
+    for row in data:
+        x,num=row[0],row[1]
+        if (x<minx) or (x>maxx):
+            continue
+        hx=int((x-minx)/binsize)
+        try:
+            histogram[hx]+=num
+        except:
+            print 'histogram out of bounds:',hx,binsize
+            raise RuntimeError
+    sorted_hist=sorted(histogram)
+    histogram=[[(minx+i*binsize),h] for i,h in enumerate(histogram)]
+   # for x in histogram:
+   #     print x[0],x[1]
+    return histogram, sorted_hist
+
+
+
+def check_binsize(data,minx,maxx,bins):
+
+    num_keys=0
+    for row in data:
+        x=row[0]
+        if ((x<minx) or (x>maxx)):
+            continue
+        num_keys+=1
+    if num_keys<bins:
+        bins=num_keys
+    return bins
+

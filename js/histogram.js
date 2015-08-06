@@ -114,6 +114,7 @@ function plot_single_histogram (chart, histogram){
 	$('#maxx').val(histogram.maxx);
 	$('#miny').val(histogram.miny);
 	$('#maxy').val(histogram.maxy);
+	$('#bins').val(histogram.bins);
 
 	console.log (histogram.colname, data.length, histogram.datatype, histogram.minx, histogram.maxx, histogram.miny, histogram.maxy, histogram.miny=='',histogram.maxy==''); 
 	if ((histogram.miny==='') || (histogram.maxy==='')) return;
@@ -262,7 +263,7 @@ function plot_single_histogram (chart, histogram){
 // missings/strings in histogram data
 
     if (stringdata.length>0) {
-    	console.log('adding stringdata');
+    	console.log('adding stringdata');    	
 	  	xScale2=d3.scale.linear();	  		  	
 	  	var range=[];
 	  	var labels=[];
@@ -270,7 +271,7 @@ function plot_single_histogram (chart, histogram){
 	  	for (i=0; i<stringdata.length;i++) {
 	  		range.push(i);
 	  		var key=stringdata[i][0];
-	  		values.push(stringdata[i][1]);
+	  		values.push(stringdata[i][1]);	  		
 	  		if (key in histogram.labels) {
 	  			labels.push(histogram.labels[key]);
 	  		} else {
@@ -374,8 +375,9 @@ function resize () {
 	max_x=get_range('maxx');
 	min_y=get_range('miny');
 	max_y=get_range('maxy');
+	num_bins=get_range('bins');
 
-	data={cmd:'resize',minx:min_x, maxx:max_x, miny:min_y, maxy:max_y};
+	data={cmd:'resize',minx:min_x, maxx:max_x, miny:min_y, maxy:max_y,bins:num_bins};
 	console.log('resize:', data);
  	$.ajax({url:"/histogram/"+dataset+"/"+variabele, 
 			type: "GET",
@@ -395,7 +397,17 @@ var checkresize=function (e) {
 
 	if (e.keyCode==13) {
 		console.log('resize');
-		resize();
+		el=this.id;
+		if ((el='miny') || (el=='maxy')) {
+			var miny=$('#miny').val()
+			var maxy=$('#maxy').val()
+			histogram.miny=miny;
+			histogram.maxy=maxy;			
+			init_histogram(histogram);  
+			//resize();
+		} else {
+			resize();
+		}
 	}
 }
 
@@ -405,7 +417,7 @@ function init_histogram (histogram) {
 
 	current_histogram=histogram;
 	console.log(histogram);
-	$('.range').on('keyup',checkresize);
+	$('.xyinput').on('keyup',checkresize);
 	data_div=document.getElementById('histogram_container');
     s='';
         

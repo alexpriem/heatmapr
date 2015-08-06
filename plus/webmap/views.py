@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
-from makehist import make_hist2
+from makehist import make_hist3, get_data, check_binsize
 import heatmap
 
 
@@ -310,53 +310,6 @@ def get_cols (datadir, dataset, infodir):
 
 
 
-def get_plot_alphanumeric (infodir,variable, rowinfo):
-
-    print 'get_plot_alphanumeric'
-    f=open(infodir+'/hists/%s.csv' % variable,'r')
-    f.readline()
-    c=csv.reader(f,delimiter=',')
-    data=[]
-    stringdata=[]
-    maxnum=0
-    for row in c:
-        key,num=row[0],row[1]
-        num=int(num)
-        if len(key)>=2:
-            if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float
-                stringdata.append([key,num])
-                continue
-
-        if num>maxnum:
-            maxnum=num
-        try:
-            numeric_key=float(key)
-            if numeric_key.is_integer():
-                numeric_key=int(numeric_key)
-        except:
-            stringdata.append([key,num])
-            continue
-        data.append([numeric_key,num])
-    f.close()
-    #print data
-   # print stringdata
-    rowinfo['data']=data
-    rowinfo['stringdata']=stringdata
-
-    num_keys=rowinfo['num_keys']
-    if num_keys<14:
-        rowinfo['minx'], rowinfo['miny']=rowinfo['min'],0
-        rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
-        rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
-    else:
-        rowinfo['minx'], rowinfo['miny']=rowinfo['min'],0
-        rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
-        rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
-
-    return rowinfo
-
-
-
 def get_label(filehandle, labeldict):
         c=csv.reader(filehandle,delimiter=',')
         for row in c:
@@ -392,6 +345,51 @@ def get_labels (infodir, variabele):
     return labels
 
 
+def get_plot_alphanumeric (infodir,variable, rowinfo):
+
+    print 'get_plot_alphanumeric'
+    f=open(infodir+'/hists/%s.csv' % variable,'r')
+    f.readline()
+    c=csv.reader(f,delimiter=',')
+    data=[]
+    stringdata=[]
+    maxnum=0
+    for row in c:
+        key,num=row[0],row[1]
+        num=int(num)
+        if len(key)>=2:
+            if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float
+                stringdata.append([key,num])
+                continue
+
+        if num>maxnum:
+            maxnum=num
+        try:
+            numeric_key=float(key)
+            if numeric_key.is_integer():
+                numeric_key=int(numeric_key)
+        except:
+            stringdata.append([key,num])
+            continue
+        data.append([numeric_key,num])
+    f.close()
+    #print data
+   # print stringdata
+    rowinfo['bins']=len(data)
+    rowinfo['data']=data
+    rowinfo['stringdata']=stringdata
+
+    num_keys=rowinfo['num_keys']
+    if num_keys<14:
+        rowinfo['minx'], rowinfo['miny']=rowinfo['min'],0
+        rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
+        rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
+    else:
+        rowinfo['minx'], rowinfo['miny']=rowinfo['min'],0
+        rowinfo['maxx'], rowinfo['maxy']=rowinfo['max'],maxnum
+        rowinfo['maxy2'], rowinfo['maxy3']=maxnum,maxnum
+
+    return rowinfo
 
 
 
@@ -445,6 +443,7 @@ def get_plot (infodir, variable, col_info=None, coltypes_bycol=None):
             key=float(key)
         except:
             stringdata.append([key,int(num)])
+    rowinfo['bins']=100
     rowinfo['data']=data
     rowinfo['stringdata']=stringdata
     return rowinfo
@@ -463,6 +462,8 @@ def histogram (request, dataset, variable):
         os.makedirs(infodir)    
     col_info, coltypes_bycol=get_col_types(infodir)
     rowinfo=coltypes_bycol[variable]
+    rowinfo['labels']=get_labels(infodir,variable)
+
 
     if request.is_ajax()==True:
         cmd=request.GET['cmd']            
@@ -472,20 +473,26 @@ def histogram (request, dataset, variable):
         if cmd=='resize':
             minx=float(request.GET.get('minx',0))
             maxx=float(request.GET.get('maxx',100))
+            miny=float(request.GET.get('miny',0))
+            maxy=float(request.GET.get('maxy',100))
             bins=int(request.GET.get('bins',100))
             print 'RESIZE',minx,maxx,bins
             rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol)
             rowinfo['minx']=minx
             rowinfo['maxx']=maxx
+            rowinfo['miny']=miny
+            rowinfo['maxy']=maxy
 
-            
-            histogram, sorted_hist=make_hist2 (infodir, variabele,minx,maxx,bins)
-            plotdata['data']=histogram            
-            rowinfo['maxy']=sorted_hist[-1]
+            data=get_data(infodir, variable)
+            bins=check_binsize(data,minx,maxx,bins)
+            histogram, sorted_hist=make_hist3 (data,minx,maxx,bins)
+            rowinfo['data']=histogram
+            #rowinfo['maxy']=sorted_hist[-1]
             rowinfo['maxy2']=sorted_hist[-2]
             rowinfo['maxy3']=sorted_hist[-3]
+            rowinfo['bins']=bins
 
-            data={'action':'makeplot','data':plotdata}
+            data={'action':'makeplot','data':rowinfo}
         
         return HttpResponse(cjson.encode(data))
 
@@ -507,7 +514,7 @@ def histogram (request, dataset, variable):
     if colnr<len(col_info)-1:
         nextvar=col_info[colnr+1]['colname']
 
-    rowinfo['labels']=get_labels(infodir,variable)
+
 
     print 'got rowinfo'
     histogram_json=cjson.encode(rowinfo)
