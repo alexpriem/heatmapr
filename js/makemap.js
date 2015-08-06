@@ -49,8 +49,7 @@ function makemap () {
 
 function init_page() {
 
-    $('#combo_x').combobox();
-    $('#combo_y').combobox();
+    $('.combobox').combobox();    
     $('#makemap').on('click',makemap);
 
     for (var key in defaults) {
