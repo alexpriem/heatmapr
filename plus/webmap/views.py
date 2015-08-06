@@ -111,6 +111,8 @@ def view_heatmaps (request, dataset):
     template = loader.get_template('heatmaps.html')
     datadir='e:/data'
     heatmapdir=datadir+'/'+dataset+'_info/heatmaps/'
+    if not os.path.exists(heatmapdir):
+        os.makedirs(heatmapdir)  
     heatmapfiles=os.listdir(heatmapdir)
     heatmaps=[]
     for h in heatmapfiles:
@@ -587,9 +589,8 @@ def set_recode (request, dataset):
 
 @csrf_exempt
 def dataset (request, dataset):
-
-    #print request.GET['dataset']
-    action=request.GET['action']    
+    
+    action=request.GET.get('action')
     datadir=request.GET['datadir']
 
     filter_set={}
