@@ -296,9 +296,7 @@ color:#407640;
     border-radius: 4px;
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
-    float:right;
-    vertical-align:top;
-}
+ }
 
 
 .xylabel {
@@ -364,20 +362,6 @@ vertical-align: bottom;
 	width:100px;
 }
 
-#div_ymax {
-	vertical-align:top;
-}
-#div_ymin {
-	vertical-align:bottom;
-}
-
-
-#div_xmax {
-	float:right;
-}
-#div_xmin {
-	float:left;	
-}
 
 
 
@@ -395,3 +379,30 @@ vertical-align: bottom;
 	display: inline; 
 	list-style-type: none;
 }
+
+
+#histogram_container {
+ float:left;
+ padding-left:50px;
+ padding-top:50px;
+ display:inline;
+}
+
+#controls {
+	padding-top: 25px;
+	padding-left: 25px;
+	float:left;
+	width:400px;
+	display:inline;
+}
+
+
+#control_ul {
+	list-style: none; 
+	margin: 0; 
+	padding: 0;
+}
+
+
+
+

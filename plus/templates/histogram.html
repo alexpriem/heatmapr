@@ -37,35 +37,22 @@
 
 
 <p id="single_value">  </p>
-<table id="overview">
-<tr>
-    <td>  <div id="div_ymax"> <label for="maxy"> Maxy </label> <input id="maxy" type="text" class="xyinput" value=""> </div>
 
-         <div id="div_ymin"><label for="miny"> Miny </label>  <input id="miny" type="text" class="xyinput" value=""> </div>
-    </td>
-    <td>
-                  <div id="histogram_container"> </div>
-    </td>
-    <td>
-         <div id="div_bins"> <label for="bins"> Bins </label><input id="bins" type="text" class="xyinput" value="">  </div>
-         <a href="#" id="log">  Log </a>
-         <a href="#" id="max1">  Autoscale: AbsMax </a>
-         
-    </td>
-</tr>
+<div id="histogram_container"> </div>
+<div id="controls">
+    <ul id="control_ul">
+    <li> <a href="#" id="log">  Log </a> </li>
+    <li> <a href="#" id="max1">  Autoscale: AbsMax </a> </li>
 
-<tr>
-    <td></td>
-    <td>              
-        <div id="div_xmin"> <label for="minx"> Minx </label><input id="minx" type="text" class="xyinput" value="">  </div>
-        <div id="div_xmax"> <label for="maxx"> Maxx </label><input id="maxx" type="text" class="xyinput" value="">  </div>
-    </td>
-</tr>
-</table>
+    <li id="div_ymin">  <div> <label class="label" for="miny"> Miny </label>  <input id="miny" type="text" class="xyinput" value=""/> 
+                              <label class="label" for="maxy"> Maxy </label> <input id="maxy" type="text" class="xyinput" value=""/>  </div></li>
 
+    <li id="div_xmin">  <div><label class="label"  for="minx"> Minx </label><input id="minx" type="text" class="xyinput" value=""/>  
+                             <label class="label" for="maxx"> Maxx </label><input id="maxx" type="text" class="xyinput" value=""/>  </div> </li>
+    <li id="div_bins">  <div><label class="label"  for="bins"> Bins </label><input id="bins" type="text" class="xyinput" value=""/>  </div> </li>
+    
+    </ul>
 </div>
-
-
 <script   type="text/javascript"> 
 var histogram={{histogram|safe}};
 </script>

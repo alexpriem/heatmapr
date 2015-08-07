@@ -428,6 +428,7 @@ function init_histogram (histogram) {
 	var extrawidth=0;
 	if ('stringdata' in histogram)	{
 		extrawidth=histogram.stringdata.length*50+75;
+		extrawidth=0;
 	}
 	var chart = d3.select("#chart_0")
 					.attr("width", width+extrawidth)
