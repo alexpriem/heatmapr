@@ -66,7 +66,8 @@ class typechecker ():
         float_min=None
         float_max=None
         sumval=0
-        avgsum=0        
+        avgsum=0
+        num_valid=0
 
         hist={}
         hist_string={}
@@ -99,6 +100,7 @@ class typechecker ():
                 hist[key]=val
                 continue                
 
+            num_valid+=val
             avgsum+=v*val            
             if v.is_integer():                
                 int_t+=1
@@ -178,6 +180,7 @@ class typechecker ():
 
         info['empty']=empty
         info['num_keys']=num_keys
+        info['num_valid']=num_valid
         info['min_val']=min_val
         info['max_val']=max_val
         info['avg']=avgsum/self.num_records
@@ -197,11 +200,14 @@ class typechecker ():
     def sort_histogram (self, variable, minbound, maxbound):     
 
         numeric=((self.data_info['int_t']!=0) or (self.data_info['float_t']!=0))
-        min_range=None
-        max_range=None
+        range01=None
+        range50=None
+        range99=None
+        num_valid=self.data_info['num_valid']
         if (numeric):
-            min_records=minbound*self.num_records # 0.01 percentiel
-            max_records=maxbound*self.num_records # 0.99 percentiel
+            perc01=minbound*num_valid # 0.01 percentiel      # percentielen alleen over gevulde data bepalen
+            perc50=0.5*num_valid # 0.99 percentiel
+            perc99=maxbound*num_valid # 0.99 percentiel
             sumval=0
 
         datatype=self.data_info['datatype']
@@ -225,14 +231,16 @@ class typechecker ():
         for k in self.sorted_keys:
             if  numeric:
                 sumval+=int(hist[k])
-                if min_range is None and sumval>min_records:
-                    min_range=k
-                if max_range is None and sumval>max_records:
-                    max_range=k
+                if range01 is None and sumval>perc01:
+                    range01=k
+                if range50 is None and sumval>perc50:
+                    range50=k
+                if range99 is None and sumval>perc99:
+                    range99=k
             c.writerow([str(k),hist[k]])   
-        self.data_info['perc01']=min_range
-        self.data_info['perc50']=0
-        self.data_info['perc99']=max_range
+        self.data_info['perc01']=range01
+        self.data_info['perc50']=range50
+        self.data_info['perc99']=range99
         f.close()
 
         
@@ -405,7 +413,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('colname,datatype,num_keys,empty,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
+        g.write('colname,datatype,num_keys,num_valid,empty,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
         for col in self.cols:
             if col=='.':
                 break
@@ -414,7 +422,7 @@ class typechecker ():
             self.write_histogram_100 (col)
             self.write_binfile (col)
 
-            s='%(col)s,%(datatype)s,%(num_keys)d,%(empty)d,%(unique_index)d' % f
+            s='%(col)s,%(datatype)s,%(num_keys)d,%(num_valid)d,%(empty)d,%(unique_index)d' % f
             s+=',%(string_garbage)s,%(single_value)s,%(bi_value)s' %f
             s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
             s+=',%(int_min)s,%(int_max)s' % f
