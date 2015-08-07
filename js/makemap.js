@@ -23,7 +23,7 @@ function makemap () {
 
  
  	var dataset='best2010';
- 	data={};	
+ 	data={'cmd':'makemap'};	
     for (var key in defaults) {
     	 if(defaults.hasOwnProperty(key)){
     	 	val=$('#'+key).val();

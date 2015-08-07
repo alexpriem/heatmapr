@@ -275,7 +275,7 @@ class heatmap:
     def parse_minmax_range(self, value, data_type, dateformat, minmax, min_date=None):
         datevalue=None
         if data_type=='nominal':
-            value=float(value)        	
+            value=float(value)
         else:
             datevalue=datetime.datetime.strptime(value,dateformat)	    	                
             if minmax=='min':
