@@ -29,11 +29,16 @@
 <div id="errorbox"> </div>
 
 
-<ul class="header">
-<li class="sideways">{% if prevcolname %} <a href="/histogram/{{dataset}}/{{prevcolname}}">{{dataset}}/{{prevcolname}}</a> {% endif %}</li>
-<li class="mainway"> {{dataset}}/{{colname}} </li> 
-<li class="sideways">{% if nextcolname %} <a href="/histogram/{{dataset}}/{{nextcolname}}">{{dataset}}/{{nextcolname}}</a> {% endif %}</li>
+<div class="histogramheader">
+<ul class="ulheader">
+<li class="sideways"><a href="/data/{{dataset}}/">{{dataset}}</a> </li>
+<li class="sideways">{% if prevcolname2 %} <a href="/histogram/{{dataset}}/{{prevcolname2}}">{{prevcolname2}}</a>{% else %} &nbsp; {% endif %}</li>
+<li class="sideways">{% if prevcolname1 %} <a href="/histogram/{{dataset}}/{{prevcolname1}}">{{prevcolname1}}</a>{% else %} &nbsp;  {% endif %}</li>
+<li class="mainway"> {{colname}} </li> 
+<li class="sideways">{% if nextcolname1 %} <a href="/histogram/{{dataset}}/{{nextcolname1}}">{{nextcolname1}}</a>{% else %} &nbsp;  {% endif %}</li>
+<li class="sideways">{% if nextcolname2 %} <a href="/histogram/{{dataset}}/{{nextcolname2}}">{{nextcolname2}}</a>{% else %} &nbsp;  {% endif %}</li>
 </ul>
+</div>
 
 
 <p id="single_value">  </p>

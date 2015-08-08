@@ -365,14 +365,18 @@ vertical-align: bottom;
 
 
 
-.header {
+.histogramheader {
 
+height:50px;
+background-color:lightblue;
+color:white;
 }
 
 .sideways {
 	font-size:14px;
 	display: inline; 
 	list-style-type: none;
+	width:200px;
 }
 .mainway {
 	font-size:22px;
