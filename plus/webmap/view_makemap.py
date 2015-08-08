@@ -30,7 +30,7 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
 
 
 @csrf_exempt
-def make_heatmap (request, dataset):
+def make_heatmap (request, dataset, x_var=None, y_var=None):
 
 
     datadir='e:/data'
@@ -63,12 +63,21 @@ def make_heatmap (request, dataset):
     colnames=get_colnames_for_heatmap (infodir,  defaults['displaymode'], col_info)
     if len(colnames)<2:
         msg='Geen heatmaps te maken van deze dataset'
+        template = loader.get_template('makemap.html')
         context = RequestContext(request, {'msg':'msg','colnames':colnames, 'dataset':dataset})
         return HttpResponse(template.render(context))
 
+    if x_var is None:
+        defaults['x_var']=colnames[0]
+    else:
+        defaults['x_var']=str(x_var)
 
-    defaults['x_var']=colnames[0]
-    defaults['y_var']=colnames[1]
+    if y_var is None:
+        defaults['y_var']=colnames[1]
+    else:
+        defaults['y_var']=str(y_var)
+
+
     if request.is_ajax()==True:
         #print request.POST
         args={}

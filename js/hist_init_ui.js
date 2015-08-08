@@ -24,6 +24,7 @@ function init_page() {
   */
 
   $('#log').on('click',click_log);
+  $('#checkmap').on('click',check_heatmap);
 
 }
 

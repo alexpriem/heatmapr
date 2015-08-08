@@ -35,6 +35,10 @@ function safe_log  (val,log_min) {
 
 
 
+
+
+
+
 var hist_handle_ajax=function (result) {
 
 	//console.log('handle_ajax', result);
@@ -42,6 +46,10 @@ var hist_handle_ajax=function (result) {
 
 	if (r.action=='makeplot') {
 		init_histogram(r.data);
+		return;
+	}
+	if (r.action=='check_heatmap') {
+		update_heatmap(r.data);
 		return;
 	}
 }
@@ -411,6 +419,42 @@ var checkresize=function (e) {
 	}
 }
 
+
+function check_heatmap () {
+
+	
+	var url=window.location.href;
+	var data=url.split('/');	
+	var dataset=data[4];
+	var variabele=data[5];
+
+	data={cmd:'check_heatmap'};
+ 	$.ajax({url:"/histogram/"+dataset+"/"+variabele, 
+		type: "GET",
+		'data':data,
+
+		success: hist_handle_ajax,
+		error: hist_handle_ajax_error,
+	});
+
+}
+
+
+function update_heatmap (cols) {
+
+	var url=window.location.href;
+	var data=url.split('/');	
+	var dataset=data[4];
+	var variabele=data[5];
+
+    var s='';
+	  for (i=0; i<cols.length; i++) {
+	  	col=cols[i]
+	  	s2='/makemap/'+dataset+'/'+variabele+'/'+col;  	
+	  	s+='<li class="heatmapcols"> <a href="'+s2+'">'+col+'</a> </li>';
+	  }
+	 $('#heatmaps').html(s);
+}
 
 
 function init_histogram (histogram) {

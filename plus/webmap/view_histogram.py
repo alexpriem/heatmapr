@@ -9,7 +9,46 @@ from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
+from helpers import get_col_types
 import heatmap
+
+
+
+
+def get_label(filehandle, labeldict):
+        c=csv.reader(filehandle,delimiter=',')
+        for row in c:
+            key,label=row[0],row[1]
+            try:
+                key=float(key)
+                if key.is_integer():
+                    key=int(key)
+            except:
+                pass
+            labeldict[key]=label
+        return labeldict
+
+
+def get_labels (infodir, variabele):
+
+    f=None
+    try:
+        f=open(infodir+'/labels/defaults.csv','r')
+    except:
+        pass
+    labels={}
+    if f is not None:
+        labels=get_label(f, labels)
+
+    f=None
+    try:
+        f=open(infodir+'/labels/%s.csv' % variabele,'r')
+    except:
+        pass
+    if f is not None:
+        labels=get_label(f, labels)
+    return labels
+
 
 
 
@@ -118,7 +157,18 @@ def get_plot (infodir, variable, col_info=None, coltypes_bycol=None):
 
 
 
+def test_heatmap (col_info):
 
+    colname=col_info['colname']
+
+    if (col_info['datatype']!='int') and (col_info['datatype']!='float'):
+        return None
+    if (col_info['num_keys']<10):
+        return None
+    if (col_info['num_valid']<10):
+        return None
+
+    return colname
 
 
 @csrf_exempt
@@ -161,6 +211,19 @@ def histogram (request, dataset, variable):
             rowinfo['bins']=bins
 
             data={'action':'makeplot','data':rowinfo}
+
+        if cmd=='check_heatmap':
+
+            heatmaps=['ab','cd','ef']
+            heatmapcols=[]
+            for col in col_info:
+                heatmapcol=test_heatmap(col)
+                if heatmapcol is not None:
+                    heatmapcols.append(heatmapcol)
+
+            data={'action':'check_heatmap','data':heatmapcols}
+
+
         
         return HttpResponse(cjson.encode(data))
 

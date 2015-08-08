@@ -121,41 +121,6 @@ def get_cols (datadir, dataset, infodir):
 
 
 
-def get_label(filehandle, labeldict):
-        c=csv.reader(filehandle,delimiter=',')
-        for row in c:
-            key,label=row[0],row[1]
-            try:
-                key=float(key)
-                if key.is_integer():
-                    key=int(key)
-            except:
-                pass
-            labeldict[key]=label
-        return labeldict
-
-
-def get_labels (infodir, variabele):
-
-    f=None
-    try:
-        f=open(infodir+'/labels/defaults.csv','r')
-    except:
-        pass
-    labels={}
-    if f is not None:
-        labels=get_label(f, labels)
-
-    f=None
-    try:
-        f=open(infodir+'/labels/%s.csv' % variabele,'r')
-    except:
-        pass
-    if f is not None:
-        labels=get_label(f, labels)
-    return labels
-
-
 
 
 @csrf_exempt
