@@ -40,7 +40,7 @@
 <table> 
 <tr><td colspan=2>
   <div id="form_x_var" >
-    <label for="combo_x">X:</label>
+    <label for="x_var">X:</label>
     <select class="xyinput2 combobox" id="x_var">
       <option></option>
       {% for colname in colnames %}
@@ -51,7 +51,7 @@
 
  <td colspan=2>
   <div  id="form_y_var" >
-    <label for="combo_y">Y:</label>
+    <label for="y_var">Y:</label>
     <select class="xyinput2 combobox" id="y_var">
       <option></option>
       {% for colname in colnames %}
@@ -60,6 +60,20 @@
     </select>
   </div >
   </td>
+
+   <td colspan=2>
+  <div  id="form_split_var" >
+    <label for="split_var">Y:</label>
+    <select class="xyinput2 combobox" id="split_var">
+      <option></option>
+      {% for colname in colnames %}
+      <option value="{{colname}}">{{colname}}</option>
+      {% endfor %}
+    </select>
+  </div >
+  </td>
+
+
   </tr>
 
 
@@ -117,15 +131,28 @@
         <input class="xyinput " id="gradsteps" name="gradsteps" type="text" value="">
       </td>
 </tr>
+
+
+<tr>
+<td>
+    <div> <label class="xylabel" for="outfile">Outputfile:</label>
+          <input class="xyinput " id="outfile" name="outfile" type="text" value=""/> </div>
+          <a href="#" id="makemap" class="btn btn-primary"> Maak heatmap</a>
+          <a href="#" id="result"> Resultaat</a>
+    </div>
+<td>
+</tr>
+
+
 </table>
 
 
 </div>
 
 </div>
-<a href="#" id="makemap" class="btn btn-primary"> Maak heatmap</a> <a href="#" id="result"> Resultaat</a>
 
-
+<div>
+ 
   <script> 
   var defaults={{defaults|safe}};
   </script>

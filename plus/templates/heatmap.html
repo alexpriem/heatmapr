@@ -78,16 +78,6 @@
       </select>
     </ul>
 
-    {{#if show_size}}
-        <ul id="sel_size_{{widget_id}}" class="selbox" >
-        <li class="sel_heading"> Sizes: </li>
-        <select id="size_select_{{widget_id}}" data-widget="{{widget_id}}">
-        {{#sizes}}
-        <option class="sizename sidelist" value="{{size}}" data-widget="{{widget_id}}"> {{size_x_size}} </option>
-        {{/sizes}}
-        </select>
-        </ul>
-    {{/if}}
 
     <ul id="sel_swap_{{widget_id}}" class="selbox">
       <li class="sel_heading"> Gradient:</li>

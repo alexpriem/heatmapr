@@ -142,26 +142,11 @@ function heatmap (data, opties) {
 
 
 
+
 	this.bin_data=function  () {
 
 		console.log("bin_data");
 		var gradient_node=document.getElementById("cg_a");
-		if (gradient_node.need_data_recalc==false) return;
-
-		if (multimap) {
-			_this.bin_data_multi();
-			return;
-		}
-
-		var size=gradient_node.size;
-		if (size==1) {
-			_this.bin_data_1 ();
-			return;
-		}
-		if (size<1) {
-			console.error ('illegal size:',size);
-			return;
-		}
 
 		var opties=_this.opties;
 		var log_min=gradient_node.getAttribute('log_min');
@@ -172,7 +157,7 @@ function heatmap (data, opties) {
 		var y_steps=opties.y_steps;
 		var transform=gradient_node.getAttribute('transform');
 
-		console.log('bin_data:',x_steps, y_steps, size);
+		console.log('bin_data:',x_steps, y_steps);
 		console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
 
@@ -185,123 +170,7 @@ function heatmap (data, opties) {
 		var sum_y=_this.sum_y;
 		var transposebuffer=_this.transposebuffer;
 
-		console.log('xmean,ymean:\n', xmean, ymean, size, typeof(size))
-
-
-		for (var i=0; i<y_steps; i+=size) {
-			for (var j=0; j<x_steps;  j+=size) {
-				val=0;
-				ptr=j*y_steps+i;
-				for (cx=0; cx<size; cx++) {
-					for (cy=0; cy<size; cy++) {
-						val+=data[ptr+cx+cy*x_steps];
-					}
-				}				//cy
-
-				val=val/(size*size);
-				if (val>maxval) maxval=val;
-				if (val<minval) minval=val;
-				val=transform_value(val,transform, log_min);
-
-				if (weighx) {
-					val=(val/sum_x[j])*xmean;
-				}
-				if (weighy) {
-					val=(val/sum_y[i])*ymean;
-				}
-				transposebuffer[ptr2]=val;
-				ptr2++;
-			} //j
-	//		console.log("i:",i);
-		}	//i
-
-		_this.update_minmax(minval,maxval);
-	}
-
-
-	this.bin_data_multi=function () {
-
-		console.log("bin_data_multi", datasets.length);
-		var gradient_node=document.getElementById("cg_a");
-		var log_min=gradient_node.getAttribute('log_min');
-
-		var maxval=multimap_vals[0][0];
-		var minval=multimap_vals[0][0];
-
-		var x_steps=opties.x_steps;
-		var y_steps=opties.y_steps;
-		var transform=gradient_node.getAttribute('transform');
-		var transposebuffer=_this.transposebuffer;
-		var transposebuffer_cats=_this.transposebuffer_cats;
-		var weighx=opties.weighx;
-		var weighy=opties.weighy;
-		var xmean=_this.xmean;
-		var ymean=_this.ymean;
-		var sum_x=_this.sum_x;
-		var sum_y=_this.sum_y;
-
-
-		var values=multimap_vals[0];
-		var colors=multimap_colors[0];
-		var datalength=data.length;
-		console.log("bin_data_multi", data.length, x_steps, y_steps);
-		console.log("bin_data_multi", maxval,minval);
-
-		var ptr2=0;
-		var nr=0;
-		for (var i=0; i<y_steps; i++) {
-			for (var j=0; j<x_steps;  j++) {
-				val=0;
-				ptr=j*y_steps+i;
-				val=values[ptr];
-				if (val>maxval) maxval=val;
-				if (val<minval) minval=val;
-				//val=transform_value(val,transform, log_min);
-
-				transposebuffer[ptr2]=val;
-				transposebuffer_cats[ptr2]=colors[ptr];
-				ptr2++;
-			} //j
-	//		console.log("i:",i);
-		}	//i
-
-		_this.transposebuffer=transposebuffer;
-		_this.transposebuffer_cats=transposebuffer_cats;
-		//		console.log("i:",i);
-		console.log('bin_data_multi:', minval, maxval);
-		_this.update_minmax(minval,maxval);
-	}
-
-
-
-	this.bin_data_1=function  () {
-
-		console.log("bin_data_1");
-		var gradient_node=document.getElementById("cg_a");
-
-		var opties=_this.opties;
-		var log_min=gradient_node.getAttribute('log_min');
-
-		var weighx=opties.weighx;
-		var weighy=opties.weighy;
-		var x_steps=opties.x_steps;
-		var y_steps=opties.y_steps;
-		var transform=gradient_node.getAttribute('transform');
-
-		console.log('bin_data:',x_steps, y_steps, size);
-		console.log('weighx/y:', weighx, weighy);
-		var data=_this.data;
-
-		var ptr2=0;
-		var maxval=data[0];
-		var minval=data[0];
-		var xmean=_this.xmean;
-		var ymean=_this.ymean;
-		var sum_x=_this.sum_x;
-		var sum_y=_this.sum_y;
-		var transposebuffer=_this.transposebuffer;
-
-		console.log('xmean,ymean:\n', xmean, ymean, size, typeof(size))
+		console.log('xmean,ymean:\n', xmean, ymean, typeof(size))
 
 		ptr=0;
 		for (var i=0; i<y_steps; i++) {
@@ -343,7 +212,7 @@ function heatmap (data, opties) {
 		var inv_grad=gradient_node.getAttribute('gradient_invert')=='true';
 		var imgheight=opties.imgheight;
 		var imgwidth=opties.imgwidth;
-		var size=gradient_node.size;
+		var size=1; //gradient_node.size;
 
 		var histmax=_this.histmax;
 		var transposebuffer=_this.transposebuffer;
