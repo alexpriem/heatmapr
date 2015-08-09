@@ -23,8 +23,9 @@ function init_page() {
 		});
   */
 
-  $('#log').on('click',click_log);
+  $('#log').on('click',toggle_log);
   $('#checkmap').on('click',check_heatmap);
+  $('#stijl').on('click',toggle_style);
 
 }
 

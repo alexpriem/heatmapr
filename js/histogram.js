@@ -2,6 +2,7 @@
 var width=500;
 var height=500;
 var log=false;
+var style='filled';
 
 var current_histogram=null;
 
@@ -57,7 +58,7 @@ var hist_handle_ajax=function (result) {
 
 
 
-function click_log () {
+function toggle_log () {
 
 	if (log==true) {
 		log=false;
@@ -67,13 +68,26 @@ function click_log () {
 	init_histogram(histogram);
 }
 
+function toggle_style () {
+
+	if (style=='filled') {
+		style='line';
+		$('#stijl').text ('Barchart');
+	} else {
+		style='filled';
+		$('#stijl').text ('Lijn');
+	}	
+
+	init_histogram(histogram);
+}
+
 
 function plot_single_histogram (chart, histogram){
 
 	console.log('plot_single_histogram',histogram);
 	data=histogram.data;
 	stringdata=histogram.stringdata;
-	console.log('plot_single_histogram',histogram, data.length, stringdata.length);
+	console.log('plot_single_histogram:', data.length, stringdata.length);
 	if ((data.length==0) && ((stringdata.length>20) || (stringdata.length==0))) {
 		$('#single_value').text ("Teveel niet-numerieke data: "+histogram.num_keys+" unieke waardes.");
 		$('#overview').hide();
@@ -162,9 +176,7 @@ function plot_single_histogram (chart, histogram){
 
   
 
-	style='filled';
-	style='line';
-                      
+	                  
 
 	if (histogram.num_keys<14){				 // eigenlijk categorieindeling voor klein aantal keys
 		xScale.domain([histogram.minx,histogram.maxx+0.5]);
@@ -201,7 +213,7 @@ function plot_single_histogram (chart, histogram){
 			data.push(data[0]);
 		}
 		var linefunction=d3.svg.line()
-                      .x(function(d) { console.log(d[0], d[1],xScale(d[0])); return xScale(d[0]); })
+                      .x(function(d) { return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); })                      					
 					  .interpolate('step-after');
 
@@ -374,10 +386,6 @@ function get_range(elem) {
 
 function resize () {
 
-
-
-	var url=window.location.href;
-
 	var url=window.location.href;
 	var data=url.split('/');	
 	var dataset=data[4];
@@ -410,7 +418,7 @@ var checkresize=function (e) {
 	if (e.keyCode==13) {
 		console.log('resize');
 		el=this.id;
-		if ((el='miny') || (el=='maxy')) {
+		if ((el=='miny') || (el=='maxy')) {
 			var miny=$('#miny').val()
 			var maxy=$('#maxy').val()
 			histogram.miny=miny;
@@ -464,7 +472,7 @@ function update_heatmap (cols) {
 function init_histogram (histogram) {
 
 	current_histogram=histogram;
-	console.log(histogram);
+	//console.log(histogram);
 	$('.xyinput').on('keyup',checkresize);
 	data_div=document.getElementById('histogram_container');
     s='';

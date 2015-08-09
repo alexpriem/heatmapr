@@ -185,7 +185,8 @@ def histogram (request, dataset, variable):
     rowinfo['title']=titles.get(variable, variable)
 
     if request.is_ajax()==True:
-        cmd=request.GET['cmd']            
+        cmd=request.GET['cmd']
+        print 'POST:',cmd
         if cmd=='reset':           
             rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol)
             data={'action':'makeplot','data':rowinfo}  # plus histogram
@@ -195,6 +196,15 @@ def histogram (request, dataset, variable):
             miny=float(request.GET.get('miny',0))
             maxy=float(request.GET.get('maxy',100))
             bins=int(request.GET.get('bins',100))
+            # sanity checks
+            if minx>maxx:
+                minx,maxx=maxx,minx
+            if miny>maxy:
+                miny,maxy=maxy,miny
+            if bins<2:
+                bins=2
+            if bins>500:
+                bins=500
             print 'RESIZE',minx,maxx,bins
             rowinfo=get_plot(infodir, variable,col_info, coltypes_bycol)
             rowinfo['minx']=minx
