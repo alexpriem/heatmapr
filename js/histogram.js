@@ -142,8 +142,7 @@ function plot_single_histogram (chart, histogram){
   	maxy=histogram.maxy;
   	var extrascale='';
   	if(histogram.maxy>10*histogram.maxy2) {
-  		maxy=histogram.maxy2;
-  		extrascale='*';
+  		maxy=histogram.maxy2;  		
   		if(histogram.maxy2>10*histogram.maxy3) {
   			maxy=histogram.maxy2;
   			extrascale='**';
@@ -257,6 +256,11 @@ function plot_single_histogram (chart, histogram){
         .attr('font-size','12px')
         .call(yAxis);
 
+
+    var title=histogram.title;
+    if (title.length>40) {
+    	title=title.slice(0,40);
+    }
   	chart.append("text")      // text label for the x axis
 	    	.attr("class","yaxis")
 	        .attr("x", width/2+70 )
@@ -265,7 +269,7 @@ function plot_single_histogram (chart, histogram){
 	  		.attr("font-size", fontsize+"px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
-	        .text(histogram.colname+extrascale);
+	        .text(title);
 
 
 // missings/strings in histogram data

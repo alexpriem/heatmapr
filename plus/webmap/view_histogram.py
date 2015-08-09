@@ -9,7 +9,7 @@ from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
-from helpers import get_col_types
+from helpers import get_col_types, read_csvfile
 import heatmap
 
 
@@ -181,7 +181,8 @@ def histogram (request, dataset, variable):
     col_info, coltypes_bycol=get_col_types(infodir)
     rowinfo=coltypes_bycol[variable]
     rowinfo['labels']=get_labels(infodir,variable)
-
+    titles=read_csvfile (infodir+'/labels.csv')
+    rowinfo['title']=titles.get(variable, variable)
 
     if request.is_ajax()==True:
         cmd=request.GET['cmd']            
