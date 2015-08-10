@@ -119,12 +119,13 @@ function plot_single_histogram (chart, histogram){
 	yoffset=50;
 	xoffset=50;
 	bins=data.length;
-	if (bins>100) bins=100;
+	if (bins>500) bins=500;
 	bin_width= plotwidth/bins;
 	console.log('bin_width:', bin_width, histogram.num_keys)
-	if (bin_width>20) {
-		bin_width=20;
+	if (bin_width>100) {
+		bin_width=100;
 	}
+
 	
 	maxy=histogram.maxy;
 	fontsize=15;
@@ -469,6 +470,45 @@ function update_heatmap (cols) {
 }
 
 
+function click_histogram (evt) {
+
+	x=parseInt(evt.pageX-$(this).position().left);
+	y=parseInt(evt.pageY-$(this).position().top);
+	worldX=(x-xoffset)*(histogram.maxx-histogram.minx)/(width-2*xoffset)+histogram.minx;	
+	N=histogram.data.length-1;
+	binnr=parseInt((worldX-histogram.minx)/(histogram.maxx-histogram.minx)*N);
+	console.log('click_histogram:',x,y);
+	console.log(worldX, binnr, histogram.data[binnr][1]);
+	
+
+	y1=50;
+	y2=45;
+	x1=x-5;
+	x2=x+5;
+	var chart = d3.select("#chart_0");
+	$('#marker').remove();
+	$('#markertxt').remove();
+	chart.append("svg:path")
+			.attr("id",'marker')
+    		.attr("d", "M"+x+","+y1+"L"+x1+","+y2+"L"+x2+","+y2+"L"+x+","+y1)
+			.attr("stroke",'#3a3a3a')
+			.attr("stroke-width",1)
+			.attr("fill",'#3a3a3a');
+	
+	chart.append("text")      // text label for the x axis
+			.attr("id",'markertxt')
+	    	.attr("class","yaxis")
+	        .attr("x", x1 )
+	        .attr("y", y1-20)
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", fontsize+"px")
+	  		.attr("font-weight", "bold")
+	        .style("text-anchor", "middle")
+	        .text(worldX+':'+histogram.data[binnr][1]);
+
+}
+
+
 function init_histogram (histogram) {
 
 	current_histogram=histogram;
@@ -490,4 +530,6 @@ function init_histogram (histogram) {
 					.attr("width", width+extrawidth)
 					.attr("height", height);	
 	svg=plot_single_histogram(chart, histogram);
+
+	$('#chart_0').on('click',click_histogram);
 }
