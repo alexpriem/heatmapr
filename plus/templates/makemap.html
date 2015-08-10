@@ -61,6 +61,19 @@
   </div >
   </td>
 
+<td colspan=2>
+  <div  id="form_weight_var" >
+    <label for="weight_var">Y:</label>
+    <select class="xyinput2 combobox" id="weight_var">
+      <option></option>
+      {% for colname in colnames %}
+      <option value="{{colname}}">{{colname}}</option>
+      {% endfor %}
+    </select>
+  </div >
+  </td>
+
+
    <td colspan=2>
   <div  id="form_split_var" >
     <label for="split_var">Y:</label>

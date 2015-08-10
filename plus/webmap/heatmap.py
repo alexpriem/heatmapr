@@ -388,13 +388,19 @@ class heatmap:
                     val=float(cols[weightcolnr])
 		        
                 if x_data_type=='nominal':
-                    x=float(x_txt)
+                    try:
+                        x=float(x_txt)
+                    except:
+                        pass
                 else:
                     x=datetime.datetime.strptime(x_txt,x_dateformat)
                     x=self.munge_date(x, x_data_type, xmin_date)
 
                 if y_data_type=='nominal':
-                    y=float(y_txt)
+                    try:
+                        y=float(y_txt)
+                    except:
+                        pass
                 else:
                     y=datetime.datetime.strptime(y_txt,y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
@@ -440,6 +446,8 @@ class heatmap:
         keys_x={}
         keys_y={}
         total=0
+        xnullhist={}
+        ynullhist={}
 
         fx=open(self.infodir+'/split/%s.csv' % xcol)
         fy=open(self.infodir+'/split/%s.csv' % ycol)
@@ -453,63 +461,42 @@ class heatmap:
                 line=line.replace(',','.')
             linenr+=1
             if linenr % 10000==0:
-                print linenr                        
-            try:
-                val=1                
-                if weight_var is not None:
-                    val=fweight.readline()
+                print linenr
+            val=1
+            if weight_var is not None:
+                val=fweight.readline()
                     
                 
-                if x_data_type=='nominal':
+            if x_data_type=='nominal':
+                try:
                     x=float(x_txt)
-                else:                  
-                    if x_txt!='':
-                        x=datetime.datetime.strptime(x_txt,x_dateformat)
-                    else:
-                        x=xmin_date
-                   # print x
-                    x=self.munge_date(x, x_data_type, xmin_date)
-                    #print x
-
-                if y_data_type=='nominal':
-        	    y=float(y_txt)
+                except:
+                    xnull=xnullhist.get(x_txt,{})
+                    xnull[y_txt]=xnull.get(y_txt,0)+val
+                    xnullhist[x_txt]=xnull
+            else:
+                if x_txt!='':
+                    x=datetime.datetime.strptime(x_txt,x_dateformat)
                 else:
-                    if y_txt!='':
-                        y=datetime.datetime.strptime(y_txt,y_dateformat)
-                    else:
-                        y=ymin_date
-                    y=self.munge_date(y, y_data_type, ymin_date)
-            except ValueError:
-                if (',' in x_txt) or (',' in y_txt):
-                    self.convert_comma=True 
-                    x_txt=x_txt.replace(',','.')
-                    y_txt=y_txt.replace(',','.')
-                if x_data_type=='nominal':                    
-                    if x_txt!='':
-                        x=float(x_txt)
-                    else:
-                        x=0
-                else:                   
-                    if x_txt!='':
-                        x=datetime.datetime.strptime(x_txt,x_dateformat)
-                    else:
-                        x=xmin_date
-                    x=self.munge_date(x, x_data_type, xmin_date)
+                    x=xmin_date
+               # print x
+                x=self.munge_date(x, x_data_type, xmin_date)
+                #print x
 
+            if y_data_type=='nominal':
+                try:
+                    y=float(y_txt)
+                except:
+                    ynull=ynullhist.get(y_txt,{})
+                    ynull[x_txt]=ynull.get(x_txt,0)+val
+                    ynullhist[x_txt]=ynull
 
-                if y_data_type=='nominal':                    
-                    if y_txt!='':
-                        print 'y_txt:', y_txt
-                        y=float(y_txt)
-                    else:
-                        y=0
-                else:                
-                    if y_txt!='':                        
-                        y=datetime.datetime.strptime(y_txt,y_dateformat)
-                    else:
-                        y=ymin_date
-                    y=self.munge_date(y, y_data_type, ymin_date)
-                            
+            else:
+                if y_txt!='':
+                    y=datetime.datetime.strptime(y_txt,y_dateformat)
+                else:
+                    y=ymin_date
+                y=self.munge_date(y, y_data_type, ymin_date)
 
             
             if self.x_relative==False:                                                
