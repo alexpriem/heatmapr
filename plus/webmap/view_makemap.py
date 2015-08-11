@@ -53,7 +53,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
           y_steps=500,
 
           gradmin=0,
-          gradmax=20,
+          gradmax='max',
           gradsteps=20,
           displaymode='heatmap'
             )
@@ -108,6 +108,32 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             args['y_min']=y_types.get(args['y_min'],args['y_min'])
             args['x_max']=x_types.get(args['x_max'],args['x_max'])
             args['y_max']=y_types.get(args['y_max'],args['y_max'])
+
+            xkeys=args['x_steps']
+            if x_types['num_keys']<args['x_steps']:
+                xkeys=x_types['num_keys']
+                setkeys=True
+            ykeys=args['y_steps']
+            if y_types['num_keys']<args['y_steps']:
+                ykeys=y_types['num_keys']
+                setkeys=True
+            if setkeys:
+                keys=xkeys
+                if ykeys<xkeys:
+                    keys=ykeys
+
+                prevk=10
+                for k in [25,50,100,125,250,500]:
+                    if keys<k:
+                        keys=prevk
+                        break
+                    prevk=k
+                args['x_steps']=keys
+                args['y_steps']=keys
+
+                print args['x_steps'],args['y_steps']
+
+
 
             print args['x_min'], args['x_max'], args['y_min'],args['y_max']
             h=heatmap.heatmap()

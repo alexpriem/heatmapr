@@ -40,7 +40,7 @@ def serve_heatmap_js (request, dataset, path):
     f.close()
     
     print 'filesize:', len(txt)
-    return HttpResponse(txt, mimetype="application/x-javascript")
+    return HttpResponse(txt, content_type="application/x-javascript")
 
 
 def view_heatmaps (request, dataset):

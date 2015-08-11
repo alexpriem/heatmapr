@@ -582,9 +582,7 @@ class heatmap:
                 	    
             except IndexError:
                 print 'IndexError (%d,%d), line nr %d:' % (hx,hy,linenr)
-                print 'inputdata:',line
-                sys.exit()
-
+                continue
         
 
         #print heatmap
