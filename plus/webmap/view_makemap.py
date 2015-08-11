@@ -55,7 +55,9 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
           gradmin=0,
           gradmax='max',
           gradsteps=20,
-          displaymode='heatmap'
+          displaymode='heatmap',
+          imgwidth=500,
+          imgheight=500
             )
 
     col_info, coltypes_bycol=get_col_types(infodir)
@@ -110,6 +112,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             args['y_max']=y_types.get(args['y_max'],args['y_max'])
 
             xkeys=args['x_steps']
+            setkeys=False
             if x_types['num_keys']<args['x_steps']:
                 xkeys=x_types['num_keys']
                 setkeys=True
@@ -122,8 +125,14 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
                 if ykeys<xkeys:
                     keys=ykeys
 
-                prevk=10
-                for k in [25,50,100,125,250,500]:
+                width=args['imgwidth']
+                stepsizes=[]
+                for i in range(50,0,-1):
+                    if (width/(i*1.0))==int(width/i):
+                        stepsizes.append(int(width/i))
+
+                prevk=stepsizes[0]
+                for k in stepsizes[1:]:
                     if keys<k:
                         keys=prevk
                         break
@@ -131,7 +140,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
                 args['x_steps']=keys
                 args['y_steps']=keys
 
-                print args['x_steps'],args['y_steps']
+               # print args['x_steps'],args['y_steps']
 
 
 
