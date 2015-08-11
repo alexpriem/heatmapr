@@ -747,37 +747,6 @@ class heatmap:
             self.gradmax=gradmax        
 
         if self.multi_nr==0:
-                js+='var opties=[];\n'
-        optiejs='opties.push({\n'
-        for k in sorted(args.keys()):
-            v=getattr(self,k)
-            if v is None:
-                optiejs+='"%s":null,\n' % (k)                
-                continue
-            t=type(v)
-            
-            if (t==str) or (t==unicode):                
-                v=v.replace('\\','/')
-                optiejs+='"%s":"%s",\n' % (k,v)
-                continue
-            if t==bool:
-                if v:
-                    optiejs+='"%s":true,\n' % (k)
-                else:                    
-                    optiejs+='"%s":false,\n' % (k)
-                continue
-            if isinstance(v, datetime.date):
-                optiejs+='"%s":new Date("%s")\n,' % (k,v.isoformat())
-                continue
-            optiejs+='"%s":%s,\n' % (k,v)
-        optiejs+='});\n\n'
-        if do_multimap:
-            for filename in datakeys:   # datakeys alleen gebruiken om te loopen over aantal opties
-                js+=optiejs
-        else:
-            js+=optiejs
-
-        if self.multi_nr==0:
             js+='var sum_x=[];\n';
         js+='sum_x.push(['
         txt=''
@@ -857,10 +826,44 @@ class heatmap:
                 
             js+=txt[:-1]+']);\n'
 
-        
-                    
 
         self.js=self.js+js
+
+        optiejs=''
+        if self.multi_nr==0:
+                optiejs='var opties=[];\n'
+        optiejs+='opties.push({\n'
+        for k in sorted(args.keys()):
+            v=getattr(self,k)
+            if v is None:
+                optiejs+='"%s":null,\n' % (k)
+                continue
+            t=type(v)
+
+            if (t==str) or (t==unicode):
+                v=v.replace('\\','/')
+                optiejs+='"%s":"%s",\n' % (k,v)
+                continue
+            if t==bool:
+                if v:
+                    optiejs+='"%s":true,\n' % (k)
+                else:
+                    optiejs+='"%s":false,\n' % (k)
+                continue
+            if isinstance(v, datetime.date):
+                optiejs+='"%s":new Date("%s")\n,' % (k,v.isoformat())
+                continue
+            optiejs+='"%s":%s,\n' % (k,v)
+        optiejs+='});\n\n'
+
+        optiefile=open(self.infodir+"/heatmaps/%s_meta.js" % self.outfile,'w')
+        optiefile.write(optiejs)
+        optiefile.close()
+
+
+                    
+
+
         
         if self.multi_nr==0:
             f=open(self.infodir+"/heatmaps/%s.js" % self.outfile,"w")

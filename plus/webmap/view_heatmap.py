@@ -40,7 +40,7 @@ def serve_heatmap_js (request, dataset, path):
     f.close()
     
     print 'filesize:', len(txt)
-    return HttpResponse(txt, content_type='application/liquid')
+    return HttpResponse(txt, mimetype="application/x-javascript")
 
 
 def view_heatmaps (request, dataset):
@@ -57,7 +57,12 @@ def view_heatmaps (request, dataset):
     heatmapfiles=os.listdir(heatmapdir)
     heatmaps=[]
     for h in heatmapfiles:
-        x,y,index=h.split('_')
+        parts=h.split('_')
+        if (len(parts)==4):
+            continue
+        if (len(parts)==3):
+            x,y,index=parts
+
         title='--'
         heatmaps.append({'x':x,'y':y,'title':title,'filename':h})
     args={'dataset':dataset,'heatmaps':heatmaps}

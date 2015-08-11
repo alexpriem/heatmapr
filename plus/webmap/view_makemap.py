@@ -101,15 +101,15 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         if cmd=='makemap':
             args['infodir']=infodir
             args['outfile']=args['x_var']+'_'+args['y_var']+'_0'
-            x_types=coltypes_bycol[args['x_var']]
+            x_types=coltypes_bycol[args['x_var']]   # info van variabelenaam x-kolom ophalen
             y_types=coltypes_bycol[args['y_var']]
+
             args['x_min']=x_types.get(args['x_min'],args['x_min'])
-            args['y_min']=x_types.get(args['y_min'],args['y_min'])
+            args['y_min']=y_types.get(args['y_min'],args['y_min'])
             args['x_max']=x_types.get(args['x_max'],args['x_max'])
-            args['y_max']=x_types.get(args['y_max'],args['y_max'])
+            args['y_max']=y_types.get(args['y_max'],args['y_max'])
 
-
-            print args['x_min'],args['x_max'],args['y_min'],args['y_max']
+            print args['x_min'], args['x_max'], args['y_min'],args['y_max']
             h=heatmap.heatmap()
             h.make_heatmap(args)
             data={'msg':'ok'}
