@@ -76,11 +76,11 @@
 
 
    <td colspan=2>
-  <div  id="form_split_var" >
-    <label for="split_var">Grouping:</label>
-    <select class="xyinput2 combobox" id="split_var">
+  <div  id="form_split1_var" >
+    <label for="split1_var">Grouping:</label>
+    <select class="xyinput2 combobox" id="split1_var">
       <option></option>
-      {% for colname in colnames %}
+      {% for colname in groupcolnames %}
       <option value="{{colname}}">{{colname}}</option>
       {% endfor %}
     </select>

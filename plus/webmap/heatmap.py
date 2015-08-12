@@ -1,4 +1,4 @@
-import random, os, sys, inspect, json, bisect, gzip, csv
+import random, os, sys, inspect, json, bisect, csv
 from math import log10
 import datetime #.datetime.strptime as strptime
 #from datetime.datetime import strptime
@@ -24,104 +24,105 @@ class heatmap:
     def check_args(self, args):    # alleen defaults zetten.
 
         defaults=[
-            ['infodir','',True,''],
-            ['sep',';',False,''],
-            ['convert_comma',False,False,''],
+            ['infodir','',True],
+            ['sep',';',False],
+            ['convert_comma',False,False],
 
-            ['x_var','',True,''],
-            ['x_label',None,False,''],
-            ['x_min','',True,''],
-            ['x_max','',True,''],
-            ['x_steps',None,False,''],
-            ['x_fuzz',0,False,''],
-            ['x_fill',0,False,''],
-            ['x_log',False,False,''],
-            ['x_data_type','nominal',False,''],
-            ['x_dateformat','%Y%m%d',False,''],
-            ['x_relative', False,False,''],
-            ['x_relative_min', 0,False,''],
-            ['x_relative_max', 100,False,''],
+            ['x_var','',True],
+            ['x_label',None,False],
+            ['x_min','',True],
+            ['x_max','',True],
+            ['x_steps',None,False],
+            ['x_fuzz',0,False],
+            ['x_fill',0,False],
+            ['x_log',False,False],
+            ['x_data_type','nominal',False],
+            ['x_dateformat','%Y%m%d',False],
+            ['x_relative', False,False],
+            ['x_relative_min', 0,False],
+            ['x_relative_max', 100,False],
             
             
-            ['y_var','',True,''],
-            ['y_label',None,False,''],
-            ['y_min','',True,''],
-            ['y_max','',True,''],
-            ['y_steps',None,False,''],
-            ['y_fuzz',0,False,''],
-            ['y_fill',0,False,''],
-            ['y_log',False,False,''],
-            ['y_data_type','nominal',False,''],
-            ['y_dateformat','%Y%m%d',False,''],
-            ['y_relative', False,False,''],
-            ['y_relative_min', 0,False,''],
-            ['y_relative_max', 100,False,''],
+            ['y_var','',True],
+            ['y_label',None,False],
+            ['y_min','',True],
+            ['y_max','',True],
+            ['y_steps',None,False],
+            ['y_fuzz',0,False],
+            ['y_fill',0,False],
+            ['y_log',False,False],
+            ['y_data_type','nominal',False],
+            ['y_dateformat','%Y%m%d',False],
+            ['y_relative', False,False],
+            ['y_relative_min', 0,False],
+            ['y_relative_max', 100,False],
 
-            ['weight_var',None,False,''],
+            ['weight_var',None,False],
 
-            ['gradmin',0,False,''],
-            ['gradmax','max',False,''],
-            ['gradsteps',40,False,''],
-            
-            ['gradient_invert',False,False,''],
-            ['gradcenter',50,False,''],
-            ['gradient_bimodal',False,False,''],
+            ['split1_var',None,False],
+            ['split2_var',None,False],
 
-            ['imgwidth',500,False,''],
-            ['imgheight',500,False,''],
-            ['outfile','',True,''],
+            ['gradmin',0,False],
+            ['gradmax','max',False],
+            ['gradsteps',40,False],
             
-            ['fontsize',16,False,''],
-            ['numticks',None,False,''],
-            
-            
-            ['title','',False,''],
-            ['dump_html',True,False,'full html output'],            
-            ['dump_csv',False,False,'dump output to csv'],    
-            ['colormap','blue',False,''],
-            ['missing_color','min',False,''],
-            ['size','1',False,''],
-            ['transform','linear',False,''],
-            ['log_min',1,False,''],
-            
+            ['gradient_invert',False,False],
+            ['gradcenter',50,False],
+            ['gradient_bimodal',False,False],
 
-            ['displaymode','heatmap',False,''],
-            ['stats_enabled', True, False,''],
-            ['plot_mean', False, False,''],
-            ['plot_mean_pixelsize',2, False,''],
-            ['plot_mean_color',[0,0,0,255], False,''],
+            ['imgwidth',500,False],
+            ['imgheight',500,False],
+            ['outfile','',True],
             
-            ['plot_median', False, False,''],
-            ['plot_median_pixelsize',2, False,''],
-            ['plot_median_color',[0,0,255,255], False,''],
+            ['fontsize',16,False],
+            ['numticks',None,False],
+            
+            
+            ['title','',False],
+            ['dump_html',True,False],
+            ['dump_csv',False,False],
+            ['colormap','blue',False],
+            ['missing_color','min',False],
+            ['size','1',False],
+            ['transform','linear',False],
+            ['log_min',1,False],
 
-            ['info_datafile',None,False,''],
-            ['info_pixelsize',2, False,''],
-            ['info_color',[255,0,0,255], False,''],
+            ['displaymode','heatmap',False],
+            ['stats_enabled', True, False],
+            ['plot_mean', False, False],
+            ['plot_mean_pixelsize',2, False],
+            ['plot_mean_color',[0,0,0,255], False],
+            
+            ['plot_median', False, False],
+            ['plot_median_pixelsize',2, False],
+            ['plot_median_color',[0,0,255,255], False],
+
+            ['info_datafile',None,False],
+            ['info_pixelsize',2, False],
+            ['info_color',[255,0,0,255], False],
                     
-            ['dot_color','blue',False,''],
-            ['dot_dotsize',5,False,''],
-            ['dot_boxsize',0.6,False,''],
-            ['dot_use_gradient',False,False,''],
-            ['dot_show_background',True,False,''],
+            ['dot_color','blue',False],
+            ['dot_dotsize',5,False],
+            ['dot_boxsize',0.6,False],
+            ['dot_use_gradient',False,False],
+            ['dot_show_background',True,False],
             
-            ['text_show_background',True,False,''],
+            ['text_show_background',True,False],
             
-            ['weighx',False,False,''],
-            ['weighy',False,False,''],
+            ['weighx',False,False],
+            ['weighy',False,False],
 
 
-            ['multimap', [],False,''],
-            ['multimap_labels',{},False,''],
-            
-            ['multi_nr', 0,False,''],
-            ['multi_cols', 3,False,''],
+            ['split1_var',None,False],
+            ['split2_var',None,False],
 
-            ['annotate',{},False,''],
+            ['multimap_labels',{},False],
+
+            ['annotate',{},False],
             
             
-            ['controltype','notflat', False,''], 
-            ['debuglevel',0, False,''],            
+            ['controltype','notflat', False],
+            ['debuglevel',0, False],
         ]
 
 
@@ -279,7 +280,7 @@ class heatmap:
 
 
 
-    def make_heatmap (self, args):
+    def make_heatmap (self, args, heatmapnr=0):
 
         print 'make_heatmap'
 
@@ -338,11 +339,13 @@ class heatmap:
             self.x_label=xcol
         if self.y_label is None:
             self.y_label=ycol            
-            
+
+
+        split1_var=self.split1_var
+        split2_var=self.split2_var
 
         do_multimap=False
-        if len(self.multimap)>0:
-            multicols=[cols.index(m) for m in self.multimap]
+        if split1_var!='' or split2_var!='':
             do_multimap=True
 
 
@@ -378,8 +381,7 @@ class heatmap:
                     x_txt=x_txt.replace(',','.')
                     y_txt=y_txt.replace(',','.')
 
-                val=1                
-                cols=line.split(sep)
+                val=1
                 if weight_var is not None:
                     val=fweight.readline()
 
@@ -451,23 +453,35 @@ class heatmap:
         xnullhist={}
         ynullhist={}
 
-        fx=open(self.infodir+'/split/%s.csv' % xcol)
-        fy=open(self.infodir+'/split/%s.csv' % ycol)
+        fx=open('%s/split/%s.csv' % (self.infodir,xcol))
+        fy=open('%s/split/%s.csv' % (self.infodir,ycol))
+        fweight=None
         if (weight_var is not None):
-            fweight=open(self.infodir+'/split/%s.csv' % weight_var)
+            fweight=open('%s/split/%s.csv' % (self.infodir, weight_var))
+        split1file=None
+        split2file=None
+        if do_multimap:
+            split1file=open('%s/split/%s.csv' % (self.infodir, split1_var))
+        else:
+            split2file=open('%s/split/%s.csv' % (self.infodir, split2_var))
         for x_txt, y_txt in zip (fx, fy):
 
-            if x_txt=='\n' or y_txt=='\n':
-                continue
+            x_txt=x_txt.strip()
+            y_txt=y_txt.strip()
             if self.convert_comma:
-                line=line.replace(',','.')
+                x_txt=x_txt.replace(',','.')
+                y_txt=y_txt.replace(',','.')
             linenr+=1
             if linenr % 10000==0:
                 print linenr
             val=1
             if weight_var is not None:
-                val=fweight.readline()
-                    
+                val=fweight.readline().strip()
+            if split1file is not None:
+                split1_data=split1file.readline().strip()
+            if split2file is not None:
+                split2_data=split2file.readline().strip()
+
                 
             if x_data_type=='nominal':
                 try:
@@ -476,6 +490,7 @@ class heatmap:
                     xnull=xnullhist.get(x_txt,{})
                     xnull[y_txt]=xnull.get(y_txt,0)+val
                     xnullhist[x_txt]=xnull
+                    x=None
             else:
                 if x_txt!='':
                     x=datetime.datetime.strptime(x_txt,x_dateformat)
@@ -492,7 +507,7 @@ class heatmap:
                     ynull=ynullhist.get(y_txt,{})
                     ynull[x_txt]=ynull.get(x_txt,0)+val
                     ynullhist[x_txt]=ynull
-
+                    y=None
             else:
                 if y_txt!='':
                     y=datetime.datetime.strptime(y_txt,y_dateformat)
@@ -500,6 +515,8 @@ class heatmap:
                     y=ymin_date
                 y=self.munge_date(y, y_data_type, ymin_date)
 
+            if x is None or y is None:
+                continue
             
             if self.x_relative==False:                                                
                 if x_log:
@@ -560,8 +577,10 @@ class heatmap:
             
             if do_multimap:
                 heatmapname=''
-                for splitcol in multicols:                    
-                    heatmapname+='_'+cols[splitcol]
+                if split2_var!='':
+                    heatmapname=split1_data +'_'+ split2_data
+                else:
+                    heatmapname=split1_data
                 heatmap=heatmaps.get(heatmapname,None)
                 if heatmap is None:
                     heatmap=[[0]*ypixels for i in range(xpixels)]
@@ -700,7 +719,7 @@ class heatmap:
 
 # dump data
         js=''
-        if self.multi_nr==0 and do_multimap==False:
+        if do_multimap==False:
             js='var multimap=false;\nvar nr_heatmaps=1;\n\nvar data=[];\n'
     
         gradmin=self.heatmap[0][0]
@@ -746,7 +765,7 @@ class heatmap:
         if getattr(self,'gradmax') is None:
             self.gradmax=gradmax        
 
-        if self.multi_nr==0:
+        if heatmapnr==0:
             js+='var sum_x=[];\n';
         js+='sum_x.push(['
         txt=''
@@ -758,8 +777,8 @@ class heatmap:
             nr+=1
             txt+=str(sumx)+','
         js+=txt[:-1]+']);\n\n'
-        
-        if self.multi_nr==0:
+
+        if heatmapnr==0:
             js+='var sum_y=[];\n';
         js+='sum_y.push(['
         txt=''
@@ -772,7 +791,7 @@ class heatmap:
             txt+=str(sumy)+','
         js+=txt[:-1]+']);\n\n'
 
-        if self.multi_nr==0:
+        if heatmapnr==0:
             js+='var xmean=[];\n'
             js+='var ymean=[];\n'
         js+='var totalsum=%s;\n' % str(totalsum)
@@ -781,7 +800,7 @@ class heatmap:
     
 
         if self.stats_enabled:   #mean
-            if self.multi_nr==0:
+            if heatmapnr==0:
                 js+='var mean_x=[];\n'
             js+='mean_x.push(['
             txt=''
@@ -796,7 +815,7 @@ class heatmap:
             js+=txt[:-1]+']);\n\n'
 
         if self.stats_enabled:  # median
-            if self.multi_nr==0:
+            if heatmapnr==0:
                 js+='var median_x=[];\n'
             js+='median_x.push(['
             txt=''
@@ -812,7 +831,7 @@ class heatmap:
 
 
         if self.info_datafile:
-            if self.multi_nr==0:
+            if heatmapnr==0:
                 js+='var extradata=[];\n'
             js+='extradata.push(['
             txt=''
@@ -830,7 +849,7 @@ class heatmap:
         self.js=self.js+js
 
         optiejs=''
-        if self.multi_nr==0:
+        if heatmapnr==0:
                 optiejs='var opties=[];\n'
         optiejs+='opties.push({\n'
         optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % self.outfile,'wb')
@@ -865,23 +884,11 @@ class heatmap:
         optiefile.close()
 
 
-
-                    
-
-
         
-        if self.multi_nr==0:
+        if heatmapnr==0:
             f=open(self.infodir+"/heatmaps/%s.js" % self.outfile,"w")
         else:
             f=open(self.infodir+"/heatmaps/%s.js"% self.outfile ,"a")
         f.write(js)
         f.close()
             
-
-        
-
-        
-
-
-
-

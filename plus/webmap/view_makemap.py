@@ -22,10 +22,13 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
 
         bins_required=min_bins[heatmaptype]
         colnames=[]
+        groupcolnames=[]
         for col in col_info:
             if (col['datatype']!='char') and (col['num_keys']>bins_required):
                 colnames.append(col['colname'])
-        return colnames
+            if (col['num_keys']<20) and col['num_keys']>(1+col['empty']):
+                groupcolnames.append(col['colname'])
+        return colnames, groupcolnames
 
 
 
@@ -53,6 +56,8 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         y_max='max',
         y_steps=500,
 
+        split1_var='AR19',
+        split2_var='',
         gradmin=0,
         gradmax='max',
         gradsteps=20,
@@ -66,7 +71,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
     col_info, coltypes_bycol=get_col_types(infodir)
    # print col_info
-    colnames=get_colnames_for_heatmap (infodir,  defaults['displaymode'], col_info)
+    colnames, groupcolnames=get_colnames_for_heatmap (infodir,  defaults['displaymode'], col_info)
     if len(colnames)<2:
         msg='Geen heatmaps te maken van deze dataset'
         template = loader.get_template('makemap.html')
@@ -102,8 +107,8 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
         if cmd=='update':
             col_info, coltypes_bycol=get_col_types(infodir)
-            colnames=get_colnames_for_heatmap (infodir, args['displaymode'], col_info)
-            data={'msg':'','colnames':colnames}
+            colnames,groupcolnames=get_colnames_for_heatmap (infodir, args['displaymode'], col_info)
+            data={'msg':'','colnames':colnames,'groupcolnames':groupcolnames}
 
         if cmd=='makemap':
             args['infodir']=infodir
@@ -118,9 +123,6 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
 
                # print args['x_steps'],args['y_steps']
-
-
-
             print args['x_min'], args['x_max'], args['y_min'],args['y_max']
             h=heatmap.heatmap()
             h.make_heatmap(args)
@@ -170,6 +172,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     args_json=cjson.encode(args)
     template = loader.get_template('makemap.html')    
     context = RequestContext(request, {'colnames':colnames,
+                                       'groupcolnames':groupcolnames,
                                        'dataset':dataset,
                                        'defaults':args,'defaults_json':args_json,
                                        'colormapnames':colormapnames})

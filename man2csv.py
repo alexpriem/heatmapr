@@ -5,10 +5,7 @@ class man2csv:
     def __init__(self):    
         pass
 
-
-
-    def read(self): 
-        
+    def read(self):
         f=open(self.infile)        
         if self.append:
             g=open(self.outfile,'a')
@@ -40,12 +37,12 @@ class man2csv:
     def check_args(self, args):    # alleen defaults zetten.
 
         defaults=[
-            ['infile',';',True,''],
-            ['outfile',';',False,''],
-            ['sep',';',False,''],
-            ['append',False,False,''],
-            ['variables',[],False,''],
-            ['matches',[],False,'']            
+            ['infile',';',True],
+            ['outfile',';',False],
+            ['sep',';',False],
+            ['append',False,False],
+            ['variables',[],False],
+            ['matches',[],False]
         ]
        
 
