@@ -9,7 +9,7 @@ from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
-from helpers import get_col_types
+from helpers import get_col_types, read_csvfile
 import heatmap
 
 
@@ -88,16 +88,17 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         #print request.POST
         args={}
         cmd=request.POST['cmd']
-        for k in defaults.keys():
-            val=request.POST[k]
+        for key, val in request.POST.iteritems():
+            if key=='cmd':
+                continue
             try:
                 v=float(val)                
                 if v.is_integer():
-                    args[k]=int(v)                    
+                    args[key]=int(v)
                 else:
-                    args[k]=v                    
+                    args[key]=v
             except:                
-                args[k]=val
+                args[key]=val
 
         if cmd=='update':
             col_info, coltypes_bycol=get_col_types(infodir)
@@ -159,8 +160,12 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         args['x_steps']=keys
         args['y_steps']=keys
 
-
-
+    labels=read_csvfile (infodir+'/labels.csv')
+    col_x=x_types['colname']
+    col_y=y_types['colname']
+    args['x_label']=labels.get(col_x,col_x)
+    args['y_label']=labels.get(col_y,col_y)
+    args['title']=labels.get(col_x,col_x)+' vs '+labels.get(col_y,col_y)
 
     args_json=cjson.encode(args)
     template = loader.get_template('makemap.html')    

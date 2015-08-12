@@ -39,18 +39,20 @@
 
 <table> 
 <tr><td colspan=2 id="xvar">  
-    <label for="x_var">X:</label>
+  <div  id="form_x_var" >
+    <label for="x_var">X-as:</label>
     <select class="xyinput2 combobox" id="x_var">
       <option></option>
       {% for colname in colnames %}
       <option value="{{colname}}">{{colname}}</option>
       {% endfor %}
     </select>  
+    </div>
  </td>
 
  <td colspan=2>
   <div  id="form_y_var" >
-    <label for="y_var">Y:</label>
+    <label for="y_var">Y-as:</label>
     <select class="xyinput2 combobox" id="y_var">
       <option></option>
       {% for colname in colnames %}
@@ -90,12 +92,6 @@
 
 
 
-<tr>
-    <td>  <label class="xylabel" for="x_label">Label x-as:</label></td>
-    <td><input class="xyinput " id="x_label" name="x_label" type="text" value=""/> </td>
-    <td>  <label class="xylabel" for="y_label">Label y-as:</label></td>
-    <td><input class="xyinput " id="y_label" name="y_label" type="text" value=""/> </td>
-<tr>
 
 
 
@@ -114,13 +110,20 @@
   <td>          <input class="xyinput" id="y_max" name="x_max" type="text" value=""></td>
 </tr>
 
-
 <tr>
       <td class=""> <label class="xylabel" for="x_steps">Steps</label></td>
       <td>          <input class="xyinput " id="x_steps" name="x_steps" type="text" value="">      </td>
       <td  class="">  <label class="xylabel" for="y_steps">Steps</label></td>
       <td>  <input class="xyinput " id="y_steps" name="y_steps" type="text" value="">      </td>
 </tr>
+
+<tr>
+    <td>  <label class="xylabel" for="x_label">Label x-as:</label></td>
+    <td><input class="xyinput " id="x_label" name="x_label" type="text" value=""/> </td>
+    <td>  <label class="xylabel" for="y_label">Label y-as:</label></td>
+    <td><input class="xyinput " id="y_label" name="y_label" type="text" value=""/> </td>
+<tr>
+
 
 <tr><th class="spacer">Gradient </th> <tr>
 <tr >
@@ -155,6 +158,17 @@
 <tr>
     <td>  <label class="xylabel" for="outfile">Outputfile:</label></td>
     <td><input class="xyinput " id="outfile" name="outfile" type="text" value=""/> </td>
+<tr>
+
+
+<tr>
+    <td>  <label class="xylabel" for="title">Titel:</label></td>
+    <td colspan=3><input class="xyinput4 " id="title" name="title" type="text" value=""/> </td>
+<tr>
+<tr>
+    <td>  <label class="xylabel" for="description">Omschrijving:</label></td>
+    <td colspan=3><input class="xyinput4 " id="description" name="description" type="text" value=""/> </td>
+    
 <tr>
 
 
