@@ -43,6 +43,9 @@ function makemap () {
 		});
 
 
+    url='/heatmap/'+dataset+'/'+data['x_var']+'/'+data['y_var'];
+    $('#result').attr('href', url)
+
 
 }
 

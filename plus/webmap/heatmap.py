@@ -1,4 +1,4 @@
-import random, os, sys, inspect, json, bisect, gzip
+import random, os, sys, inspect, json, bisect, gzip, csv
 from math import log10
 import datetime #.datetime.strptime as strptime
 #from datetime.datetime import strptime
@@ -28,9 +28,6 @@ class heatmap:
             ['sep',';',False,''],
             ['convert_comma',False,False,''],
 
-            ['x_fixedfile_startpos',None,False,''],
-            ['x_fixedfile_endpos',None,False,''],
-            
             ['x_var','',True,''],
             ['x_label',None,False,''],
             ['x_min','',True,''],
@@ -45,9 +42,6 @@ class heatmap:
             ['x_relative_min', 0,False,''],
             ['x_relative_max', 100,False,''],
             
-            
-            ['y_fixedfile_startpos',None,False,''],
-            ['y_fixedfile_endpos',None,False,''],
             
             ['y_var','',True,''],
             ['y_label',None,False,''],
@@ -64,9 +58,7 @@ class heatmap:
             ['y_relative_max', 100,False,''],
 
             ['weight_var',None,False,''],
-            ['weight_fixedfile_startpos',None,False,''],
-            ['weight_fixedfile_endpos',None,False,''],            
-            
+
             ['gradmin',0,False,''],
             ['gradmax','max',False,''],
             ['gradsteps',40,False,''],
@@ -74,8 +66,7 @@ class heatmap:
             ['gradient_invert',False,False,''],
             ['gradcenter',50,False,''],
             ['gradient_bimodal',False,False,''],
-            
-            
+
             ['imgwidth',500,False,''],
             ['imgheight',500,False,''],
             ['outfile','',True,''],
@@ -370,23 +361,28 @@ class heatmap:
 
         if self.x_relative or self.y_relative:
             x_fullhist={}
-            y_fullhist={}        
+            y_fullhist={}
+
+            fx=open(self.infodir+'/split/%s.csv' % xcol)
+            fy=open(self.infodir+'/split/%s.csv' % ycol)
+            fweight=None
+            if (weight_var is not None):
+                fweight=open(self.infodir+'/split/%s.csv' % weight_var)
             linenr=0
-            for line in f:
+            for x_txt, y_txt in zip (fx, fy):
                 linenr+=1
                 if linenr % 10000==0:
                     print linenr
                 
                 if self.convert_comma:
-                    line=line.replace(',','.')
+                    x_txt=x_txt.replace(',','.')
+                    y_txt=y_txt.replace(',','.')
 
                 val=1                
                 cols=line.split(sep)
-                x_txt=cols[xcolnr]
-                y_txt=cols[ycolnr]
                 if weight_var is not None:
-                    val=float(cols[weightcolnr])
-		        
+                    val=fweight.readline()
+
                 if x_data_type=='nominal':
                     try:
                         x=float(x_txt)
@@ -409,8 +405,14 @@ class heatmap:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
                 if self.y_relative:                    
                     y_fullhist[y]=y_fullhist.get(y,0)+val
-            f.seek(0,0)
-            f.readline()
+
+
+            fx.close()
+            fy.close()
+            if fweight is not None:
+                fweight.close()
+
+
             
             if self.debuglevel==3:
                 print 'x-hist'
@@ -831,7 +833,10 @@ class heatmap:
         if self.multi_nr==0:
                 optiejs='var opties=[];\n'
         optiejs+='opties.push({\n'
+        optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % self.outfile,'wb')
+        c=csv.writer(optiefile,delimiter=',')
         for k in sorted(args.keys()):
+            c.writerow([k,args[k]])
             v=getattr(self,k)
             if v is None:
                 optiejs+='"%s":null,\n' % (k)
@@ -853,10 +858,12 @@ class heatmap:
                 continue
             optiejs+='"%s":%s,\n' % (k,v)
         optiejs+='});\n\n'
+        optiefile.close()
 
         optiefile=open(self.infodir+"/heatmaps/%s_meta.js" % self.outfile,'w')
         optiefile.write(optiejs)
         optiefile.close()
+
 
 
                     

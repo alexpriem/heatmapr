@@ -255,3 +255,12 @@ var colormaps={
 	'hot2':colormap_hot2,		
 	'ygb':colormap_ygb,
         };
+
+
+var colormapnames=[];
+
+for (var colormapname in colormaps) {
+    if (colormaps.hasOwnProperty(colormapname)) {
+        colormapnames.push(colormapname);
+    }
+}

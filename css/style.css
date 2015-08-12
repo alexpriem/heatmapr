@@ -300,10 +300,12 @@ color:#407640;
 
 
 .xylabel {
-	display:inline;
-	vertical-align:middle;
+	display:inline-block;
+	margin-top:-5px;
+	vertical-align:top;
 	color: #333;
 	float:right;
+	background-color:red;
 
 }
 
@@ -409,4 +411,6 @@ color:white;
 
 
 
-
+#xvar{
+	
+}

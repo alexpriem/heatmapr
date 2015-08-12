@@ -38,15 +38,14 @@
 <h4>Data</h4>  
 
 <table> 
-<tr><td colspan=2>
-  <div id="form_x_var" >
+<tr><td colspan=2 id="xvar">  
     <label for="x_var">X:</label>
     <select class="xyinput2 combobox" id="x_var">
       <option></option>
       {% for colname in colnames %}
       <option value="{{colname}}">{{colname}}</option>
       {% endfor %}
-    </select>
+    </select>  
  </td>
 
  <td colspan=2>
@@ -61,9 +60,9 @@
   </div >
   </td>
 
-<td colspan=2>
+<td colspan=2 >
   <div  id="form_weight_var" >
-    <label for="weight_var">Y:</label>
+    <label for="weight_var">Gewicht:</label>
     <select class="xyinput2 combobox" id="weight_var">
       <option></option>
       {% for colname in colnames %}
@@ -76,7 +75,7 @@
 
    <td colspan=2>
   <div  id="form_split_var" >
-    <label for="split_var">Y:</label>
+    <label for="split_var">Grouping:</label>
     <select class="xyinput2 combobox" id="split_var">
       <option></option>
       {% for colname in colnames %}
@@ -90,70 +89,81 @@
   </tr>
 
 
+
 <tr>
-  <td class=""  >
-          <label class="xylabel" for="x_min">Min</label> </td>
-          <td>
-          <input class="xyinput" id="x_min" name="x_min" type="text" value="">
-  </td>
-  <td class="">
-          <label class="xylabel" for="y_min">Min</label></td><td>
-          <input class="xyinput" id="y_min" name="y_min" type="text" value="">
+    <td>  <label class="xylabel" for="x_label">Label x-as:</label></td>
+    <td><input class="xyinput " id="x_label" name="x_label" type="text" value=""/> </td>
+    <td>  <label class="xylabel" for="y_label">Label y-as:</label></td>
+    <td><input class="xyinput " id="y_label" name="y_label" type="text" value=""/> </td>
+<tr>
+
+
+
+<tr>
+  <td class=""> <label class="xylabel" for="x_min">Min</label> </td>
+  <td>          <input class="xyinput" id="x_min" name="x_min" type="text" value=""></td>
+  <td class=""> <label class="xylabel" for="y_min">Min</label></td>
+  <td>          <input class="xyinput" id="y_min" name="y_min" type="text" value="">
   </td>
 </tr>
       
-  <tr>
-  <td class="">
-          <label class="xylabel" for="x_max">Max</label></td><td>
-          <input class="xyinput" id="x_max" name="x_max" type="text" value="">
-  </td>
-  <td class="">  
-          <label class="xylabel" for="y_max">Max</label></td><td>
-          <input class="xyinput" id="y_max" name="x_max" type="text" value="">
-  </td>
-  </tr>
+<tr>
+  <td class=""> <label class="xylabel" for="x_max">Max</label></td>
+  <td>          <input class="xyinput" id="x_max" name="x_max" type="text" value=""></td>
+  <td class=""> <label class="xylabel" for="y_max">Max</label></td>
+  <td>          <input class="xyinput" id="y_max" name="x_max" type="text" value=""></td>
+</tr>
 
 
 <tr>
-      <td class="">
-        <label class="xylabel" for="x_steps">Steps</label></td><td>
-         <input class="xyinput " id="x_steps" name="x_steps" type="text" value="">      
-      </td>
-      <td  class="">
-        <label class="xylabel" for="y_steps">Steps</label></td><td>
-         <input class="xyinput " id="y_steps" name="y_steps" type="text" value="">
-      </td>
+      <td class=""> <label class="xylabel" for="x_steps">Steps</label></td>
+      <td>          <input class="xyinput " id="x_steps" name="x_steps" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel" for="y_steps">Steps</label></td>
+      <td>  <input class="xyinput " id="y_steps" name="y_steps" type="text" value="">      </td>
 </tr>
 
 <tr><th class="spacer">Gradient </th> <tr>
 <tr >
-      <td class="">
-        <label class="xylabel" for="gradmin">Min</label></td><td>
-         <input class="xyinput " id="gradmin" name="gradmin" type="text" value="">
-      </td>
+      <td class=""> <label class="xylabel" for="gradmin">Min</label></td>
+      <td><input class="xyinput " id="gradmin" name="gradmin" type="text" value="">  </td>
 </tr>
 <tr >
-      <td class="">
-        <label class="xylabel" for="gradmax">Max</label></td><td>
-        <input class="xyinput " id="gradmax" name="gradmax" type="text" value="">
-      </td>
+      <td class=""><label class="xylabel" for="gradmax">Max</label></td>
+      <td>         <input class="xyinput " id="gradmax" name="gradmax" type="text" value=""></td>
 </tr>
 <tr >
-      <td class="">
-        <label class="xylabel" for="gradsteps">Steps</label></td><td>
-        <input class="xyinput " id="gradsteps" name="gradsteps" type="text" value="">
+      <td class=""> <label class="xylabel" for="gradsteps">Steps</label></td>
+      <td><input class="xyinput " id="gradsteps" name="gradsteps" type="text" value=""> </td>
+</tr>
+
+<tr >      
+      <td colspan=2>
+            <div id="form_colormap" >
+                <label for="colormap">Colormap:</label>
+                <select class="xyinput2 combobox" id="colormap">
+                  <option></option>
+                  {% for colormapname in colormapnames %}
+                  <option value="{{colormapname}}">{{colormapname}}</option>
+                  {% endfor %}
+                </select>
+              </div>
       </td>
 </tr>
+
 
 
 <tr>
+    <td>  <label class="xylabel" for="outfile">Outputfile:</label></td>
+    <td><input class="xyinput " id="outfile" name="outfile" type="text" value=""/> </td>
+<tr>
+
+
 <td>
-    <div> <label class="xylabel" for="outfile">Outputfile:</label>
-          <input class="xyinput " id="outfile" name="outfile" type="text" value=""/> </div>
           <a href="#" id="makemap" class="btn btn-primary"> Maak heatmap</a>
-          <a href="#" id="result"> Resultaat</a>
-    </div>
+          <a href="#" id="result"> Resultaat</a>    
 <td>
+
+
 </tr>
 
 

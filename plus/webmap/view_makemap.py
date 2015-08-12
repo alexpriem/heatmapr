@@ -13,6 +13,7 @@ from helpers import get_col_types
 import heatmap
 
 
+colormapnames=['blue','gray','cbs_blue','cbs_green','cbs_red','cbs_hot','terrain','coolwarm','hot','hot2','ygb']
 
 
 def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
@@ -43,21 +44,24 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     #print request.path
     #print request #.META
     defaults=dict(          
-            sep=',',
-          x_min='perc01',
-          x_max='max',
-          x_steps=500,
+        sep=',',
+        x_min='perc01',
+        x_max='max',
+        x_steps=500,
 
-          y_min='perc01',
-          y_max='max',
-          y_steps=500,
+        y_min='perc01',
+        y_max='max',
+        y_steps=500,
 
-          gradmin=0,
-          gradmax='max',
-          gradsteps=20,
-          displaymode='heatmap',
-          imgwidth=500,
-          imgheight=500
+        gradmin=0,
+        gradmax='max',
+        gradsteps=20,
+        colormap=colormapnames[0],
+
+        displaymode='heatmap',
+        imgwidth=500,
+        imgheight=500
+
             )
 
     col_info, coltypes_bycol=get_col_types(infodir)
@@ -111,34 +115,6 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             args['x_max']=x_types.get(args['x_max'],args['x_max'])
             args['y_max']=y_types.get(args['y_max'],args['y_max'])
 
-            xkeys=args['x_steps']
-            setkeys=False
-            if x_types['num_keys']<args['x_steps']:
-                xkeys=x_types['num_keys']
-                setkeys=True
-            ykeys=args['y_steps']
-            if y_types['num_keys']<args['y_steps']:
-                ykeys=y_types['num_keys']
-                setkeys=True
-            if setkeys:
-                keys=xkeys
-                if ykeys<xkeys:
-                    keys=ykeys
-
-                width=args['imgwidth']
-                stepsizes=[]
-                for i in range(50,0,-1):
-                    if (width/(i*1.0))==int(width/i):
-                        stepsizes.append(int(width/i))
-
-                prevk=stepsizes[0]
-                for k in stepsizes[1:]:
-                    if keys<k:
-                        keys=prevk
-                        break
-                    prevk=k
-                args['x_steps']=keys
-                args['y_steps']=keys
 
                # print args['x_steps'],args['y_steps']
 
@@ -150,8 +126,47 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             data={'msg':'ok'}
         return HttpResponse(cjson.encode(data))
 
-    defaults_json=cjson.encode(defaults)
+    args=defaults
+
+    xkeys=args['x_steps']
+    setkeys=False
+    x_types=coltypes_bycol[args['x_var']]   # info van variabelenaam x-kolom ophalen
+    y_types=coltypes_bycol[args['y_var']]
+    if x_types['num_keys']<args['x_steps']:
+        xkeys=x_types['num_keys']
+        setkeys=True
+    ykeys=args['y_steps']
+    if y_types['num_keys']<args['y_steps']:
+        ykeys=y_types['num_keys']
+        setkeys=True
+    if setkeys:
+        keys=xkeys
+        if ykeys<xkeys:
+            keys=ykeys
+
+        width=args['imgwidth']
+        stepsizes=[]
+        for i in range(50,0,-1):
+            if (width/(i*1.0))==int(width/i):
+                stepsizes.append(int(width/i))
+
+        prevk=stepsizes[0]
+        for k in stepsizes[1:]:
+            if keys<k:
+                keys=prevk
+                break
+            prevk=k
+        args['x_steps']=keys
+        args['y_steps']=keys
+
+
+
+
+    args_json=cjson.encode(args)
     template = loader.get_template('makemap.html')    
-    context = RequestContext(request, {'colnames':colnames, 'dataset':dataset,'defaults':defaults,'defaults_json':defaults_json})
+    context = RequestContext(request, {'colnames':colnames,
+                                       'dataset':dataset,
+                                       'defaults':args,'defaults_json':args_json,
+                                       'colormapnames':colormapnames})
     return HttpResponse(template.render(context))
 
