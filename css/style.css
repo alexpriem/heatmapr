@@ -434,3 +434,9 @@ padding-left:77px;
     box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
  }
+
+ .labelrow {
+ 	margin-left:100px;
+ 	padding-left:100px;
+
+ }

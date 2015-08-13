@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from webmap import view_data, view_histogram, view_heatmap, view_makemap, views
+from webmap import view_data, view_histogram, view_heatmap, view_makemap, views, view_labels
 import os
 
 from django.contrib import admin
@@ -30,6 +30,10 @@ urlpatterns = patterns('',
     url(r'^heatmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_heatmap.view_heatmap),
     url(r'^heatmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_heatmap.view_heatmap),
     url(r'^heatmap/(?P<dataset>.*)/$', view_heatmap.view_heatmaps),
+
+    url(r'^labels/(?P<dataset>.*)/(?P<var>.*)/$', view_labels.view_var_key_labels),
+    url(r'^labels/(?P<dataset>.*)/$', view_labels.view_dataset_var_labels),
+
     url(r'^data/(?P<dataset>.*)/$', view_data.view_data),
     url(r'^dataset/(?P<dataset>.*)/', view_data.dataset),
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_makemap.make_heatmap),
