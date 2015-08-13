@@ -20,8 +20,9 @@ def view_dataset_var_labels (request, dataset):
         os.makedirs(infodir)
 
     labels=read_csvfile (infodir+'/labels.csv')
+    labels=sorted(labels.iteritems())
     template = loader.get_template('dataset_labels.html')
-    print 'labels:',labels
+
 
     context = RequestContext(request, {'labels':labels, 'dataset':dataset})
     return HttpResponse(template.render(context))
@@ -29,7 +30,7 @@ def view_dataset_var_labels (request, dataset):
 
 
 
-def view_var_key_labels (request, dataset, var):
+def view_var_key_labels (request, dataset, variable):
 
     datadir='e:/data'
     infodir=datadir+'/'+dataset+'_info'
@@ -38,7 +39,27 @@ def view_var_key_labels (request, dataset, var):
 
     template = loader.get_template('var_labels.html')
 
-    labels=read_csvfile (infodir+'/labels.csv')
-    context = RequestContext(request, {'labels':labels})
+    varlabels=read_csvfile (infodir+'/labels.csv')
+    varlabel=varlabels[variable]
+
+    labels=read_csvfile ('%s/labels/defaults.csv' % (infodir))
+    print labels
+    keylabels=read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
+    print keylabels
+    if len(keylabels)==0:
+        print 'ok'
+        f=open('%s/hists/%s.csv' % (infodir, variable))
+        f.readline()
+        c=csv.reader(f,delimiter=',')
+        for row in c:
+            keylabels[row[0]]=''
+        f.close()
+    print keylabels
+    labels.update(keylabels)
+    labels=sorted(labels.iteritems())
+    context = RequestContext(request, {'labels':labels,
+                                       'dataset':dataset,
+                                       'variable':variable,
+                                       'varlabel':varlabel})
     return HttpResponse(template.render(context))
 
