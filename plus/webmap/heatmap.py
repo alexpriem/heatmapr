@@ -674,47 +674,6 @@ class heatmap:
         print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
         print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))
 
-# multimaps aanmaken zo nodig
-
-        if do_multimap:
-            datakeys=sorted(heatmaps.keys())            
-            multimap_vals=[[0]*ypixels for i in range(xpixels)]
-            multimap_colors=[[0]*ypixels for i in range(xpixels)]
-            for x in range(0,xpixels):
-                for y in range(0,ypixels):
-                    vals=[heatmaps[k][x][y] for k in datakeys]
-                    maxval=max(vals)
-                    multimap_vals[x][y]=maxval
-                    multimap_colors[x][y]=vals.index(maxval)
-
-
-# test autoscaling
-        cutoff=1
-        min_x=xsum[0]
-        for x in range(0,xpixels):
-            if xsum[x]>cutoff:
-                min_x=x
-                break
-        max_x=xsum[0]            
-        for x in range(xpixels-1,0,-1):
-            if xsum[x]>cutoff:
-                max_x=x
-                break
-        print 'suggested autoscale x:', min_x*xfactor+xmin,max_x*xfactor+xmin
-
-        cutoff=1
-        min_y=ysum[0]
-        for y in range(0,ypixels):
-            if ysum[y]>cutoff:
-                min_y=y
-                break
-        max_y=ysum[0]
-        for y in range(ypixels-1,0,-1):
-            if ysum[y]>cutoff:
-                max_y=y
-                break
-        print 'suggested autoscale y:', min_y*yfactor+ymin,max_y*yfactor+ymin
-        
 
 
 # dump data
@@ -731,24 +690,14 @@ class heatmap:
         if do_multimap==True:
             datakeys=sorted(heatmaps.keys())
             js='var multimap=true;\n'
-            js+='var nr_heatmaps=1;\n\n'
             js+='var data=[];\n'
-            js+='var multimap_vals=[];\n'
-            js+='var multimap_colors=[];\n'
 
-            
-            vals=self.heatmap_to_js(multimap_vals)
-            js+=vals.replace('data','multimap_vals')
-            colors=self.heatmap_to_js(multimap_colors)
-            js+=colors.replace('data','multimap_colors')
-
-            js+=self.heatmap_to_js (heatmaps[datakeys[0]])
+            for datakey in datakeys:
+                js+=self.heatmap_to_js (heatmaps[datakey])
 
             js+='var multimap_labels='+json.dumps(self.multimap_labels)+';\n';
             
-            
-           
-             
+
            # for filename in datakeys:
            #     print filename
            #     heatmap=heatmaps[filename]
@@ -759,6 +708,7 @@ class heatmap:
         if do_multimap==False:
             js+=self.heatmap_to_js (self.heatmap)
 
+        js+='var nr_heatmaps=data.length;\n\n'
         self.datamin=gradmin
         self.datamax=gradmax
         
@@ -853,6 +803,8 @@ class heatmap:
                 optiejs='var opties=[];\n'
         optiejs+='opties.push({\n'
         optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % self.outfile,'wb')
+
+
         c=csv.writer(optiefile,delimiter=',')
         for k in sorted(args.keys()):
             c.writerow([k,args[k]])
