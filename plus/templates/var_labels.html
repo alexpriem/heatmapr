@@ -41,15 +41,29 @@
 	<div class="form-group">
 	<table class="table-striped">
 	<thead>
-	<tr> <th> Kolom </th> <th>	Omschrijving </th></tr>  
+	
 
 	<thead>
 	<tbody>
-    {% for col, label in labels  %} 
+    {% if has_global %}
+      <tr> <th colspan=2 > Globale labels:</th> </tr>
+      <tr> <th> Kolom </th> <th>  Omschrijving </th></tr>  
+          {% for col, label in global_labels  %} 
                <tr class="striped "> <td class="labelrow"> {{col}}</td>
                    <td class="xylabel4"> <input class="xylabel4" type="text" name="{{col}}" id="{{col}}" value="{{label}}" /></td> 
               </tr>
-    {% endfor %}	
+          {% endfor %}  
+    {%endif %}
+
+    {% if has_labels %}
+      <tr> <th colspan=2 > Labels voor deze variabele:</th> </tr>
+        {% for col, label in labels  %} 
+                 <tr class="striped "> <td class="labelrow"> {{col}}</td>
+                     <td class="xylabel4"> <input class="xylabel4" type="text" name="{{col}}" id="{{col}}" value="{{label}}" /></td> 
+                </tr>    
+        {% endfor %}  
+    {% endif %}
+
   </tbody>
 
 	</table>

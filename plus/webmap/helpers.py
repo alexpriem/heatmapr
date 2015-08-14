@@ -26,7 +26,6 @@ def read_csvfile (filename):
     if f is not None:
         c=csv.reader(f,delimiter=',')
         for line in c:
-            print line
             if len(line)==2:
                 labels[line[0]]=line[1]
         f.close()

@@ -42,22 +42,28 @@ def view_var_key_labels (request, dataset, variable):
     varlabels=read_csvfile (infodir+'/labels.csv')
     varlabel=varlabels[variable]
 
-    labels=read_csvfile ('%s/labels/defaults.csv' % (infodir))
-    print labels
-    keylabels=read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
-    print keylabels
-    if len(keylabels)==0:
-        print 'ok'
+    global_labels=read_csvfile ('%s/labels/defaults.csv' % (infodir))
+    global_labels=sorted(global_labels.iteritems())
+    key_labels=read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
+    key_labels=sorted(key_labels.iteritems())
+    if len(key_labels)==0:
+        key_labels={}
         f=open('%s/hists/%s.csv' % (infodir, variable))
         f.readline()
         c=csv.reader(f,delimiter=',')
         for row in c:
-            keylabels[row[0]]=''
+            key_labels[row[0]]=''
         f.close()
-    print keylabels
-    labels.update(keylabels)
-    labels=sorted(labels.iteritems())
-    context = RequestContext(request, {'labels':labels,
+
+    key_labels=sorted(key_labels.iteritems())
+    has_labels= len(key_labels)!=0
+    has_global= len(global_labels)!=0
+    print has_labels, has_global
+    print key_labels
+    context = RequestContext(request, {'labels':key_labels,
+                                       'global_labels':global_labels,
+                                       'has_global':has_labels,
+                                       'has_labels':has_labels,
                                        'dataset':dataset,
                                        'variable':variable,
                                        'varlabel':varlabel})
