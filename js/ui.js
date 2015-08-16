@@ -405,29 +405,12 @@ function heatmap (data, opties) {
 						}
 				*/
 
-				if ((indexval!=0) || (!_this.skipzero)) {	  // waardes die 0 zijn niet plotten
-					if (multimap){
-
-						cat=backbuffer_cats[i];
-						color=colormap[cat];
-
-						if ((indexval>0) && (nr<550)) {
-							//console.log(nr, i,j,cat, color);
-							nr+=1;
-						}
-
-			    			mapdata[j] =  color[0];
-			    			mapdata[j+1] = color[1];
-		    				mapdata[j+2] = color[2];
-		    				mapdata[j+3] = 0xff;
-
-					} else {
+				if ((indexval!=0) || (!_this.skipzero)) {	  // waardes die 0 zijn niet plotten					
 						color=colormap[indexval];
-		    				mapdata[j] =  color[0];
-			    			mapdata[j+1] = color[1];
-			    			mapdata[j+2] = color[2];
-			    			mapdata[j+3] = 0xff;
-		    		}
+		    			mapdata[j] =  color[0];
+			    		mapdata[j+1] = color[1];
+			    		mapdata[j+2] = color[2];
+			    		mapdata[j+3] = 0xff;		    		
 				} else {
 					color=_this.missing_color;
 					mapdata[j] =  color[0]; ;
@@ -713,16 +696,6 @@ function heatmap (data, opties) {
 			.attr("stroke",'black')
 			.attr("stroke-width",1)
 			.attr("fill","none")
-
-	  chart.append("rect")
-	  		.attr("id",'IE9_hack')
-	  		.attr("x",0)
-	  		.attr("y",0)
-	  		.attr("height",imgheight)
-	  		.attr("width",imgwidth)
-	  		.attr("stroke",'black')
-	  		.attr("stroke-width",0)
-	  		.attr("fill","none")
 
 	  chart.append("g")
 	        .attr("class","xaxis mainx")

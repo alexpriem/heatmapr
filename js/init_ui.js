@@ -39,6 +39,7 @@ function init_all_heatmaps(heatmapdata) {
     var template = Handlebars.compile(source); 
 
     heatmapnode=document.getElementById('heatmap_div');
+    console.log(heatmapdata);
     heatmapnode.innerHTML =template(heatmapdata);
 
     var opt=opties[0];    
@@ -80,6 +81,7 @@ var bin_alldata=function () {
 
 var draw_heatmaps=function() {
 
+    console.log('draw_heatmaps:',data.length);
     for (var i=0; i<nr_heatmaps; i++) {
         console.log('draw_heatmaps:',data.length,i);
         heatmaps[i].draw_heatmap();
@@ -92,14 +94,10 @@ function init_page() {
   
     console.log('init_page, # heatmaps:',data.length);    
     console.log('multimap',multimap);    
-
-    if (multimap) {
-        var heatmapinfo=[0];        
-    } else {
-        var heatmapinfo=[];    
-        nr_heatmaps=data.length;        
-        for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
-    }
+    
+    var heatmapinfo=[];    
+    nr_heatmaps=data.length;        
+    for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
 
 	datasets=data;
     var heatmapdata={heatmaps:heatmapinfo};
@@ -107,6 +105,7 @@ function init_page() {
     
     heatmaps=[];
     for (i=0; i<nr_heatmaps; i++) {
+        console.log('heatmap:',i);
         h=new heatmap(data[i],opties[i]);
         h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
         h.mean_x=mean_x[i];
@@ -143,8 +142,7 @@ function init_page() {
     if (print==true) {
         $('.leftbox').hide();
         $('.gradient_vars').hide();
-        $('.hist_2d').hide();
-        $('#IE9_hack').hide();
+        $('.hist_2d').hide();        
     } else {
         $('#sel_print').hide();
     }
