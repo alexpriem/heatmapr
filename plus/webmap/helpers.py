@@ -47,7 +47,7 @@ def get_col_types(infodir):
         f.readline()
         int_cols=['num_keys','empty','unique_index',
               'float_t','int_t','str_t','int_min','int_max']
-        float_cols=['float_min','float_max','min','max']
+        float_cols=['float_min','float_max','min','max','perc01','perc50','perc99','maxy2','maxy3', 'avg']
         bool_cols=['sparse1','sparse2','string_garbage','single_value','bi_value']
         c=csv.DictReader(f,delimiter=',')
         linenr=0
@@ -60,7 +60,10 @@ def get_col_types(infodir):
                     row[c]=''
             for c in float_cols:
                 try:
-                    row[c]=float(row[c])
+                    v=float(row[c])
+                    if v.is_integer():
+                        v=int(v)
+                    row[c]=v
                 except:
                     row[c]=''
 
