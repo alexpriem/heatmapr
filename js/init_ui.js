@@ -66,7 +66,8 @@ function init_all_heatmaps(heatmapdata) {
         }
 
      //   $('#heatmap_container_'+i).css('left',xpos);       
-    }
+    }    
+
     xpos=multi_cols*width;
     $('.colormap-gradient').css('margin-left',xpos+'px')
 }
@@ -90,6 +91,22 @@ var draw_heatmaps=function() {
 
 }
 
+
+function generate_colormap (endpoint, N) {
+    
+    var scale=chroma.scale(['white', endpoint]).correctLightness(true);
+
+    var cmap=[];
+    var frac=1.0/N;
+    for (i=0; i<N; i++){
+         var rgb=scale(i*frac).rgb();
+         cmap.push([parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])]);
+    }
+    console.log(cmap);
+    return cmap;  
+}
+
+
 function init_page() {
   
     console.log('init_page, # heatmaps:',data.length);    
@@ -104,8 +121,9 @@ function init_page() {
     init_all_heatmaps(heatmapdata);
     
     heatmaps=[];
-    for (i=0; i<nr_heatmaps; i++) {
-        console.log('heatmap:',i);
+    var quali_colormap=chroma.scale('Dark2');
+    for (var i=0; i<nr_heatmaps; i++) {
+        console.log('heatmap:',i,nr_heatmaps);
         h=new heatmap(data[i],opties[i]);
         h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
         h.mean_x=mean_x[i];
@@ -114,10 +132,12 @@ function init_page() {
         h.ymean=ymean[i];
         h.sum_x=sum_x[i];
         h.sum_y=sum_y[i];
-        h.draw_axes(); 
-        heatmaps.push(h);
+        var colormap_endpoint=quali_colormap(i/nr_heatmaps);
+        h.colormap=generate_colormap(colormap_endpoint, 20);
+        h.draw_axes();                 
+        heatmaps.push(h);    
     }
-
+        
     var window_opties=opties[0];
     set_gradient(window_opties);
     //console.log(h);

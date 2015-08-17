@@ -393,7 +393,11 @@ function heatmap (data, opties) {
 		var xstep=xpix2img*size;
 		var ystep=ypix2img*size;
 
-		var colormap=gradient_node.colormap;
+		if (_this.colormap==undefined) {
+			var colormap=gradient_node.colormap;
+		} else {
+			var colormap=_this.colormap;
+		}
 		var imgwidth=opties.imgwidth;
 		var imgheight=opties.imgheight;
 		var mean_x=_this.mean_x;
@@ -865,7 +869,6 @@ function heatmap (data, opties) {
 			var bimodal=opties.gradient_bimodal;
 			var gradient_node=document.getElementById("cg_a");
 			if (use_gradient) {
-
 
 				if (gradient_node.hasAttribute('gradient_max_data')) {
 					var gradmax=gradient_node.getAttribute('gradient_max_data');
