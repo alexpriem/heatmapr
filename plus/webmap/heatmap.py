@@ -117,6 +117,7 @@ class heatmap:
             ['split2_var',None,False],
 
             ['multimap_labels',{},False],
+            ['multimap_numcols',4,False],
 
             ['annotate',{},False],
             
@@ -210,7 +211,26 @@ class heatmap:
             
 
 
+    def aggegrate_by_4 (self, heatmap):
 
+        h=heatmap
+        if self.x_steps>200 or self.y_steps>200:
+            small_x_len=self.x_steps/4
+            small_y_len=self.y_steps/4
+        else:
+            return h
+
+        smallmap=[[0]*small_y_len for i in range(small_x_len)]
+        for i in range(0,self.x_steps-1,4):
+            for j in range(0,self.y_steps-1,4):
+                u=i/4
+                v=j/4
+                val=h[i][j] + h[i][j+1] + h[i][j+2] + h[i][j+3] + \
+                    h[i+1][j] + h[i+1][j+1] + h[i+1][j+2] + h[i+1][j+3] + \
+                    h[i+2][j] + h[i+2][j+1] + h[i+2][j+2] + h[i+2][j+3] + \
+                    h[i+3][j] + h[i+3][j+1] + h[i+3][j+2] + h[i+3][j+3]
+                smallmap[u][v]=val
+        return smallmap
 
 
     def heatmap_to_js (self, heatmap):        
@@ -700,8 +720,8 @@ class heatmap:
                 totalsum+=val
 
                  
-        print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
-        print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))
+        #print '%d records, %d bins filled, %d binvolume over img with %d pixels' % ( linenr, nonzerocount, total, xpixels*ypixels)
+        #print 'coverage: %.3f%% max, %.3f%% actual' % (100.0*linenr/(xpixels*ypixels*1.0), 100.0*nonzerocount/(1.0*xpixels*ypixels))
 
 
 
@@ -723,6 +743,12 @@ class heatmap:
 
             for datakey in datakeys:
                 js+=self.heatmap_to_js (heatmaps[datakey])
+            js+='var smalldata=[];\n'
+            for datakey in datakeys:
+                smallmap=self.aggegrate_by_4 (heatmaps[datakey])
+                js_txt=self.heatmap_to_js (smallmap)
+                js+=js_txt.replace('data','smalldata')
+
 
             js+='var multimap_labels='+json.dumps(self.multimap_labels)+';\n';
             

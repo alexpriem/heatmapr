@@ -78,6 +78,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             data={'msg':'','colnames':colnames,'groupcolnames':groupcolnames}
 
         if cmd=='makemap':
+            msg='ok'
             args['infodir']=infodir
             args['outfile']=args['x_var']+'_'+args['y_var']+'_0'
             x_types=coltypes_bycol[args['x_var']]   # info van variabelenaam x-kolom ophalen
@@ -89,11 +90,27 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             args['y_max']=y_types.get(args['y_max'],args['y_max'])
 
 
+            imgwidth=float(args['imgwidth'])
+            imgheight=float(args['imgheight'])
+            x_steps=int(args['x_steps'])
+            y_steps=int(args['y_steps'])
+
+            if not (imgwidth/4.0).is_integer():
+                msg='imgwidth moet veelvoud van 4 zijn'
+            if not (imgheight/4.0).is_integer():
+                msg='imgheight moet veelvoud van 4 zijn'
+            if x_steps>200 and not (x_steps/4.0).is_integer():
+                msg='xsteps moet veelvoud van 4 zijn'
+            if y_steps>200 and not (y_steps/4.0).is_integer():
+                msg='ysteps moet veelvoud van 4 zijn'
+
+
                # print args['x_steps'],args['y_steps']
             print args['x_min'], args['x_max'], args['y_min'],args['y_max']
-            h=heatmap.heatmap()
-            h.make_heatmap(args)
-            data={'msg':'ok'}
+            if msg=='ok':
+                h=heatmap.heatmap()
+                h.make_heatmap(args)
+            data={'msg':msg}
         return HttpResponse(cjson.encode(data))
 
     args=dict(
