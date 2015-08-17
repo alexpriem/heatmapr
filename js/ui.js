@@ -116,19 +116,24 @@ function heatmap (data, opties) {
 		var gradmin=gradient_node.getAttribute('gradient_min');
 		var gradsteps=gradient_node.getAttribute('gradient_steps');
 
+
 		if (gradmax=='max') {
 			gradient_node.setAttribute('gradient_max_data', maxval);
+			_this.grad_maxval=maxval;
 		} else {
 			if (gradient_node.hasAttribute('gradient_max_data')) {
-				gradient_node.removeAttribute ('gradient_max_data');
+				gradient_node.removeAttribute ('gradient_max_data');				
 			}
+			_this.grad_maxval=gradmax;
 		}
 		if (gradmin=='min') {
 			gradient_node.setAttribute('gradient_min_data', minval);
+			_this.grad_minval=minval;
 		} else {
 			if (gradient_node.hasAttribute('gradient_min_data')) {
 				gradient_node.removeAttribute ('gradient_min_data');
 			}
+			_this.grad_minval=gradmin;
 		}
 
 		if (opties.missing_color=='min'){
@@ -195,7 +200,7 @@ function heatmap (data, opties) {
 	//		console.log("i:",i);
 		}	//i
 
-		_this.update_minmax(minval,maxval);
+		_this.update_minmax(minval, maxval);
 	}
 
 
@@ -220,7 +225,7 @@ function heatmap (data, opties) {
 		var backbuffer=_this.backbuffer;
 		var backbuffer_cats=_this.backbuffer_cats;
 
-
+/*
 		if (gradient_node.hasAttribute('gradient_max_data')) {
 			var gradmax=gradient_node.getAttribute('gradient_max_data');
 		} else {
@@ -231,7 +236,10 @@ function heatmap (data, opties) {
 		} else {
 			var gradmin=gradient_node.getAttribute('gradient_min');
 		}
+*/
 
+		gradmin=_this.grad_minval;
+		gradmax=_this.grad_maxval;
 		console.log('spread_bins: transform, gradmin/gradmax',transform, gradmin,gradmax);
 		var gradmax=transform_value(gradmax,transform, log_min);
 		var gradmin=transform_value(gradmin,transform, log_min);
@@ -410,7 +418,8 @@ function heatmap (data, opties) {
 		    			mapdata[j] =  color[0];
 			    		mapdata[j+1] = color[1];
 			    		mapdata[j+2] = color[2];
-			    		mapdata[j+3] = 0xff;		    		
+			    		mapdata[j+3] = 0xff;
+		    		
 				} else {
 					color=_this.missing_color;
 					mapdata[j] =  color[0]; ;

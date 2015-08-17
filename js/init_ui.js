@@ -134,7 +134,7 @@ function init_page() {
     h.init_dotplot();
     h.init_display();
     h.init_annotations();
-
+    h.update_display(window_opties['displaymode']);
     
  //   Pixastic.debug=true;
     document.title =window_opties.title;
