@@ -1,5 +1,3 @@
-var dataset='best2010';
-var datadir='e:/data';
 
 
 var filter={'empty':false,
@@ -23,7 +21,11 @@ function update_state  (action) {
 
 	
 
-	var data={dataset:dataset,datadir:datadir, 'action':action};
+	var url=window.location.href;
+	var data=url.split('/');	
+	var dataset=data[4];
+
+	var data={dataset:dataset, 'action':action};
   
 	 for (var item in filter) {	 	
          if (filter.hasOwnProperty(item)) {
@@ -58,9 +60,6 @@ var click_filter=function () {
 	console.log('click_filter', this.id.slice(7));	
 	var filter_item=$('#'+this.id).data('filter');
 	console.log('filter:',filter);
-
-	var dataset='best2010';
-	var datadir='e:/data';
 
 	var state=filter[filter_item];
 	if (state) 
@@ -162,7 +161,11 @@ var filter_update=function() {
 		}
 	}
 
-	data={'filtercols':filtercols,'filtercompares':filtercomp,'filtervalues':filtervalues, 'datadir':datadir};
+	var url=window.location.href;
+	var data=url.split('/');	
+	var dataset=data[4];
+
+	data={'filtercols':filtercols,'filtercompares':filtercomp,'filtervalues':filtervalues};
 
 	console.log(data);
 	$.ajax({url:"/set_filter/"+dataset+'/', 
@@ -243,6 +246,9 @@ var recode_update=function() {
 
 function show_filters(r){
 
+	var url=window.location.href;
+	var data=url.split('/');	
+	var dataset=data[4];
 
 	data_div=document.getElementById('data_container');
     s='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>\n';

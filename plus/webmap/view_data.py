@@ -11,7 +11,7 @@ from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
 from helpers import get_col_types, read_csvfile
 import heatmap
-
+import plus.settings as settings
 
 
 
@@ -127,7 +127,7 @@ def get_cols (datadir, dataset, infodir):
 def set_filter (request, dataset):
 
     print 'set_filter'
-    datadir=request.POST['datadir']
+    datadir=settings.datadir
     print request.POST.keys()
     cols=request.POST.getlist('filtercols[]')
     comps=request.POST.getlist('filtercompares[]')
@@ -157,7 +157,7 @@ def set_filter (request, dataset):
 def set_recode (request, dataset):
 
     print 'set_recode'
-    datadir=request.POST['datadir']
+    datadir=settings.datadir
     print request.POST.keys()
     vals=request.POST.getlist('values[]')
     replacements=request.POST.getlist('replacements[]')
@@ -185,7 +185,7 @@ def set_recode (request, dataset):
 def dataset (request, dataset):
     
     action=request.GET.get('action')
-    datadir=request.GET['datadir']
+    datadir=settings.datadir
 
     filter_set={}
     for k in request.GET.keys():        
