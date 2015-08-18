@@ -294,11 +294,9 @@ class typechecker ():
         if (maxx-minx)==0:
             return
 
-        print '[%s][%s]' % (minx, maxx)
+
         dx=(maxx-minx)/(1.0*bins)       # swap van relatieve space naar absolute space, kan fout gaan ;-)
-        if (dx==0):
-            print data_info
-            print bins, minx, maxx, dx, key
+
         j=0
         histogram=[0]*(bins+1)
         hist=self.hist
@@ -387,20 +385,22 @@ class typechecker ():
             s=line[:-1]
             try:                
                 d=hist_index[s]
+                data2.append(d)
             except:
-                print 'key', s
-                print hist_keys
-                raise RuntimeError
-            data2.append(d)            
+                ef=open(self.infodir+'/error.log','a')
+                s='Key %s not found when dictifying variable %s\n' % (s,variable)
+                ef.write(s)
+                ef.close()
+
         
         f.close()
         
         f=open(self.infodir+'/splitbin/%s.bin' % variable,'wb')
         if num_keys<256:
             data_array=array.array('B',data)
-        if num_keys>256 and num_keys<65536:        
+        if num_keys>=256 and num_keys<65536:
             data_array=array.array('H',data)
-        if num_keys>65536:        
+        if num_keys>=65536:
             data_array=array.array('L',data)        
         data_array.tofile(f)
         f.close()

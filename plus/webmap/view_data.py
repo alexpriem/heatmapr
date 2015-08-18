@@ -95,7 +95,7 @@ def read_header (filename,sep=None):
             if len(headerline.split(';'))==1:
                 raise RuntimeError ('unknown separator')
             
-    cols=[col.strip() for col in headerline.split(sep)]    
+    cols=[col.replace('"','').strip() for col in headerline.split(sep)]
     return sep, cols
 
 

@@ -7,7 +7,6 @@ def dictify(infodir, colname):
     f=open(infodir+'\\split\\%s.csv' % colname,'r')
 
     hist={}
-    l=f.readline()
     for line in f:
         k=line.strip()
         hist[k]=hist.get(k,0)+1
