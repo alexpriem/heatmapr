@@ -143,18 +143,29 @@ function toggle_colormap_sharing () {
 
 function resize_cats () {
 
-    var opt=opties[0];
+    
 
     if (smallsize) {
-        opt.imgwidth=opt.imgwidth*4;
-        opt.imgheight=opt.imgheight*4;     
+        for (var i=0; i<nr_heatmaps; i++) { 
+            var opt=opties[i];
+            opt.imgwidth=opt.imgwidth*4;
+            opt.imgheight=opt.imgheight*4;    
+            heatmaps[i].opties.imgwidth=opt.imgwidth; 
+            heatmaps[i].opties.imgheight=opt.imgheight;
+        }
         smallsize=false;        
     } else {        
-        opt.imgwidth=opt.imgwidth/4;
-        opt.imgheight=opt.imgheight/4;
+        for (var i=0; i<nr_heatmaps; i++) { 
+            var opt=opties[i];
+            opt.imgwidth=opt.imgwidth/4;
+            opt.imgheight=opt.imgheight/4;
+            heatmaps[i].opties.imgwidth=opt.imgwidth; 
+            heatmaps[i].opties.imgheight=opt.imgheight;
+        }
         smallsize=true;
     }
     console.log('new imgwidth/height',opt.imgwidth, opt.imgheight)
+    init_page();
     draw_heatmaps();
 }
 
@@ -188,24 +199,22 @@ function init_page() {
         h.draw_axes();                 
         heatmaps.push(h);    
     }
-        
-    var window_opties=opties[0];
-    set_gradient(window_opties);
-    //console.log(h);
+
+
+    set_gradient(opties[0]);    
     topnode.preAttributeChangedCallback=bin_alldata;    
     topnode.postAttributeChangedCallback=draw_heatmaps;        
     init_gradients(); 
-
-
-  //  init_manipulation();
     
+    h=heatmaps[0];
     h.init_print();    
     h.init_stats();
     h.init_hist_xy();
     h.init_dotplot();
-    h.init_display();
+    h.init_display(); 
+    h.update_display(opties[0]['displaymode']);    
     h.init_annotations();
-    h.update_display(window_opties['displaymode']);
+    
     
 
     $('#cat_multiples').on('click',resize_cats);
@@ -225,6 +234,8 @@ function init_page() {
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
     }
+
+
  
 }
 
