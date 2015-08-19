@@ -123,7 +123,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             y_max='max',
             y_steps=500,
 
-            split1_var='',
+            split1_var='AR19',
             split2_var='',
             gradmin=0,
             gradmax='max',

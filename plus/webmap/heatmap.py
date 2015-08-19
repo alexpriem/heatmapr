@@ -396,6 +396,8 @@ class heatmap:
         do_multimap=False
         if split1_var!='' or split2_var!='':
             do_multimap=True
+        args['multimap']=do_multimap
+        self.multimap=do_multimap
 
 
         heatmaps={}
@@ -513,7 +515,7 @@ class heatmap:
             split1file=open('%s/split/%s.csv' % (self.infodir, split1_var))
             if split2_var!='':
                 split2file=open('%s/split/%s.csv' % (self.infodir, split2_var))
-        
+
 
         for x_txt, y_txt in zip (fx, fy):
 
@@ -871,6 +873,8 @@ class heatmap:
                 optiejs='var opties=[];\n'
         if do_multimap:
             for key in datakeys:
+                args['multimap_title']=key
+                self.multimap_title=key
                 optiejs+=self.opties_to_js(args)
         else:
             optiejs+=self.opties_to_js(args)

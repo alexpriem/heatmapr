@@ -28,7 +28,7 @@ transform_value=function  (val,transform, log_min) {
 
 
 
-function heatmap (data, opties) {
+function heatmap (data, opties, nr) {
 	this.skipzero=true;
 	this.hist=null;
 	this.histmax=0;
@@ -45,6 +45,7 @@ function heatmap (data, opties) {
 	this.mapdata=null;
 	this.data=data;
 	this.opties=opties;
+	this.nr=nr;
 
 	var _this = this;
 
@@ -657,11 +658,23 @@ function heatmap (data, opties) {
 
 	  var xAxis=d3.svg.axis();
 	  var yAxis=d3.svg.axis();	
+
+	  if ((opties.multimap) && (smallsize==true)){
+	  		numticks=4;
+
+	  }
+	  console.log('NUMTICKS:',numticks)
+
+
 	  xAxis.scale(xScale)
 	  		.ticks(numticks)	  		
 	        .orient("bottom");
 	  if ((x_data_type=='nominal') && (!x_log)) {
-	  	xAxis.tickFormat(d3.format("s"));
+	  	if ((xmax-xmin)>500) {
+			xAxis.tickFormat(d3.format(" s"));
+		} else {
+			xAxis.tickFormat(d3.format(" d"));
+		}	  	
 	  }
 	  if (x_data_type=='date_year') {
 	  	xAxis.tickFormat(d3.time.format('%Y'));	
@@ -678,8 +691,12 @@ function heatmap (data, opties) {
 	  yAxis.scale(yScale)
 	  		.ticks(numticks)
 	        .orient("left");
-	  if ((y_data_type=='nominal') && (!y_log)) {
-	  	yAxis.tickFormat(d3.format("s"));
+	  if ((y_data_type=='nominal') && (!y_log)) {	  
+		if ((ymax-ymin)>500) {
+			yAxis.tickFormat(d3.format(" s"));
+		} else {
+			yAxis.tickFormat(d3.format(" d"));
+		}
 	  }
 	  if (y_data_type=='date_year') {
 	  	yAxis.tickFormat(d3.time.format('%Y'));	
@@ -701,7 +718,7 @@ function heatmap (data, opties) {
 	  var chart=_this.chart;
 
 		chart.append("rect")
-			.attr("id",'dragrect')
+			.attr("id",'dragrect_'+_this.nr)
 			.attr("x",0)
 			.attr("y",0)
 			.attr("height",0)
@@ -711,15 +728,18 @@ function heatmap (data, opties) {
 			.attr("fill","none")
 
 	  chart.append("g")
-	        .attr("class","xaxis mainx")
+	  		.attr("id","xaxis_"+_this.nr)
+	        .attr("class","xaxis mainx xaxis_" + _this.nr)
 	        .attr("transform","translate(75,"+(imgheight+25)+")")
 	        .attr('font-size','32px')
 	        .call(xAxis);
-	  chart.append("g")
-	        .attr("class","yaxis")
 
+	  chart.append("g")
+	  		.attr("id","yaxis_"+_this.nr)
+	        .attr("class","yaxis mainy yaxis_"+_this.nr)
 	        .attr("transform","translate(75,25)")
 	        .call(yAxis);
+
 	  chart.selectAll(".tick >text")
 	  		.attr("font-family", "Corbel")
 	  		.attr("font-weight", "normal")
@@ -729,17 +749,24 @@ function heatmap (data, opties) {
 	  if (x_data_type_simple=='date') {
 	  	chart.selectAll(".mainx")
 	  			.selectAll(".tick >text")
-	  			.attr("transform", "translate(-10,0)rotate(-45)")
+	  			.attr("transform", "translate(-10,0)rotate(-45)")	  			
 	  			.style("text-anchor", "end");
 		xlabeloffset=8;
 	  	}
+	  	chart.selectAll(".mainx")
+	  			.selectAll(".tick >text")
+	  			.attr("class","xticks_"+this.nr);
+		chart.selectAll(".mainy")
+	  			.selectAll(".tick >text")
+	  			.attr("class","yticks_"+this.nr);
+		
 
 
-
-	  chart.append("text")      // text label for the x axis
-	  		.attr("class","xaxis")
+	  chart.append("text")      // text label for the x axis	  		
+	  		.attr("class","xaxis xlabel_"+_this.nr)
 	        .attr("x", imgwidth/2+70 )
 	        .attr("y",  imgheight+70 )
+
 	        .style("text-anchor", "middle")
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", fontsize+"px")
@@ -747,7 +774,7 @@ function heatmap (data, opties) {
 	  		.attr("font-weight", "bold")
 	        .text(opties.x_label);
 	  chart.append("text")      // text label for the x axis
-	    	.attr("class","yaxis")
+	    	.attr("class","yaxis ylabel_"+_this.nr)
 	        .attr("x", 0 )
 	        .attr("y", 0)
 	        .attr("font-family", "Corbel")
@@ -756,15 +783,21 @@ function heatmap (data, opties) {
 	        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
 	        .style("text-anchor", "middle")
 	        .text(opties.y_label);
+
+	  var title=opties.title;
+	  if (opties.multimap) {
+	  	title=opties.multimap_title;
+	  }
 	  chart.append("text")      // text label for the x axis
-	    	.attr("class","yaxis")
+	    	.attr("id","title_"+_this.nr)
+	    	.attr("class","title")
 	        .attr("x", imgwidth/2+70 )
 	        .attr("y", 15)
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", fontsize+"px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
-	        .text(opties.title);
+	        .text(title);
 	        /*
 	  if (y_data_type_simple=='date') {
 	  	chart.selectAll(".mainy")

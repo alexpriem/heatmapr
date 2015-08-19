@@ -145,7 +145,10 @@ function resize_cats () {
 
     
 
+    
     if (smallsize) {
+        // opschalen naar grotere size: 500x500 oid
+        smallsize=false;        
         for (var i=0; i<nr_heatmaps; i++) { 
             var opt=opties[i];
             opt.imgwidth=opt.imgwidth*4;
@@ -153,20 +156,40 @@ function resize_cats () {
             heatmaps[i].opties.imgwidth=opt.imgwidth; 
             heatmaps[i].opties.imgheight=opt.imgheight;
         }
-        smallsize=false;        
+        
     } else {        
+        smallsize=true;
         for (var i=0; i<nr_heatmaps; i++) { 
             var opt=opties[i];
             opt.imgwidth=opt.imgwidth/4;
             opt.imgheight=opt.imgheight/4;
             heatmaps[i].opties.imgwidth=opt.imgwidth; 
             heatmaps[i].opties.imgheight=opt.imgheight;
-        }
-        smallsize=true;
+        }        
     }
     console.log('new imgwidth/height',opt.imgwidth, opt.imgheight)
     init_page();
     draw_heatmaps();
+
+    if (smallsize) {
+        colpos=0;
+        lastrow=parseInt(nr_heatmaps/4)*4;
+        var num_cols=heatmaps[0].opties.multimap_numcols;
+        for (i=0; i<nr_heatmaps; i++,colpos++) {            
+            if (colpos==num_cols) {
+                colpos=0;
+            }
+            if (colpos!=0) {
+                $('.yticks_'+i).hide();
+                $('.ylabel_'+i).hide();                
+            }
+            if (i<lastrow) {                
+                $('.xlabel_'+i).hide();
+                $('.xticks_'+i).hide();
+            }
+         
+        }
+    }
 }
 
 function init_page() {
@@ -186,7 +209,7 @@ function init_page() {
     var quali_colormap=chroma.scale('Dark2');
     for (var i=0; i<nr_heatmaps; i++) {
         console.log('heatmap:',i,nr_heatmaps);
-        h=new heatmap(data[i],opties[i]);
+        h=new heatmap(data[i],opties[i],i);
         h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
         h.mean_x=mean_x[i];
         h.median_x=median_x[i];
@@ -220,7 +243,7 @@ function init_page() {
     $('#cat_multiples').on('click',resize_cats);
     $('#cat_sharecolormap').on('click',toggle_colormap_sharing);
  //   Pixastic.debug=true;
-    document.title =window_opties.title;
+    document.title =h.opties.title;
     console.log('print=',print);
     if (print==true) {
         $('.leftbox').hide();
