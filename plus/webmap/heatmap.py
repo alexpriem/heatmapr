@@ -511,8 +511,10 @@ class heatmap:
         split2file=None
         if do_multimap:
             split1file=open('%s/split/%s.csv' % (self.infodir, split1_var))
-        else:
-            split2file=open('%s/split/%s.csv' % (self.infodir, split2_var))
+            if split2_var!='':
+                split2file=open('%s/split/%s.csv' % (self.infodir, split2_var))
+        
+
         for x_txt, y_txt in zip (fx, fy):
 
             x_txt=x_txt.strip()
