@@ -10,7 +10,7 @@ from dictify import dictify_all_the_things
 from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
 import heatmap
-
+import plus.settings as settings
 
 
 
@@ -32,8 +32,7 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
 
 def serve_heatmap_js (request, dataset, path):
 
-    datadir='e:/data'
-    js_file='%s/%s_info/heatmaps/%s' % (datadir,dataset, path)
+    js_file='%s/%s_info/heatmaps/%s' % (settings.datadir,dataset, path)
     print js_file
     f=open(js_file)
     txt=f.read()
@@ -50,8 +49,8 @@ def view_heatmaps (request, dataset):
     
     #print dataset
     template = loader.get_template('heatmaps.html')
-    datadir='e:/data'
-    heatmapdir=datadir+'/'+dataset+'_info/heatmaps/'
+
+    heatmapdir=settings.datadir+'/'+dataset+'_info/heatmaps/'
     if not os.path.exists(heatmapdir):
         os.makedirs(heatmapdir)  
     heatmapfiles=os.listdir(heatmapdir)
@@ -80,8 +79,7 @@ def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
     if indexnr is None:
         indexnr=0
     template = loader.get_template('heatmap.html')
-    datadir='e:/data'
-    infodir=datadir+'/'+dataset+'_info'
+    infodir=settings.datadir+'/'+dataset+'_info'
     args={'dataset':dataset,'x_var':x_var,'y_var':y_var,'indexnr':indexnr,'infodir':infodir}
     context = RequestContext(request, args)
     return HttpResponse(template.render(context))

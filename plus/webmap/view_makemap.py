@@ -11,7 +11,7 @@ from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
 from helpers import get_col_types, read_csvfile
 import heatmap
-
+import plus.settings as settings
 
 colormapnames=['blue','gray','cbs_blue','cbs_green','cbs_red','cbs_hot','terrain','coolwarm','hot','hot2','ygb']
 
@@ -36,8 +36,7 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
 @csrf_exempt
 def make_heatmap (request, dataset, x_var=None, y_var=None):
 
-    datadir='e:/data'
-    infodir=datadir+'/'+dataset+'_info'
+    infodir=settings.datadir+'/'+dataset+'_info'
     if not os.path.exists(infodir):
         os.makedirs(infodir)
     if not os.path.exists(infodir+'/heatmaps'):
@@ -81,6 +80,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             msg='ok'
             args['infodir']=infodir
             args['outfile']=args['x_var']+'_'+args['y_var']+'_0'
+            print coltypes_bycol.keys()[:10]
             x_types=coltypes_bycol[args['x_var']]   # info van variabelenaam x-kolom ophalen
             y_types=coltypes_bycol[args['y_var']]
 
@@ -123,7 +123,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             y_max='max',
             y_steps=500,
 
-            split1_var='AR19',
+            split1_var='',
             split2_var='',
             gradmin=0,
             gradmax='max',
@@ -160,6 +160,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     x_max=args['x_max']
     y_min=args['y_min']
     y_max=args['y_max']
+    dx=x_max-x_min
     dy=y_max-y_min
     steps_set=False
     if dy>20 and dy<150:

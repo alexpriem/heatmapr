@@ -10,12 +10,11 @@ from dictify import dictify_all_the_things
 from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
 from helpers import get_col_types, read_csvfile
-
+import plus.settings as settings
 
 def view_dataset_var_labels (request, dataset):
 
-    datadir='e:/data'
-    infodir=datadir+'/'+dataset+'_info'
+    infodir=settings.datadir+'/'+dataset+'_info'
     if not os.path.exists(infodir):
         os.makedirs(infodir)
 
@@ -32,8 +31,7 @@ def view_dataset_var_labels (request, dataset):
 
 def view_var_key_labels (request, dataset, variable):
 
-    datadir='e:/data'
-    infodir=datadir+'/'+dataset+'_info'
+    infodir=settings.datadir+'/'+dataset+'_info'
     if not os.path.exists(infodir):
         os.makedirs(infodir)
 

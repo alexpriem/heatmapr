@@ -11,7 +11,7 @@ from dict2type import typechecker
 from makehist import make_hist3, get_data, check_binsize
 from helpers import get_col_types, read_csvfile
 import heatmap
-
+import plus.settings as settings
 
 
 
@@ -174,8 +174,7 @@ def test_heatmap (col_info):
 @csrf_exempt
 def histogram (request, dataset, variable):
 
-    datadir='e:/data'
-    infodir=datadir+'/'+dataset+'_info'
+    infodir=settings.datadir+'/'+dataset+'_info'
     if not os.path.exists(infodir):
         os.makedirs(infodir)    
     col_info, coltypes_bycol=get_col_types(infodir)

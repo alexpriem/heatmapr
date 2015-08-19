@@ -22,8 +22,11 @@ var handle_ajax=function (result) {
 function makemap () {
 
  
- 	var dataset='best2010';
- 	data={'cmd':'makemap'};	
+    var url=window.location.href;
+    var data=url.split('/');    
+    var dataset=data[4];
+    
+    data={'cmd':'makemap'};	
     for (var key in defaults) {
     	 if(defaults.hasOwnProperty(key)){
     	 	val=$('#'+key).val();
