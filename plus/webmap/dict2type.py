@@ -143,16 +143,22 @@ class typechecker ():
         num_keys=lines
         datatype='char'
         realstr=str_t-empty
-        if (float_t!=0) and (realstr<=0):
-            datatype='float'
-        if (float_t==0) and  (int_t!=0) and (realstr<=0):
-            datatype='int'
-        if (float_t==0) and  (int_t!=0) and (realstr<=0):
-            datatype='int'
-        if (float_t==0) and  (int_t==0) and (realstr>=0):
-            datatype='char'
-        if (num_keys>100) and (str_t>50):     # voor het geval van een kleine fractie ints/floats
-            datatype='char'
+        if (num_keys>=14):
+            if (float_t!=0) and (realstr<=4):
+                datatype='float'
+            if (float_t==0) and  (int_t!=0) and (realstr<=4):
+                datatype='int'
+            if (float_t==0) and  (int_t==0) and (realstr>=0):
+                datatype='char'
+            if (num_keys>100) and (str_t>50):     # voor het geval van een kleine fractie ints/floats
+                datatype='char'
+        if (num_keys<14):
+            if (float_t!=0) and (realstr<=1):
+                datatype='float'
+            if (float_t==0) and  (int_t!=0) and (realstr<=1):
+                datatype='int'
+            if (float_t==0) and  (int_t==0) and (realstr>=0):
+                datatype='char'
         if (empty==1) and (num_keys==1):
             datatype='empty'
 
