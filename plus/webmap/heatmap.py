@@ -1,4 +1,4 @@
-import random, os, sys, inspect, json, bisect, csv
+import random, os, inspect, json, bisect, csv, cjson
 from math import log10
 import datetime #.datetime.strptime as strptime
 from helpers import get_col_types, read_csvfile
@@ -402,11 +402,11 @@ class heatmap:
         if multimap:
             if split1_var!='':
                 split1_labels=read_csvfile ('%s/labels/%s.csv' % (self.infodir, split1_var))
-                split1_labels=sorted(split1_labels.iteritems())
+                #split1_labels=sorted(split1_labels.iteritems())
                 print split1_labels
             if split2_var!='':
                 split2_labels=read_csvfile ('%s/labels/%s.csv' % (self.infodir, split2_var))
-                split2_labels=sorted(split2_labels.iteritems())
+                #split2_labels=sorted(split2_labels.iteritems())
 
 
 
@@ -883,11 +883,16 @@ class heatmap:
         optiejs=''
         if heatmapnr==0:
                 optiejs='var opties=[];\n'
+
         if multimap:
+            legend_labels={}
             for key in datakeys:
                 args['multimap_title']=key
                 self.multimap_title=key
+                legend_labels[key]=key+':'+split1_labels.get(key,key)
                 optiejs+=self.opties_to_js(args)
+            legend_labels=sorted(legend_labels.iteritems())
+            js+='var legend_labels='+cjson.encode(legend_labels)+';'
         else:
             optiejs+=self.opties_to_js(args)
 

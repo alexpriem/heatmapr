@@ -28,6 +28,42 @@ transform_value=function  (val,transform, log_min) {
 
 
 
+
+
+function draw_legend () {
+
+	legend=d3.select('#legend');
+	opties=opties[0];
+	legend_x=55; // opties.multimap_numcols*opties.imgwidth+50;	
+
+	for (var i=0; i<legend_labels.length; i++) {
+		var txt=legend_labels[i][1];
+		console.log('LEGEND:',txt);
+		legend.append("text")      // text label for the x axis
+	    	.attr("id","legend")
+	    	.attr("class","title")
+	        .attr("x", legend_x )
+	        .attr("y", 18*i+15)
+	        .attr("font-family", "Corbel")
+	  		.attr("font-size", fontsize+"px")
+	  		.attr("font-weight", "bold")
+	        .style("text-anchor", "middle")
+	        .text(txt);	  	
+	    	    
+	    legend.append ("rect")
+	    	.attr("x",legend_x-50)
+	    	.attr("y",18*i+8)
+			.attr("height",8)
+			.attr("width",8)
+			.attr("stroke",'#444')
+			.attr("stroke-width",1)
+			.attr("fill",cat_colormap[i]);
+
+		}
+}
+
+
+
 function heatmap (data, opties, nr) {
 	this.skipzero=true;
 	this.hist=null;
@@ -659,7 +695,7 @@ function heatmap (data, opties, nr) {
 	  var xAxis=d3.svg.axis();
 	  var yAxis=d3.svg.axis();	
 
-	  if ((opties.multimap) && (smallsize==true)){
+	  if ((multimap) && (smallsize==true)){
 	  		numticks=4;
 
 	  }
@@ -785,7 +821,7 @@ function heatmap (data, opties, nr) {
 	        .text(opties.y_label);
 
 	  var title=opties.title;
-	  if (opties.multimap) {
+	  if (multimap) {
 	  	title=opties.multimap_title;
 	  }
 	  chart.append("text")      // text label for the x axis
@@ -809,7 +845,11 @@ function heatmap (data, opties, nr) {
 	  	*/
 
 
+	  		/* legenda voor multimap */
+
 	}
+
+
 
 
 

@@ -186,9 +186,9 @@ function resize_cats () {
             if (i<lastrow) {                
                 $('.xlabel_'+i).hide();
                 $('.xticks_'+i).hide();
-            }
-         
+            }         
         }
+        draw_legend();
     }
 }
 
@@ -206,6 +206,7 @@ function init_page() {
     init_all_heatmaps(heatmapdata);
     
     heatmaps=[];
+    cat_colormap=[]; // globaal
     var quali_colormap=chroma.scale('Dark2');
     for (var i=0; i<nr_heatmaps; i++) {
         console.log('heatmap:',i,nr_heatmaps);
@@ -218,6 +219,9 @@ function init_page() {
         h.sum_x=sum_x[i];
         h.sum_y=sum_y[i];
         var colormap_endpoint=quali_colormap(i/nr_heatmaps);
+        var rgb=colormap_endpoint._rgb;
+        var colortxt='rgb('+parseInt(rgb[0])+','+parseInt(rgb[1])+','+parseInt(rgb[2])+')';
+        cat_colormap.push(colortxt);
         h.colormap=generate_colormap(colormap_endpoint, 20);
         h.draw_axes();                 
         heatmaps.push(h);    
@@ -227,7 +231,9 @@ function init_page() {
     set_gradient(opties[0]);    
     topnode.preAttributeChangedCallback=bin_alldata;    
     topnode.postAttributeChangedCallback=draw_heatmaps;        
-    init_gradients(); 
+    init_gradients();
+    $('#cg_a').append('<svg id="legend" height="400" width="150"> <svg>');
+
     
     h=heatmaps[0];
     h.init_print();    
