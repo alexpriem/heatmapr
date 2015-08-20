@@ -1,14 +1,6 @@
-import os,sys, cjson, shutil, csv
-from django.shortcuts import render
+import os, csv
 from django.http import HttpResponse
 from django.template import RequestContext, loader
-from django.views.decorators.csrf import csrf_exempt
-
-
-from csv_split import csv_select
-from dictify import dictify_all_the_things
-from dict2type import typechecker
-from makehist import make_hist3, get_data, check_binsize
 from helpers import get_col_types, read_csvfile
 import plus.settings as settings
 

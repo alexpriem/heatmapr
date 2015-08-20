@@ -1,7 +1,7 @@
 import random, os, sys, inspect, json, bisect, csv
 from math import log10
 import datetime #.datetime.strptime as strptime
-#from datetime.datetime import strptime
+from helpers import get_col_types, read_csvfile
 
 
 def safelog10 (x):
@@ -393,11 +393,23 @@ class heatmap:
         split1_var=self.split1_var
         split2_var=self.split2_var
 
-        do_multimap=False
+        multimap=False
         if split1_var!='' or split2_var!='':
-            do_multimap=True
-        args['multimap']=do_multimap
-        self.multimap=do_multimap
+            multimap=True
+        args['multimap']=multimap
+        self.multimap=multimap
+
+        if multimap:
+            if split1_var!='':
+                split1_labels=read_csvfile ('%s/labels/%s.csv' % (self.infodir, split1_var))
+                split1_labels=sorted(split1_labels.iteritems())
+                print split1_labels
+            if split2_var!='':
+                split2_labels=read_csvfile ('%s/labels/%s.csv' % (self.infodir, split2_var))
+                split2_labels=sorted(split2_labels.iteritems())
+
+
+
 
 
         heatmaps={}
@@ -511,7 +523,7 @@ class heatmap:
             fweight=open('%s/split/%s.csv' % (self.infodir, weight_var))
         split1file=None
         split2file=None
-        if do_multimap:
+        if multimap:
             split1file=open('%s/split/%s.csv' % (self.infodir, split1_var))
             if split2_var!='':
                 split2file=open('%s/split/%s.csv' % (self.infodir, split2_var))
@@ -628,7 +640,7 @@ class heatmap:
             total+=val  #
 
             
-            if do_multimap:
+            if multimap:
                 heatmapname=''
                 if split2_var!='':
                     heatmapname=split1_data +'_'+ split2_data
@@ -731,7 +743,7 @@ class heatmap:
 
 # dump data
         js=''
-        if do_multimap==False:
+        if multimap==False:
             js='var multimap=false;\nvar nr_heatmaps=1;\n\nvar data=[];\n'
     
         gradmin=self.heatmap[0][0]
@@ -740,7 +752,7 @@ class heatmap:
         if self.dump_csv:
             self.heatmap_to_csv (heatmap,self.outfile+'.csv')
 
-        if do_multimap==True:
+        if multimap==True:
             datakeys=sorted(heatmaps.keys())
             js='var multimap=true;\n'
             js+='var data=[];\n'
@@ -764,7 +776,7 @@ class heatmap:
            #     self.heatmap_to_csv (heatmap,self.outfile+filename+'.csv')
                 
             js+='var datakeys='+str(datakeys)+';\n'
-        if do_multimap==False:
+        if multimap==False:
             js+=self.heatmap_to_js (self.heatmap)
 
         js+='var nr_heatmaps=data.length;\n\n'
@@ -871,7 +883,7 @@ class heatmap:
         optiejs=''
         if heatmapnr==0:
                 optiejs='var opties=[];\n'
-        if do_multimap:
+        if multimap:
             for key in datakeys:
                 args['multimap_title']=key
                 self.multimap_title=key
