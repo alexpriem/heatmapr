@@ -32,7 +32,7 @@ def prepmatch (matches):
 
 # helperfunction for csv_select
 
-def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, matchcols, matchvals):
+def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, matchcols, matchvals, matchtype):
 
 
     filedict={}
@@ -95,7 +95,7 @@ def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
 
 
     sep_out=','
-    if match is None:
+    if match is not None:
         matchdict, matchtype=prepmatch(match)
     else:
         matchdict={}
@@ -112,9 +112,8 @@ def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
     subkeys=[]
     subcolnr={}
     for key in keys:
-        if key[0]!='y':
-            subkeys.append(key)
-            subcolnr[key]=keys.index(key)            
+        subkeys.append(key)
+        subcolnr[key]=keys.index(key)            
     print '#variabelen naar csv-files:',len(subkeys)
 
     matchcols=[]
@@ -129,7 +128,7 @@ def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
     batch=subkeys[startkey:startkey+batchsize]
     while len(batch)!=0:
         print startkey, len(batch)
-        split_batch(c, outfile, batch, subcolnr, global_recode, matchcols, matchvals)
+        split_batch(c, outfile, batch, subcolnr, global_recode, keys, matchcols, matchvals, matchtype)
         f.seek(0,0)
         f.readline()
         startkey+=batchsize
