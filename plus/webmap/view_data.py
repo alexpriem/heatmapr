@@ -63,7 +63,7 @@ def read_recodefile (filename):
 
 
 
-def split_csv_file (datadir, dataset, infodir, match, global_recode):
+def split_csv_file (datadir, dataset, infodir, sep, match, global_recode):
 
     splitdir=infodir+'/split'
     if not os.path.exists(splitdir):
@@ -71,7 +71,6 @@ def split_csv_file (datadir, dataset, infodir, match, global_recode):
 
     infile=datadir+'/'+dataset+'.csv'
     outfile=infodir+'/split/'
-    sep=','
     if match is None:
         match=[]    # ['srtadr=1','h_ink=1']
 
@@ -207,7 +206,7 @@ def dataset (request, dataset):
 
     g={'ND,1':'', 'ND,2':'', 'ND,3':'', 'ND,4':'', 'ND,5':'', 'ND,6':''}
     if action=='split':
-        split_csv_file (datadir, dataset, infodir, match=None, global_recode=g)
+        split_csv_file (datadir, dataset, infodir, sep, match=None, global_recode=g)
 
     if action=='dictify':        
         dictify_all_the_things (infodir, cols)
