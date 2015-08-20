@@ -40,7 +40,7 @@ function draw_legend () {
 		var txt=legend_labels[i][1];
 		console.log('LEGEND:',txt);
 		legend.append("text")      // text label for the x axis
-	    	.attr("id","legend")
+	    	.attr("id","legendtxt_"+i)
 	    	.attr("class","title")
 	        .attr("x", legend_x )
 	        .attr("y", 18*i+15)
@@ -51,6 +51,7 @@ function draw_legend () {
 	        .text(txt);	  	
 	    	    
 	    legend.append ("rect")
+	    	.attr("id","legend_r_"+i)
 	    	.attr("x",legend_x-50)
 	    	.attr("y",18*i+8)
 			.attr("height",8)
