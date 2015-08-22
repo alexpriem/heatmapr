@@ -81,6 +81,7 @@ class typechecker ():
                 empty=1
                 str_t+=1
                 hist['']=val
+                hist_string['']=val
                 continue
             try:
                 v=float(key)
@@ -92,7 +93,7 @@ class typechecker ():
             if len(key)>=2:
                 if key[0]=='0' and key[1].isdigit():    # voorloopnul -> string ipv int/float                
                     str_t+=1
-                    hist[key]=val
+                    hist_string[key]=val                    
                     continue
                 
             if math.isinf(v):
@@ -394,7 +395,7 @@ class typechecker ():
                 data2.append(d)
             except:
                 ef=open(self.infodir+'/error.log','a')
-                s='Key %s not found when dictifying variable %s\n' % (s,variable)
+                s='Key [%s] not found when dictifying variable %s, %d\n' % (s,variable, len(s))
                 ef.write(s)
                 ef.close()
 
@@ -420,7 +421,8 @@ class typechecker ():
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
         g.write('colname,datatype,num_keys,num_valid,empty,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
-        for col in self.cols:
+        skip=True
+        for col in self.cols:           
             if col=='.':
                 break
             f=self.data_info=self.get_type (col)

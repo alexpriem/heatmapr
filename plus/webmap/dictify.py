@@ -8,7 +8,7 @@ def dictify(infodir, colname):
 
     hist={}
     for line in f:
-        k=line.strip()
+        k=line[:-1]
         hist[k]=hist.get(k,0)+1
 
     histdir=infodir+'\\hist'
