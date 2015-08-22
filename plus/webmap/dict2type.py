@@ -60,6 +60,8 @@ class typechecker ():
         float_t=0
         int_t=0
         str_t=0
+        date_t=0
+        date_fails=0
         empty=0
         int_min=None
         int_max=None
@@ -85,8 +87,21 @@ class typechecker ():
                 continue
             try:
                 v=float(key)
-            except:                
+            except:
+                hist[key]=val
+                if (date_fails<20):
+                    #print 'df', date_fails, date_t
+                    try:
+                        d=dateutil.parser.parse(key)
+                        if type(d)==datetime.datetime:
+                            date_t+=1
+                            continue
+                    except:
+                        str_t+=1
+                        date_fails+=1
+                        continue
                 str_t+=1
+                date_fails+=1
                 hist[key]=val
                 continue
             
@@ -153,6 +168,8 @@ class typechecker ():
                 datatype='char'
             if (num_keys>100) and (str_t>50):     # voor het geval van een kleine fractie ints/floats
                 datatype='char'
+            if (date_t>0) and (date_fails<10):
+                datatype='date'
         if (num_keys<14):
             if (float_t!=0) and (realstr<=1):
                 datatype='float'
