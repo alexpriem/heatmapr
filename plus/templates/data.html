@@ -120,7 +120,8 @@
 
         <th> num_keys </th>
         <th> num_valid </th>
-        <th> empty </th>
+        <th> num_missing </th>
+        <th> missing </th>
         <th> unique index </th>
         <th> single_value </th>
         <th> bi_value </th>
@@ -155,7 +156,8 @@
               <td> {{label}} </td>
               <td> {{num_keys}} </td>
               <td> {{num_valid}} </td>
-              <td> {{#if empty}}
+              <td> {{num_missing}} </td>
+              <td> {{#if missing}}
                        <div><i class="fa fa-lg fa-check-square"> </i></div>
                    {{else}}
                        <div><i class="fa fa-lg fa-square-o"> </i></div>

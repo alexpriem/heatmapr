@@ -13,12 +13,6 @@ def get_label(filehandle, labeldict):
         c=csv.reader(filehandle,delimiter=',')
         for row in c:
             key,label=row[0],row[1]
-            try:
-                key=float(key)
-                if key.is_integer():
-                    key=int(key)
-            except:
-                pass
             labeldict[key]=label
         return labeldict
 
@@ -257,6 +251,7 @@ def histogram (request, dataset, variable):
 
 
     print 'got rowinfo'
+    print rowinfo
     histogram_json=cjson.encode(rowinfo)
     context = RequestContext(request, {'dataset':dataset,
                                        'prevcolname2':prevvar2,

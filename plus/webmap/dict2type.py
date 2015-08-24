@@ -46,7 +46,7 @@ class typechecker ():
             info['float_max']=0
             info['int_min']=0
             info['int_max']=0
-            info['empty']=0
+            info['missing']=0
             info['num_keys']=0
             info['min_val']=0
             info['max_val']=0
@@ -62,7 +62,7 @@ class typechecker ():
         str_t=0
         date_t=0
         date_fails=0
-        empty=0
+        has_missing=False
         int_min=None
         int_max=None
         float_min=None
@@ -70,6 +70,7 @@ class typechecker ():
         sumval=0
         avgsum=0
         num_valid=0
+
 
         hist={}
         hist_string={}
@@ -79,12 +80,6 @@ class typechecker ():
             lines+=1
             key,val=line[0],int(line[1])                        
             hist_string[key]=val            
-            if key=='':
-                empty=1
-                str_t+=1
-                hist['']=val
-                hist_string['']=val
-                continue
             try:
                 v=float(key)
             except:
@@ -136,7 +131,19 @@ class typechecker ():
             
         print variable, int_t, float_t, str_t
 
-        
+        num_keys=lines
+        num_missing=0
+        missing=['','NA','NULL']    # tzt naar externe file
+        # 0 als key -> ook speciaal
+
+        if ['0'] in hist_string.items():
+            if (num_keys>20) and (hist_string['0']>0.1*self.num_records):
+                missing.append('0')
+        for k,v in hist_string.items():
+            if k in missing:
+                num_missing+=v
+
+
         min_val=None
         if int_min is not None:
             min_val=int_min;
@@ -156,9 +163,9 @@ class typechecker ():
                     max_val=int_max
                             
             
-        num_keys=lines
+
         datatype='char'
-        realstr=str_t-empty
+        realstr=str_t - num_missing
         if (num_keys>=14):
             if (float_t!=0) and (realstr<=4):
                 datatype='float'
@@ -177,15 +184,15 @@ class typechecker ():
                 datatype='int'
             if (float_t==0) and  (int_t==0) and (realstr>=0):
                 datatype='char'
-        if (empty==1) and (num_keys==1):
-            datatype='empty'
+        if (has_missing) and (num_keys==1):
+            datatype='missing'
 
 
         single_value=(num_keys==1)
         bi_value=(num_keys==2)
         string_garbage=False
         #print (float_t+int_t)>str_t, (str_t-empty), ((str_t-empty)>0 and (str_t-empty<10))
-        if ((float_t+int_t)>str_t) and ((str_t-empty)>0 and (str_t-empty<10)):
+        if ((float_t+int_t)>str_t) and ((realstr)>0 and (realstr<10)):
             string_garbage=True
 
 
@@ -202,9 +209,10 @@ class typechecker ():
         info['int_min']=int_min
         info['int_max']=int_max
 
-        info['empty']=empty
+        info['missing']=has_missing
         info['num_keys']=num_keys
         info['num_valid']=num_valid
+        info['num_missing']=num_missing
         info['min_val']=min_val
         info['max_val']=max_val
         info['avg']=avgsum/self.num_records
@@ -235,7 +243,7 @@ class typechecker ():
             sumval=0
 
         datatype=self.data_info['datatype']
-        empty=self.data_info['empty']
+        empty=self.data_info['missing']
 
         
         f=open(self.infodir+'/hist/%s.csv' % variable)
@@ -437,7 +445,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('colname,datatype,num_keys,num_valid,empty,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
+        g.write('colname,datatype,num_keys,num_valid,num_missing,missing,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
         skip=True
         for col in self.cols:           
             if col=='.':
@@ -447,7 +455,7 @@ class typechecker ():
             self.write_histogram_100 (col)
             self.write_binfile (col)
 
-            s='%(col)s,%(datatype)s,%(num_keys)d,%(num_valid)d,%(empty)d,%(unique_index)d' % f
+            s='%(col)s,%(datatype)s,%(num_keys)d,%(num_valid)d,%(num_missing)d,%(missing)d,%(unique_index)d' % f
             s+=',%(string_garbage)s,%(single_value)s,%(bi_value)s' %f
             s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
             s+=',%(int_min)s,%(int_max)s' % f
