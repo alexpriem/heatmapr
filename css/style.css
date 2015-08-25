@@ -391,11 +391,11 @@ color:white;
  display:inline;
 }
 
-#controls {
+#heatmap_controls {
 	padding-top: 25px;
 	padding-left: 25px;
 	float:left;
-	width:400px;
+	width:150px;
 	display:inline;
 }
 

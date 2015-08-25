@@ -762,7 +762,7 @@ function heatmap (data, opties, nr) {
 			.attr("width",0)
 			.attr("stroke",'black')
 			.attr("stroke-width",1)
-			.attr("fill","none")
+			.attr("fill","none");
 
 	  chart.append("g")
 	  		.attr("id","xaxis_"+_this.nr)
@@ -1096,8 +1096,8 @@ function heatmap (data, opties, nr) {
 		var xmax=opties.x_max+1;
 		var xmin=opties.x_min;
 		var delta=(xmax-xmin);
-		var val=((x-75)/imgwidth)*delta+xmin;
-
+		//var val=((x-75)/imgwidth)*delta+xmin;
+		var val=(x/imgwidth)*delta+xmin;
 		return val;
 	}
 
@@ -1107,6 +1107,7 @@ function heatmap (data, opties, nr) {
 		var ymax=opties.y_max+1;   // off by one, again.
 		var ymin=opties.y_min;
 		var delta=(ymax-ymin);
+		var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
 		var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
 
 		return val;
@@ -1145,14 +1146,18 @@ function heatmap (data, opties, nr) {
 		var colormap=gradient_node.colormap;
 
 
-		x=parseInt(evt.pageX-$(this).position().left);
-		y=parseInt(evt.pageY-$(this).position().top);
+		var xoffset=75;
+		var yoffset=25;
+		x=parseInt(evt.pageX-$(this).position().left)-xoffset;
+		y=parseInt(evt.pageY-$(this).position().top)-yoffset;
 		console.log(x, y);
 
-		if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
+		
+		if ((x<xoffset) || (y<0) || (x>imgwidth+xoffset) || (y>imgheight)) {
 			if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
 				//toggle_gradcontrols();
 			}
+			console.log('false');
 			return false;
 		}
 
@@ -1165,12 +1170,15 @@ function heatmap (data, opties, nr) {
 		var offsetspace_hist=-40;   // distance between side-histograms
 		var graphheight=0.25*imgheight;
 
-		var val=_this.x_to_world(x);
-		console.log(val, typeof(val));
-		if (val>1000){
-			xval=Math.round(val);
+		var xval=_this.x_to_world(x);
+		var yval=_this.y_to_world(y);
+
+		
+		console.log(xval, typeof(xval));
+		if (xval>1000){
+			xval=Math.round(xval);
 		} else {
-			xval=Math.round(val*100)/100;
+			xval=Math.round(xval*100)/100;
 		}
 
 
@@ -1184,8 +1192,8 @@ function heatmap (data, opties, nr) {
 	        .attr("font-weight", "bold")
 	        .text(opties.x_label+':'+xval);
 
-	    var val=_this.y_to_world(y);
-		yval=val.toFixed(0);
+	    
+		yval=yval.toFixed(0);
 		chart.append("text")
 	    	.attr("class","pointinfotext")
 	        .attr("x", 1.5*imgwidth+100 )
@@ -1361,18 +1369,18 @@ function heatmap (data, opties, nr) {
 
 	  chart.append("svg:line")
 	 	.attr("class","hist_x")
-	    .attr("x1", 75)
-	    .attr("y1", y)
-	    .attr("x2",imgwidth+75)
-	    .attr("y2", y)
+	    .attr("x1", xoffset)
+	    .attr("y1", y+yoffset)
+	    .attr("x2",imgwidth+xoffset)
+	    .attr("y2", y+yoffset)
 	    .style("stroke", "rgb(8,8,130)");
 
 
 	  chart.append("svg:line")
 	 	.attr("class","hist_y")
-	    .attr("x1", x)
+	    .attr("x1", x+xoffset)
 	    .attr("y1", 25)
-	    .attr("x2", x)
+	    .attr("x2", x+xoffset)
 	    .attr("y2", imgwidth+25)
 	    .style("stroke", "rgb(130,8,8)");
 	}
@@ -1381,7 +1389,7 @@ function heatmap (data, opties, nr) {
 	this.handle_drag=function(evt) {
 		if (_this.dragging==true) {
 
-			var svgEl= document.getElementById("dragrect");			
+			var svgEl= document.getElementById("dragrect_"+_this.nr);			
 			
 			var x=parseInt(evt.pageX-$(this).position().left);
 			var y=parseInt(evt.pageY-$(this).position().top);
@@ -1430,7 +1438,7 @@ function heatmap (data, opties, nr) {
 		var opties=_this.opties;
 
 		console.log('end_drag');		
-		var svgEl= document.getElementById("dragrect");
+		var svgEl= document.getElementById('dragrect_'+_this.nr);
 		svgEl.style.stroke = "#0000ff";
 
 		var x=parseInt(evt.pageX-$(this).position().left);
@@ -1440,7 +1448,7 @@ function heatmap (data, opties, nr) {
 		$('#selectbox').remove();
 		if ((_this.x0==x) && (_this.y0==y))  		
 		{
-			var svgEl= document.getElementById("dragrect");	
+			var svgEl= document.getElementById("dragrect_"+_this.nr);	
 			svgEl.setAttribute("height",  0);
 			svgEl.setAttribute("width",  0);			
 			return;
@@ -1472,7 +1480,8 @@ function heatmap (data, opties, nr) {
 		$("#heatmap_container_0").on('mousedown', _this.init_dragging);
 		$("#heatmap_container_0").on('mousemove', _this.handle_drag);
 		$("#heatmap_container_0").on('mouseup', _this.end_dragging);
-		$("#heatmap_container_0").on('click',_this.update_hist_x_y);
+		//d3.select("heatmap_container_0")
+		$("#heatmap_svg_0").on('click',_this.update_hist_x_y);
 
 
 
