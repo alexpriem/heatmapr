@@ -2,6 +2,7 @@ import os,sys, cjson, shutil, csv
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 
+from helpers import read_csvfile
 import plus.settings as settings
 
 
@@ -49,13 +50,19 @@ def view_heatmaps (request, dataset):
     heatmaps=[]
     for h in heatmapfiles:
         parts=h.split('_')
-        if (len(parts)==4):
+        if (len(parts)==4):  # meta / csv
             continue
         if (len(parts)==3):
             x,y,index=parts
 
+
         title='--'
-        heatmaps.append({'x':x,'y':y,'title':title,'filename':h})
+        print heatmapdir+h[:-3]+'_meta.csv'
+        heatmapinfo=read_csvfile(heatmapdir+h[:-3]+'_meta.csv')
+        print heatmapinfo
+        heatmaps.append({'x':x,'y':y,'title':title,'filename':h,'split1_var':heatmapinfo.get('split1_var',''), 'split2_var':heatmapinfo.get('split2_var','')})
+
+
     args={'dataset':dataset,'heatmaps':heatmaps}
     
     context = RequestContext(request, args)

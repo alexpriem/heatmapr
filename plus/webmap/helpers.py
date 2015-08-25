@@ -10,6 +10,7 @@ def read_csvfile(filename):
     except:
         pass
     labels={}
+    print f
     if f is not None:
         c=csv.reader(f,delimiter=',')
         for line in c:
@@ -32,8 +33,8 @@ def get_col_types(infodir):
     if f is not None:
         f.readline()
         f.readline()
-        int_cols=['num_keys','empty','unique_index',
-              'float_t','int_t','str_t','int_min','int_max']
+        int_cols=['num_keys','missing','unique_index','num_valid','num_missing'
+              'float_t','int_t','str_t','date_t','int_min','int_max']
         float_cols=['float_min','float_max','min','max','perc01','perc50','perc99','maxy2','maxy3', 'avg']
         bool_cols=['sparse1','sparse2','string_garbage','single_value','bi_value']
         c=csv.DictReader(f,delimiter=',')

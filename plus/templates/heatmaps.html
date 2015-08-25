@@ -23,17 +23,23 @@
 <body>
 
 
-<h3><a href="/data/{{dataset}}">{{dataset}}</a></h3>
+<h3>Heatmaps van <a href="/data/{{dataset}}">{{dataset}}</a></h3>
 
 <table class="table table-striped" id="overview">
 
-<tr><th> Filename </th>  <th> X </th>  <th> Y </th>  <th> title </th>
+<tr><th> Filename </th> 
+    <th> X </th>  
+    <th> Y </th>  
+    <th> uitsplitsing </th> 
+    <th> title </th>
 </tr>
 {% for heatmap in heatmaps %}
 <tr>
 <td> <a href="/heatmap/{{dataset}}/{{heatmap.x}}/{{heatmap.y}}/"> {{heatmap.filename}}</a>  </td>
 <td> <a href="/histogram/{{dataset}}/{{heatmap.x}}"> {{heatmap.x}}</a> </td>
 <td> <a href="/histogram/{{dataset}}/{{heatmap.y}}"> {{heatmap.y}}</a> </td>
+<td> <a href="/histogram/{{dataset}}/{{heatmap.split1_var}}">  {{heatmap.split1_var}}</a>  
+      {% if split2_var %}   , <a href="/histogram/{{dataset}}/{{heatmap.split2_var}}">  {{heatmap.split2_var}} </a> {% endif %} </td>
 <td> {{heatmap.title}}</td>
 </tr>
 {% endfor %}

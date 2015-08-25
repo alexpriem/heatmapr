@@ -20,7 +20,7 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
         for col in col_info:
             if (col['datatype']!='char') and (col['num_keys']>bins_required):
                 colnames.append(col['colname'])
-            if (col['num_keys']<20) and col['num_keys']>(1+col['empty']):
+            if (col['num_keys']<20) and col['num_keys']>(1+col['missing']):
                 groupcolnames.append(col['colname'])
         return colnames, groupcolnames
 
