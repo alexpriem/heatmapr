@@ -39,6 +39,7 @@ urlpatterns = patterns('',
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_makemap.make_heatmap),
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_makemap.make_heatmap),
     url(r'^makemap/(?P<dataset>.*)/$', view_makemap.make_heatmap),
+    url(r'^editmap/(?P<dataset>.*)/(?P<filename>.*)/$', view_makemap.edit_heatmap),
     url(r'^histogram/(?P<dataset>.*)/(?P<variable>.*)/$', view_histogram.histogram),
     url(r'^admin/', include(admin.site.urls)),
     

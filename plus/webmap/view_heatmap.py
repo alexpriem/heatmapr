@@ -79,7 +79,13 @@ def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
         indexnr=0
     template = loader.get_template('heatmap.html')
     infodir=settings.datadir+'/'+dataset+'_info'
-    args={'dataset':dataset,'x_var':x_var,'y_var':y_var,'indexnr':indexnr,'infodir':infodir}
+    filename='%s_%s_%d' % (x_var, y_var, indexnr)
+    args={'dataset':dataset,
+          'x_var':x_var,
+          'y_var':y_var,
+          'filename':filename,
+          'indexnr':indexnr,
+          'infodir':infodir}
     context = RequestContext(request, args)
     return HttpResponse(template.render(context))
 

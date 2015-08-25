@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 
-from helpers import get_col_types, read_csvfile
+import helpers
 import heatmap
 import plus.settings as settings
 
@@ -27,6 +27,7 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
 
 
 
+
 @csrf_exempt
 def make_heatmap (request, dataset, x_var=None, y_var=None):
 
@@ -36,7 +37,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     if not os.path.exists(infodir+'/heatmaps'):
         os.makedirs(infodir+'/heatmaps')
 
-    col_info, coltypes_bycol=get_col_types(infodir)
+    col_info, coltypes_bycol=helpers.get_col_types(infodir)
    # print col_info
     # args['displaymode'] uit post peuteren.
     colnames, groupcolnames=get_colnames_for_heatmap (infodir,  'heatmap', col_info)
@@ -66,7 +67,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
         print 'x x y:',args['imgheight'], args['imgwidth']
         if cmd=='update':
-            col_info, coltypes_bycol=get_col_types(infodir)
+            col_info, coltypes_bycol=helpers.get_col_types(infodir)
             colnames,groupcolnames=get_colnames_for_heatmap (infodir, args['displaymode'], col_info)
             data={'msg':'','colnames':colnames,'groupcolnames':groupcolnames}
 
@@ -210,7 +211,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             args['x_steps']=keys
             args['y_steps']=keys
 
-    labels=read_csvfile (infodir+'/labels.csv')
+    labels=helpers.read_csvfile (infodir+'/labels.csv')
     col_x=x_types['colname']
     col_y=y_types['colname']
     args['x_label']=labels.get(col_x,col_x)
@@ -227,3 +228,30 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
                                        'colormapnames':colormapnames})
     return HttpResponse(template.render(context))
 
+
+
+@csrf_exempt
+def edit_heatmap (request, dataset, filename):
+
+    infodir=settings.datadir+'/'+dataset+'_info'
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)
+    if not os.path.exists(infodir+'/heatmaps'):
+        os.makedirs(infodir+'/heatmaps')
+
+
+    args=helpers.read_csvfile('%s/heatmaps/%s_meta.csv' % (infodir,filename))
+    print '%s/heatmaps/%s_meta.csv' % (infodir, filename)
+    print args
+    col_info, coltypes_bycol=helpers.get_col_types(infodir)
+    colnames,groupcolnames=get_colnames_for_heatmap (infodir, args.get('displaymode','heatmap'), col_info)
+
+    template = loader.get_template('makemap.html')
+    args_json=cjson.encode(args)
+    context = RequestContext(request, {'colnames':colnames,
+                                       'groupcolnames':groupcolnames,
+                                       'dataset':dataset,
+                                       'defaults':args,'defaults_json':args_json,
+                                       'colormapnames':colormapnames})
+
+    return HttpResponse(template.render(context))
