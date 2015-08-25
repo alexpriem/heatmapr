@@ -1,6 +1,6 @@
 import os, math, csv
 import array, datetime, dateutil.parser
-from helpers import read_csvfile, test_date
+import helpers
 
 
 
@@ -55,8 +55,9 @@ class typechecker ():
             info['max_val']=0
             return info
 
-        dateconfig=read_csvfile(self.infodir+'/dateformat.csv')
+        dateconfig=helpers.read_csvfile(self.infodir+'/dateformat.csv')
         dateformat=dateconfig.get(variable)
+
 
         self.empty=False
         f=open(self.infodir+'/hist/%s.csv' % variable)
@@ -92,7 +93,7 @@ class typechecker ():
                 hist[key]=val
                 if (date_fails<20):
                     #print 'df', date_fails, date_t
-                    d=test_date(key, dateformat)
+                    d=helpers.test_date(key, dateformat)
                     #print 'date:',d, type(d)
                     if type(d)==datetime.datetime:
                         date_t+=1
@@ -139,12 +140,18 @@ class typechecker ():
 
         num_keys=lines
         num_missing=0
-        missing=['','NA','NULL']    # tzt naar externe file
-        # 0 als key -> ook speciaal
 
-        if ['0'] in hist_string.items():
+        missing=helpers.read_list(self.infodir+'/missing/default.csv')
+        missing2=helpers.read_list(self.infodir+'/missing/%s.csv' % variable)
+        if missing is None:
+            missing=['','NA','NULL']    # tzt naar externe file
+
+        if ['0'] in hist_string.items() and missing2 is None:
             if (num_keys>20) and (hist_string['0']>0.1*self.num_records):
                 missing.append('0')
+        if missing2 is not None:
+            missing=missing+missing2
+
         for k,v in hist_string.items():
             if k in missing:
                 num_missing+=v
