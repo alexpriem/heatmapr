@@ -1,6 +1,6 @@
-import os, sys, math, csv
-import array
-
+import os, math, csv
+import array, datetime, dateutil.parser
+from helpers import read_csvfile, test_date
 
 
 
@@ -42,16 +42,22 @@ class typechecker ():
             info['float_t']=0
             info['int_t']=0
             info['str_t']=0
+            info['date_t']=0
             info['float_min']=0
             info['float_max']=0
             info['int_min']=0
             info['int_max']=0
             info['missing']=0
             info['num_keys']=0
+            info['num_valid']=0
+            info['num_missing']=0
             info['min_val']=0
             info['max_val']=0
             return info
-        
+
+        dateconfig=read_csvfile(self.infodir+'/dateformat.csv')
+        dateformat=dateconfig.get(variable)
+
         self.empty=False
         f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
@@ -86,12 +92,12 @@ class typechecker ():
                 hist[key]=val
                 if (date_fails<20):
                     #print 'df', date_fails, date_t
-                    try:
-                        d=dateutil.parser.parse(key)
-                        if type(d)==datetime.datetime:
-                            date_t+=1
-                            continue
-                    except:
+                    d=test_date(key, dateformat)
+                    #print 'date:',d, type(d)
+                    if type(d)==datetime.datetime:
+                        date_t+=1
+                        continue
+                    else:
                         str_t+=1
                         date_fails+=1
                         continue
@@ -129,7 +135,7 @@ class typechecker ():
                     float_max=v
                 hist[v]=val
             
-        print variable, int_t, float_t, str_t
+        print variable, int_t, float_t, str_t, date_t
 
         num_keys=lines
         num_missing=0
@@ -184,6 +190,9 @@ class typechecker ():
                 datatype='int'
             if (float_t==0) and  (int_t==0) and (realstr>=0):
                 datatype='char'
+            if (date_t>0) and (realstr<=1):
+                datatype='date'
+
         if (has_missing) and (num_keys==1):
             datatype='missing'
 
@@ -204,6 +213,7 @@ class typechecker ():
         info['bi_value']=bi_value
         info['int_t']=int_t
         info['str_t']=str_t
+        info['date_t']=date_t
         info['float_min']=float_min
         info['float_max']=float_max
         info['int_min']=int_min
@@ -445,7 +455,7 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('colname,datatype,num_keys,num_valid,num_missing,missing,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
+        g.write('colname,datatype,num_keys,num_valid,num_missing,missing,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,date_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
         skip=True
         for col in self.cols:           
             if col=='.':
@@ -457,7 +467,7 @@ class typechecker ():
 
             s='%(col)s,%(datatype)s,%(num_keys)d,%(num_valid)d,%(num_missing)d,%(missing)d,%(unique_index)d' % f
             s+=',%(string_garbage)s,%(single_value)s,%(bi_value)s' %f
-            s+=',%(float_t)d,%(int_t)d,%(str_t)d' % f            
+            s+=',%(float_t)d,%(int_t)d,%(str_t)d,%(date_t)d' % f
             s+=',%(int_min)s,%(int_max)s' % f
             s+=',%(float_min)s,%(float_max)s' % f
             s+=',%(min_val)s,%(max_val)s' % f

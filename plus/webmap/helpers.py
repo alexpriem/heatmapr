@@ -1,4 +1,4 @@
-import csv
+import csv, datetime
 
 
 # helperfunction to read simple csv-file to a dict
@@ -10,7 +10,6 @@ def read_csvfile(filename):
     except:
         pass
     labels={}
-    print f
     if f is not None:
         c=csv.reader(f,delimiter=',')
         for line in c:
@@ -70,3 +69,26 @@ def get_col_types(infodir):
 
 
     return col_info,coltypes_bycol
+
+
+def test_date (datestr, dateformat):
+
+    if dateformat is not None:
+        d=None
+        try:
+            d=datetime.datetime.strptime(datestr, dateformat)
+        except:
+            pass
+        return d
+
+    datestr=datestr.strip().replace(' ','-').replace(':','-')
+    dateformats=['%Y-%m-%d','%Y-%m']
+    for date_format in dateformats:
+        d=None
+        try:
+            d=datetime.datetime.strptime(datestr, date_format )
+        except:
+            continue
+        if d is not None:
+            return d
+    return None
