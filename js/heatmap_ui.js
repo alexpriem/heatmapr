@@ -105,7 +105,7 @@ function heatmap (data, opties, nr) {
     	c.setAttribute("height", imgwidth);
     	_this.ctx = c.getContext('2d');
     	var s=document.getElementById(svg_el);
-    	s.setAttribute("width", imgwidth*2+100);
+    	s.setAttribute("width", imgwidth*2+200);
     	s.setAttribute("height", imgheight+100);
 
 		_this.chart = d3.select('#'+svg_el);
@@ -513,6 +513,11 @@ function heatmap (data, opties, nr) {
 
 
 
+  
+
+
+
+
 
 
 
@@ -528,69 +533,8 @@ function heatmap (data, opties, nr) {
 	}
 
 	this.print_fail=function  () {
+		console.log("print failed");
 
-		var opties=_this.opties;
-
-		console.log('print failed');
-		s='\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
-		s+="Printen niet gelukt. Opties voor command-line-reproductie:\n\n";
-		s+='import contour\n\n'
-		s+='args=dict(\n\t'
-		var firstkey=true;
-
-
-		opties['default_colormap']=colormapname;
-		opties['default_size']=size;
-		opties['default_transform']=transform;
-		opties['gradmin']=gradmin;
-		opties['gradmax']=gradmax;
-		opties['gradsteps']=gradsteps;
-
-		console.log('transform=',transform);
-
-		var optiekeys=[];
-		for (key in opties) {
-	    	if (opties.hasOwnProperty(key)) {
-	    		optiekeys.push(key);
-	    	}
-	    }
-	    optiekeys.sort();
-
-	    delete opties['datamin'];
-	    delete opties['datamax'];
-	    delete opties.x_max;
-	    delete opties.x_min;
-	    delete opties.y_max;
-	    delete opties.y_min;
-
-
-	    for (var i=0; i<optiekeys.length; i++) {
-	    		key=optiekeys[i];
-	    		if (!(firstkey)) {
-	    			s+=',\n\t';
-	    		}
-				val=opties[key];
-				console.log(key,val, typeof(val));
-				if (typeof(val)=='number')  {
-	    			s+=key+'='+val;
-	    		}
-	    		if (typeof(val)=='boolean') {
-	    			if (val==true) {
-	    				s+=key+'=True'
-	    			}
-		   			if (val==false) {
-	    				s+=key+'=False'
-	    			}
-
-	    		}
-				if (typeof(val)=='string') {
-					s+=key+'="'+val+'"';
-				}
-	    		firstkey=false;
-	    }
-	    s+=')\nc=contour.contour()\nc.run_contour(args)\n';
-
-	    $('#printcode').html(s);
 	}
 
 	this.click_print=function  () {
@@ -1455,11 +1399,32 @@ function heatmap (data, opties, nr) {
 		}
 		
 
+		s='';
+		var sel_xmin=_this.x_to_world(_this.x0-75).toFixed(2);
+		var sel_xmax=_this.x_to_world(x-75).toFixed(2);
+		var sel_ymin=_this.y_to_world(_this.y0).toFixed(2);
+		var sel_ymax=_this.y_to_world(y).toFixed(2);
+		
+		var url=window.location.href;
+		var data=url.split('/');	
+		var dataset=data[4];
 
-		var s='python select.py ';
-		s+=opties.x_var + ' ' + _this.x_to_world(_this.x0).toFixed(2) + ' ' + _this.x_to_world(x).toFixed(2)+' ';
-		s+=opties.y_var + ' ' + _this.y_to_world(_this.y0).toFixed(2) + ' ' + _this.y_to_world(y).toFixed(2);
-		console.log(s);
+		var data={dataset:dataset, 
+					'xvar':opties.x_var,
+					'xmin':sel_xmin,
+					'xmax':sel_xmax,
+					'ymin':sel_ymin,
+					'ymax':sel_ymax,
+					'yvar':opties.y_var
+				};  
+	
+			$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
+				type: "POST",
+				'data':data,
+				success: _this.handle_ajax,
+				error: _this.handle_ajax_error,
+			});
+
 
 		
 		_this.chart.append("text")
@@ -1472,6 +1437,28 @@ function heatmap (data, opties, nr) {
 	        .text(s);
 		
 	}
+
+
+	this.handle_ajax_error=function (result) {
+
+			console.log("ajax error");
+			$('#errorbox').html(result.status+ ' ' + result.statusText +result.responseText);
+			$('#heatmap_div').hide();
+	}
+
+	this.handle_ajax=function (result) {
+
+			console.log("selectie klaar");
+	}
+
+
+
+	this.make_selection=function   (action) {
+	
+			
+	}
+
+
 
 	this.init_hist_xy=function  () {
 

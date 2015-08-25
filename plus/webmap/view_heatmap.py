@@ -1,6 +1,7 @@
 import os,sys, cjson, shutil, csv
 from django.http import HttpResponse
 from django.template import RequestContext, loader
+from django.views.decorators.csrf import csrf_exempt
 
 from helpers import read_csvfile
 import plus.settings as settings
@@ -89,3 +90,19 @@ def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
     context = RequestContext(request, args)
     return HttpResponse(template.render(context))
 
+@csrf_exempt
+def make_subsel(request, dataset):
+
+    xvar=request.POST['xvar']
+    xmin=request.POST['xmin']
+    xmax=request.POST['xmax']
+
+    yvar=request.POST['yvar']
+    ymin=request.POST['ymin']
+    ymax=request.POST['ymax']
+
+    print xvar,xmin,xmax
+    print yvar,ymin,ymax
+    msg='ok'
+    data={'msg':msg}
+    return HttpResponse(cjson.encode(data))

@@ -12,7 +12,7 @@ var filter={'empty':false,
 
 var handle_ajax_error=function (result) {
 
-	$('#errorbox').html('<code>' +result.status+ ' ' + result.statusText + ' <pre>'+result.responseText+"</pre>")
+	$('#errorbox').html(result.status+ ' ' + result.statusText +result.responseText);
 	$('#heatmap_div').hide();
 }
 
