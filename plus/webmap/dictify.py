@@ -18,7 +18,7 @@ def dictify(infodir, colname):
     outfile=histdir+'\\%s.csv' % colname
 
     f=open (outfile,'wb')
-    c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
     c.writerow([colname,'num'])
     for k in sorted (hist.keys()):        # alfabetisch gesorteerd, dwz 10<2 !!!
         c.writerow([k,hist[k]])

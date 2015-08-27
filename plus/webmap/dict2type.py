@@ -62,7 +62,7 @@ class typechecker ():
         self.empty=False
         f=open(self.infodir+'/hist/%s.csv' % variable)
         f.readline()
-        c=csv.reader (f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        c=csv.reader (f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         lines=0        
         float_t=0
         int_t=0
@@ -381,7 +381,7 @@ class typechecker ():
         
     
         miny=h[0]
-        c=csv.writer(f, delimiter=':',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
         c.writerow([minx,miny])
         c.writerow([maxx,maxy])
         c.writerow([maxy2,maxy3])
@@ -399,60 +399,93 @@ class typechecker ():
             
 
 
-
+# missings doen!
 
     def  write_binfile (self, variable):
         
         if not os.path.exists(self.infodir+'/splitbin'):
             os.makedirs(self.infodir+'/splitbin')
 
+        self.data_info['bin_typecode']=''
+        self.data_info['bin_indirect']=False
         num_keys=self.num_keys            
-        if num_keys>65535:
+        if num_keys>4294967295:
          #   print 'write_binfile:skipping, too many keys'
             return
         if num_keys==1:
         #    print 'write_binfile:skipping, no data'
             return
+        data_info=self.data_info
 
 
-
-        hist_keys=sorted(self.hist_string)
-        hist_index={}        
-        for i,k in enumerate(hist_keys):
-            hist_index[k]=i
        # print hist_keys
-                
+
+
+
 
         data=[]
-        data2=[]
+        bin_indirect=True
+        if (data_info['datatype']=='int'):
+            code=None
+            if data_info['int_min']>=0 and data_info['int_max']<=255:
+                code='B'
+            if (code is None) and (data_info['int_min']>-127) and (data_info['int_max']<=127):
+                code='b'
+            if data_info['int_min']>=0 and data_info['int_max']<=65536:
+                code='H'
+            if (code is None) and (data_info['int_min']>-32767) and (data_info['int_max']<=32767):
+                code='b'
+            if data_info['int_min']>=0 and data_info['int_max']<=4294967295:
+                code='L'
+            if data_info['int_min']>=-2147483647 and data_info['int_max']<=2147483647:
+                code='l'
+            if code is not None:
+                data_array=array.array(code,data)
+                bin_indirect=False
+                f=open(self.infodir+'/split/%s.csv' % variable)
+                for line in f:
+                    try:
+                        i=int(line)
+                    except:
+                        i=255  # of max
+                    data.append(i)
 
-        #print hist_keys
-        f=open(self.infodir+'/split/%s.csv' % variable)
-        nr=0
-        for line in f:
-            nr+=1        
-            s=line[:-1]
-            try:                
-                d=hist_index[s]
-                data2.append(d)
-            except:
-                ef=open(self.infodir+'/error.log','a')
-                s='Key [%s] not found when dictifying variable %s, %d\n' % (s,variable, len(s))
-                ef.write(s)
-                ef.close()
 
-        
-        f.close()
-        
+
+
+        if bin_indirect:
+            f=open(self.infodir+'/split/%s.csv' % variable)
+            hist_keys=sorted(self.hist_string)
+            hist_index={}
+            for i,k in enumerate(hist_keys):
+                hist_index[k]=i
+
+            if num_keys<256:
+                code='B'
+            if num_keys>=256 and num_keys<65536:
+                code='H'
+            if num_keys>=65536 and num_keys<4294967295:
+                code='L'
+
+            for line in f:
+                s=line[:-1]
+                try:
+                    d=hist_index[s]
+                    data.append(d)
+                except:
+                    ef=open(self.infodir+'/error.log','a')
+                    s='Key [%s] not found when dictifying variable %s, %d\n' % (s,variable, len(s))
+                    ef.write(s)
+                    ef.close()
+
+        data_array=array.array(code,data)
+
         f=open(self.infodir+'/splitbin/%s.bin' % variable,'wb')
-        if num_keys<256:
-            data_array=array.array('B',data)
-        if num_keys>=256 and num_keys<65536:
-            data_array=array.array('H',data)
-        if num_keys>=65536:
-            data_array=array.array('L',data)        
         data_array.tofile(f)
         f.close()
+
+        self.data_info['bin_typecode']=code
+        self.data_info['bin_indirect']=bin_indirect
 
 
 
@@ -462,7 +495,13 @@ class typechecker ():
         g=open(self.infodir+'/col_types.csv','w')
         g.write('filename=%s\n' % self.filename)
         g.write('sep=%s\n' % self.sep)
-        g.write('colname,datatype,num_keys,num_valid,num_missing,missing,unique_index,string_garbage,single_value,bi_value,float_t,int_t,str_t,date_t,int_min,int_max,float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,sparse1,sparse2\n');
+
+        s="colname,datatype,num_keys,num_valid,num_missing,missing,"
+        s+="unique_index,string_garbage,single_value,bi_value,"
+        s+="float_t,int_t,str_t,date_t,int_min,int_max,"
+        s+="float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,"
+        s+="sparse1,sparse2,bin_typecode,bin_indirect\n"
+        g.write(s);
         skip=True
         for col in self.cols:           
             if col=='.':
@@ -480,8 +519,6 @@ class typechecker ():
             s+=',%(min_val)s,%(max_val)s' % f
             s+=',%(avg)s,%(perc01)s,%(perc50)s,%(perc99)s' % f
             s+=',%(maxy2)s,%(maxy3)s' % f
-            s+=',%(sparse1)s,%(sparse2)s' % f
-            
+            s+=',%(sparse1)s,%(sparse2)s, %(bin_typecode)s,%(bin_indirect)s' % f
             s+='\n'
-                      
             g.write(s)

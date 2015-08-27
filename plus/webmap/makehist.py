@@ -1,6 +1,6 @@
-import sys, csv, array
+import os, sys, csv, array
 from collections import defaultdict
-
+import helpers
 
 
 def make_hist (infodir, variabele):
@@ -16,7 +16,7 @@ def make_hist (infodir, variabele):
     maxx=float(maxx.split(':')[1])
     delta=f.readline()
     delta=float(delta.split(':')[1])
-    num_keys=f.readline()    
+    num_keys=f.readline()
     try:
         num_keys=int(num_keys.split(':')[1])
     except:
@@ -143,3 +143,59 @@ def check_binsize(data,minx,maxx,bins):
         bins=num_keys
     return bins
 
+
+
+def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ymax):
+
+
+    xinfo=coltypes_bycol[xvar]
+    yinfo=coltypes_bycol[yvar]
+    xind=xinfo['bin_indirect']
+    xcode=xinfo['bin_typecode'].strip()
+    yind=yinfo['bin_indirect']
+    ycode=yinfo['bin_typecode'].strip()
+
+    xvals=array.array(xcode)
+    yvals=array.array(ycode)
+
+    xfile=open('%s/splitbin/%s.bin' % (infodir,xvar), 'rb' )
+    xvals.fromstring(xfile.read())
+    xfile.close()
+
+    yfile=open('%s/splitbin/%s.bin' % (infodir, yvar) ,'rb')
+    yvals.fromstring(yfile.read())
+    yfile.close()
+
+
+    if xind:
+        i=0
+      #  print '%s/hist/%s.csv' % (infodir, xvar)
+        xhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir, xvar)).keys()
+    if yind:
+        i=0
+        yhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir,yvar)).keys()
+    sel=[]
+    i=0
+    j=0
+    for x,y in zip(xvals,yvals):
+        j+=1
+        if xind:
+            x=xhist[x]
+        if yind:
+            y=yhist[y]
+
+
+        if x>xmin and x<xmax and y>ymin and y<ymax:
+            sel.append(i)
+        i+=1
+
+    print len(sel)
+
+    if not os.path.exists(infodir+'/selecties'):
+        os.makedirs(infodir+'/selecties')
+
+
+    h=open(infodir+'/selecties/selectie_%s_%s.csv' % (xvar, yvar),'w')
+    for nr in sel:
+        h.write('%d\n' % nr )  # tzt ook binair opsplaan
+    h.close()

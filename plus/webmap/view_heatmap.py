@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 
-from helpers import read_csvfile
+import helpers, makehist
 import plus.settings as settings
 
 
@@ -59,7 +59,7 @@ def view_heatmaps (request, dataset):
 
         title='--'
         print heatmapdir+h[:-3]+'_meta.csv'
-        heatmapinfo=read_csvfile(heatmapdir+h[:-3]+'_meta.csv')
+        heatmapinfo=helpers.read_csvfile(heatmapdir+h[:-3]+'_meta.csv')
         print heatmapinfo
         heatmaps.append({'x':x,'y':y,'title':title,'filename':h,'split1_var':heatmapinfo.get('split1_var',''), 'split2_var':heatmapinfo.get('split2_var','')})
 
@@ -94,15 +94,21 @@ def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
 def make_subsel(request, dataset):
 
     xvar=request.POST['xvar']
-    xmin=request.POST['xmin']
-    xmax=request.POST['xmax']
+    xmin=float(request.POST['xmin'])
+    xmax=float(request.POST['xmax'])
 
     yvar=request.POST['yvar']
-    ymin=request.POST['ymin']
-    ymax=request.POST['ymax']
+    ymin=float(request.POST['ymin'])
+    ymax=float(request.POST['ymax'])
 
     print xvar,xmin,xmax
     print yvar,ymin,ymax
+
+    infodir=settings.datadir+'/'+dataset+'_info'
+
+    col_info, coltypes_bycol=helpers.get_col_types(infodir)
+    makehist.prepare_subselection(infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax,)
     msg='ok'
     data={'msg':msg}
+
     return HttpResponse(cjson.encode(data))

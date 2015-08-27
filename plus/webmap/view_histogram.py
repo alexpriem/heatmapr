@@ -105,7 +105,7 @@ def get_plot (infodir, variable, col_info=None, coltypes_bycol=None):
     # numerieke data
     
     f.readline()
-    c=csv.reader(f,delimiter=':')
+    c=csv.reader(f,delimiter=',')
 
 
     # FIXME: bijwerken met info uit coltypes
