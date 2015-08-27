@@ -25,18 +25,18 @@
 
 
 <body>
-
-<div id="">
 <ul class="nav nav-tabs">
+
 <li > <a href="#" id="show_annotation"> Show annotations</a></li>
 <li > <a href="#" id="edit_annotation"> Edit annotation </a></li>
 <li id="cat_multiples"> <a href="#" id="toggle_smallmult"> small/large </a></li>
 <li id="cat_sharecolormap"> <a href="#" id="toggle_colormap"> Shared colormap </a></li> 
 <li > <a href="/editmap/{{dataset}}/{{filename}}/" id="edit_params"> Edit parameters </a></li> 
 </ul>
-
+<h3> <a href="/data/{{dataset}}"> {{dataset}} </a></h3>
 
 <div id="errorbox"></div>
+
 
 {% verbatim %}
 <script id="entry-template" type="text/x-handlebars-template">
