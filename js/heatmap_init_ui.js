@@ -93,12 +93,10 @@ var bin_alldata=function () {
 }
 
 var draw_heatmaps=function() {
-
-    console.log('draw_heatmaps:',data.length);
+    
     for (var i=0; i<nr_heatmaps; i++) {
-        console.log('draw_heatmaps:',data.length,i);
+       // console.log('draw_heatmaps:',data.length,i);
         heatmaps[i].draw_heatmap();
-        console.log('draw_heatmaps:',data.length,i);
     }
 
 }
@@ -114,62 +112,57 @@ function generate_colormap (endpoint, N) {
          var rgb=scale(i*frac).rgb();
          cmap.push([parseInt(rgb[0]),parseInt(rgb[1]),parseInt(rgb[2])]);
     }
-    console.log(cmap);
+  //  console.log(cmap);
     return cmap;  
 }
 
 
 function toggle_colormap_sharing () {
 
+    console.log('toggle_colormap_sharing');
     if (share_colormap) {
-        for (var i=0; i<nr_heatmaps; i++) {        
-            if ('colormap'  in  heatmaps[i]) {
-                   delete heatmaps[i].colormap;
-                }
-        }
-        share_colormap=false;
-    } else {
         var quali_colormap=chroma.scale('Dark2');
 
         for (var i=0; i<nr_heatmaps; i++) {     
             var colormap_endpoint=quali_colormap(i/nr_heatmaps);   
             heatmaps[i].colormap=generate_colormap(colormap_endpoint, 20);
         }
+        share_colormap=false;
+    } else {
+        for (var i=0; i<nr_heatmaps; i++) {        
+            if ('colormap'  in  heatmaps[i]) {
+                   delete heatmaps[i].colormap;
+                }
+        }
         share_colormap=true;
     }
-    draw_heatmaps();    
+    draw_heatmaps(); 
+    return false;   
 }
 
 
 function resize_cats () {
-
     
-
-    
+    console.log('resize_cats:', smallsize);
     if (smallsize) {
         // opschalen naar grotere size: 500x500 oid
-        smallsize=false;        
-        for (var i=0; i<nr_heatmaps; i++) { 
-            var opt=opties[i];
-            opt.imgwidth=opt.imgwidth*4;
-            opt.imgheight=opt.imgheight*4;    
-            heatmaps[i].opties.imgwidth=opt.imgwidth; 
-            heatmaps[i].opties.imgheight=opt.imgheight;
-        }
-        
+        smallsize=false;                            
+        var new_imgwidth=opties[0].imgwidth*4;
+        var new_imgheight=opties[0].imgheight*4;                
     } else {        
         smallsize=true;
-        for (var i=0; i<nr_heatmaps; i++) { 
-            var opt=opties[i];
-            opt.imgwidth=opt.imgwidth/4;
-            opt.imgheight=opt.imgheight/4;
-            heatmaps[i].opties.imgwidth=opt.imgwidth; 
-            heatmaps[i].opties.imgheight=opt.imgheight;
-        }        
+        var new_imgwidth=opties[0].imgwidth/4;
+        var new_imgheight=opties[0].imgheight/4;                
     }
-    console.log('new imgwidth/height',opt.imgwidth, opt.imgheight)
-    init_page();
-    draw_heatmaps();
+
+    for (var i=0; i<nr_heatmaps; i++) { 
+            heatmaps[i].opties.imgwidth=new_imgwidth; 
+            heatmaps[i].opties.imgheight=new_imgheight;        
+        }
+
+    console.log('new imgwidth/height',new_imgwidth, new_imgheight)
+
+    init_resized_page();         
 
     if (smallsize) {
         colpos=0;
@@ -189,8 +182,76 @@ function resize_cats () {
             }         
         }
         draw_legend();
+    } 
+
+    if (!smallsize) {
+        for (var i=0; i<nr_heatmaps; i++) { 
+            $('.yticks_'+i).show();
+            $('.ylabel_'+i).show(); 
+            $('.xticks_'+i).show();
+            $('.xlabel_'+i).show();                 
+            }
     }
+
+   return false; 
 }
+
+
+
+function init_resized_page() {
+  
+    console.log('init_page, # heatmaps:',data.length);    
+    console.log('multimap',multimap);    
+    
+    var heatmapinfo=[];    
+    nr_heatmaps=data.length;        
+    for (i=0; i<nr_heatmaps; i++) {heatmapinfo.push(i);}
+
+    datasets=data;
+    var heatmapdata={heatmaps:heatmapinfo};
+    init_all_heatmaps(heatmapdata);
+    
+    heatmaps=[];
+    cat_colormap=[]; // globaal
+    var quali_colormap=chroma.scale('Dark2');
+    for (var i=0; i<nr_heatmaps; i++) {
+        console.log('heatmap:',i,nr_heatmaps);
+        h=new heatmap(data[i],opties[i],i);
+        h.init_databuffers('heatmap_svg_'+i,'heatmap_canvas_'+i);
+        h.mean_x=mean_x[i];
+        h.median_x=median_x[i];
+        h.xmean=xmean[i];
+        h.ymean=ymean[i];
+        h.sum_x=sum_x[i];
+        h.sum_y=sum_y[i];
+        var colormap_endpoint=quali_colormap(i/nr_heatmaps);
+        var rgb=colormap_endpoint._rgb;
+        var colortxt='rgb('+parseInt(rgb[0])+','+parseInt(rgb[1])+','+parseInt(rgb[2])+')';
+        cat_colormap.push(colortxt);
+        h.colormap=generate_colormap(colormap_endpoint, 20);
+        h.draw_axes();                 
+        heatmaps.push(h);    
+    }
+
+
+    set_gradient(opties[0]);    
+    topnode.preAttributeChangedCallback=bin_alldata;    
+    topnode.postAttributeChangedCallback=draw_heatmaps;        
+    init_gradients();
+    $('#cg_a').append('<svg id="legend" height="400" width="150"> <svg>');
+
+    
+    h=heatmaps[0];
+    h.init_print();    
+    h.init_stats();
+    h.init_hist_xy();
+    h.init_dotplot();
+  //  h.init_display();     
+    h.init_annotations();
+}
+
+
+
 
 function init_page() {
   
@@ -240,8 +301,7 @@ function init_page() {
     h.init_stats();
     h.init_hist_xy();
     h.init_dotplot();
-    h.init_display(); 
-    h.update_display(opties[0]['displaymode']);    
+  //  h.init_display();     
     h.init_annotations();
     
     
@@ -250,7 +310,7 @@ function init_page() {
     $('#cat_sharecolormap').on('click',toggle_colormap_sharing);
  //   Pixastic.debug=true;
     document.title =h.opties.title;
-    console.log('print=',print);
+   // console.log('print=',print);
     if (print==true) {
         $('.leftbox').hide();
         $('.gradient_vars').hide();

@@ -32,13 +32,13 @@ transform_value=function  (val,transform, log_min) {
 
 function draw_legend () {
 
-	legend=d3.select('#legend');
-	opties=opties[0];
-	legend_x=55; // opties.multimap_numcols*opties.imgwidth+50;	
+	var legend=d3.select('#legend');
+	var opt=opties[0];
+	var legend_x=55; // opties.multimap_numcols*opties.imgwidth+50;	
 
 	for (var i=0; i<legend_labels.length; i++) {
 		var txt=legend_labels[i][1];
-		console.log('LEGEND:',txt);
+		//console.log('LEGEND:',txt);
 		legend.append("text")      // text label for the x axis
 	    	.attr("id","legendtxt_"+i)
 	    	.attr("class","title")
@@ -98,7 +98,7 @@ function heatmap (data, opties, nr) {
 		var imgheight=opties.imgheight;
 		var c,s;
 
-		console.log('init_databuffers:', svg_el, canvas_el, imgwidth, imgheight);
+		//console.log('init_databuffers:', svg_el, canvas_el, imgwidth, imgheight);
 
 		var c=document.getElementById(canvas_el);
 	    c.setAttribute("width", imgwidth);
@@ -146,7 +146,7 @@ function heatmap (data, opties, nr) {
 
 	this.update_minmax=function (minval,maxval) {
 
-		console.log('update_minmax:min/max:',minval,maxval );
+		//console.log('update_minmax:min/max:',minval,maxval );
 
 		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
@@ -179,7 +179,7 @@ function heatmap (data, opties, nr) {
 		} else {
 			_this.missing_color=opties.missing_color;
 		}
-		console.log('missing_color:',_this.missing_color);
+		//console.log('missing_color:',_this.missing_color);
 	}
 
 
@@ -188,7 +188,7 @@ function heatmap (data, opties, nr) {
 
 	this.bin_data=function  () {
 
-		console.log("bin_data");
+		//console.log("bin_data");
 		var gradient_node=document.getElementById("cg_a");
 
 		var opties=_this.opties;
@@ -200,8 +200,8 @@ function heatmap (data, opties, nr) {
 		var y_steps=opties.y_steps;
 		var transform=gradient_node.getAttribute('transform');
 
-		console.log('bin_data:',x_steps, y_steps);
-		console.log('weighx/y:', weighx, weighy);
+		//console.log('bin_data:',x_steps, y_steps);
+		//console.log('weighx/y:', weighx, weighy);
 		var data=_this.data;
 
 		var ptr2=0;
@@ -213,7 +213,7 @@ function heatmap (data, opties, nr) {
 		var sum_y=_this.sum_y;
 		var transposebuffer=_this.transposebuffer;
 
-		console.log('xmean,ymean:\n', xmean, ymean, typeof(size))
+		//console.log('xmean,ymean:\n', xmean, ymean, typeof(size))
 
 		ptr=0;
 		for (var i=0; i<y_steps; i++) {
@@ -278,12 +278,12 @@ function heatmap (data, opties, nr) {
 
 		gradmin=_this.grad_minval;
 		gradmax=_this.grad_maxval;
-		console.log('spread_bins: transform, gradmin/gradmax',transform, gradmin,gradmax);
+		// console.log('spread_bins: transform, gradmin/gradmax',transform, gradmin,gradmax);
 		var gradmax=transform_value(gradmax,transform, log_min);
 		var gradmin=transform_value(gradmin,transform, log_min);
 
 		var delta=gradmax-gradmin;
-		console.log('spread_bins, gradmin/gradmax, multimap',gradmin,gradmax,multimap);
+		//console.log('spread_bins, gradmin/gradmax, multimap',gradmin,gradmax,multimap);
 
 
 		var line=0;
@@ -292,7 +292,7 @@ function heatmap (data, opties, nr) {
 		}
 		xstep=xpix2img*size;
 		ystep=ypix2img*size;
-		console.log('xstep, ystep',xstep,ystep);
+		//console.log('xstep, ystep',xstep,ystep);
 
 		u=0;
 		v=1;
@@ -302,9 +302,9 @@ function heatmap (data, opties, nr) {
 		for (i=0; i<gradsteps; i++) {
 			hist[i]=0;
 		}
-		console.log('totalpixels,ptr:',totalpixels, opties.imgheight, opties.imgwidth);
+		//console.log('totalpixels,ptr:',totalpixels, opties.imgheight, opties.imgwidth);
 
-		console.log('val2index:',gradmin, delta,gradsteps);
+		//console.log('val2index:',gradmin, delta,gradsteps);
 
 		j=0;
 
@@ -355,7 +355,7 @@ function heatmap (data, opties, nr) {
 		if (multimap) {
 			var cat =null;
 			var nr=0;
-			console.log('multimap');
+			//console.log('multimap');
 			for (i=0; i<totalpixels; i++)	{
 				cat=transposebuffer_cats[i];
 				nr+=1;
@@ -381,7 +381,7 @@ function heatmap (data, opties, nr) {
 		if (hist[i]>histmax) histmax=hist[i];
 
 	_this.histmax=histmax;
-	console.log(hist);
+	//console.log(hist);
 
 	//console.log('hist2:',backbuffer);
 	}
@@ -399,6 +399,7 @@ function heatmap (data, opties, nr) {
 	this.draw_heatmap=function () {
 
 		console.log("draw_heatmap:");
+	//	console.trace();
 
 		var opties=_this.opties;
 		if (opties.displaymode=='dotplot') {
@@ -427,7 +428,7 @@ function heatmap (data, opties, nr) {
 		var opties=_this.opties;
 		var gradient_node=document.getElementById("cg_a");
 		var size=gradient_node.size;
-		console.log('draw_heatmap, size:',size);
+		//console.log('draw_heatmap, size:',size);
 		var xstep=xpix2img*size;
 		var ystep=ypix2img*size;
 
@@ -445,7 +446,7 @@ function heatmap (data, opties, nr) {
 
 	//	console.log('draw_heatmap, colormap:', colormap);
 
-		console.log("draw_heatmap:",backbuffer.length);
+	//	console.log("draw_heatmap:",backbuffer.length);
 		for (i=0,j=0; i<backbuffer.length; i++,j+=4) {
 				indexval=backbuffer[i];
 				/*
@@ -472,7 +473,7 @@ function heatmap (data, opties, nr) {
 
 			}
 		if (opties['plot_mean']==true){
-			console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
+			//console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
 			color=opties['plot_mean_color'];
 			for (i=0; i<mean_x.length; i++) {
 				avgval=mean_x[i];
@@ -507,7 +508,7 @@ function heatmap (data, opties, nr) {
 				mapdata[ptr+3]=color[3];
 			}
 		}
-		console.log('putdata');
+		//console.log('putdata');
 		_this.ctx.putImageData(_this.imgData, 0, 0);
 	}
 
@@ -607,7 +608,7 @@ function heatmap (data, opties, nr) {
 	  				opties.x_mindate=new Date(opties.x_min);
 	  				opties.x_maxdate=new Date(opties.x_max);
 	  				xScale.domain([opties.x_mindate,opties.x_maxdate]);
-	  				console.log(opties.x_mindate,opties.x_maxdate);
+	  				//console.log(opties.x_mindate,opties.x_maxdate);
 	  				var x_data_type_simple='date';
 	  			}
 	  	    }
@@ -628,7 +629,7 @@ function heatmap (data, opties, nr) {
 	  				opties.y_maxdate=new Date(opties.y_max);
 	  				yScale=d3.time.scale();
 	  				yScale.domain([opties.y_mindate,opties.y_maxdate]);
-	  				console.log(opties.y_mindate,opties.y_maxdate);
+	  				//console.log(opties.y_mindate,opties.y_maxdate);
 	  				var y_data_type_simple='date';
 	  			}
 	  	    }
@@ -644,7 +645,7 @@ function heatmap (data, opties, nr) {
 	  		numticks=4;
 
 	  }
-	  console.log('NUMTICKS:',numticks)
+	  //console.log('NUMTICKS:',numticks)
 
 
 	  xAxis.scale(xScale)
@@ -802,7 +803,7 @@ function heatmap (data, opties, nr) {
 
 	this.draw_text=function  () {
 
-		console.log('draw text');
+		//console.log('draw text');
 		var opties=_this.opties;
 		var chart=_this.chart;
 			var xmin=opties.x_min;
@@ -817,7 +818,7 @@ function heatmap (data, opties, nr) {
 	    	var dy=(ymax-ymin)/(y_steps);
 
 
-		console.log('start text, size', size);
+		//console.log('start text, size', size);
 		var xoffset=0.5*dx;
 		var yoffset=0.5*dy;
 		for (i=0; i<x_steps; i++){
@@ -877,7 +878,7 @@ function heatmap (data, opties, nr) {
 
 
 
-			console.log('draw_dotplot',xmin, xmax, x_steps, dx,dy);
+			//console.log('draw_dotplot',xmin, xmax, x_steps, dx,dy);
 
 			var dot_dotsize=opties.dot_dotsize;
 			var dot_boxsize=opties.dot_boxsize;
@@ -911,7 +912,7 @@ function heatmap (data, opties, nr) {
 					var delta2=gradcenter-gradmin;
 					var colormap=gradient_node.colormap;
 					var colormap2=gradient_node.colormap2;
-					console.log('bimodal:',delta,delta2,colormap,colormap2)
+					//console.log('bimodal:',delta,delta2,colormap,colormap2)
 				} else {
 					var delta=gradmax-gradmin;
 					var colormap=gradient_node.colormap;
@@ -921,7 +922,7 @@ function heatmap (data, opties, nr) {
 
 
 			var size=gradient_node.size
-			console.log('start dotplot, size', size);
+			//console.log('start dotplot, size', size);
 			var xoffset=0.5*dx-0.5*dot_boxsize*dx;
 			var yoffset=0.5*dy-0.5*dot_boxsize*dy;
 			for (i=0; i<x_steps; i++){
@@ -1514,7 +1515,9 @@ function heatmap (data, opties, nr) {
 
 	this.update_display=function(displaymode) {
 
+
 		console.log('update_display',displaymode);
+		console.trace();
 		if (displaymode=='dotplot') {
     	    $('.colormap-gradient').css("display","none");
         	$('.dotplot-controls').css("display","");
@@ -1558,7 +1561,7 @@ function heatmap (data, opties, nr) {
 	 	$('.display').on('mouseenter ',enter_selectie);
 	  $('.display').on('mouseout ',leave_selectie);
 
-		_this.update_display(_this.optiesdisplaymode);
+		_this.update_display(_this.opties.displaymode);
 	}
 
 

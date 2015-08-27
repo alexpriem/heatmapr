@@ -47,8 +47,6 @@ def get_col_types(infodir):
     except:
         pass
     if f is not None:
-        f.readline()
-        f.readline()
         int_cols=['num_keys','missing','unique_index','num_valid','num_missing'
               'float_t','int_t','str_t','date_t','int_min','int_max']
         float_cols=['float_min','float_max','min','max','perc01','perc50','perc99','maxy2','maxy3', 'avg']

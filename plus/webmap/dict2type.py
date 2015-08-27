@@ -25,7 +25,7 @@ class typechecker ():
         f.readline()        
         sumval=0
         for line in f:
-            key,val=line[:-1].split(':')
+            key,val=line[:-1].split(',')
             sumval+=int(val)
         self.num_records=sumval
         
@@ -493,9 +493,6 @@ class typechecker ():
 
     def analyse(self):
         g=open(self.infodir+'/col_types.csv','w')
-        g.write('filename=%s\n' % self.filename)
-        g.write('sep=%s\n' % self.sep)
-
         s="colname,datatype,num_keys,num_valid,num_missing,missing,"
         s+="unique_index,string_garbage,single_value,bi_value,"
         s+="float_t,int_t,str_t,date_t,int_min,int_max,"

@@ -18,9 +18,7 @@ var handle_ajax_error=function (result) {
 
 
 function update_state  (action) {
-
 	
-
 	var url=window.location.href;
 	var data=url.split('/');	
 	var dataset=data[4];
