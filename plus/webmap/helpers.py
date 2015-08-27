@@ -3,7 +3,7 @@ import csv, datetime
 
 # helperfunction to read simple csv-file to a dict
 
-def read_csvfile(filename):
+def read_csvfile(filename, skipheader=False):
     f=None
     try:
         f=open(filename)
@@ -11,6 +11,8 @@ def read_csvfile(filename):
         pass
     labels={}
     if f is not None:
+        if skipheader:
+            f.readline()
         c=csv.reader(f,delimiter=',')
         for line in c:
             if len(line)==2:

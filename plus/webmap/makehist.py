@@ -170,30 +170,32 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     if xind:
         i=0
       #  print '%s/hist/%s.csv' % (infodir, xvar)
-        xhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir, xvar)).keys()
+        xhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir, xvar),True).keys()
     if yind:
         i=0
-        yhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir,yvar)).keys()
+        yhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir,yvar),True).keys()
     sel=[]
     i=0
     j=0
     for x,y in zip(xvals,yvals):
         j+=1
         if xind:
-            x=xhist[x]
+            x=float(xhist[x-1])
         if yind:
-            y=yhist[y]
+            try:
+                y=float(yhist[y-1])
+            except:
+                print y, len(yhist)
 
-
-        if x>xmin and x<xmax and y>ymin and y<ymax:
+        if j<0:
+            print xvar,xmin,xmax,x,'  ',  yvar,ymin,ymax,y
+        if (x>xmin) and (x<xmax) and (y>ymin) and (y<ymax):
             sel.append(i)
         i+=1
 
-    print len(sel)
-
     if not os.path.exists(infodir+'/selecties'):
         os.makedirs(infodir+'/selecties')
-
+    print 'found:',len(sel)
 
     h=open(infodir+'/selecties/selectie_%s_%s.csv' % (xvar, yvar),'w')
     for nr in sel:

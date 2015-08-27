@@ -100,6 +100,8 @@ def make_subsel(request, dataset):
     yvar=request.POST['yvar']
     ymin=float(request.POST['ymin'])
     ymax=float(request.POST['ymax'])
+    if ymin>ymax:
+        ymax,ymin=ymin,ymax
 
     print xvar,xmin,xmax
     print yvar,ymin,ymax
