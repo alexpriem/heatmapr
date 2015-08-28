@@ -58,9 +58,9 @@ def view_heatmaps (request, dataset):
 
 
         title='--'
-        print heatmapdir+h[:-3]+'_meta.csv'
+        #print heatmapdir+h[:-3]+'_meta.csv'
         heatmapinfo=helpers.read_csvfile(heatmapdir+h[:-3]+'_meta.csv')
-        print heatmapinfo
+       # print heatmapinfo
         heatmaps.append({'x':x,'y':y,'title':title,'filename':h,'split1_var':heatmapinfo.get('split1_var',''), 'split2_var':heatmapinfo.get('split2_var','')})
 
 

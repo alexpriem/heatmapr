@@ -170,13 +170,15 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     if xind:
         i=0
       #  print '%s/hist/%s.csv' % (infodir, xvar)
-        xhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir, xvar),True).keys()
+        xhist=helpers.read_list('%s/hist/%s.csv' % (infodir, xvar))
     if yind:
         i=0
-        yhist=helpers.read_csvfile('%s/hist/%s.csv' % (infodir,yvar),True).keys()
+        yhist=helpers.read_list('%s/hist/%s.csv' % (infodir,yvar))
     sel=[]
     i=0
     j=0
+    print xvar,'hist',xhist[:10]
+
     for x,y in zip(xvals,yvals):
         j+=1
         if xind:

@@ -20,7 +20,7 @@ def read_csvfile(filename, skipheader=False):
         f.close()
     return labels
 
-def read_list(filename):
+def read_list(filename, skipheader=False):   #  eerste waarde van csv-file inlezen
     f=None
     try:
         f=open(filename)
@@ -28,9 +28,11 @@ def read_list(filename):
         pass
     labellist=[]
     if f is not None:
+        if skipheader:
+            f.readline()
         c=csv.reader(f,delimiter=',')
         for line in c:
-            if len(line)==1:
+            if len(line)>=1:
                 labellist.append(line[0])
         f.close()
     return labellist
