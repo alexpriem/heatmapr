@@ -1,5 +1,9 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/FileReader#readAsDataURL%28%29
 
+
+var labels_histxy=[[1,"Totaal"],[2,"gemiddelde"],[3,"mediaan"],[4,"punt"]];
+var colors_histxy=["rgb(255,0,0)","rgb(0,255,0)","rgb(0,0,255)","rgb(255,255,0)"];
+
 var c,s,ctx;
 var print=false;
 var datasets=null;
@@ -181,7 +185,7 @@ function resize_cats () {
                 $('.xticks_'+i).hide();
             }         
         }
-        draw_legend();
+        draw_legend (legend_labels, cat_colormap);
     } 
 
     if (!smallsize) {

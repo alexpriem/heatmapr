@@ -30,7 +30,7 @@ transform_value=function  (val,transform, log_min) {
 
 
 
-function draw_legend () {
+function draw_legend (legend_labels, legend_colors) {
 
 	var legend=d3.select('#legend');
 	var opt=opties[0];
@@ -58,7 +58,7 @@ function draw_legend () {
 			.attr("width",8)
 			.attr("stroke",'#444')
 			.attr("stroke-width",1)
-			.attr("fill",cat_colormap[i]);
+			.attr("fill",legend_colors[i]);
 
 		}
 }
@@ -1310,6 +1310,9 @@ function heatmap (data, opties, nr) {
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
 	        .text(opties.y_label+ '(voor '+opties.x_label+'='+xval+')');
+
+
+	  draw_legend(labels_histxy, colors_histxy);
 
 
 	  chart.append("svg:line")
