@@ -122,8 +122,8 @@ function plot_single_histogram (chart, histogram){
 	if (bins>500) bins=500;
 	bin_width= plotwidth/bins;
 	console.log('bin_width:', bin_width, histogram.num_keys)
-	if (bin_width>100) {
-		bin_width=100;
+	if (bin_width>20) {
+		bin_width=20;
 	}
 
 	
@@ -173,7 +173,7 @@ function plot_single_histogram (chart, histogram){
 	} 
 
   	yScale.domain([maxy,histogram.miny]);	  	
-    yScale.range([0,height-yoffset-15]);
+    yScale.range([0,height-yoffset]);   // 14: +2 voor borders
 
   
 
@@ -197,7 +197,7 @@ function plot_single_histogram (chart, histogram){
 						//.attr("x",i*bin_width+xoffset)
 						//.attr("y",plotheight-val+delta-yoffset)
 						.attr("width",bin_width)
-						.attr("height",height-yScale(y)-yoffset)
+						.attr("height",height-yScale(y)-yoffset-0.5)  
 						.style("fill",colortxt)
 						.style("stroke","rgb(32,32,0)")						
 						.style("stroke-width","1px");				
@@ -210,16 +210,18 @@ function plot_single_histogram (chart, histogram){
 
 
 	if ((style=='filled') && (histogram.num_keys>=14)) {
-		if (bins>=100) {
-			data.push(data[0]);
-		}
+		filldata=data.slice()		
+		console.log('DATA0',data[0]);
+		filldata[filldata.length-1][1]=0;
+		filldata.push([data[0][0],0]);
+				
 		var linefunction=d3.svg.line()
                       .x(function(d) { return xScale(d[0]); })
-                      .y(function(d) { return yScale(d[1]); })                      					
+                      .y(function(d) { return yScale(d[1])-4; })                      					
 					  .interpolate('step-after');
 
 		var lineGraph = chart.append("path")
-                            .attr("d", linefunction(data))
+                            .attr("d", linefunction(filldata))
                             .attr("stroke", "blue")
 	                        .attr("stroke-width", 2)
                             .attr("fill", "blue");
@@ -475,37 +477,43 @@ function click_histogram (evt) {
 	x=parseInt(evt.pageX-$(this).position().left);
 	y=parseInt(evt.pageY-$(this).position().top);
 	worldX=(x-xoffset)*(histogram.maxx-histogram.minx)/(width-2*xoffset)+histogram.minx;	
+
+
 	N=histogram.data.length-1;
+	if (N<14) {
+		worldX=parseInt(worldX);
+	}
 	binnr=parseInt((worldX-histogram.minx)/(histogram.maxx-histogram.minx)*N);
 	console.log('click_histogram:',x,y);
-	console.log(worldX, binnr, histogram.data[binnr][1]);
 	
-
-	y1=50;
-	y2=45;
-	x1=x-5;
-	x2=x+5;
-	var chart = d3.select("#chart_0");
-	$('#marker').remove();
-	$('#markertxt').remove();
-	chart.append("svg:path")
-			.attr("id",'marker')
-    		.attr("d", "M"+x+","+y1+"L"+x1+","+y2+"L"+x2+","+y2+"L"+x+","+y1)
-			.attr("stroke",'#3a3a3a')
-			.attr("stroke-width",1)
-			.attr("fill",'#3a3a3a');
 	
-	chart.append("text")      // text label for the x axis
-			.attr("id",'markertxt')
-	    	.attr("class","yaxis")
-	        .attr("x", x1 )
-	        .attr("y", y1-20)
-	        .attr("font-family", "Corbel")
-	  		.attr("font-size", fontsize+"px")
-	  		.attr("font-weight", "bold")
-	        .style("text-anchor", "middle")
-	        .text(worldX+':'+histogram.data[binnr][1]);
-
+	if (histogram.data[binnr]!=undefined) {
+			console.log(worldX, binnr, histogram.data[binnr][1]);
+			y1=50;
+			y2=45;
+			x1=x-5;
+			x2=x+5;
+			var chart = d3.select("#chart_0");
+			$('#marker').remove();
+			$('#markertxt').remove();
+			chart.append("svg:path")
+					.attr("id",'marker')
+		    		.attr("d", "M"+x+","+y1+"L"+x1+","+y2+"L"+x2+","+y2+"L"+x+","+y1)
+					.attr("stroke",'#3a3a3a')
+					.attr("stroke-width",1)
+					.attr("fill",'#3a3a3a');
+			
+			chart.append("text")      // text label for the x axis
+					.attr("id",'markertxt')
+			    	.attr("class","yaxis")
+			        .attr("x", x1 )
+			        .attr("y", y1-20)
+			        .attr("font-family", "Corbel")
+			  		.attr("font-size", fontsize+"px")
+			  		.attr("font-weight", "bold")
+			        .style("text-anchor", "middle")
+			        .text(worldX+' : '+histogram.data[binnr][1]);
+		}
 }
 
 
@@ -528,7 +536,7 @@ function init_histogram (histogram) {
 	}
 	var chart = d3.select("#chart_0")
 					.attr("width", width+extrawidth)
-					.attr("height", height);	
+					.attr("height", height+200);	
 	svg=plot_single_histogram(chart, histogram);
 
 	$('#chart_0').on('click',click_histogram);

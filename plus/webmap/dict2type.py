@@ -230,6 +230,7 @@ class typechecker ():
         info['num_keys']=num_keys
         info['num_valid']=num_valid
         info['num_missing']=num_missing
+        info['num_records']=self.num_records
         info['min_val']=min_val
         info['max_val']=max_val
         info['avg']=avgsum/self.num_records
@@ -493,8 +494,8 @@ class typechecker ():
 
     def analyse(self):
         g=open(self.infodir+'/col_types.csv','w')
-        s="colname,datatype,num_keys,num_valid,num_missing,missing,"
-        s+="unique_index,string_garbage,single_value,bi_value,"
+        s="colname,datatype,num_keys,num_valid,num_missing,num_records,"
+        s+="missing,unique_index,string_garbage,single_value,bi_value,"
         s+="float_t,int_t,str_t,date_t,int_min,int_max,"
         s+="float_min,float_max,min,max,avg,perc01,perc50,perc99,maxy2,maxy3,"
         s+="sparse1,sparse2,bin_typecode,bin_indirect\n"
@@ -508,8 +509,8 @@ class typechecker ():
             self.write_histogram_100 (col)
             self.write_binfile (col)
 
-            s='%(col)s,%(datatype)s,%(num_keys)d,%(num_valid)d,%(num_missing)d,%(missing)d,%(unique_index)d' % f
-            s+=',%(string_garbage)s,%(single_value)s,%(bi_value)s' %f
+            s='%(col)s,%(datatype)s,%(num_keys)d,%(num_valid)d,%(num_missing)d,%(num_records)d,%(missing)d,%(unique_index)d' % f
+            s+=',%(string_garbage)s,%(single_value)s,%(bi_value)s' % f
             s+=',%(float_t)d,%(int_t)d,%(str_t)d,%(date_t)d' % f
             s+=',%(int_min)s,%(int_max)s' % f
             s+=',%(float_min)s,%(float_max)s' % f

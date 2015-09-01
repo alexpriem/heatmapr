@@ -2,6 +2,7 @@ import os, csv
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from helpers import get_col_types, read_csvfile
+from operator import itemgetter
 import plus.settings as settings
 
 def view_dataset_var_labels (request, dataset):
@@ -35,7 +36,6 @@ def view_var_key_labels (request, dataset, variable):
     global_labels=read_csvfile ('%s/labels/defaults.csv' % (infodir))
     global_labels=sorted(global_labels.iteritems())
     key_labels=read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
-    key_labels=sorted(key_labels.iteritems())
     if len(key_labels)==0:
         key_labels={}
         f=open('%s/hists/%s.csv' % (infodir, variable))
@@ -44,12 +44,12 @@ def view_var_key_labels (request, dataset, variable):
         for row in c:
             key_labels[row[0]]=''
         f.close()
-
+    #key_labels=sorted(key_labels, key=itemgetter(1))
     key_labels=sorted(key_labels.iteritems())
     has_labels= len(key_labels)!=0
     has_global= len(global_labels)!=0
-    print has_labels, has_global
-    print key_labels
+    #print has_labels, has_global
+    #print key_labels
     context = RequestContext(request, {'labels':key_labels,
                                        'global_labels':global_labels,
                                        'has_global':has_labels,
