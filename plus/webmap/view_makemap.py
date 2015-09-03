@@ -91,21 +91,27 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             x_steps=int(args['x_steps'])
             y_steps=int(args['y_steps'])
 
-            if not (imgwidth/4.0).is_integer():
-                msg='imgwidth moet veelvoud van 4 zijn'
-            if not (imgheight/4.0).is_integer():
-                msg='imgheight moet veelvoud van 4 zijn'
-            if x_steps>200 and not (x_steps/4.0).is_integer():
-                msg='xsteps moet veelvoud van 4 zijn'
-            if y_steps>200 and not (y_steps/4.0).is_integer():
-                msg='ysteps moet veelvoud van 4 zijn'
+            print x_steps, y_steps
 
+            if not (imgwidth/4.0).is_integer():
+                msg='imgwidth moet veelvoud van 4 zijn; is %d' % imgwidth
+            if not (imgheight/4.0).is_integer():
+                msg='imgheight moet veelvoud van 4 zijn; is %d' % imgheight
+            if x_steps>200  and not (x_steps/4.0).is_integer():
+                msg='xsteps moet veelvoud van 4 zijn;  is %d' % x_steps
+            if y_steps>200  and not (y_steps/4.0).is_integer():
+                msg='ysteps moet veelvoud van 4 zijn; is %d' % y_steps
+
+            if y_steps>200 and y_steps==imgheight:
+                msg='ok'
+            if x_steps>200 and x_steps==imgwidth:
+                msg='ok'
 
                # print args['x_steps'],args['y_steps']
-            print args['x_min'], args['x_max'], args['y_min'],args['y_max']
-            if msg=='ok':
-                h=heatmap.heatmap()
-                h.make_heatmap(args)
+            print 'args:', args['x_min'], args['x_max'], args['y_min'],args['y_max']
+
+            h=heatmap.heatmap()
+            h.make_heatmap(args)
             data={'msg':msg}
         return HttpResponse(cjson.encode(data))
 
@@ -119,7 +125,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             y_max='max',
             y_steps=500,
 
-            split1_var='AR19',
+            split1_var='',
             split2_var='',
             gradmin=0,
             gradmax='max',

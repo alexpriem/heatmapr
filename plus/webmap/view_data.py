@@ -273,8 +273,8 @@ def dataset (request, dataset):
                 continue
             j+=1
             if j>=col_info_length:
-                msg='incomplete column list'
-                break
+                msg='incomplete column list: (%d/%d/%d)' % (i,j,col_info_length)
+              #  break
             if filter_set.get(info['datatype'])==False:
                 continue
 
