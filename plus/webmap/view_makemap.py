@@ -26,7 +26,11 @@ def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
         return colnames, groupcolnames
 
 
-
+def get_all_colnames (infodir, heatmaptype, col_info):
+    colnames=[]
+    for col in col_info:
+        colnames.append(col['colname'])
+    return colnames, colnames
 
 
 @csrf_exempt
@@ -39,9 +43,11 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         os.makedirs(infodir+'/heatmaps')
 
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
-   # print col_info
+
     # args['displaymode'] uit post peuteren.
     colnames, groupcolnames=get_colnames_for_heatmap (infodir,  'heatmap', col_info)
+    colnames, groupcolnames=get_all_colnames (infodir,  'heatmap', col_info)
+    print 'colnames:', len(colnames), colnames
     if len(colnames)<2:
         msg='Geen heatmaps te maken van deze dataset'
         template = loader.get_template('makemap.html')
@@ -49,7 +55,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         return HttpResponse(template.render(context))
 
 
-
+    print 'colnames:', len(colnames)
     if request.is_ajax()==True:
         #print request.POST
         args={}
@@ -234,6 +240,11 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
                                        'defaults':args,'defaults_json':args_json,
                                        'colormapnames':colormapnames})
     return HttpResponse(template.render(context))
+
+
+
+
+
 
 
 
