@@ -39,10 +39,9 @@
     <tr>
           <td colspan="8">
                   <a href="#" id="clear_all" class="data_action btn btn-default"> Clear all</a>        
-                  <a href="/data-config/{{dataset}}" id="configsetup" class="btn btn-default"> Config </a>                  
                   <a href="/labels/{{dataset}}" id="labels" class="data_action btn btn-default"> Labels </a>
-                  <a href="/data-filter/{{dataset}}" id="filtersetup" class="btn btn-default"> Filter-setup </a>
-                  <a href="/data-recode/{{dataset}}" id="recodesetup" class="btn btn-default"> Recode-setup </a>                  
+                  <a href="/data-filter/{{dataset}}" id="filtersetup" class="data_action btn btn-default"> Filter-setup </a>
+                  <a href="/data-recode/{{dataset}}#" id="recodesetup" class="data_action btn btn-default"> Recode-setup </a>
                   <a href="#" id="split" class="data_action btn btn-default"> Split </a>
                   <a href="#" id="dictify" class="data_action btn btn-default"> Dictify </a>    
                   <a href="#" id="dict2type" class="data_action btn btn-default"> Derive types </a>    
@@ -228,67 +227,6 @@
 
 
 
-
-<script id="filter-template" type="text/x-handlebars-template">
-<form role="form">
-	<div class="form-group">
-	<table class="table-striped">
-	<thead>
-	<tr> <th> Kolom </th>
-		 <th>	Vergelijking </th>
-		 <th> Waarde</th> </tr>
-	<thead>
-	<tbody>
-	{{#rows}}
-	   <tr class="filter_row" id="filter_row_{{@index}}"> 
-	   		<td> <input  class="filtercol form-control form-control2" value="{{key}}"></td> 	 
-	   		<td> <input  class="filtercomp form-control form-control2" value="{{compare}}"> </td> 
-	   		<td> <input   class="filtervalue form-control form-control2" value="{{value}}"> </td> 
-	   		<td> <a href  class="del deleteicon fa fa-times" data-rownr="{{@index}}" > </a> 
-	   		 	<a href   class="add addicon fa fa-plus" data-rownr="{{@index}}" > </a> 	   			
-	   		</td> 
-	   	</tr>
-	{{/rows}}
-	<tbody>
-	</table>
-	</div>
-
-	<a href="#" id="update_filter"  class="update_filter btn btn-info"> Update filter</a>  
-	<a href="#" id="update_filteredit"  class="update_filter btn btn-info"> Undo</a>  
-
-</form>
-</script>
-
-
-
-<script id="recode-template" type="text/x-handlebars-template">
-<form role="form">
-	<div class="form-group">
-	<table class="table-striped">
-	<thead>
-	<tr> <th> Waarde </th>
-		 
-		 <th> Vervanging</th> </tr>
-	<thead>
-	<tbody>
-	{{#rows}}
-	   <tr class="recode_row" id="recode_row_{{@index}}"> 
-	   		<td> <input  class="recodevalues form-control form-control2" value="{{value}}"></td> 	 	   		
-	   		<td> <input   class="recodereplacements form-control form-control2" value="{{replacement}}"> </td> 
-	   		<td> <a href  class="del deleteicon fa fa-times" data-rownr="{{@index}}" > </a> 
-	   		 	<a href   class="add addicon fa fa-plus" data-rownr="{{@index}}" > </a> 	   			
-	   		</td> 
-	   	</tr>
-	{{/rows}}
-	<tbody>
-	</table>
-	</div>
-
-	<a href="#" id="update_recode"  class="update_recode btn btn-info"> Update vervangingen</a>  
-	<a href="#" id="update_recode_edit"  class="update_recode btn btn-info"> Undo</a>  
-
-</form>
-</script>
 
 {% endverbatim  %}
 

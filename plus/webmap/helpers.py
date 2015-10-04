@@ -1,7 +1,24 @@
-import csv, datetime
+import os, csv, datetime
+import plus.settings as settings
 
 
 # helperfunction to read simple csv-file to a dict
+
+
+
+def get_infodir (dataset):
+
+    infodir=settings.datadir+'/'+dataset+'_info'
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)   # en dataset bekijken
+        os.makedirs(infodir+'/labels')
+        sep, cols=get_cols(datadir, dataset, infodir)  # aanmaken coltypes
+
+
+
+    return infodir
+
+
 
 def read_csvfile(filename, skipheader=False):
     f=None
@@ -20,7 +37,10 @@ def read_csvfile(filename, skipheader=False):
         f.close()
     return labels
 
-def read_list(filename, skipheader=False):   #  eerste waarde van csv-file inlezen
+
+# helperfunction to read simple csv-file to a list
+
+def read_csv_list(filename, skipheader=False):   #  eerste waarde van csv-file inlezen
     f=None
     try:
         f=open(filename)
@@ -36,6 +56,31 @@ def read_list(filename, skipheader=False):   #  eerste waarde van csv-file inlez
                 labellist.append(line[0])
         f.close()
     return labellist
+
+
+
+
+
+
+def get_cols (dataset, datadir, infodir):
+
+    try:
+        f=open(infodir+'/col_info.csv','r')
+        sep=f.readline().strip()[4:]
+        cols=[]
+        for line in f:
+            cols.append(line.strip())
+    except:
+        sep,cols=read_header(datadir+'/'+dataset+'.csv')
+        f=open(infodir+'/col_info.csv','w')
+        g=open(infodir+'/data_config.csv','w')
+        f.write('sep=%s\n' % sep)
+        for col in cols:
+            f.write(col+'\n')
+            g.write("1,%s,,''\n" % col)
+        f.close()
+        g.close()
+    return sep, cols
 
 
 

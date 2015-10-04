@@ -46,12 +46,6 @@ function update_state  (action) {
 
 
 
-var click_action=function () {
-
-	console.log('click_action');	
-	update_state(this.id);
-}
-
 
 var click_filter=function () {
 
@@ -93,210 +87,12 @@ function update_filter() {
 }
 
 
-/* filter-button at top, for selecting rows in csv. Needs separate tab */
-
-
-var filter_add_row=function() {
-
-	rownr=$(this).attr("data-rownr");
-	fcols=$('.filtercol');
-	newrownr=fcols.length;
-	newrow=$('#filter_row_'+rownr).clone();
-	console.log('add:',newrow.attr('id'))
-	newrow.attr('id','filter_row_'+newrownr);
-	$('#filter_row_'+rownr).after(newrow);
-	return false;
-}
-
-var filter_del_row=function() {
-
-	rownr=$(this).attr("data-rownr");
-	console.log(rownr);
-	
-
-	rows=$('.filtercol');
-	if (rows.length>1) {
-		$('#filter_row_'+rownr).remove();
-	}  else {					// inputboxes niet verwijderen maar leeg maken.
-		$(rows[0]).val('');			
-		rows=$('.filtercomp');
-		$(rows[0]).val('');
-		rows=$('.filtervalue');
-		$(rows[0]).val('');
-
-	}
-	return false;
-}
-
-var filter_undo_edit=function() {
-	
-	return false;
-}
-
-var filter_update=function() {
-	
-	console.log('filter_update');
-
-	filtercols=[];
-	fcols=$('.filtercol');
-	fcols.each(function(index) { filtercols.push($(this).val());   });
-	filtercomp=[];
-	fcomp=$('.filtercomp');
-	fcomp.each(function(index) { filtercomp.push($(this).val());   });
-	filtervalues=[];
-	fvalues=$('.filtervalue');
-	fvalues.each(function(index) { filtervalues.push($(this).val());   });
-	
-	// rudimentary check on empty cols.
-	filterlen=filtercols.length;
-	for (i=0; i<filterlen;i++) {
-		col=filtercols[i];
-		if (col=='') {
-			filterlen-=1;
-			filtercols.splice(i,1);
-			filtercomp.splice(i,1);
-			filtervalues.splice(i,1);
-		}
-	}
-
-	var url=window.location.href;
-	var data=url.split('/');	
-	var dataset=data[4];
-
-	data={'filtercols':filtercols,'filtercompares':filtercomp,'filtervalues':filtervalues};
-
-	console.log(data);
-	$.ajax({url:"/set_filter/"+dataset+'/', 
-			type: "POST",
-			'data':data,
-			success: handle_ajax,
-			error: handle_ajax_error,
-		});
-	return false;
-}
-
-
-
-
-/* filter-button at top, for selecting rows in csv. Needs separate tab */
-
-
-var recode_add_row=function() {
-
-	rownr=$(this).attr("data-rownr");
-	rvalues=$('.recodevalues');
-	newrownr=rvalues.length;
-	newrow=$('#recode_row_'+rownr).clone();
-	console.log('add:',newrow.attr('id'))
-	newrow.attr('id','recode_row_'+newrownr);
-	$('#recode_row_'+rownr).after(newrow);
-	return false;
-}
-
-var recode_del_row=function() {
-
-	rownr=$(this).attr("data-rownr");
-	console.log(rownr);
-	
-	rows=$('.recodevalues');
-	if (rows.length>1) {
-		$('#recode_row_'+rownr).remove();
-	}  else {					// inputboxes niet verwijderen maar leeg maken.
-		$(rows[0]).val('');			
-		rows=$('.recodereplacements');
-		$(rows[0]).val('');
-	}
-	return false;
-}
-
-var recode_undo_edit=function() {
-	
-	return false;
-}
-
-var recode_update=function() {
-	
-	console.log('filter_update');
-
-	values=[];
-	rvals=$('.recodevalues');
-	rvals.each(function(index) { values.push($(this).val());   });
-	replacements=[];
-	freplacements=$('.recodereplacements');
-	freplacements.each(function(index) { replacements.push($(this).val());   });
-	
-
-	data={'values':values,'replacements':replacements, 'datadir':datadir};
-
-	console.log(data);
-	$.ajax({url:"/set_recode/"+dataset+'/', 
-			type: "POST",
-			'data':data,
-			success: handle_ajax,
-			error: handle_ajax_error,
-		});
-	return false;
-}
 
 
 
 
 
-function show_filters(r){
 
-	var url=window.location.href;
-	var data=url.split('/');	
-	var dataset=data[4];
-
-	data_div=document.getElementById('data_container');
-    s='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>\n';
-
-	var source   = $("#filter-template").html();   				
-    var template = Handlebars.compile(source); 
-    console.log(r.filters);
-    
-    s+='<h3>Filter</h3>'
-
-    if ((r.filters.length)==0){
-    	r.filters.push({'key':'','compare':'','value':''})    
-    }
-    s+=template({'rows':r.filters});
-	
-	data_div.innerHTML =s;
-
-	$('#update_filter').on('click',filter_update);
-	$('#update_filteredit').on('click',filter_undo_edit);
-	$('.del').on('click',filter_del_row);
-	$('.add').on('click',filter_add_row);
-
-  
-}
-
-
-function show_recodeset(r){
-
-
-	console.log(r.recodes);
-	data_div=document.getElementById('data_container');
-    s='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>\n';
-
-	var source   = $("#recode-template").html();   				
-    var template = Handlebars.compile(source);     
-    
-    if (r.recodes.length==0) {
-    	r.recodes.push({'value':'','replacement':''})    
-    }
-    s+='<h3>Filter</h3>'
-    s+=template({'rows':r.recodes});
-	
-	data_div.innerHTML =s;
-
-	$('#update_recode').on('click',recode_update);
-	$('#update_recode_edit').on('click',recode_undo_edit);
-	$('.del').on('click',recode_del_row);
-	$('.add').on('click',recode_add_row);
-	
-}
 
 
 var handle_ajax=function (result) {
@@ -337,7 +133,6 @@ var handle_ajax=function (result) {
     data_div.innerHTML ='<h3>'+r.dataset+'</h3>'+'<p>'+r.msg+'</p>'+template(columns);
         
 	$("#infotable").tablesorter(); 
-
 
     $('.data_action').on("click",click_action);
     $('.data_filter').on("click",click_filter);

@@ -36,6 +36,10 @@ urlpatterns = patterns('',
     url(r'^labels/(?P<dataset>.*)/(?P<variable>.*)/$', view_labels.view_var_key_labels),
     url(r'^labels/(?P<dataset>.*)/$', view_labels.view_dataset_var_labels),
 
+
+    url(r'^data-config/(?P<dataset>.*)/$', view_data.view_dataconfig),
+    url(r'^data-filter/(?P<dataset>.*)/$', view_data.view_data_filter),
+    url(r'^data-recode/(?P<dataset>.*)/$', view_data.view_data_recode),
     url(r'^data/(?P<dataset>.*)/$', view_data.view_data),
     url(r'^dataset/(?P<dataset>.*)/', view_data.dataset),
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_makemap.make_heatmap),

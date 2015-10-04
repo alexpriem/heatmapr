@@ -7,21 +7,65 @@ from django.views.decorators.csrf import csrf_exempt
 from csv_split import csv_select
 from dictify import dictify_all_the_things
 from dict2type import typechecker
-from helpers import get_col_types, read_csvfile
+
+import helpers
 import plus.settings as settings
 
 
 
 def view_data (request, dataset):
 
-    #print request.path
-    #print request #.META
-    
-    #print dataset
     template = loader.get_template('data.html')
 
     context = RequestContext(request, {})
     return HttpResponse(template.render(context))
+
+
+def view_dataconfig (request, dataset):
+
+    infodir=helpers.get_infodir(dataset)
+    dataconfig=read_configfile (infodir)
+    defaults=cjson.encode(dataconfig)
+
+    template = loader.get_template('data-config.html')
+    context = RequestContext(request, {'defaults':defaults,'dataset':dataset})
+
+    return HttpResponse(template.render(context))
+
+
+def view_data_filter (request, dataset):
+
+    infodir=helpers.get_infodir(dataset)
+    filterdict, filterset=read_filterfile (infodir+'/filters.csv')
+    defaults=cjson.encode(filterset)
+
+    template = loader.get_template('data-filter.html')
+    context = RequestContext(request, {'defaults':defaults,'dataset':dataset})
+    return HttpResponse(template.render(context))
+
+def view_data_recode(request, dataset):
+
+    infodir=helpers.get_infodir(dataset)
+    recodedict, recodeset=read_recodefile (infodir+'/recodes.csv')
+    defaults=cjson.encode(recodeset)
+
+    template = loader.get_template('data-recode.html')
+    context = RequestContext(request, {'defaults':defaults,'dataset':dataset})
+
+    return HttpResponse(template.render(context))
+
+
+
+
+
+def read_configfile (infodir):
+
+    config=read_csv_list(infodir+'/data_config.csv')
+    if len(config)==0:
+        get_cols(datadir,dataset)
+
+
+    return config
 
 
 def read_filterfile (filename):
@@ -32,7 +76,7 @@ def read_filterfile (filename):
         pass
     matchui=[]
     matches=[]
-    if f is not None:    
+    if f is not None:
         c=csv.DictReader(f,delimiter=',')
         for line in c:
             if len(line)==3:
@@ -49,10 +93,10 @@ def read_recodefile (filename):
         f.readline()
     except:
         pass
-    
+
     labelset=[]
     labeldict={}
-    if f is not None:    
+    if f is not None:
         c=csv.reader(f,delimiter=',')
         for line in c:
             if len(line)==2:
@@ -60,6 +104,9 @@ def read_recodefile (filename):
                 labeldict[line[0]]=line[1]
         f.close()
     return labeldict,labelset
+
+
+
 
 
 
@@ -74,13 +121,11 @@ def split_csv_file (datadir, dataset, infodir, sep, match, global_recode):
     if match is None:
         match=[]    # ['srtadr=1','h_ink=1']
 
-        
     csv_select (infile, outfile, sep, match, global_recode)
 
 
 
 def read_header (filename,sep=None):
-
 
     f=open(filename,'r')
     headerline=f.readline()
@@ -98,24 +143,6 @@ def read_header (filename,sep=None):
 
 
 
-def get_cols (datadir, dataset, infodir):
-    
-    try:
-        f=open(infodir+'/col_info.csv','r')
-        sep=f.readline().strip()[4:]
-        cols=[]
-        for line in f:
-            cols.append(line.strip())
-    except:        
-        sep,cols=read_header(datadir+'/'+dataset+'.csv')        
-        f=open(infodir+'/col_info.csv','w')
-        f.write('sep=%s\n' % sep)
-        for col in cols:
-            f.write(col+'\n')
-        f.close()
-    return sep, cols
-
-
 
 
 
@@ -130,7 +157,7 @@ def set_filter (request, dataset):
     values=request.POST.getlist('filtervalues[]')
 
     
-    infodir=datadir+'/'+dataset+'_info'    
+    infodir=helpers.get_infodir(dataset)
     if not os.path.exists(infodir):
         os.makedirs(infodir)    
 
@@ -158,7 +185,7 @@ def set_recode (request, dataset):
     vals=request.POST.getlist('values[]')
     replacements=request.POST.getlist('replacements[]')
     
-    infodir=datadir+'/'+dataset+'_info'    
+    infodir=helpers.get_infodir(dataset)
     if not os.path.exists(infodir):
         os.makedirs(infodir)    
 
@@ -197,14 +224,12 @@ def dataset (request, dataset):
 
     # kijken of info-dir bestaat
 
-    infodir=datadir+'/'+dataset+'_info'    
-    if not os.path.exists(infodir):
-        os.makedirs(infodir)
+    infodir=helpers.get_infodir(dataset)
 
-    sep, cols=get_cols (datadir, dataset, infodir)
+    sep, cols=helpers.get_cols (datadir, dataset, infodir)
 
 
-    g={'ND,1':'', 'ND,2':'', 'ND,3':'', 'ND,4':'', 'ND,5':'', 'ND,6':''}
+
     if action=='split':
         split_csv_file (datadir, dataset, infodir, sep, match=None, global_recode=g)
 
@@ -239,14 +264,12 @@ def dataset (request, dataset):
 
     # read labels, filter/recode-rules
 
-    labels=read_csvfile (infodir+'/labels.csv')
-    filterdict, filterset=read_filterfile (infodir+'/filters.csv')
-    recodedict, recodeset=read_recodefile (infodir+'/recodes.csv')
-    
+    labels=helpers.read_csvfile (infodir+'/labels.csv')
+
     # read types
 
 
-    col_info, coltypes_bycol=get_col_types(infodir)
+    col_info, coltypes_bycol=helpers.get_col_types(infodir)
 
     have_col_info= (len(col_info)>0)
     
@@ -295,9 +318,7 @@ def dataset (request, dataset):
           'sep':sep,
           'columns':columns,
           'msg':msg,
-          'action':action,
-          'filters':filterset,
-          'recodes':recodeset}
+          'action':action}
     
     return HttpResponse(cjson.encode(data))
 

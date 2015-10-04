@@ -1,22 +1,20 @@
 import os, csv
 from django.http import HttpResponse
 from django.template import RequestContext, loader
-from helpers import get_col_types, read_csvfile
+import helpers, cjson
 from operator import itemgetter
 import plus.settings as settings
 
 def view_dataset_var_labels (request, dataset):
 
-    infodir=settings.datadir+'/'+dataset+'_info'
-    if not os.path.exists(infodir):
-        os.makedirs(infodir)
+    infodir=helpers.get_infodir(dataset)
 
-    labels=read_csvfile (infodir+'/labels.csv')
+    labels=helpers.read_csvfile (infodir+'/labels.csv')
     labels=sorted(labels.iteritems())
     template = loader.get_template('dataset_labels.html')
+    labeljson=cjson.encode(labels)
 
-
-    context = RequestContext(request, {'labels':labels, 'dataset':dataset})
+    context = RequestContext(request, {'defaults':labeljson, 'dataset':dataset})
     return HttpResponse(template.render(context))
 
 
@@ -30,12 +28,12 @@ def view_var_key_labels (request, dataset, variable):
 
     template = loader.get_template('var_labels.html')
 
-    varlabels=read_csvfile (infodir+'/labels.csv')
+    varlabels=helpers.read_csvfile (infodir+'/labels.csv')
     varlabel=varlabels[variable]
 
-    global_labels=read_csvfile ('%s/labels/defaults.csv' % (infodir))
+    global_labels=helpers.read_csvfile ('%s/labels/defaults.csv' % (infodir))
     global_labels=sorted(global_labels.iteritems())
-    key_labels=read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
+    key_labels=helpers.read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
     if len(key_labels)==0:
         key_labels={}
         f=open('%s/hists/%s.csv' % (infodir, variable))

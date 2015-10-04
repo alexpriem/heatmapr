@@ -170,10 +170,10 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     if xind:
         i=0
       #  print '%s/hist/%s.csv' % (infodir, xvar)
-        xhist=helpers.read_list('%s/hist/%s.csv' % (infodir, xvar))
+        xhist=helpers.read_list('%s/hist/%s.csv' % (infodir, xvar),skipheader=True)
     if yind:
         i=0
-        yhist=helpers.read_list('%s/hist/%s.csv' % (infodir,yvar))
+        yhist=helpers.read_list('%s/hist/%s.csv' % (infodir,yvar),skipheader=True)
     sel=[]
     i=0
     j=0
@@ -182,6 +182,7 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     for x,y in zip(xvals,yvals):
         j+=1
         if xind:
+            print x
             x=float(xhist[x-1])
         if yind:
             try:

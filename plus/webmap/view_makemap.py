@@ -36,7 +36,7 @@ def get_all_colnames (infodir, heatmaptype, col_info):
 @csrf_exempt
 def make_heatmap (request, dataset, x_var=None, y_var=None):
 
-    infodir=settings.datadir+'/'+dataset+'_info'
+    infodir=helpers.get_infodir(dataset)
     if not os.path.exists(infodir):
         os.makedirs(infodir)
     if not os.path.exists(infodir+'/heatmaps'):
@@ -251,9 +251,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 @csrf_exempt
 def edit_heatmap (request, dataset, filename):
 
-    infodir=settings.datadir+'/'+dataset+'_info'
-    if not os.path.exists(infodir):
-        os.makedirs(infodir)
+    infodir=helpers.get_infodir(dataset)
     if not os.path.exists(infodir+'/heatmaps'):
         os.makedirs(infodir+'/heatmaps')
 
