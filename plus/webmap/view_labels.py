@@ -9,9 +9,9 @@ def view_dataset_var_labels (request, dataset):
 
     infodir=helpers.get_infodir(dataset)
 
-    labels=helpers.read_csvfile (infodir+'/labels.csv')
+    labels=helpers.read_csv_dict (infodir+'/labels.csv')
     labels=sorted(labels.iteritems())
-    template = loader.get_template('dataset_labels.html')
+    template = loader.get_template('data_labels.html')
     labeljson=cjson.encode(labels)
 
     context = RequestContext(request, {'defaults':labeljson, 'dataset':dataset})
@@ -28,12 +28,12 @@ def view_var_key_labels (request, dataset, variable):
 
     template = loader.get_template('var_labels.html')
 
-    varlabels=helpers.read_csvfile (infodir+'/labels.csv')
+    varlabels=helpers.read_csv_dict (infodir+'/labels.csv')
     varlabel=varlabels[variable]
 
-    global_labels=helpers.read_csvfile ('%s/labels/defaults.csv' % (infodir))
+    global_labels=helpers.read_csv_dict ('%s/labels/defaults.csv' % (infodir))
     global_labels=sorted(global_labels.iteritems())
-    key_labels=helpers.read_csvfile ('%s/labels/%s.csv' % (infodir, variable))
+    key_labels=helpers.read_csv_dict ('%s/labels/%s.csv' % (infodir, variable))
     if len(key_labels)==0:
         key_labels={}
         f=open('%s/hists/%s.csv' % (infodir, variable))

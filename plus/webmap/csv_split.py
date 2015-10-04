@@ -91,11 +91,11 @@ def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, mat
         f.close()
 
 
-def csv_select (infile, outfile, sep_in, match=None, global_recode=None):
+def csv_select (infile, outfile, sep_in, match=[], global_recode=None):
 
 
     sep_out=','
-    if match is not None:
+    if len(match)>0:
         matchdict, matchtype=prepmatch(match)
     else:
         matchdict={}

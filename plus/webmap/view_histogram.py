@@ -4,7 +4,7 @@ from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 
 from makehist import make_hist3, get_data, check_binsize
-from helpers import get_col_types, read_csvfile
+from helpers import get_col_types, read_csv_dict
 import plus.settings as settings
 
 
@@ -168,7 +168,7 @@ def histogram (request, dataset, variable):
     col_info, coltypes_bycol=get_col_types(infodir)
     rowinfo=coltypes_bycol[variable]
     rowinfo['labels']=get_labels(infodir,variable)
-    titles=read_csvfile (infodir+'/labels.csv')
+    titles=read_csv_dict (infodir+'/labels.csv')
     rowinfo['title']=titles.get(variable, variable)
 
     if request.is_ajax()==True:

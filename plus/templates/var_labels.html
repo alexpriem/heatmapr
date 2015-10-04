@@ -32,20 +32,20 @@
 
 
 
-<h3><a href="/data/{{dataset}}/"> {{dataset}} </a> <a href="#">// {{variable}} </a> </h3>
+<h3><a href="/data/{{dataset}}/"> {{dataset}} </a> <a href="/histogram/{{dataset}}/{{variable}}">// {{variable}} </a> </h3>
 
 <h5>{{varlabel}}</h5>
 
 
 <form role="form">
-	<div class="form-group">
+	<div class="form-group" id="data_container">
 	<table class="table-striped">
 	<thead>
 	
 
 	<thead>
 	<tbody>
-    {% if has_global %}
+    {% if has_global %} 
       <tr> <th colspan=2 > Globale labels:</th> </tr>
       <tr> <th> Kolom </th> <th>  Omschrijving </th></tr>  
           {% for col, label in global_labels  %} 
@@ -56,21 +56,27 @@
     {%endif %}
 
     {% if has_labels %}
+      <tr> <td> &nbsp; </td> </tr>
       <tr> <th colspan=2 > Labels voor deze variabele:</th> </tr>
+      
+      <tr> <th> Kolom </th> <th>  Omschrijving </th></tr>  
         {% for col, label in labels  %} 
+
                  <tr class="striped "> <td class="labelrow"> {{col}}</td>
                      <td class="xylabel4"> <input class="xylabel4" type="text" name="{{col}}" id="{{col}}" value="{{label}}" /></td> 
                 </tr>    
         {% endfor %}  
     {% endif %}
 
+
+    <tr> 
+        <td> <a href="#" id="update_labels"  class="update_filter btn btn-info"> Update Labels</a>  </td>
+        <td> <a href="#" id="undo"  class="update_filter btn btn-info"> Undo</a>  </td>
+    </tr>
   </tbody>
 
 	</table>
 	</div>
-
-	<a href="#" id="update_labels"  class="update_filter btn btn-info"> Update Labels</a>  
-	<a href="#" id="undo"  class="update_filter btn btn-info"> Undo</a>  
 
 </form>
 

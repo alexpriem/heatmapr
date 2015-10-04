@@ -82,6 +82,21 @@ var config_update=function() {
 
 
 
+function toggle_enable () {
+
+	rownr=$(this).attr("data-row");
+	console.log ('ok')
+	if ($(this).hasClass('fa-check-square')) {
+		$(this).removeClass('fa-check-square');
+		$(this).addClass('fa-square-o');
+	} else {
+		$(this).removeClass('fa-square-o');
+		$(this).addClass('fa-check-square');
+	}
+
+	
+
+}
 
 
 function show_configs(config){
@@ -107,9 +122,9 @@ function show_configs(config){
 
 	$('#update_config').on('click',config_update);
 	$('#update_configedit').on('click',config_undo_edit);
-	$('.del').on('click',config_del_row);
-	$('.add').on('click',config_add_row);
 
+
+	$('.enabled').on('click',toggle_enable);
   
 }
 

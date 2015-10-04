@@ -55,7 +55,7 @@ class typechecker ():
             info['max_val']=0
             return info
 
-        dateconfig=helpers.read_csvfile(self.infodir+'/dateformat.csv')
+        dateconfig=helpers.read_csv_dict(self.infodir+'/dateformat.csv')
         dateformat=dateconfig.get(variable)
 
 

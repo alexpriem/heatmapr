@@ -4,7 +4,7 @@ from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 
 
-from csv_split import csv_select
+import csv_split
 from dictify import dictify_all_the_things
 from dict2type import typechecker
 
@@ -36,7 +36,7 @@ def view_dataconfig (request, dataset):
 def view_data_filter (request, dataset):
 
     infodir=helpers.get_infodir(dataset)
-    filterdict, filterset=read_filterfile (infodir+'/filters.csv')
+    filterdict, filterset=read_filterfile (infodir)
     defaults=cjson.encode(filterset)
 
     template = loader.get_template('data-filter.html')
@@ -46,7 +46,7 @@ def view_data_filter (request, dataset):
 def view_data_recode(request, dataset):
 
     infodir=helpers.get_infodir(dataset)
-    recodedict, recodeset=read_recodefile (infodir+'/recodes.csv')
+    recodedict, recodeset=read_recodefile (infodir)
     defaults=cjson.encode(recodeset)
 
     template = loader.get_template('data-recode.html')
@@ -60,15 +60,26 @@ def view_data_recode(request, dataset):
 
 def read_configfile (infodir):
 
-    config=read_csv_list(infodir+'/data_config.csv')
-    if len(config)==0:
-        get_cols(datadir,dataset)
+    #config=helpers.read_csv_file()
+    f=open(infodir+'/data_config.csv')
+    config=helpers.read_csv_file (infodir+'/data_config.csv')
 
-
+    try:
+        f=open(filename)
+    except:
+        pass
+    print f
+    if f is not None:
+        c=csv.DictReader(f,delimiter=',')
+        for line in c:
+            config.append(line)
+  #  config=[]
     return config
 
 
-def read_filterfile (filename):
+def read_filterfile (infodir):
+
+    filename=infodir+'/filters.csv'
     f=None
     try:
         f=open(filename)
@@ -86,7 +97,9 @@ def read_filterfile (filename):
     return matches, matchui
 
 
-def read_recodefile (filename):
+def read_recodefile (infodir):
+
+    filename=infodir+'/recodes.csv'
     f=None
     try:
         f=open(filename)
@@ -118,26 +131,12 @@ def split_csv_file (datadir, dataset, infodir, sep, match, global_recode):
 
     infile=datadir+'/'+dataset+'.csv'
     outfile=infodir+'/split/'
-    if match is None:
-        match=[]    # ['srtadr=1','h_ink=1']
+#        match=[]    # ['srtadr=1','h_ink=1']
 
-    csv_select (infile, outfile, sep, match, global_recode)
-
+    csv_split.csv_select (infile, outfile, sep, match, global_recode)
 
 
-def read_header (filename,sep=None):
 
-    f=open(filename,'r')
-    headerline=f.readline()
-    if sep is None:
-        sep=','
-        if len(headerline.split(sep))==1:
-            sep=';'
-            if len(headerline.split(';'))==1:
-                raise RuntimeError ('unknown separator')
-            
-    cols=[col.replace('"','').strip() for col in headerline.split(sep)]
-    return sep, cols
 
 
 
@@ -231,7 +230,9 @@ def dataset (request, dataset):
 
 
     if action=='split':
-        split_csv_file (datadir, dataset, infodir, sep, match=None, global_recode=g)
+        matches, matchui=read_filterfile(infodir)
+        recodes, recodeset=read_recodefile (infodir)
+        split_csv_file (datadir, dataset, infodir, sep, match=matches, global_recode=recodes)
 
     if action=='dictify':        
         dictify_all_the_things (infodir, cols)
@@ -264,7 +265,7 @@ def dataset (request, dataset):
 
     # read labels, filter/recode-rules
 
-    labels=helpers.read_csvfile (infodir+'/labels.csv')
+    labels=helpers.read_csv_dict (infodir+'/labels.csv')
 
     # read types
 

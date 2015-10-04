@@ -1,7 +1,7 @@
 import random, os, inspect, json, bisect, csv, cjson
 from math import log10
 import datetime #.datetime.strptime as strptime
-from helpers import get_col_types, read_csvfile
+from helpers import get_col_types, read_csv_dict
 
 
 def safelog10 (x):
@@ -401,11 +401,11 @@ class heatmap:
 
         if multimap:
             if split1_var!='':
-                split1_labels=read_csvfile ('%s/labels/%s.csv' % (self.infodir, split1_var))
+                split1_labels=read_csv_dict ('%s/labels/%s.csv' % (self.infodir, split1_var))
                 #split1_labels=sorted(split1_labels.iteritems())
                 print split1_labels
             if split2_var!='':
-                split2_labels=read_csvfile ('%s/labels/%s.csv' % (self.infodir, split2_var))
+                split2_labels=read_csv_dict ('%s/labels/%s.csv' % (self.infodir, split2_var))
                 #split2_labels=sorted(split2_labels.iteritems())
 
 

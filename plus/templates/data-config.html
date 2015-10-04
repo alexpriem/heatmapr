@@ -44,7 +44,7 @@
   <div class="form-group">
   <table class="table-striped">
   <thead>
-  <tr> <th> Enable </th>
+  <tr> <th> Enable &nbsp;&nbsp; </th>
      <th> Kolom </th>
      <th> Type-hint</th> 
      <th> Format</th> 
@@ -54,7 +54,7 @@
   {{#rows}}
      <tr class="filter_row" id="filter_row_{{@index}}"> 
         <td> {{#if enabled}}
-                       <div><i class="enabled fa fa-lg fa-check-square"> </i></div>
+                       <div><i class="enabled fa fa-lg fa-check-square" data-row="{{@index}}"> </i></div>
                    {{else}}
                        <div><i class="enabled fa fa-lg fa-square-o"> </i></div>
                    {{/if}}   
@@ -62,9 +62,6 @@
         <td> <input  class="filtercol form-control form-control2" value="{{colname}}"> </td> 
         <td> <input   class="typehint form-control form-control2" value="{{typehint}}"> </td> 
         <td> <input   class="format form-control form-control2" value="{{format}}"> </td> 
-        <td> <a href  class="del deleteicon fa fa-times" data-rownr="{{@index}}" > </a> 
-          <a href   class="add addicon fa fa-plus" data-rownr="{{@index}}" > </a>           
-        </td> 
       </tr>
   {{/rows}}
   <tbody>

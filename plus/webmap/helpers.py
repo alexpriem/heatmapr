@@ -20,7 +20,7 @@ def get_infodir (dataset):
 
 
 
-def read_csvfile(filename, skipheader=False):
+def read_csv_dict(filename, skipheader=False):
     f=None
     try:
         f=open(filename)
@@ -58,11 +58,40 @@ def read_csv_list(filename, skipheader=False):   #  eerste waarde van csv-file i
     return labellist
 
 
+def read_csv_file(filename):   #  eerste waarde van csv-file inlezen
+    f=None
+    try:
+        f=open(filename)
+    except:
+        pass
+    labellist=[]
+    if f is not None:
+        c = csv.DictReader(f)
+        for row in c:
+            labellist.append(row)
+        f.close()
+    return labellist
 
 
 
 
-def get_cols (dataset, datadir, infodir):
+def read_header (filename,sep=None):
+
+    f=open(filename,'r')
+    headerline=f.readline()
+    if sep is None:
+        sep=','
+        if len(headerline.split(sep))==1:
+            sep=';'
+            if len(headerline.split(';'))==1:
+                raise RuntimeError ('unknown separator')
+
+    cols=[col.replace('"','').strip() for col in headerline.split(sep)]
+    return sep, cols
+
+
+
+def get_cols (datadir, dataset, infodir):
 
     try:
         f=open(infodir+'/col_info.csv','r')
@@ -74,10 +103,12 @@ def get_cols (dataset, datadir, infodir):
         sep,cols=read_header(datadir+'/'+dataset+'.csv')
         f=open(infodir+'/col_info.csv','w')
         g=open(infodir+'/data_config.csv','w')
+        csv.write(g,delimiter=',',quotechar='"')
         f.write('sep=%s\n' % sep)
+        g.write('enabled,colname,typehint,format\n')
         for col in cols:
             f.write(col+'\n')
-            g.write("1,%s,,''\n" % col)
+            g.writerow([1,col,'',""])
         f.close()
         g.close()
     return sep, cols

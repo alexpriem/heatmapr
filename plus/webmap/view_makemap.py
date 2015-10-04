@@ -224,7 +224,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
             args['x_steps']=keys
             args['y_steps']=keys
 
-    labels=helpers.read_csvfile (infodir+'/labels.csv')
+    labels=helpers.read_csv_dict (infodir+'/labels.csv')
     col_x=x_types['colname']
     col_y=y_types['colname']
     args['x_label']=labels.get(col_x,col_x)
@@ -256,7 +256,7 @@ def edit_heatmap (request, dataset, filename):
         os.makedirs(infodir+'/heatmaps')
 
 
-    args=helpers.read_csvfile('%s/heatmaps/%s_meta.csv' % (infodir,filename))
+    args=helpers.read_csv_dict('%s/heatmaps/%s_meta.csv' % (infodir,filename))
     print '%s/heatmaps/%s_meta.csv' % (infodir, filename)
     print args
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
