@@ -1,40 +1,22 @@
 /* config-button at top, for selecting rows in csv. Needs separate tab */
 
 
-var config_add_row=function() {
+var handle_ajax_error=function (result) {
 
-	rownr=$(this).attr("data-rownr");
-	fcols=$('.configcol');
-	newrownr=fcols.length;
-	newrow=$('#config_row_'+rownr).clone();
-	console.log('add:',newrow.attr('id'))
-	newrow.attr('id','config_row_'+newrownr);
-	$('#config_row_'+rownr).after(newrow);
-	return false;
+	$('#errorbox').html(result.status+ ' ' + result.statusText +result.responseText);
 }
 
-var config_del_row=function() {
 
-	rownr=$(this).attr("data-rownr");
-	console.log(rownr);
-	
+var handle_ajax=function (result) {
 
-	rows=$('.configcol');
-	if (rows.length>1) {
-		$('#config_row_'+rownr).remove();
-	}  else {					// inputboxes niet verwijderen maar leeg maken.
-		$(rows[0]).val('');			
-		rows=$('.configcomp');
-		$(rows[0]).val('');
-		rows=$('.configvalue');
-		$(rows[0]).val('');
-
-	}
-	return false;
+	console.log('handle_ajax');
+	r=JSON.parse(result);
+	$('#errorbox').html(r.msg);
 }
 
 var config_undo_edit=function() {
 	
+	show_configs (defaults);
 	return false;
 }
 
@@ -42,36 +24,36 @@ var config_update=function() {
 	
 	console.log('config_update');
 
-	configcols=[];
-	fcols=$('.configcol');
-	fcols.each(function(index) { configcols.push($(this).val());   });
-	configcomp=[];
-	fcomp=$('.configcomp');
-	fcomp.each(function(index) { configcomp.push($(this).val());   });
-	configvalues=[];
-	fvalues=$('.configvalue');
-	fvalues.each(function(index) { configvalues.push($(this).val());   });
-	
-	// rudimentary check on empty cols.
-	configlen=configcols.length;
-	for (i=0; i<configlen;i++) {
-		col=configcols[i];
-		if (col=='') {
-			configlen-=1;
-			configcols.splice(i,1);
-			configcomp.splice(i,1);
-			configvalues.splice(i,1);
+	var enableds=[];
+	var colnames=[];
+	var typehints=[];
+	var formats=[];
+	for (i=0; i<defaults.length; i++) {
+		enabled=0;
+		if ($('#enabled_'+i).hasClass('fa-check-square')) {
+			enabled=1;
 		}
-	}
+		typehint=$('#typehint_'+i).val();
+		format=$('#format_'+i).val();
+
+		enableds.push(enabled);
+		colnames.push(defaults[i].colname);
+		typehints.push(typehint);
+		formats.push(format);
+	}	
+
 
 	var url=window.location.href;
 	var data=url.split('/');	
 	var dataset=data[4];
 
-	data={'configcols':configcols,'configcompares':configcomp,'configvalues':configvalues};
+	data={'enabled':enableds,
+			'colnames':colnames,
+			'typehint':typehints,
+			'format':formats};
 
 	console.log(data);
-	$.ajax({url:"/set_config/"+dataset+'/', 
+	$.ajax({url:"/set-config/"+dataset+'/', 
 			type: "POST",
 			'data':data,
 			success: handle_ajax,
@@ -93,9 +75,6 @@ function toggle_enable () {
 		$(this).removeClass('fa-square-o');
 		$(this).addClass('fa-check-square');
 	}
-
-	
-
 }
 
 
@@ -109,58 +88,23 @@ function show_configs(config){
 
 	var source   = $("#config-template").html();   				
     var template = Handlebars.compile(source); 
-    console.log(config);
+    //console.log(config);
     
-  
 
     if ((config.length)==0){
     	config.push({'enabled':'','colname':'','typehine':'','format':''})    
     }
-    s=template({'rows':config});
+    s=template({'rows':config,'dataset':dataset});
 	
 	data_div.innerHTML =s;
 
-	$('#update_config').on('click',config_update);
-	$('#update_configedit').on('click',config_undo_edit);
+	$('#update').on('click',config_update);
+	$('#undo').on('click',config_undo_edit);
 
 
 	$('.enabled').on('click',toggle_enable);
   
 }
-
-
-
-
-function update_state  (action) {
-	
-	var url=window.location.href;
-	var data=url.split('/');	
-	var dataset=data[4];
-
-	var data={dataset:dataset, 'action':action};
-  
-	 
-	 for (var item in config) {	 	
-         if (config.hasOwnProperty(item)) {
-            var clicked=config[item];
-            if (clicked) {
-            		data['config_'+item]=true;
-            	}
-            else {data['config_'+item]=false;}
-         } //if clicked
-     }  //for
-
-
-
-	$.ajax({url:"/dataset/"+dataset, 
-			type: "GET",
-			'data':data,
-			success: handle_ajax,
-			error: handle_ajax_error,
-		});
-}
-
-
 
 
 

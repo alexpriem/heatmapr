@@ -57,3 +57,10 @@ def view_var_key_labels (request, dataset, variable):
                                        'varlabel':varlabel})
     return HttpResponse(template.render(context))
 
+
+
+
+def set_labels (request,dataset):
+
+    data={'msg':''}
+    return HttpResponse(cjson.encode(data))

@@ -37,6 +37,12 @@ urlpatterns = patterns('',
     url(r'^labels/(?P<dataset>.*)/$', view_labels.view_dataset_var_labels),
 
 
+    url(r'^set-config/(?P<dataset>.*)/$', view_data.set_config),
+    url(r'^set-filter/(?P<dataset>.*)/$', view_data.set_filter),
+    url(r'^set-recode/(?P<dataset>.*)/$', view_data.set_recode),
+    url(r'^set-labels/(?P<dataset>.*)/$', view_labels.set_labels),
+
+
     url(r'^data-config/(?P<dataset>.*)/$', view_data.view_dataconfig),
     url(r'^data-filter/(?P<dataset>.*)/$', view_data.view_data_filter),
     url(r'^data-recode/(?P<dataset>.*)/$', view_data.view_data_recode),

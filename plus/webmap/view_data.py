@@ -144,13 +144,44 @@ def split_csv_file (datadir, dataset, infodir, sep, match, global_recode):
 
 
 
+@csrf_exempt
+def set_config (request, dataset):
+
+    print 'set_config'
+    datadir=settings.datadir
+    enabled=request.POST.getlist('enabled[]')
+    cols=request.POST.getlist('colnames[]')
+    typehints=request.POST.getlist('typehint[]')
+    formats=request.POST.getlist('format[]')
+
+    print enabled, cols
+
+    infodir=helpers.get_infodir(dataset)
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)
+
+    f=open (infodir+'/data_config.csv','wb')
+    c=csv.writer(f, delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    c.writerow(['enabled','colname','typehint','format']);
+    for enabled,col,typehint,format in zip(enabled, cols,typehints,formats):
+        col=col.strip()
+        enabled=enabled.strip()
+        typehint=typehint.strip()
+        format=format.strip()
+        c.writerow([enabled,col,typehint,format])
+    f.close()
+
+    data={'msg':'saved config'}
+    return HttpResponse(cjson.encode(data))
+
+
+
+
 
 @csrf_exempt
 def set_filter (request, dataset):
 
-    print 'set_filter'
     datadir=settings.datadir
-    print request.POST.keys()
     cols=request.POST.getlist('filtercols[]')
     comps=request.POST.getlist('filtercompares[]')
     values=request.POST.getlist('filtervalues[]')

@@ -54,14 +54,14 @@
   {{#rows}}
      <tr class="filter_row" id="filter_row_{{@index}}"> 
         <td> {{#if enabled}}
-                       <div><i class="enabled fa fa-lg fa-check-square" data-row="{{@index}}"> </i></div>
+                       <div><i class="enabled fa fa-lg fa-check-square" data-row="{{@index}}" id="enabled_{{@index}}"> </i></div>
                    {{else}}
-                       <div><i class="enabled fa fa-lg fa-square-o"> </i></div>
+                       <div><i class="enabled fa fa-lg fa-square-o"  id="enabled_{{@index}}"> </i></div>
                    {{/if}}   
         </td>            
-        <td> <input  class="filtercol form-control form-control2" value="{{colname}}"> </td> 
-        <td> <input   class="typehint form-control form-control2" value="{{typehint}}"> </td> 
-        <td> <input   class="format form-control form-control2" value="{{format}}"> </td> 
+        <td> <a href="/histogram/{{../dataset}}/{{colname}}" id="colname_{{@index}}"> {{colname}} </a>  </td> 
+        <td> <input   class="typehint form-control form-control2" value="{{typehint}}" id="typehint_{{@index}}"> </td> 
+        <td> <input   class="format form-control form-control2" value="{{format}}" id="format_{{@index}}"> </td> 
       </tr>
   {{/rows}}
   <tbody>
