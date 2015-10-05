@@ -8,6 +8,12 @@ var filter={'empty':false,
 			
 
 
+var click_action=function () {
+
+	console.log('click_action');	
+	update_state(this.id);
+}
+
 
 
 var handle_ajax_error=function (result) {

@@ -89,11 +89,15 @@ function show_configs(config){
 	var source   = $("#config-template").html();   				
     var template = Handlebars.compile(source); 
     //console.log(config);
-    
 
-    if ((config.length)==0){
-    	config.push({'enabled':'','colname':'','typehine':'','format':''})    
-    }
+	for (i=0; i<config.length; i++) {
+		if (config[i].enabled=='0') { 
+			config[i].enabled=false;
+		} else {
+			config[i].enabled=true;
+		}
+	}    
+
     s=template({'rows':config,'dataset':dataset});
 	
 	data_div.innerHTML =s;
