@@ -173,6 +173,7 @@ def dataset (request, dataset):
         
     infodir=helpers.get_infodir(dataset)
     sep, cols=helpers.get_cols (datadir, dataset, infodir)
+    enabled_cols=helpers.get_enabled_cols(infodir)
 
     if action=='split':
         csv_split.csv_select (datadir, dataset, infodir, sep)
@@ -186,7 +187,7 @@ def dataset (request, dataset):
         t.cols=cols
         t.filename=dataset
         t.infodir=infodir
-        enabled_cols=helpers.get_enabled_cols(infodir)
+
         t.update_num_records(t.cols[0])
         t.analyse(enabled_cols)
 
@@ -225,7 +226,6 @@ def dataset (request, dataset):
           #  print col
             if (col!=info['colname']):
                 continue
-            j+=1
             if filter_set.get(info['datatype'])==False:
                 continue
 
@@ -234,6 +234,10 @@ def dataset (request, dataset):
             column['enabled']=True
             column['label']=labels.get(col,'')
             columns.append(column)
+            j+=1
+            if j>=len(col_info):
+                break
+
      
         
     if action=='makeplot':        
