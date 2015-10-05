@@ -178,7 +178,7 @@ def dataset (request, dataset):
         csv_split.csv_select (datadir, dataset, infodir, sep)
 
     if action=='dictify':        
-        dictify.dictify_all_the_things (infodir, cols)
+        dictify.dictify_all_the_things (infodir)
 
     if action=='dict2type':
         t=dict2type.typechecker()
@@ -186,24 +186,16 @@ def dataset (request, dataset):
         t.cols=cols
         t.filename=dataset
         t.infodir=infodir
+        enabled_cols=helpers.get_enabled_cols(infodir)
         t.update_num_records(t.cols[0])
-        t.analyse()                
+        t.analyse(enabled_cols)
 
 
     if action=='clear_all':  # full clean
-        if os.path.exists(infodir+'/split'):        
-            shutil.rmtree(infodir+'/split')
-        if os.path.exists(infodir+'/hist'):
-            shutil.rmtree(infodir+'/hist')
-        if os.path.exists(infodir+'/splitbin'):        
-            shutil.rmtree(infodir+'/splitbin')
-        if os.path.exists(infodir+'/histo'):
-            shutil.rmtree(infodir+'/histo') 
-        os.remove(infodir+'/col_info.csv')
+        if os.path.exists(infodir):
+            shutil.rmtree(infodir)
         msg='all cleared'
-        sep, cols=get_cols (datadir, dataset, infodir) # kolommen opnieuw inlezen
-        # rest als via init
- 
+        sep, cols=helpers.get_cols (datadir, dataset, infodir) # kolommen opnieuw inlezen
 
 
     # read labels, filter/recode-rules
@@ -234,9 +226,6 @@ def dataset (request, dataset):
             if (col!=info['colname']):
                 continue
             j+=1
-            if j>=col_info_length:
-                msg='incomplete column list: (%d/%d/%d)' % (i,j,col_info_length)
-              #  break
             if filter_set.get(info['datatype'])==False:
                 continue
 

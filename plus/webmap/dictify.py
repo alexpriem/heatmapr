@@ -25,7 +25,7 @@ def dictify(infodir, colname):
     f.close()
 
 
-def dictify_all_the_things(infodir, cols):
+def dictify_all_the_things(infodir):
 
     enabled_cols=helpers.get_enabled_cols(infodir)
     for col in enabled_cols:

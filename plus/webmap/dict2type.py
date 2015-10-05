@@ -141,8 +141,8 @@ class typechecker ():
         num_keys=lines
         num_missing=0
 
-        missing=helpers.read_list(self.infodir+'/missing/default.csv')
-        missing2=helpers.read_list(self.infodir+'/missing/%s.csv' % variable)
+        missing=helpers.read_csv_list(self.infodir+'/missing/default.csv')
+        missing2=helpers.read_csv_list(self.infodir+'/missing/%s.csv' % variable)
         if missing is None:
             missing=['','NA','NULL']    # tzt naar externe file
 
@@ -492,7 +492,7 @@ class typechecker ():
 
      
 
-    def analyse(self):
+    def analyse(self, cols):
         g=open(self.infodir+'/col_types.csv','w')
         s="colname,datatype,num_keys,num_valid,num_missing,num_records,"
         s+="missing,unique_index,string_garbage,single_value,bi_value,"
@@ -501,7 +501,7 @@ class typechecker ():
         s+="sparse1,sparse2,bin_typecode,bin_indirect\n"
         g.write(s);
         skip=True
-        for col in self.cols:           
+        for col in cols:
             if col=='.':
                 break
             f=self.data_info=self.get_type (col)
