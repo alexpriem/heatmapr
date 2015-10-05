@@ -1,5 +1,5 @@
 import os, csv
-
+import helpers
 
 
 def dictify(infodir, colname):
@@ -26,7 +26,9 @@ def dictify(infodir, colname):
 
 
 def dictify_all_the_things(infodir, cols):
-    for col in cols:
+
+    enabled_cols=helpers.get_enabled_cols(infodir)
+    for col in enabled_cols:
         print col
         dictify(infodir,col)
 

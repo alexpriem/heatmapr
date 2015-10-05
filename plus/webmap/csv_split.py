@@ -1,4 +1,5 @@
-import sys, glob, datetime, gzip, csv
+import os, sys, glob, datetime, gzip, csv
+import helpers
 from operator import itemgetter
 
  
@@ -32,12 +33,11 @@ def prepmatch (matches):
 
 # helperfunction for csv_select
 
-def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, matchcols, matchvals, matchtype):
-
+def split_batch (csvfile, splitdir, batchkeys, keys, colnr, matchcolnrs, matchvals, matchtypes, global_recode):
 
     filedict={}
     for key in batchkeys:
-        filedict[key]=open(outfile+key+'.csv','w')
+        filedict[key]=open(splitdir+key+'.csv','w')
 
     i=0
     j=0
@@ -45,6 +45,8 @@ def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, mat
         if verbose==2 and i%1000==0:
             print i, j
         i+=1
+        if i>10000:
+            break
 
         vals=line
         if global_recode is not None:
@@ -52,21 +54,25 @@ def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, mat
 
        # print vals
         match=True
-        for k,v in zip(matchcols,matchvals):
-            matchcolname=keys[k]
-            matchtyp=matchtype[matchcolname]
-            val=vals[k]
+        for matchkey, matchtype, matchval in zip(matchcolnrs,matchtypes,matchvals):
+            val=vals[matchkey]
           #  print '[%s][%s], %s' % (val, v, matchcolname), val==v, matchtyp
-            if matchtyp=='=' and val!=v:
+            if matchtype=='=' and val!=matchval:
                 match=False
                 break
-            if matchtyp=='!' and val==v:
+            if matchtype=='!' and val==matchval:
                 match=False
                 break
-            if matchtyp=='>' and val<=v:
+            if matchtype=='>' and val<=matchval:
                 match=False
                 break
-            if matchtyp=='<' and val>=v:
+            if matchtype=='>=' and val<matchval:
+                match=False
+                break
+            if matchtype=='<=' and val>matchval:
+                match=False
+                break
+            if matchtype=='<' and val>=matchval:
                 match=False
                 break
         if match==False:
@@ -78,10 +84,11 @@ def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, mat
 
         for key in batchkeys:
             try:
-                val=vals[subcolnr[key]]
+                val=vals[colnr[key]]
             except:
-                print 'Exception:%s,%s' % (j, key)
-                print subcolnr
+                print 'Line %d, Exception looking for:%s' % (i, key)
+                print 'index:', colnr.get(key,'key undefined'), 'len vals:', len(vals)
+                return
 
             f=filedict[key]
             f.write('%s\n' % val)
@@ -91,46 +98,63 @@ def split_batch (csvfile, outfile, batchkeys, subcolnr, global_recode, keys, mat
         f.close()
 
 
-def csv_select (infile, outfile, sep_in, match=[], global_recode=None):
 
 
-    sep_out=','
-    if len(match)>0:
-        matchdict, matchtype=prepmatch(match)
-    else:
-        matchdict={}
-        matchtype={}
+
+def csv_select (datadir, dataset, infodir, sep_in):
+
+    splitdir=infodir+'/split/'
+    if not os.path.exists(splitdir):
+        os.makedirs(splitdir)
+
+    matches=helpers.read_filterfile(infodir)
+    recodes, recodeset=helpers.read_recodefile (infodir)
+
+    print 'MATCHES'
+    print matches
+    print 'MATCHES'
+
+    config=helpers.read_configfile(infodir)
+
+    name2colnr={}
+    enabled_keys=[]
+    keys=[]
+    for i,row in enumerate(config):
+        colname=row['colname'].lower()
+        print i,colname
+        keys.append(colname)
+        name2colnr[colname]=i
+        if int(row['enabled'])==1:
+            enabled_keys.append(colname)
+
+    print '#variabelen naar csv-files:',len(enabled_keys)
+
+    matchcolnrs=[]
+    matchvals=[]
+    matchtypes=[]
+    for m in matches:
+
+        matchcolnrs.append(name2colnr(m['key'].lower()))
+        matchtypes.append(m['compare'])
+        matchvals.append(m['value'])
+
+    infile=datadir+'/'+dataset+'.csv'
     f=open (infile)
     #f=gzip.open (infile,'r')
-
-
     c=csv.reader(f,delimiter=sep_in)
-    
-    keys=c.next()
-    keys=[k.lower() for k in keys]    
 
-    subkeys=[]
-    subcolnr={}
-    for key in keys:
-        subkeys.append(key)
-        subcolnr[key]=keys.index(key)            
-    print '#variabelen naar csv-files:',len(subkeys)
+    print matchcolnrs, matchvals, matchtypes
 
-    matchcols=[]
-    matchvals=[]
-    for matchkey, matchval in matchdict.items():
-        matchcols.append(keys.index(matchkey))
-        matchvals.append(matchval)
-
-    numcols=len(subkeys)
     startkey=0
     batchsize=500
-    batch=subkeys[startkey:startkey+batchsize]
-    while len(batch)!=0:
-        print startkey, len(batch)
-        split_batch(c, outfile, batch, subcolnr, global_recode, keys, matchcols, matchvals, matchtype)
+    batchkeys=enabled_keys[startkey:startkey+batchsize]
+    print 'name2colnr:',name2colnr
+
+    while len(batchkeys)!=0:
+        print startkey, len(batchkeys)
+        split_batch(c, splitdir, batchkeys, keys, name2colnr, matchcolnrs, matchvals, matchtypes,recodes)
         f.seek(0,0)
         f.readline()
         startkey+=batchsize
-        batch=subkeys[startkey:startkey+batchsize]
+        batchkeys=enabled_keys[startkey:startkey+batchsize]
 

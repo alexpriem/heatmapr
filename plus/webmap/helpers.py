@@ -91,6 +91,64 @@ def read_header (filename,sep=None):
 
 
 
+
+
+
+def read_configfile (infodir):
+
+    f=None
+    try:
+        f=open(infodir+'/data_config.csv')
+    except:
+        pass
+    config=[]
+    if f is not None:
+        c=csv.DictReader(f,delimiter=',')
+        for line in c:
+            config.append(line)
+    return config
+
+
+def read_filterfile (infodir):
+
+    f=None
+    try:
+        f=open(infodir+'/filters.csv')
+    except:
+        pass
+    matches=[]
+    if f is not None:
+        c=csv.DictReader(f,delimiter=',')
+        for line in c:
+            matches.append(line)
+        f.close()
+    return matches
+
+
+def read_recodefile (infodir):
+
+    f=None
+    try:
+        f=open(infodir+'/recodes.csv')
+        f.readline()
+    except:
+        pass
+
+    labelset=[]
+    labeldict={}
+    if f is not None:
+        c=csv.reader(f,delimiter=',')
+        for line in c:
+            if len(line)==2:
+                labelset.append({'value':line[0],'replacement':line[1]})
+                labeldict[line[0]]=line[1]
+        f.close()
+    return labeldict,labelset
+
+
+
+
+
 def get_cols (datadir, dataset, infodir):
 
     try:
@@ -112,6 +170,18 @@ def get_cols (datadir, dataset, infodir):
         f.close()
         g.close()
     return sep, cols
+
+
+
+
+def get_enabled_cols (infodir):
+
+    config=read_configfile(infodir)
+    enabled_keys=[]
+    for row in config:
+        if int(row['enabled'])==1:
+            enabled_keys.append(row['colname'])
+    return enabled_keys
 
 
 
