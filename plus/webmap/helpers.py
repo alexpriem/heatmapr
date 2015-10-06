@@ -12,9 +12,7 @@ def get_infodir (dataset):
     if not os.path.exists(infodir):
         os.makedirs(infodir)   # en dataset bekijken
         os.makedirs(infodir+'/labels')
-        sep, cols=get_cols(datadir, dataset, infodir)  # aanmaken coltypes
-
-
+        sep, cols=get_cols(settings.datadir, dataset, infodir)  # aanmaken coltypes
 
     return infodir
 
@@ -161,12 +159,12 @@ def get_cols (datadir, dataset, infodir):
         sep,cols=read_header(datadir+'/'+dataset+'.csv')
         f=open(infodir+'/col_info.csv','w')
         g=open(infodir+'/data_config.csv','w')
-        csv.write(g,delimiter=',',quotechar='"')
+        c=csv.writer(g,delimiter=',',quotechar='"')
         f.write('sep=%s\n' % sep)
         g.write('enabled,colname,typehint,format\n')
         for col in cols:
             f.write(col+'\n')
-            g.writerow([1,col,'',""])
+            c.writerow([1,col,'',""])
         f.close()
         g.close()
     return sep, cols
