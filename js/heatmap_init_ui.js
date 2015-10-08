@@ -5,7 +5,6 @@ var labels_histxy=[[1,"Totaal"],[2,"gemiddelde"],[3,"mediaan"],[4,"punt"]];
 var colors_histxy=["rgb(255,0,0)","rgb(0,255,0)","rgb(0,0,255)","rgb(255,255,0)"];
 
 var c,s,ctx;
-var print=false;
 var datasets=null;
 // printinfo hier
 var interactive=true;
@@ -245,8 +244,7 @@ function init_resized_page() {
     $('#cg_a').append('<svg id="legend" height="400" width="150"> <svg>');
 
     
-    h=heatmaps[0];
-    h.init_print();    
+    h=heatmaps[0];    
     h.init_stats();
     h.init_hist_xy();
     h.init_dotplot();
@@ -300,28 +298,24 @@ function init_page() {
     $('#cg_a').append('<svg id="legend" height="400" width="150"> <svg>');
 
     
-    h=heatmaps[0];
-    h.init_print();    
+    h=heatmaps[0];    
     h.init_stats();
     h.init_hist_xy();
     h.init_dotplot();
   //  h.init_display();     
     h.init_annotations();
     
-    
-
     $('#cat_multiples').on('click',resize_cats);
     $('#cat_sharecolormap').on('click',toggle_colormap_sharing);
- //   Pixastic.debug=true;
+    $('#print').on('click',h.click_print);
+
     document.title =h.opties.title;
-   // console.log('print=',print);
+    console.log('print=',print);
     if (print==true) {
-        $('.leftbox').hide();
-        $('.gradient_vars').hide();
+        $('#heatmap_controls').hide();
+        $('.nav').hide();
         $('.hist_2d').hide();        
-    } else {
-        $('#sel_print').hide();
-    }
+    } 
 
 
     if (typeof (init_interactive) == 'function') { 

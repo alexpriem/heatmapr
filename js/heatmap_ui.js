@@ -522,18 +522,12 @@ function heatmap (data, opties, nr) {
 
 
 
-	this.init_print=function () {
-	   $('.print').on('click',_this.click_print);
-	   $('.sidelist').on('mouseenter ',enter_selectie);
-	   $('.sidelist').on('mouseout ',leave_selectie);
-	}
 
-
-	this.print_ok=function  () {
+	print_ok=function  () {
 		console.log("print ok");
 	}
 
-	this.print_fail=function  () {
+	print_fail=function  () {
 		console.log("print failed");
 
 	}
@@ -541,13 +535,13 @@ function heatmap (data, opties, nr) {
 	this.click_print=function  () {
 
 
-		var printtype=$(this).attr('data-print');
+		console.log('click_print');		
 		//$.get('#',{'cmd':printtype})
-	 	$.ajax({
+	 	$.ajax({url:this.href,
 	            cache: false,
-	            url: "/"+printtype,
-	            type: "GET"
-
+	            url: '#',
+	            type: "POST",
+	            data: {'print':true}           
 	        })
 	 		.done(print_ok)
 	 		.fail(print_fail);

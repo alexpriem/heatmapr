@@ -3,8 +3,9 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 
-import helpers, makehist
+import helpers, makehist, printer
 import plus.settings as settings
+
 
 
 
@@ -69,13 +70,38 @@ def view_heatmaps (request, dataset):
     context = RequestContext(request, args)
     return HttpResponse(template.render(context))
 
-
+@csrf_exempt
 def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
 
-    #print request.path
-    #print request #.META
-    
-    #print dataset
+    print dataset
+    if request.POST.get('print') is not None:
+        print 'printing'
+        p=printer.printert()
+        filename=dataset+'_'+x_var+'_'+y_var
+        url='/heatmap/'+filename
+        p.do_print(url, filename,'png')
+        data={'msg':'ok'}
+        return HttpResponse(cjson.encode(data))
+
+    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=False)
+
+@csrf_exempt
+def print_heatmap(request, dataset, x_var, y_var, indexnr=None):
+
+    print dataset
+    if request.POST.get('print') is not None:
+        print 'printing'
+        p=printer.printert()
+        filename=dataset+'_'+x_var+'_'+y_var
+        url='/heatmap/'+filename
+        p.do_print(url, filename,'png')
+        data={'msg':'ok'}
+        return HttpResponse(cjson.encode(data))
+
+    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=True)
+
+
+def view__heatmap (request, dataset, x_var, y_var, indexnr, printert):
     if indexnr is None:
         indexnr=0
     template = loader.get_template('heatmap.html')
@@ -86,7 +112,8 @@ def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
           'y_var':y_var,
           'filename':filename,
           'indexnr':indexnr,
-          'infodir':infodir}
+          'infodir':infodir,
+          'printing':printert}
     context = RequestContext(request, args)
     return HttpResponse(template.render(context))
 

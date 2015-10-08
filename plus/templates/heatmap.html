@@ -32,6 +32,7 @@
 <li id="cat_multiples"> <a href="#" id="toggle_smallmult"> small/large </a></li>
 <li id="cat_sharecolormap"> <a href="#" id="toggle_colormap"> Shared colormap </a></li> 
 <li > <a href="/editmap/{{dataset}}/{{filename}}/" id="edit_params"> Edit parameters </a></li> 
+<li > <a href="#" id="print"> Print</a></li>
 </ul>
 <h3> <a href="/data/{{dataset}}"> {{dataset}} </a></h3>
 
@@ -157,11 +158,6 @@
           <li class="display sidelist" data-display="dotplot"> Dotplot</li>
           <li class="display sidelist" data-display="text"> Text</li>
     </ul>
-      <ul id="sel_print" class="selbox">
-  		    <li class="sel_heading"> Output options:</li>
-  		    <li class="print sidelist" data-print="png"> Print to png</li>
-  		    <li class="print sidelist" data-print="pdf"> Print to pdf</li>
-	   </ul>
 </div>
 
   <script id="heatmap-template" type="text/x-handlebars-template">
@@ -183,6 +179,13 @@
 
 
 <div id="heatmap_div" class="rightbox">
+
+{% if printing %}
+  <script  type="text/javascript"> var print=true; // {{printing}} </script>
+  {% else %}
+  <script  type="text/javascript"> var print=false;  // {{printing}} </script>
+{% endif %}
+
 
 
 </div>

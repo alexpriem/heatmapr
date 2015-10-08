@@ -145,8 +145,28 @@ def check_binsize(data,minx,maxx,bins):
 
 
 
-def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ymax):
 
+
+
+
+def prepare_subsel (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ymax):
+
+    xinfo=coltypes_bycol[xvar]
+    yinfo=coltypes_bycol[yvar]
+
+    xfile=open('%s/split/%s.csv' % (infodir,xvar))
+    vals=[c[:-1] for c in xfile]
+    if xinfo['datatype']=='int':
+        vals=[int(c) for c in vals]
+    if xinfo['datatype']=='float':
+        vals=[float(c) for c in vals]
+
+    map=[]
+
+
+
+
+def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ymax):
 
     xinfo=coltypes_bycol[xvar]
     yinfo=coltypes_bycol[yvar]
@@ -162,6 +182,7 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     xvals.fromstring(xfile.read())
     xfile.close()
 
+
     yfile=open('%s/splitbin/%s.bin' % (infodir, yvar) ,'rb')
     yvals.fromstring(yfile.read())
     yfile.close()
@@ -174,7 +195,7 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     if yind:
         i=0
         yhist=helpers.read_list('%s/hist/%s.csv' % (infodir,yvar),skipheader=True)
-    sel=[]
+    sel=[0]*len(xvals)
     i=0
     j=0
     print xvar,'hist',xhist[:10]
@@ -193,7 +214,7 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
         if j<0:
             print xvar,xmin,xmax,x,'  ',  yvar,ymin,ymax,y
         if (x>xmin) and (x<xmax) and (y>ymin) and (y<ymax):
-            sel.append(i)
+            sel[i]=1
         i+=1
 
     if not os.path.exists(infodir+'/selecties'):
@@ -204,3 +225,6 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     for nr in sel:
         h.write('%d\n' % nr )  # tzt ook binair opsplaan
     h.close()
+
+
+
