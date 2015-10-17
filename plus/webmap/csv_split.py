@@ -45,8 +45,8 @@ def split_batch (csvfile, splitdir, batchkeys, keys, colnr, matchcolnrs, matchva
         if verbose==2 and i%1000==0:
             print i, j
         i+=1
-        if i>10000:
-            break
+    #    if i>10000:
+     #       break
 
         vals=line
         if global_recode is not None:

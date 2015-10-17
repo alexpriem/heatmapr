@@ -151,18 +151,46 @@ def check_binsize(data,minx,maxx,bins):
 
 def prepare_subsel (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ymax):
 
+    print xvar, yvar
+
     xinfo=coltypes_bycol[xvar]
     yinfo=coltypes_bycol[yvar]
 
-    xfile=open('%s/split/%s.csv' % (infodir,xvar))
-    vals=[c[:-1] for c in xfile]
-    if xinfo['datatype']=='int':
-        vals=[int(c) for c in vals]
-    if xinfo['datatype']=='float':
-        vals=[float(c) for c in vals]
+    xvals=helpers.read_and_convert_csvfile (infodir, xvar, xinfo['datatype'])
+    yvals=helpers.read_and_convert_csvfile (infodir, yvar, xinfo['datatype'])
 
-    map=[]
+    subsel=[]
+    for i,(x,y) in enumerate(zip(xvals,yvals)):
 
+        if (x>xmin) and (x<xmax):
+           # print xmin, xmax, x, ymin, ymax, y
+            if (y>ymin) and (y<ymax):
+                subsel.append(i)
+    print len(subsel)
+    return subsel
+
+
+
+
+def prepare_missing (infodir, coltypes_bycol, varname):
+
+    info=coltypes_bycol[varname]
+    f=open('%s/split/%s.csv' % (infodir,varname))
+
+    if info['missing']<0.5*info['total']:
+        missings=[]
+        for i, row in enumerate(f):
+            if row=='':
+                missings.append(i)
+        return True,missings
+
+    nonmissings=[]
+    for i, row in enumerate(f):
+        if row!='':
+            nonmissings.append(i)
+
+
+    return False,nonmissings
 
 
 

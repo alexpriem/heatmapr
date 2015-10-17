@@ -136,8 +136,39 @@ def make_subsel(request, dataset):
     infodir=settings.datadir+'/'+dataset+'_info'
 
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
-    makehist.prepare_subselection(infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax,)
+    subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
+
+    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax)
     msg='ok'
     data={'msg':msg}
 
     return HttpResponse(cjson.encode(data))
+
+
+
+
+def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
+
+    if not os.path.exists(infodir+'/selections'):
+        os.makedirs(infodir+'/selections')
+        selnr=1
+    else:
+        try:
+            selections=helpers.read_csv_list ('%s/selections/meta.csv' % infodir)
+            selnr=len(selections)+1
+        except:
+            selnr=1
+
+    f=open('%s/selections/sel_%d.csv' % (infodir, selnr),'wb')
+    for i in subsel:
+        f.write('%d\n' % i )
+    f.close()
+
+    f=open('%s/selections/meta.csv' % infodir,'a')
+
+    meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax]
+    c=csv.writer(f)
+    c.writerow(meta)
+    f.close()
+
+
