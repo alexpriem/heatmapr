@@ -86,7 +86,47 @@ def make_hist2 (infodir, variabele, minx, maxx, bins):
    #     print x[0],x[1]
     return histogram, sorted_hist
         
-            
+
+
+
+def prep_hist_subsel (infodir, variabele, minx, maxx, bins, subsel):
+
+
+
+# stage 1: selectie maken en binnen naar key/values
+# stage 2: histogram maken opbv /selhists
+    data=helpers.read_csvfile (infodir, variabele)
+    f=open(infodir+'/hists/%s.csv' % variabele)
+    f.readline()
+    c=csv.reader(f, delimiter=',')
+    binsize=(maxx-minx)/(bins*1.0)
+    histogram=[0]*(bins+1)
+    for row in c:
+        #print row
+        try:
+            x=float(row[0])
+        except:
+            pass
+        val=int(row[1])
+
+        if (x<minx) or (x>maxx):
+            continue
+        hx=int((x-minx)/binsize)
+        try:
+            histogram[hx]+=val
+        except:
+            print 'hx:',hx,binsize
+            raise RuntimeError
+    sorted_hist=sorted(histogram)
+
+    histogram=[[(minx+i*binsize),h] for i,h in enumerate(histogram)]
+   # for x in histogram:
+   #     print x[0],x[1]
+    return histogram, sorted_hist
+
+
+
+
         
 
 def get_data(infodir, variabele):
@@ -253,6 +293,9 @@ def prepare_subselection (infodir, coltypes_bycol, xvar,xmin,xmax,  yvar,ymin,ym
     for nr in sel:
         h.write('%d\n' % nr )  # tzt ook binair opsplaan
     h.close()
+
+
+
 
 
 

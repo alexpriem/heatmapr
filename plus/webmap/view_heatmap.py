@@ -172,3 +172,13 @@ def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
     f.close()
 
 
+def load_subsel (infodir, subselnr):
+
+     f=open('%s/selections/sel_%d.csv' % (infodir, selnr),'r')
+     subsel=[int(line) for line in f]
+     f.close()
+
+     return subsel
+
+
+
