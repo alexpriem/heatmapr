@@ -1447,14 +1447,12 @@ function heatmap (data, opties, nr) {
 	this.handle_ajax=function (result) {
 
 			console.log("selectie klaar");
+			h=new heatmap_histogram ('heatmap_svg_0',500, 250);
+			this.histogram=h;
 	}
 
 
 
-	this.make_selection=function   (action) {
-	
-			
-	}
 
 
 

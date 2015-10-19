@@ -181,4 +181,15 @@ def load_subsel (infodir, subselnr):
      return subsel
 
 
+@csrf_exempt
+def make_histogram (request, dataset):
+
+    varname=request.POST.get('histogram_var')
+    part=request.POST.get('histogram_part')
+    partvalue=request.POST.get('histogram_partvalue')
+    print 'make_histogram', varname, part, partvalue
+    msg='ok'
+    data={'msg':msg}
+    return HttpResponse(cjson.encode(data))
+
 

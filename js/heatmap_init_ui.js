@@ -323,7 +323,7 @@ function init_page() {
     }
 
 
- 
+    heatmap_histogram (h.chart);
 }
 
 $( document ).ready(init_page);

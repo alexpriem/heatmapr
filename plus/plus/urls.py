@@ -35,6 +35,7 @@ urlpatterns = patterns('',
     url(r'^heatmap/(?P<dataset>.*)/$', view_heatmap.view_heatmaps),
 
     url(r'^heatmap_subsel/(?P<dataset>.*)/$', view_heatmap.make_subsel),
+    url(r'^heatmap_histogram/(?P<dataset>.*)/$', view_heatmap.make_histogram),
 
 
     url(r'^labels/(?P<dataset>.*)/(?P<variable>.*)/$', view_labels.view_var_key_labels),

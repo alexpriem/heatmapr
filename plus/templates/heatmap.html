@@ -19,6 +19,8 @@
 
   <script src="/js-data/{{dataset}}/{{x_var}}_{{y_var}}_{{indexnr}}.js" type="text/javascript"> </script>
   <script src="/js-data/{{dataset}}/{{x_var}}_{{y_var}}_{{indexnr}}_meta.js" type="text/javascript"> </script>
+  
+  <script src="/js/heatmap_hist.js" type="text/javascript"> </script>
   <script src="/js/heatmap_ui.js" type="text/javascript"> </script>
   <script src="/js/heatmap_annotate.js" type="text/javascript"> </script>
   </head>
@@ -118,6 +120,21 @@
             </li>
     </ul>
   </script>
+
+
+
+
+<script  id="histogram-template" type="text/x-handlebars-template">
+        
+  <div id="histogramdiv">
+        Histogram <input type="text" id="histogram_var" class="histselectie" value="AR73" >  
+             voor <input type="text" id="histogram_part" class="histselectie"   value="selectie">
+                  <input type="text" id="histogram_partvalue" class="histselectie"  value="0">  
+             <a href="#" id="histogram_add"> toevoegen <a>
+  </div>
+
+</script>
+
 
 
 

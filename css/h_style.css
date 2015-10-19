@@ -289,3 +289,13 @@ background-color: #036;
 color: #fff;
 background-color: #369;
 }
+
+
+#histogramdiv {
+display:inline-block;
+background-color:red;
+}
+
+.histselectie {
+	width:50px;
+}
