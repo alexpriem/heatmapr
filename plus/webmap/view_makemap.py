@@ -47,7 +47,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     # args['displaymode'] uit post peuteren.
     colnames, groupcolnames=get_colnames_for_heatmap (infodir,  'heatmap', col_info)
     colnames, groupcolnames=get_all_colnames (infodir,  'heatmap', col_info)
-    print 'colnames:', len(colnames), colnames
+    #print 'colnames:', len(colnames), colnames
     if len(colnames)<2:
         msg='Geen heatmaps te maken van deze dataset'
         template = loader.get_template('makemap.html')
@@ -55,7 +55,7 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
         return HttpResponse(template.render(context))
 
 
-    print 'colnames:', len(colnames)
+    #print 'colnames:', len(colnames)
     if request.is_ajax()==True:
         #print request.POST
         args={}
@@ -163,11 +163,11 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     args['x_max']=x_types.get(args['x_max'],args['x_max'])
     args['y_max']=y_types.get(args['y_max'],args['y_max'])
 
-
-    x_min=args['x_min']
-    x_max=args['x_max']
-    y_min=args['y_min']
-    y_max=args['y_max']
+    print 'xmin/xmax:',args['x_min'],args['x_max']
+    x_min=float(args['x_min'])
+    x_max=float(args['x_max'])
+    y_min=float(args['y_min'])
+    y_max=float(args['y_max'])
     dx=x_max-x_min
     dy=y_max-y_min
     steps_set=False

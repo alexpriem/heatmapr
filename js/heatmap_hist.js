@@ -66,7 +66,7 @@ function heatmap_histogram (this_chart) {
 	var source   = $("#histogram-template").html();        
     var histogram_controls_template = Handlebars.compile(source); 
 
-    context={};
+    context={vars:[{varname:'AR1'},{'varname':'AR2'}]};
     txt=histogram_controls_template(context);
 
 
@@ -80,6 +80,7 @@ function heatmap_histogram (this_chart) {
    	        .append("xhtml:body")		       	        
     		.html(txt);
 
+    $('.sel_combobox').combobox()
     $('#histogram_add').on('click', add_histogram);
 	return this;
 }
