@@ -58,7 +58,7 @@ function heatmap_histogram (this_chart) {
 
 
 
-	console.log('heatmap_histogram',this_chart);
+	console.log('heatmap_histogram:',this_chart);
 	this.datasets=[];
 
 

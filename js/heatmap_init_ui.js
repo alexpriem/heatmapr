@@ -259,6 +259,7 @@ function init_page() {
   
     console.log('init_page, # heatmaps:',data.length);    
     console.log('multimap',multimap);    
+
     
     var heatmapinfo=[];    
     nr_heatmaps=data.length;        
@@ -304,10 +305,15 @@ function init_page() {
     h.init_dotplot();
   //  h.init_display();     
     h.init_annotations();
+
+
     
     $('#cat_multiples').on('click',resize_cats);
     $('#cat_sharecolormap').on('click',toggle_colormap_sharing);
     $('#print').on('click',h.click_print);
+
+
+
 
     document.title =h.opties.title;
     console.log('print=',print);
@@ -318,6 +324,10 @@ function init_page() {
     } 
 
 
+    
+    $('#close_selection').on('click',cancel_selection);
+    $('#cancel_selection').on('click',cancel_selection);
+    $('#save_selection').on('click',save_selection);
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
     }

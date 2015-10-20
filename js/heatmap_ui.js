@@ -28,6 +28,66 @@ transform_value=function  (val,transform, log_min) {
 
 
 
+	handle_selection_ajax_error=function (result) {
+
+			console.log("ajax error");
+			$('#errorbox').html(result.status+ ' ' + result.statusText +result.responseText);
+			$('#heatmap_div').hide();
+	}
+
+	handle_selection_ajax=function (result) {
+
+			console.log("selectie klaar");
+			//h=new heatmap_histogram ('heatmap_svg_0',500, 250);
+			//this.histogram=h;
+	}
+
+
+
+	function save_selection () {	
+		
+		
+		x_var=$('#selectie_xvar').html().slice(2);
+		y_var=$('#selectie_yvar').html().slice(2);;
+		sel_xmin=$('#selectie_xmin').val();
+		sel_xmax=$('#selectie_xmax').val();
+		sel_ymin=$('#selectie_ymin').val();		
+		sel_ymax=$('#selectie_ymax').val();
+		selectie_filename=$('#selectie_filename').val();
+		selectie_txt=$('#selectie_txt').val();
+
+
+		var url=window.location.href;
+		var data=url.split('/');	
+		var dataset=data[4];
+
+		var data={dataset:dataset, 
+					'xvar':x_var,
+					'xmin':sel_xmin,
+					'xmax':sel_xmax,
+					'yvar':y_var,
+					'ymin':sel_ymin,
+					'ymax':sel_ymax,					
+					'filename':selectie_filename,
+					'txt':selectie_txt
+				};  
+	
+			$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
+				type: "POST",
+				'data':data,
+				success: handle_selection_ajax,
+				error: handle_selection_ajax_error,
+			});
+
+		$('#overlay').css('visibility','hidden');
+	}
+
+
+	function cancel_selection () {	
+		
+		$('#overlay').css('visibility','hidden');
+	}
+
 
 
 function draw_legend (legend_labels, legend_colors) {
@@ -1397,59 +1457,32 @@ function heatmap (data, opties, nr) {
 		}
 		
 
+		
+
 		s='';
 		var sel_xmin=_this.x_to_world(_this.x0-75).toFixed(2);
 		var sel_xmax=_this.x_to_world(x-75).toFixed(2);
 		var sel_ymin=_this.y_to_world(_this.y0).toFixed(2);
 		var sel_ymax=_this.y_to_world(y).toFixed(2);
 		
-		var url=window.location.href;
-		var data=url.split('/');	
-		var dataset=data[4];
 
-		var data={dataset:dataset, 
-					'xvar':opties.x_var,
-					'xmin':sel_xmin,
-					'xmax':sel_xmax,
-					'ymin':sel_ymin,
-					'ymax':sel_ymax,
-					'yvar':opties.y_var
-				};  
-	
-			$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
-				type: "POST",
-				'data':data,
-				success: _this.handle_ajax,
-				error: _this.handle_ajax_error,
-			});
-
-
+	//	$('#selectieform').show();
 		
-		_this.chart.append("text")
-	    	.attr("id","selectbox")
-	        .attr("x", 75 )
-	        .attr("y", 50)
-	        .attr("font-family", "Corbel")
-	        .attr("font-size", "15px")
-	        .attr("font-weight", "bold")
-	        .text(s);
-		
+		$('#overlay').css('visibility','visible');
+
+		selectienr=0;
+		$('#selectie_xvar').html('X:'+opties.x_var);
+		$('#selectie_yvar').html('Y:'+opties.y_var);
+		$('#selectie_xmin').val(sel_xmin);
+		$('#selectie_xmax').val(sel_xmax);
+		$('#selectie_ymin').val(sel_ymin);		
+		$('#selectie_ymax').val(sel_ymax);
+		$('#selectie_filename').val('selectie_'+selectienr);
+
+		console.log('all done');
 	}
 
 
-	this.handle_ajax_error=function (result) {
-
-			console.log("ajax error");
-			$('#errorbox').html(result.status+ ' ' + result.statusText +result.responseText);
-			$('#heatmap_div').hide();
-	}
-
-	this.handle_ajax=function (result) {
-
-			console.log("selectie klaar");
-			h=new heatmap_histogram ('heatmap_svg_0',500, 250);
-			this.histogram=h;
-	}
 
 
 

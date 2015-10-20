@@ -127,6 +127,9 @@ def make_subsel(request, dataset):
     yvar=request.POST['yvar']
     ymin=float(request.POST['ymin'])
     ymax=float(request.POST['ymax'])
+    filename=request.POST['filename']
+    txt=request.POST['txt']
+
     if ymin>ymax:
         ymax,ymin=ymin,ymax
 
@@ -134,6 +137,11 @@ def make_subsel(request, dataset):
     print yvar,ymin,ymax
 
     infodir=settings.datadir+'/'+dataset+'_info'
+
+
+    f=open('%s/selections/%s.txt' % (infodir, filename),'w')
+    f.write(txt)
+    f.close()
 
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
     subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
@@ -164,7 +172,7 @@ def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
         f.write('%d\n' % i )
     f.close()
 
-    f=open('%s/selections/meta.csv' % infodir,'a')
+    f=open('%s/selections/meta.csv' % infodir,'ab')
 
     meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax]
     c=csv.writer(f)
