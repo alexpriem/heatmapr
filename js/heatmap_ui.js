@@ -1726,10 +1726,12 @@ function heatmap (data, opties, nr) {
 
 		if (label in a) {
 			var label='<h3>'+label+'</h3>';
-		}
+		} else { 
+			label="";
+		 }
 		txt="<div class='annotation'>"+label+a.text+"</div>"; 
 		_this.chart.append('foreignObject')
-		    .attr("width", _this.opties.imgwidth)
+		    .attr("width", 350)
 		    .attr("height", _this.opties.imgheight)
 		    .attr('x',_this.opties.imgwidth+100)
 		    .attr('y',y)
