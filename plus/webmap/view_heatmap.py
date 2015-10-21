@@ -167,6 +167,8 @@ def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
         except:
             selnr=1
 
+    print 'selnr:', selnr
+
     f=open('%s/selections/sel_%d.csv' % (infodir, selnr),'wb')
     for i in subsel:
         f.write('%d\n' % i )
@@ -178,6 +180,7 @@ def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
     c=csv.writer(f)
     c.writerow(meta)
     f.close()
+
 
 
 def load_subsel (infodir, subselnr):

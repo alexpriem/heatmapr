@@ -239,6 +239,26 @@ function init_annotation (heatmap, name, a){
 }
 
 
+
+function show_annotations () {
+
+ console.log('show_annotations');
+
+ for (var a in annotations) {
+  		if (annotations.hasOwnProperty(a)) {
+  			//console.log(a);
+    		init_annotation (heatmap, a, annotations[a]);
+	  }
+	}
+}
+
+
+function edit_annotations () {
+
+console.log('edit_annotations');	
+}
+
+
 function init_annotations (heatmap, annotations) {
 
 	for (var a in annotations) {
