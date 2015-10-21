@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
 
-import helpers, makehist, printer
+import helpers, makehist, printer, heatmap
 import plus.settings as settings
 
 
@@ -120,15 +120,16 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert):
 @csrf_exempt
 def make_subsel(request, dataset):
 
-    xvar=request.POST['xvar']
-    xmin=float(request.POST['xmin'])
-    xmax=float(request.POST['xmax'])
+    post=request.POST
+    xvar=post['xvar']
+    xmin=float(post['xmin'])
+    xmax=float(post['xmax'])
 
-    yvar=request.POST['yvar']
-    ymin=float(request.POST['ymin'])
-    ymax=float(request.POST['ymax'])
-    filename=request.POST['filename']
-    txt=request.POST['txt']
+    yvar=post['yvar']
+    ymin=float(post['ymin'])
+    ymax=float(post['ymax'])
+    filename=post['filename']
+    txt=post['txt']
 
     if ymin>ymax:
         ymax,ymin=ymin,ymax
@@ -138,15 +139,41 @@ def make_subsel(request, dataset):
 
     infodir=settings.datadir+'/'+dataset+'_info'
 
-
-    f=open('%s/selections/%s.txt' % (infodir, filename),'w')
-    f.write(txt)
-    f.close()
-
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
     subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
 
-    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax)
+    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax,filename,txt)
+
+# bijwerken heatmap-javascript
+
+    infile='%s_%s_%s' % (post['heatmap_xvar'], post['heatmap_yvar'], post['heatmap_index'])
+    h=heatmap.heatmap()
+    h.infodir=infodir
+    args=h.load_options_from_csv(infile)
+
+    f=open('%s/selections/meta.csv' % infodir,'r')
+    c=csv.reader(f)
+    annotaties={}
+    for row in c:
+        filename=row[7]
+        f=open('%s/selections/%s.txt' % (infodir, row[7]))
+        txt=f.read()
+        f.close()
+        ann_meta={'area':[[float(row[2]), float(row[5])],
+                          [float(row[3]), float(row[6])]],
+                 'text':txt}
+        annotaties[filename]=ann_meta
+
+    args['annotate']=annotaties
+    for k,v in args.items():
+        setattr(h,k,v)
+
+    newjs=h.opties_to_js(args)
+    f=open ('%s/heatmaps/%s_meta2.js' %  (infodir, infile), 'w')
+    newjs='var opties=[];\n'+newjs
+    f.write(newjs)
+    f.close()
+
     msg='ok'
     data={'msg':msg}
 
@@ -155,7 +182,10 @@ def make_subsel(request, dataset):
 
 
 
-def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
+def save_subsel (infodir, subsel,
+                    xvar,xmin,xmax,
+                    yvar,ymin,ymax,
+                    filename, txt):
 
     if not os.path.exists(infodir+'/selections'):
         os.makedirs(infodir+'/selections')
@@ -176,12 +206,21 @@ def save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax):
 
     f=open('%s/selections/meta.csv' % infodir,'ab')
 
-    meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax]
+    meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax,filename]
     c=csv.writer(f)
     c.writerow(meta)
     f.close()
 
 
+
+
+    f=open('%s/selections/%s.txt' % (infodir, filename),'w')
+    f.write(txt)
+    f.close()
+
+
+
+# inladen van id's van subselectie
 
 def load_subsel (infodir, subselnr):
 

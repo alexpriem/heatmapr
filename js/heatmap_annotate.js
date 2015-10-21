@@ -30,9 +30,9 @@ function handle_options (options) {
 }
 
 
-function init_annotation (heatmap, name, a){
+function show_annotation (heatmap, name, a){
 
-	//console.log('init_annotation:',a);
+	console.log('init_annotation:',a);
 
 
 
@@ -40,9 +40,9 @@ function init_annotation (heatmap, name, a){
 	if ('area' in a) { 
 		//handle area
 
-	//	console.log(a.area);
+		//console.log(a.area);
 		opts=handle_options(a);
-	//	console.log('area:',a,opts);
+		console.log('area:',heatmap, name, a.area);
 
 		rect=a.area;
 		var x=heatmap.world_to_x(rect[0][0]);    // map to svg coord from heatmap coord
@@ -64,6 +64,38 @@ function init_annotation (heatmap, name, a){
 			.attr("fill",opts.fill)
 			.attr("fill-opacity",opts["fill-opacity"]);
 
+		x0=x+width;
+		y0=y+height/2;
+		x1=h.opties.imgwidth+150;
+
+		console.log(x0,y0,x1);
+
+		chart.append("line")			
+			.attr("x1", x0)
+			.attr("y1", y0)
+			.attr("x2", x1)
+			.attr("y2", y0)			
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"]);
+
+		chart.append("line")			
+			.attr("x1", x1)
+			.attr("y1", y0)
+			.attr("x2", x1)
+			.attr("y2", y0+25)			
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"]);			
+
+
+		chart.append('foreignObject')
+		    .attr("width", 300)
+		    .attr("height", 100)
+		    .attr('x', x1+10)
+		    .attr('y', y0)
+		    .attr("class",'annotation')
+		    .attr("id",'annotation')
+   	        .append("xhtml:body")		       	        
+    		.html(a.text);
 	}
 
 
@@ -242,12 +274,22 @@ function init_annotation (heatmap, name, a){
 
 function show_annotations () {
 
+
+
+	$('#histogramdiv').hide();
+	$('.hist_y').hide();
+	$('.hist_x').hide();
+
  console.log('show_annotations');
 
- for (var a in annotations) {
+ h=heatmaps[0];
+ annotations=h.opties.annotate;
+ console.log ('anns:',annotations);
+
+ for (var a in annotations) { 		
   		if (annotations.hasOwnProperty(a)) {
-  			//console.log(a);
-    		init_annotation (heatmap, a, annotations[a]);
+  			console.log(a);
+    		show_annotation (h, a, annotations[a]);
 	  }
 	}
 }
@@ -263,8 +305,8 @@ function init_annotations (heatmap, annotations) {
 
 	for (var a in annotations) {
   		if (annotations.hasOwnProperty(a)) {
-  			//console.log(a);
-    		init_annotation (heatmap, a, annotations[a]);
+  			console.log('init_annotations:',a);
+    		show_annotation (heatmap, a, annotations[a]);
 	  }
 	}
 

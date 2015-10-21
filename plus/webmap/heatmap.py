@@ -1,7 +1,7 @@
-import random, os, inspect, json, bisect, csv, cjson
+import random, os, inspect, json, bisect, csv, cjson, sys
 from math import log10
 import datetime #.datetime.strptime as strptime
-from helpers import get_col_types, read_csv_dict
+import helpers
 
 
 def safelog10 (x):
@@ -251,6 +251,31 @@ class heatmap:
         return js
 
 
+    def save_options_to_csv (self, args, outfile):
+        optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % outfile,'wb')
+        c=csv.writer(optiefile,delimiter=',')
+        for k in sorted(args.keys()):
+            c.writerow([k,args[k]])
+        optiefile.close()
+
+    def load_options_from_csv (self, infile):
+        import ast
+
+        optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % infile,'r')
+        c=csv.reader(optiefile,delimiter=',')
+        args={}
+        for row in c:
+            key,value=row[0],row[1]
+            try:
+                value=ast.literal_eval(value)
+            except:
+                pass
+            if value=='':
+                value=None
+
+            args[key]=value
+        return args
+
     def opties_to_js (self, args):
 
         optiejs='opties.push({\n'
@@ -401,11 +426,11 @@ class heatmap:
 
         if multimap:
             if split1_var!='':
-                split1_labels=read_csv_dict ('%s/labels/%s.csv' % (self.infodir, split1_var))
+                split1_labels=helpers.read_csv_dict ('%s/labels/%s.csv' % (self.infodir, split1_var))
                 #split1_labels=sorted(split1_labels.iteritems())
                 print split1_labels
             if split2_var!='':
-                split2_labels=read_csv_dict ('%s/labels/%s.csv' % (self.infodir, split2_var))
+                split2_labels=helpers.read_csv_dict ('%s/labels/%s.csv' % (self.infodir, split2_var))
                 #split2_labels=sorted(split2_labels.iteritems())
 
 
@@ -873,12 +898,9 @@ class heatmap:
 
 
 
+        self.save_options_to_csv (self.outfile)
 
-        optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % self.outfile,'wb')
-        c=csv.writer(optiefile,delimiter=',')
-        for k in sorted(args.keys()):
-            c.writerow([k,args[k]])
-        optiefile.close()
+
 
         optiejs=''
         if heatmapnr==0:

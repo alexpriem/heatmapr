@@ -60,8 +60,14 @@ transform_value=function  (val,transform, log_min) {
 		var url=window.location.href;
 		var data=url.split('/');	
 		var dataset=data[4];
+		var heatmap_xvar=data[5];
+		var heatmap_yvar=data[6];
+		var heatmap_index=data[7];
 
 		var data={dataset:dataset, 
+					'heatmap_xvar':heatmap_xvar,
+					'heatmap_yvar':heatmap_yvar,
+					'heatmap_index':0,
 					'xvar':x_var,
 					'xmin':sel_xmin,
 					'xmax':sel_xmax,
@@ -556,7 +562,8 @@ function heatmap (data, opties, nr) {
 			}
 		}
 
-		if (opties['info_datafile']!=null){
+		info_datafile=opties['info_datafile'];
+		if ((info_datafile!=null) && (info_datafile!='')) {
 			color=opties['info_color'];
 			for (i=0; i<extradata.length; i++) {
 				i=extradata[i][0];

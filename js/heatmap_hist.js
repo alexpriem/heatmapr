@@ -57,11 +57,8 @@ function add_histogram () {
 function heatmap_histogram (this_chart) {
 
 
-
 	console.log('heatmap_histogram:',this_chart);
 	this.datasets=[];
-
-
 
 	var source   = $("#histogram-template").html();        
     var histogram_controls_template = Handlebars.compile(source); 
