@@ -116,6 +116,7 @@ class heatmap:
             ['split1_var',None,False],
             ['split2_var',None,False],
 
+            ['multimap',False,False],
             ['multimap_labels',{},False],
             ['multimap_numcols',4,False],
 
@@ -137,11 +138,16 @@ class heatmap:
             defaultval=varinfo[1]
             required=varinfo[2]
            # helptxt=varinfo[3]
-            
+            if varname=='x_relative':
+                print 'XREL:', defaultval, type(defaultval)
+                print (varname in args)
+                print args
             if not (varname in args):
                 if required:
                     raise RuntimeError('Missing required variable %s' % varname)
                 args[varname]=defaultval
+
+        print 'XREL:', type(args['x_relative'])
 
         for varname in args.keys():
             if varname not in defaultvars:
@@ -162,8 +168,12 @@ class heatmap:
             raise RuntimeError ('allowed transforms: %s' % transforms)
 
                                         
-        for k,v in args.items():
-            setattr(self,k,v)
+        for key,value in args.items():
+            try:
+                value=ast.literal_eval(value)
+            except:
+                pass
+            setattr(self,key,value)
 
         if self.x_steps is None:
             self.x_steps=self.imgwidth
@@ -190,6 +200,13 @@ class heatmap:
         if int(self.imgheight)>2000:
             s='\n\imgheight too large (>2000). (imgheight:%s)' % (self.imgheight)
             raise RuntimeError (s)
+
+        if self.weight_var.strip()=='':
+            self.weight_var=None
+        if self.info_datafile.strip()=='':
+            self.info_datafile=None
+
+
 
         
 
@@ -259,7 +276,6 @@ class heatmap:
         optiefile.close()
 
     def load_options_from_csv (self, infile):
-        import ast
 
         optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % infile,'r')
         c=csv.reader(optiefile,delimiter=',')
@@ -360,7 +376,8 @@ class heatmap:
 
         self.check_args(args)
 
-                    
+        print 'make_heatmap', self.x_relative, type(self.x_relative)
+
         sep=self.sep       
         
         xcol=self.x_var.lower()
@@ -490,8 +507,9 @@ class heatmap:
                 else:
                     y=datetime.datetime.strptime(y_txt,y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
-                
-                if self.x_relative:
+
+                print self.x_relative, type(self.x_relative)
+                if self.x_relative== True:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
                 if self.y_relative:                    
                     y_fullhist[y]=y_fullhist.get(y,0)+val
@@ -898,7 +916,7 @@ class heatmap:
 
 
 
-        self.save_options_to_csv (self.outfile)
+        self.save_options_to_csv (args, self.outfile)
 
 
 

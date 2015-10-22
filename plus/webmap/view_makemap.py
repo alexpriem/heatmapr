@@ -1,5 +1,5 @@
 import os,sys, cjson, shutil, csv
-import os,sys, cjson, shutil, csv
+import os,sys, cjson, shutil, csv, ast
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
@@ -115,6 +115,14 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
                # print args['x_steps'],args['y_steps']
             print 'args:', args['x_min'], args['x_max'], args['y_min'],args['y_max']
+
+
+            for key,value in args.items():
+                try:
+                    value=ast.literal_eval(value)
+                except:
+                    pass
+                args[key]=value
 
             h=heatmap.heatmap()
             h.make_heatmap(args)
