@@ -201,9 +201,9 @@ class heatmap:
             s='\n\imgheight too large (>2000). (imgheight:%s)' % (self.imgheight)
             raise RuntimeError (s)
 
-        if self.weight_var.strip()=='':
+        if (self.weight_var is not None) and self.weight_var.strip()=='':
             self.weight_var=None
-        if self.info_datafile.strip()=='':
+        if (self.info_datafile is not None) and self.info_datafile.strip()=='':
             self.info_datafile=None
 
 

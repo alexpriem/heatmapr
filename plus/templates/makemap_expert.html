@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
+
+  <link rel="stylesheet" type="text/css" href="/css/style.css">
+  <link rel="stylesheet" type="text/css" href="/lib/bootstrap-combobox/css/style.css">
+  <link rel="stylesheet" href="/css/font-awesome-4.3.0/css/font-awesome.min.css">
+
+  <link rel="stylesheet" type="text/css" href="/lib/bootstrap-3.3.4/css/bootstrap.min.css"> 
+  <link rel="stylesheet" type="text/css" href="/css/awesome-bootstrap-checkbox.css">
+
+  </head>
+
+
+
+<body>
+
+<div id="errorbox"> </div>
+
+
+
+<h3>Dataset:<a href="/heatmap/{{dataset}}/">{{dataset}}</a></h3>
+
+
+
+<div class="container">
+<h4>Data</h4>  
+
+<table> 
+<tr><td colspan=2 id="xvar">  
+  <div  id="form_x_var" >
+    <label for="x_var">X-as:</label>
+    <select class="xyinput2 combobox" id="x_var">
+      <option></option>
+      {% for colname in colnames %}
+      <option value="{{colname}}">{{colname}}</option>
+      {% endfor %}
+    </select>  
+    </div>
+ </td>
+
+ <td colspan=2>
+  <div  id="form_y_var" >
+    <label for="y_var">Y-as:</label>
+    <select class="xyinput2 combobox" id="y_var">
+      <option></option>
+      {% for colname in colnames %}
+      <option value="{{colname}}">{{colname}}</option>
+      {% endfor %}
+    </select>
+  </div >
+  </td>
+
+<td colspan=2 >
+  <div  id="form_weight_var" >
+    <label for="weight_var">Gewicht:</label>
+    <select class="xyinput2 combobox" id="weight_var">
+      <option></option>
+      {% for colname in colnames %}
+      <option value="{{colname}}">{{colname}}</option>
+      {% endfor %}
+    </select>
+  </div >
+  </td>
+
+
+   <td colspan=2>
+  <div  id="form_split1_var" >
+    <label for="split1_var">Grouping:</label>
+    <select class="xyinput2 combobox" id="split1_var">
+      <option></option>
+      {% for colname in groupcolnames %}
+      <option value="{{colname}}">{{colname}}</option>
+      {% endfor %}
+    </select>
+  </div >
+  </td>
+
+
+  </tr>
+
+
+
+
+
+
+<tr>
+  <td class=""> <label class="xylabel" for="x_min">Min</label> </td>
+  <td>          <input class="xyinput" id="x_min" name="x_min" type="text" value=""></td>
+  <td class=""> <label class="xylabel" for="y_min">Min</label></td>
+  <td>          <input class="xyinput" id="y_min" name="y_min" type="text" value="">
+  </td>
+</tr>
+      
+<tr>
+  <td class=""> <label class="xylabel" for="x_max">Max</label></td>
+  <td>          <input class="xyinput" id="x_max" name="x_max" type="text" value=""></td>
+  <td class=""> <label class="xylabel" for="y_max">Max</label></td>
+  <td>          <input class="xyinput" id="y_max" name="x_max" type="text" value=""></td>
+</tr>
+
+<tr>
+      <td class=""> <label class="xylabel" for="x_steps">Steps</label></td>
+      <td>          <input class="xyinput " id="x_steps" name="x_steps" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel" for="y_steps">Steps</label></td>
+      <td>  <input class="xyinput " id="y_steps" name="y_steps" type="text" value="">      </td>
+</tr>
+
+<tr>
+      <td class=""> <label class="xylabel" for="x_fuzz">Fuzz</label></td>
+      <td>          <input class="xyinput " id="x_fuzz" name="x_fuzz" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel" for="y_fuzz">Fuzz</label></td>
+      <td>  <input class="xyinput " id="y_fuzz" name="y_fuzz" type="text" value="">      </td>
+</tr>
+
+<tr>
+      <td class=""> <label class="xylabel" for="x_fill">Fill</label></td>
+      <td>          <input class="xyinput " id="x_fill" name="x_fill" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel" for="y_fill">Fill</label></td>
+      <td>  <input class="xyinput " id="y_fill" name="y_fill" type="text" value="">      </td>
+</tr>
+
+
+<tr>
+      <td class=""> <label class="xylabel" for="imgwidth">Width</label></td>
+      <td>          <input class="xyinput " id="imgwidth" name="imgwidth" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel" for="imgheight">Height</label></td>
+      <td>  <input class="xyinput " id="imgheight" name="imgheight" type="text" value="">      </td>
+</tr>
+
+
+<tr>
+    <td>  <label class="xylabel" for="x_label">Label x-as:</label></td>
+    <td><input class="xyinput " id="x_label" name="x_label" type="text" value=""/> </td>
+    <td>  <label class="xylabel" for="y_label">Label y-as:</label></td>
+    <td><input class="xyinput " id="y_label" name="y_label" type="text" value=""/> </td>
+<tr>
+
+
+<tr><th class="spacer">Gradient </th> <tr>
+<tr >
+      <td class=""> <label class="xylabel" for="gradmin">Min</label></td>
+      <td><input class="xyinput " id="gradmin" name="gradmin" type="text" value="">  </td>
+</tr>
+<tr >
+      <td class=""><label class="xylabel" for="gradmax">Max</label></td>
+      <td>         <input class="xyinput " id="gradmax" name="gradmax" type="text" value=""></td>
+</tr>
+<tr >
+      <td class=""> <label class="xylabel" for="gradsteps">Steps</label></td>
+      <td><input class="xyinput " id="gradsteps" name="gradsteps" type="text" value=""> </td>
+</tr>
+
+<tr >      
+      <td colspan=2>
+            <div id="form_colormap" >
+                <label for="colormap">Colormap:</label>
+                <select class="xyinput2 combobox" id="colormap">
+                  <option></option>
+                  {% for colormapname in colormapnames %}
+                  <option value="{{colormapname}}">{{colormapname}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+      </td>
+</tr>
+
+
+
+<tr>
+    <td>  <label class="xylabel" for="outfile">Outputfile:</label></td>
+    <td><input class="xyinput " id="outfile" name="outfile" type="text" value=""/> </td>
+<tr>
+
+
+<tr>
+    <td>  <label class="xylabel" for="title">Titel:</label></td>
+    <td colspan=3><input class="xyinput4 " id="title" name="title" type="text" value=""/> </td>
+<tr>
+<tr>
+    <td>  <label class="xylabel" for="description">Omschrijving:</label></td>
+    <td colspan=3><input class="xyinput4 " id="description" name="description" type="text" value=""/> </td>
+    
+<tr>
+
+
+<td>
+          <a href="#" id="makemap" class="btn btn-primary"> Maak heatmap</a>
+          <a href="#" id="result"> Resultaat</a>    
+<td>
+
+
+</tr>
+
+
+</table>
+
+
+</div>
+
+</div>
+
+<div>
+ 
+  
+</body>
+</html>
