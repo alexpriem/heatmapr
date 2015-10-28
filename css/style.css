@@ -474,3 +474,14 @@ background-color: #369;
 #labeltabel{
 
 }
+
+.error {
+	color:red;
+}
+
+
+#expertmode {
+	float:right;
+	padding-right:25px;
+	margin-top: -25px;
+}

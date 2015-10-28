@@ -48,21 +48,22 @@ def view_heatmaps (request, dataset):
     heatmapdir=settings.datadir+'/'+dataset+'_info/heatmaps/'
     if not os.path.exists(heatmapdir):
         os.makedirs(heatmapdir)  
-    heatmapfiles=os.listdir(heatmapdir)
+    heatmapfiles=glob.glob(heatmapdir+'*.js')
     heatmaps=[]
     for h in heatmapfiles:
+        h=h[:-3]     # .js verwijderen
         parts=h.split('_')
         if (len(parts)==4):  # meta / csv
             continue
         if (len(parts)==3):
             x,y,index=parts
 
-
         title='--'
         #print heatmapdir+h[:-3]+'_meta.csv'
         heatmapinfo=helpers.read_csv_dict(heatmapdir+h[:-3]+'_meta.csv')
        # print heatmapinfo
-        heatmaps.append({'x':x,'y':y,'title':title,
+        heatmaps.append({'x':x,'y':y,'index':index,
+                         'title':title,
                          'filename':h,
                          'split1_var':heatmapinfo.get('split1_var',''),
                          'split2_var':heatmapinfo.get('split2_var','')})
@@ -106,10 +107,10 @@ def print_heatmap(request, dataset, x_var, y_var, indexnr=None):
 
 def view__heatmap (request, dataset, x_var, y_var, indexnr, printert):
     if indexnr is None:
-        indexnr=0
+        indexnr='0'
     template = loader.get_template('heatmap.html')
     infodir=settings.datadir+'/'+dataset+'_info'
-    filename='%s_%s_%d' % (x_var, y_var, indexnr)
+    filename='%s_%s_%s' % (x_var, y_var, indexnr)
     args={'dataset':dataset,
           'x_var':x_var,
           'y_var':y_var,

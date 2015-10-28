@@ -1,5 +1,4 @@
-import os,sys, cjson, shutil, csv
-import os,sys, cjson, shutil, csv, ast
+import os,sys, cjson, shutil, csv, ast, glob
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
@@ -33,43 +32,26 @@ def get_all_colnames (infodir, heatmaptype, col_info):
     return colnames, colnames
 
 
+
+
 @csrf_exempt
-def make_heatmap (request, dataset, x_var=None, y_var=None):
+def make_heatmap (request):
 
-    infodir=helpers.get_infodir(dataset)
-    if not os.path.exists(infodir):
-        os.makedirs(infodir)
-    if not os.path.exists(infodir+'/heatmaps'):
-        os.makedirs(infodir+'/heatmaps')
-
-    col_info, coltypes_bycol=helpers.get_col_types(infodir)
-
-    # args['displaymode'] uit post peuteren.
-    colnames, groupcolnames=get_colnames_for_heatmap (infodir,  'heatmap', col_info)
-    colnames, groupcolnames=get_all_colnames (infodir,  'heatmap', col_info)
-    #print 'colnames:', len(colnames), colnames
-    if len(colnames)<2:
-        msg='Geen heatmaps te maken van deze dataset'
-        template = loader.get_template('makemap.html')
-        context = RequestContext(request, {'msg':'msg','colnames':colnames, 'dataset':dataset})
-        return HttpResponse(template.render(context))
-
-
-    #print 'colnames:', len(colnames)
     if request.is_ajax()==True:
-        #print request.POST
         args={}
         cmd=request.POST['cmd']
+        dataset=request.POST['dataset']
+        infodir=helpers.get_infodir(dataset)
         for key, val in request.POST.iteritems():
-            if key=='cmd':
+            if key=='cmd' or key=='dataset':
                 continue
             try:
-                v=float(val)                
+                v=float(val)
                 if v.is_integer():
                     args[key]=int(v)
                 else:
                     args[key]=v
-            except:                
+            except:
                 args[key]=val
 
         print 'x x y:',args['imgheight'], args['imgwidth']
@@ -80,8 +62,23 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
         if cmd=='makemap':
             msg='ok'
+
+            col_info, coltypes_bycol=helpers.get_col_types(infodir)
+            add_new_heatmap=args['add_new_heatmap']
+            indexnr=0
             args['infodir']=infodir
-            args['outfile']=args['x_var']+'_'+args['y_var']+'_0'
+            if add_new_heatmap:
+                print 'add new heatmap'
+                filename='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_*meta.js' % args
+                print filename
+                heatmaps=glob.glob(filename)
+                print heatmaps
+                indexnr=len(heatmaps)
+
+            print 'indexnr:', indexnr
+
+            args['heatmap_indexnr']=indexnr
+            args['outfile']='%(x_var)s_%(y_var)s_%(heatmap_indexnr)s' % args
             print coltypes_bycol.keys()[:10]
             x_types=coltypes_bycol[args['x_var']]   # info van variabelenaam x-kolom ophalen
             y_types=coltypes_bycol[args['y_var']]
@@ -126,8 +123,37 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
 
             h=heatmap.heatmap()
             h.make_heatmap(args)
-            data={'msg':msg}
+            data={'msg':msg, 'heatmap_index':indexnr,'x_var':args['x_var'],'y_var':args['y_var']}
         return HttpResponse(cjson.encode(data))
+
+    # shouldn't get here
+
+    return HttpResponse('')
+
+
+
+@csrf_exempt
+def show_heatmap_form (request, dataset, x_var=None, y_var=None):
+
+    infodir=helpers.get_infodir(dataset)
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)
+    if not os.path.exists(infodir+'/heatmaps'):
+        os.makedirs(infodir+'/heatmaps')
+
+    col_info, coltypes_bycol=helpers.get_col_types(infodir)
+
+    # args['displaymode'] uit post peuteren.
+    colnames, groupcolnames=get_colnames_for_heatmap (infodir,  'heatmap', col_info)
+    colnames, groupcolnames=get_all_colnames (infodir,  'heatmap', col_info)
+    #print 'colnames:', len(colnames), colnames
+    if len(colnames)<2:
+        msg='Geen heatmaps te maken van deze dataset'
+        template = loader.get_template('makemap.html')
+        context = RequestContext(request, {'msg':'msg','colnames':colnames, 'dataset':dataset})
+        return HttpResponse(template.render(context))
+
+
 
     args=dict(
             sep=',',
@@ -239,10 +265,18 @@ def make_heatmap (request, dataset, x_var=None, y_var=None):
     args['y_label']=labels.get(col_y,col_y)
     args['title']=labels.get(col_x,col_x)+' vs '+labels.get(col_y,col_y)
 
-    print args['y_steps']
+    filename='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_*meta.js' % locals()
+    heatmaps=glob.glob(filename)
+    add_new_heatmap=False
+    if len(heatmaps)>0:
+        add_new_map=True
+    heatmap_indexnr=len(heatmaps)
+    args['heatmap_indexnr']=heatmap_indexnr
+
     args_json=cjson.encode(args)
     template = loader.get_template('makemap.html')    
     context = RequestContext(request, {'colnames':colnames,
+                                       'add_new_heatmap':add_new_heatmap,
                                        'groupcolnames':groupcolnames,
                                        'dataset':dataset,
                                        'defaults':args,'defaults_json':args_json,
@@ -389,8 +423,16 @@ def make_expert_heatmap (request, dataset, x_var=None, y_var=None):
     print args['y_steps']
     args_json=cjson.encode(args)
 
+
+    filename='%s_%s_*.js' % (x_var, y_var)
+    heatmaps=glob.glob(filename)
+    add_new_heatmap=False
+    if len(heatmaps)>0:
+        add_new_map=True
+
     template = loader.get_template('makemap_expert.html')
     context = RequestContext(request, {'colnames':colnames,
+                                       'add_new_heatmap':add_new_heatmap,
                                        'groupcolnames':groupcolnames,
                                        'dataset':dataset,
                                        'defaults':args,'defaults_json':args_json,
@@ -419,6 +461,7 @@ def edit_heatmap (request, dataset, filename):
     template = loader.get_template('makemap.html')
     args_json=cjson.encode(args)
     context = RequestContext(request, {'colnames':colnames,
+                                       'add_new_heatmap':True,
                                        'groupcolnames':groupcolnames,
                                        'dataset':dataset,
                                        'defaults':args,'defaults_json':args_json,

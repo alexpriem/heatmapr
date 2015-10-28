@@ -34,6 +34,9 @@
 
 
 
+
+<a href="#" id="expertmode"> expertmode</a>
+
 <div class="container">
 <h4>Data</h4>  
 
@@ -124,6 +127,29 @@
     <td><input class="xyinput " id="y_label" name="y_label" type="text" value=""/> </td>
 <tr>
 
+<tr class="expert">
+      <td class=""> <label class="xylabel " for="x_fuzz">Fuzz</label></td>
+      <td>          <input class="xyinput " id="x_fuzz" name="x_fuzz" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel " for="y_fuzz">Fuzz</label></td>
+      <td>  <input class="xyinput " id="y_fuzz" name="y_fuzz" type="text" value="">      </td>
+</tr>
+
+<tr class="expert">
+      <td class=""> <label class="xylabel " for="x_fill">Fill</label></td>
+      <td>          <input class="xyinput " id="x_fill" name="x_fill" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel " for="y_fill">Fill</label></td>
+      <td>  <input class="xyinput  " id="y_fill" name="y_fill" type="text" value="">      </td>
+</tr>
+
+
+<tr class="expert">
+      <td class=""> <label class="xylabel " for="imgwidth">Width</label></td>
+      <td>          <input class="xyinput  " id="imgwidth" name="imgwidth" type="text" value="">      </td>
+      <td  class="">  <label class="xylabel " for="imgheight">Height</label></td>
+      <td>  <input class="xyinput " id="imgheight" name="imgheight" type="text" value="">      </td>
+</tr>
+
+
 
 <tr><th class="spacer">Gradient </th> <tr>
 <tr >
@@ -168,13 +194,21 @@
 <tr>
     <td>  <label class="xylabel" for="description">Omschrijving:</label></td>
     <td colspan=3><input class="xyinput4 " id="description" name="description" type="text" value=""/> </td>
+    <td id="description_error" class="error" colspan=2>  </td>
     
 <tr>
 
 
-<td>
-          <a href="#" id="makemap" class="btn btn-primary"> Maak heatmap</a>
-          <a href="#" id="result"> Resultaat</a>    
+
+{% if add_new_heatmap %} 
+<tr> <td>    <a href="#" id="makemap" class="btn btn-primary"> Overschrijf bestaande heatmap</a><br>  </td>  <td id="makemap_result">   </td>  </tr>
+
+<tr> <td>    <a href="#" id="addmap" class="btn btn-primary"> Opslaan als nieuwe heatmap</a><br>  </td>      <td id="addmap_result">   </td>  </tr>
+       
+{% else %}
+<tr> <td>    <a href="#" id="makemap" class="btn btn-primary"> Maak heatmap </a>  </td> <td id="makemap_result"> </td> </tr>         
+{% endif %}
+
 <td>
 
 

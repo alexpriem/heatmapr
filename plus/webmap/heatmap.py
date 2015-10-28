@@ -42,7 +42,6 @@ class heatmap:
             ['x_relative_min', 0,False],
             ['x_relative_max', 100,False],
             
-            
             ['y_var','',True],
             ['y_label',None,False],
             ['y_min','',True],
@@ -76,6 +75,7 @@ class heatmap:
             
             ['fontsize',16,False],
             ['numticks',None,False],
+
             
             
             ['title','',False],
@@ -122,7 +122,8 @@ class heatmap:
 
             ['annotate',{},False],
             
-            
+            ['heatmap_indexnr',False,False],   # dummyvar
+            ['add_new_heatmap',False,False],   # dummyvar
             ['controltype','notflat', False],
             ['debuglevel',0, False],
         ]
@@ -138,10 +139,6 @@ class heatmap:
             defaultval=varinfo[1]
             required=varinfo[2]
            # helptxt=varinfo[3]
-            if varname=='x_relative':
-                print 'XREL:', defaultval, type(defaultval)
-                print (varname in args)
-                print args
             if not (varname in args):
                 if required:
                     raise RuntimeError('Missing required variable %s' % varname)
@@ -375,9 +372,6 @@ class heatmap:
         print 'make_heatmap'
 
         self.check_args(args)
-
-        print 'make_heatmap', self.x_relative, type(self.x_relative)
-
         sep=self.sep       
         
         xcol=self.x_var.lower()
@@ -508,7 +502,6 @@ class heatmap:
                     y=datetime.datetime.strptime(y_txt,y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
 
-                print self.x_relative, type(self.x_relative)
                 if self.x_relative== True:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
                 if self.y_relative:                    
