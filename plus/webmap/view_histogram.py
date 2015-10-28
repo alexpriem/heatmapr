@@ -250,8 +250,8 @@ def histogram (request, dataset, variable):
 
 
 
-    print 'got rowinfo'
-    print rowinfo
+    #print 'got rowinfo'
+    #print rowinfo
     histogram_json=cjson.encode(rowinfo)
     context = RequestContext(request, {'dataset':dataset,
                                        'prevcolname2':prevvar2,
