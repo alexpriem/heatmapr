@@ -1,4 +1,4 @@
-import os,sys, cjson, shutil, csv
+import os,sys, cjson, shutil, csv, glob
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views.decorators.csrf import csrf_exempt
@@ -50,9 +50,12 @@ def view_heatmaps (request, dataset):
         os.makedirs(heatmapdir)  
     heatmapfiles=glob.glob(heatmapdir+'*.js')
     heatmaps=[]
-    for h in heatmapfiles:
+    for h in heatmapfiles:        
         h=h[:-3]     # .js verwijderen
+        h=h.split('\\')
+        h=h[1]        
         parts=h.split('_')
+        print parts
         if (len(parts)==4):  # meta / csv
             continue
         if (len(parts)==3):
@@ -60,7 +63,7 @@ def view_heatmaps (request, dataset):
 
         title='--'
         #print heatmapdir+h[:-3]+'_meta.csv'
-        heatmapinfo=helpers.read_csv_dict(heatmapdir+h[:-3]+'_meta.csv')
+        heatmapinfo=helpers.read_csv_dict(heatmapdir+h+'_meta.csv')
        # print heatmapinfo
         heatmaps.append({'x':x,'y':y,'index':index,
                          'title':title,
