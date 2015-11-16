@@ -454,7 +454,19 @@ def edit_heatmap (request, dataset, filename):
 
     args=helpers.read_csv_dict('%s/heatmaps/%s_meta.csv' % (infodir,filename))
     print '%s/heatmaps/%s_meta.csv' % (infodir, filename)
-    print args
+
+    h=heatmap.heatmap()
+
+    expertmode=False
+    for defaultvalue in h.defaults:
+        varname=defaultvalue[0]
+        if not(varname in h.simple_vars) and args[varname]!=defaultvalue[1]:
+            expertmode=True
+            break
+    args['expertmode']=expertmode
+
+
+
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
     colnames,groupcolnames=get_colnames_for_heatmap (infodir, args.get('displaymode','heatmap'), col_info)
 

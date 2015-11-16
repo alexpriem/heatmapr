@@ -18,12 +18,7 @@ def safelog10 (x):
 class heatmap:
     def __init__(self):
         self.js=''
-        pass
-
-
-    def check_args(self, args):    # alleen defaults zetten.
-
-        defaults=[
+        self.defaults=[
             ['infodir','',True],
             ['sep',';',False],
             ['convert_comma',False,False],
@@ -41,7 +36,7 @@ class heatmap:
             ['x_relative', False,False],
             ['x_relative_min', 0,False],
             ['x_relative_max', 100,False],
-            
+
             ['y_var','',True],
             ['y_label',None,False],
             ['y_min','',True],
@@ -64,7 +59,7 @@ class heatmap:
             ['gradmin',0,False],
             ['gradmax','max',False],
             ['gradsteps',40,False],
-            
+
             ['gradient_invert',False,False],
             ['gradcenter',50,False],
             ['gradient_bimodal',False,False],
@@ -72,12 +67,12 @@ class heatmap:
             ['imgwidth',500,False],
             ['imgheight',500,False],
             ['outfile','',True],
-            
+
             ['fontsize',16,False],
             ['numticks',None,False],
 
-            
-            
+
+
             ['title','',False],
             ['dump_html',True,False],
             ['dump_csv',False,False],
@@ -92,7 +87,7 @@ class heatmap:
             ['plot_mean', False, False],
             ['plot_mean_pixelsize',2, False],
             ['plot_mean_color',[0,0,0,255], False],
-            
+
             ['plot_median', False, False],
             ['plot_median_pixelsize',2, False],
             ['plot_median_color',[0,0,255,255], False],
@@ -100,15 +95,15 @@ class heatmap:
             ['info_datafile',None,False],
             ['info_pixelsize',2, False],
             ['info_color',[255,0,0,255], False],
-                    
+
             ['dot_color','blue',False],
             ['dot_dotsize',5,False],
             ['dot_boxsize',0.6,False],
             ['dot_use_gradient',False,False],
             ['dot_show_background',True,False],
-            
+
             ['text_show_background',True,False],
-            
+
             ['weighx',False,False],
             ['weighy',False,False],
 
@@ -121,13 +116,24 @@ class heatmap:
             ['multimap_numcols',4,False],
 
             ['annotate',{},False],
-            
+
             ['heatmap_indexnr',False,False],   # dummyvar
             ['add_new_heatmap',False,False],   # dummyvar
             ['controltype','notflat', False],
             ['debuglevel',0, False],
         ]
+        self.simple_vars=['x_var','x_label','x_min','x_max','x_steps',
+                          'y_var','y_label','y_min','y_max','y_steps',
+                          'colormap','grad_min','grad_max','grad_steps',
+                          'weight_var', 'split1_var', 'split2_var',
+                          'title']
 
+
+
+
+    def check_args(self, args):    # alleen defaults zetten.
+
+        defaults=self.defaults
 
         self.module_dir=os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
       
