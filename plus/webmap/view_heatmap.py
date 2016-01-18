@@ -8,6 +8,65 @@ import plus.settings as settings
 
 
 
+def expand_html (html):
+
+
+    module_dir='..\\'
+    newhtml=''
+    cssfrags=html.split('<link href="')
+    newhtml+=cssfrags[0]
+   # cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]
+
+    for cssfrag in cssfrags[1:]:
+        cssfile=cssfrag.split('"')
+        print cssfile[0]
+        newhtml+='\n<style>\n'
+        css=open(module_dir+'/'+cssfile[0],"r").read()
+        newhtml+=css
+        newhtml+='\n</style>\n'
+
+    newhtml+='\n<script type="text/javascript">\n'
+    #newhtml+=self.js
+    newhtml+='\n</script>\n'
+
+    jsfrags=html.split('<script src="')
+    for jsfrag in jsfrags[1:]:
+        jsfile=jsfrag.split('"')[0]
+        print jsfile
+        newhtml+='\n<script type="text/javascript">\n'
+        if ('js-data') in jsfile:
+            print jsfile
+            jsfile=jsfile.replace('/js-data/best2010','e:\\data\\best2010_info\\heatmaps')
+            print jsfile
+            js=open(jsfile,'r').read()
+        else:
+            js=open(module_dir+'\\'+jsfile,'r').read()
+
+        newhtml+=js
+        newhtml+='\n</script>\n'
+
+    newhtml+="</head>\n"
+    newhtml+="<body>\n"
+
+    body=html.split("<body>")
+    body=body[1]
+    jsfrags=body.split('<script  src="')
+    for jsfrag in jsfrags[1:]:
+        jsfile=jsfrag.split('"')[0]
+        js_end=jsfrag.split('\n')[0]
+
+        js_txt='\n<script type="text/javascript">\n'
+        js_txt+=open(module_dir+'/'+jsfile,'r').read()
+        js_txt+='\n</script>\n'
+      #  print js_txt
+        body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
+
+    newhtml+=body
+
+    return newhtml
+
+
+
 
 def get_colnames_for_heatmap (infodir, heatmaptype, col_info):
         min_bins={'heatmap':50,'dotplot':2,'text':2}
@@ -122,7 +181,26 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert):
           'infodir':infodir,
           'printing':printert}
     context = RequestContext(request, args)
+    if request.POST.get('export') is not None:
+        print 'exporting'
+
+        html=template.render(context)
+        f=open('f:\\export.html','w')
+        f.write(html)
+        f.close()
+
+        newhtml=expand_html (html)
+
+        f=open('f:\\export2.html','w')
+        f.write(newhtml)
+        f.close()
+
+
     return HttpResponse(template.render(context))
+
+
+
+
 
 @csrf_exempt
 def make_subsel(request, dataset):

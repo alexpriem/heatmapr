@@ -311,6 +311,7 @@ function init_page() {
     $('#cat_multiples').on('click',resize_cats);
     $('#cat_sharecolormap').on('click',toggle_colormap_sharing);
     $('#print').on('click',h.click_print);
+    $('#html_export').on('click',h.click_export);
 
 
 

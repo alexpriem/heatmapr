@@ -586,9 +586,13 @@ function heatmap (data, opties, nr) {
 
 
 
-
-
-
+	export_ok=function  () {
+		console.log("export ok");
+	}
+	export_fail=function  () {
+		console.log("export failed");
+	}
+	
 
 	print_ok=function  () {
 		console.log("print ok");
@@ -615,6 +619,21 @@ function heatmap (data, opties, nr) {
 
 	}
 
+	this.click_export=function  () {
+
+
+		console.log('export_html');		
+		//$.get('#',{'cmd':printtype})
+	 	$.ajax({url:this.href,
+	            cache: false,
+	            url: '#',
+	            type: "POST",
+	            data: {'export':true}           
+	        })
+	 		.done(export_ok)
+	 		.fail(export_fail);
+
+	}
 
 
 

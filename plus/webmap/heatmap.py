@@ -74,7 +74,6 @@ class heatmap:
 
 
             ['title','',False],
-            ['dump_html',True,False],
             ['dump_csv',False,False],
             ['colormap','blue',False],
             ['missing_color','min',False],
