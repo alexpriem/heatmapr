@@ -336,9 +336,7 @@ function init_page() {
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
     }
-
-
-    heatmap_histogram (h.chart);
+    
 }
 
 $( document ).ready(init_page);
