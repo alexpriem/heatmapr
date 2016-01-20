@@ -314,8 +314,6 @@ function init_page() {
     $('#html_export').on('click',h.click_export);
 
 
-
-
     document.title =h.opties.title;
     console.log('print=',print);
     if (print==true) {

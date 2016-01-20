@@ -643,7 +643,6 @@ function heatmap (data, opties, nr) {
 
 
 
-
 	  this.draw_axes=function  () {
 
 	  var opties=_this.opties;

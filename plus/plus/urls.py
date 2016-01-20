@@ -29,10 +29,13 @@ urlpatterns = patterns('',
     
     url(r'^heatmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_heatmap.view_heatmap),
     url(r'^heatmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_heatmap.view_heatmap),
+    url(r'^pubmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_heatmap.view_pubmap),
+    url(r'^pubmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_heatmap.view_pubmap),
     url(r'^print/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_heatmap.print_heatmap),
     url(r'^print/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_heatmap.print_heatmap),
 
     url(r'^heatmap/(?P<dataset>.*)/$', view_heatmap.view_heatmaps),
+
 
     url(r'^heatmap_subsel/(?P<dataset>.*)/$', view_heatmap.make_subsel),
     url(r'^heatmap_histogram/(?P<dataset>.*)/$', view_heatmap.make_histogram),
@@ -59,6 +62,7 @@ urlpatterns = patterns('',
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_makemap.show_heatmap_form),
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_makemap.show_heatmap_form),
     url(r'^editmap/(?P<dataset>.*)/(?P<filename>.*)/$', view_makemap.edit_heatmap),
+
     url(r'^histogram/(?P<dataset>.*)/(?P<variable>.*)/$', view_histogram.histogram),
     url(r'^admin/', include(admin.site.urls)),
     

@@ -255,18 +255,18 @@ class heatmap:
     def heatmap_to_js (self, heatmap):        
         gradmin=self.gradmin
         gradmax=self.gradmax
-        
-        js='data.push([';
+
+        js='var d=[];\n'
         for row in heatmap:            
-            js+=','.join([str(col) for col in row])+',\n'
+            js+='d.push('+','.join([str(col) for col in row])+');\n'
             minrow=min(row)
             maxrow=max(row)            
             if minrow<gradmin:
                 gradmin=minrow
             if maxrow>gradmax:
                 gradmax=maxrow   
-        js=js[:-2]+']);\n\n'
-        
+        js+='data.push(d);\n'
+
         return js
 
 

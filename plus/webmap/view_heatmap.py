@@ -8,7 +8,7 @@ import plus.settings as settings
 
 
 
-def expand_html (html):
+def expand_html (html, exportmode):
 
 
     module_dir='..\\'
@@ -18,16 +18,14 @@ def expand_html (html):
    # cssfiles=[cssfrag.split('"')[0] for cssfrag in cssfrags[1:]]
 
     for cssfrag in cssfrags[1:]:
-        cssfile=cssfrag.split('"')
-        print cssfile[0]
+        cssfile=cssfrag.split('"')[0]
+        print cssfile
+        if cssfile=='/css/style_h1.css' and exportmode=='include':
+            continue   # skip css reset
         newhtml+='\n<style>\n'
-        css=open(module_dir+'/'+cssfile[0],"r").read()
+        css=open(module_dir+'/'+cssfile,"r").read()
         newhtml+=css
         newhtml+='\n</style>\n'
-
-    newhtml+='\n<script type="text/javascript">\n'
-    #newhtml+=self.js
-    newhtml+='\n</script>\n'
 
     jsfrags=html.split('<script src="')
     for jsfrag in jsfrags[1:]:
@@ -62,6 +60,9 @@ def expand_html (html):
         body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
 
     newhtml+=body
+
+    if exportmode=='include':
+        newhtml='\n'.join(newhtml.split('\n')[2:-1])   # skip DOCTYPE, <html> and </html>
 
     return newhtml
 
@@ -136,6 +137,11 @@ def view_heatmaps (request, dataset):
     context = RequestContext(request, args)
     return HttpResponse(template.render(context))
 
+
+
+
+
+
 @csrf_exempt
 def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
 
@@ -149,7 +155,7 @@ def view_heatmap(request, dataset, x_var, y_var, indexnr=None):
         data={'msg':'ok'}
         return HttpResponse(cjson.encode(data))
 
-    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=False)
+    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=False,publication=False)
 
 @csrf_exempt
 def print_heatmap(request, dataset, x_var, y_var, indexnr=None):
@@ -164,13 +170,31 @@ def print_heatmap(request, dataset, x_var, y_var, indexnr=None):
         data={'msg':'ok'}
         return HttpResponse(cjson.encode(data))
 
-    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=True)
+    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=True,publication=True)
+
+@csrf_exempt
+def view_pubmap(request, dataset, x_var, y_var, indexnr=None):
+
+    print dataset
+    if request.POST.get('print') is not None:
+        print 'printing'
+        p=printer.printert()
+        filename=dataset+'_'+x_var+'_'+y_var
+        url='/heatmap/'+filename
+        p.do_print(url, filename,'png')
+        data={'msg':'ok'}
+        return HttpResponse(cjson.encode(data))
+
+    return view__heatmap(request, dataset, x_var, y_var, indexnr, printert=False, publication=True)
 
 
-def view__heatmap (request, dataset, x_var, y_var, indexnr, printert):
+
+
+
+def view__heatmap (request, dataset, x_var, y_var, indexnr, printert,publication=False):
     if indexnr is None:
         indexnr='0'
-    template = loader.get_template('heatmap.html')
+
     infodir=settings.datadir+'/'+dataset+'_info'
     filename='%s_%s_%s' % (x_var, y_var, indexnr)
     args={'dataset':dataset,
@@ -181,17 +205,18 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert):
           'infodir':infodir,
           'printing':printert}
     context = RequestContext(request, args)
+    if publication==True:
+        template = loader.get_template('pubmap.html')
+    else:
+        template = loader.get_template('heatmap.html')
+
     if request.POST.get('export') is not None:
-        print 'exporting'
-
+        export_location='f:\\export.html'
+        print 'exporting to %s' % export_location
         html=template.render(context)
-        f=open('f:\\export.html','w')
-        f.write(html)
-        f.close()
 
-        newhtml=expand_html (html)
-
-        f=open('f:\\export2.html','w')
+        newhtml=expand_html (html,'full')
+        f=open(export_location,'w')
         f.write(newhtml)
         f.close()
 
