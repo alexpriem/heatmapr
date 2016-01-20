@@ -42,11 +42,12 @@ function make_heatmap (addmap) {
     	 if(defaults.hasOwnProperty(key)){    	 	
     	 	ex=$('#'+key).hasClass('expert');
     	 	val=$('#'+key).val();
-    	 	if ((ex==false) || (val==undefined)) {
+            console.log(key,val,ex);
+    	 	if (val==undefined) {
     	 		data[key]=defaults[key];
     	 		continue;
-    	 	}    	 	
-    	 	data[key]=defaults[key];    	 	
+    	 	} 
+            data[key]=val;           
     	 }
     }
 
