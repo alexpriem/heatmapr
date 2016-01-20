@@ -51,8 +51,9 @@ function show_annotation (heatmap, name, a){
 		var height=y-heatmap.world_to_y(rect[1][1]);
 
 		a.text_y_pos=(height+y)/2;
-		console.log('x,y:u,v',x,y,rect[0]);
-		console.log('w,h:u,v',width,height,rect[1]);
+
+		console.log('x,y:u,v',x,y,rect[0][0],rect[0][1]);
+		console.log('w,h:u,v',width,height,rect[1][0],rect[1][1]);
 		chart.append("rect")
 			.attr("id",name)
 			.attr("x",x)
@@ -95,7 +96,7 @@ function show_annotation (heatmap, name, a){
 		    .attr("class",'annotation')
 		    .attr("id",'annotation')
    	        .append("xhtml:body")		       	        
-    		.html(a.text);
+    		.html(a.label);
 	}
 
 

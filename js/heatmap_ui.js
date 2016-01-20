@@ -55,6 +55,7 @@ transform_value=function  (val,transform, log_min) {
 		sel_ymax=$('#selectie_ymax').val();
 		selectie_filename=$('#selectie_filename').val();
 		selectie_txt=$('#selectie_txt').val();
+		label_txt=$('#label_txt').val();
 
 
 		var url=window.location.href;
@@ -63,6 +64,7 @@ transform_value=function  (val,transform, log_min) {
 		var heatmap_xvar=data[5];
 		var heatmap_yvar=data[6];
 		var heatmap_index=data[7];
+		
 
 		var data={dataset:dataset, 
 					'heatmap_xvar':heatmap_xvar,
@@ -75,7 +77,8 @@ transform_value=function  (val,transform, log_min) {
 					'ymin':sel_ymin,
 					'ymax':sel_ymax,					
 					'filename':selectie_filename,
-					'txt':selectie_txt
+					'txt':selectie_txt,
+					'label':label_txt
 				};  
 	
 			$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
@@ -1095,7 +1098,7 @@ function heatmap (data, opties, nr) {
 		var delta=(xmax-xmin);
 		//var val=((x-75)/imgwidth)*delta+xmin;
 
-		var val=((x-xmin)/delta)*imgwidth+75
+		var val=((x-xmin)/delta)*imgwidth+75;
 
 		return val;
 	}
@@ -1108,7 +1111,7 @@ function heatmap (data, opties, nr) {
 		var delta=(ymax-ymin);
 		//var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
 
-		var val=imgheight-((y-ymin)/delta*imgheight)+15;
+		var val=imgheight-((y-ymin)/delta*imgheight); //+15;
 		//console.log('y,val:',y,val);
 		return val;
 	}

@@ -240,6 +240,7 @@ def make_subsel(request, dataset):
     ymax=float(post['ymax'])
     filename=post['filename']
     txt=post['txt']
+    label=post['label']
 
     if ymin>ymax:
         ymax,ymin=ymin,ymax
@@ -252,7 +253,7 @@ def make_subsel(request, dataset):
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
     subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
 
-    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax,filename,txt)
+    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax,filename,txt, label)
 
 # bijwerken heatmap-javascript
 
@@ -295,7 +296,8 @@ def make_subsel(request, dataset):
 def save_subsel (infodir, subsel,
                     xvar,xmin,xmax,
                     yvar,ymin,ymax,
-                    filename, txt):
+                    filename,
+                    txt, label):
 
     if not os.path.exists(infodir+'/selections'):
         os.makedirs(infodir+'/selections')
@@ -321,6 +323,16 @@ def save_subsel (infodir, subsel,
     c.writerow(meta)
     f.close()
 
+    sel_js='%s/selections/meta.js' % infodir
+    if os.path.isfile(sel_js):
+        f=open(sel_js, 'ab')
+    else:
+        f=open(sel_js,'w')
+        f.write('var annotations=[];\n')
+
+    meta="annotations.push({area:[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s],text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
+    f.write(meta)
+    f.close()
 
 
 

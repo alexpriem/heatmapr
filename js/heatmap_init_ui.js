@@ -282,11 +282,14 @@ function init_page() {
         h.ymean=ymean[i];
         h.sum_x=sum_x[i];
         h.sum_y=sum_y[i];
-        var colormap_endpoint=quali_colormap(i/nr_heatmaps);
-        var rgb=colormap_endpoint._rgb;
-        var colortxt='rgb('+parseInt(rgb[0])+','+parseInt(rgb[1])+','+parseInt(rgb[2])+')';
-        cat_colormap.push(colortxt);
-        h.colormap=generate_colormap(colormap_endpoint, 20);
+        if (nr_heatmaps>1) {
+            var colormap_endpoint=quali_colormap(i/nr_heatmaps);
+            var rgb=colormap_endpoint._rgb;
+            var colortxt='rgb('+parseInt(rgb[0])+','+parseInt(rgb[1])+','+parseInt(rgb[2])+')';
+            cat_colormap.push(colortxt);            
+            h.colormap=generate_colormap(colormap_endpoint, 20);
+        } 
+
         h.draw_axes();                 
         heatmaps.push(h);    
     }
