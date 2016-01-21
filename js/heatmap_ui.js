@@ -1093,7 +1093,7 @@ function heatmap (data, opties, nr) {
 	this.world_to_x=function (x) {
 		var opties=_this.opties;
 		var imgwidth=opties.imgwidth;
-		var xmax=opties.x_max+1;
+		var xmax=opties.x_max; //+1;
 		var xmin=opties.x_min;
 		var delta=(xmax-xmin);
 		//var val=((x-75)/imgwidth)*delta+xmin;
@@ -1106,12 +1106,12 @@ function heatmap (data, opties, nr) {
 	this.world_to_y=function (y) {
 		var opties=_this.opties;
 		var imgheight=opties.imgheight;
-		var ymax=opties.y_max+1;   // off by one, again.
+		var ymax=opties.y_max;//+1;   // off by one, again.
 		var ymin=opties.y_min;
 		var delta=(ymax-ymin);
 		//var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
 
-		var val=imgheight-((y-ymin)/delta*imgheight); //+15;
+		var val=imgheight-((y-ymin)/delta*imgheight)+25;
 		//console.log('y,val:',y,val);
 		return val;
 	}
@@ -1735,6 +1735,9 @@ function heatmap (data, opties, nr) {
 		console.log('click_annotation:', this.id);
 		a=_this.opties.annotate[this.id];
 		console.log('click_annotate, text:',a.text);
+		console.log('click_annotate, id:',$(this).attr("data-annotationid"));
+		nr=$(this).attr("data-annotationid");
+		
 
 
 		if (a.position=='top'){
@@ -1750,19 +1753,19 @@ function heatmap (data, opties, nr) {
 		} else { 
 			label="";
 		 }
-		txt="<div class='annotation'>"+label+a.text+"</div>"; 
-		_this.chart.append('foreignObject')
-		    .attr("width", 350)
-		    .attr("height", _this.opties.imgheight)
-		    .attr('x',_this.opties.imgwidth+100)
-		    .attr('y',y)
-		    .attr("class",'annotation')
-		    .attr("id",'annotation')
-   	        .append("xhtml:body")		       	        
-    		.html(txt);
 
+
+    	$('.annotation_label').hide();
+		$('.annotation_text').hide();		
+		$('.annotation_connector').hide();
+
+		$('#atext_'+nr).show();
+		$('.connector_'+nr).show();
 
     	e.stopPropagation();
+
+
+
 	}
 
 

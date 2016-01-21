@@ -8,7 +8,7 @@ import plus.settings as settings
 
 
 
-def expand_html (html, exportmode):
+def expand_html (html):
 
 
     module_dir='..\\'
@@ -20,7 +20,7 @@ def expand_html (html, exportmode):
     for cssfrag in cssfrags[1:]:
         cssfile=cssfrag.split('"')[0]
         print cssfile
-        if cssfile=='/css/style_h1.css' and exportmode=='include':
+        if cssfile=='/css/style_h1.css':
             continue   # skip css reset
         newhtml+='\n<style>\n'
         css=open(module_dir+'/'+cssfile,"r").read()
@@ -34,7 +34,7 @@ def expand_html (html, exportmode):
         newhtml+='\n<script type="text/javascript">\n'
         if ('js-data') in jsfile:
             print jsfile
-            jsfile=jsfile.replace('/js-data/best2010','e:\\data\\best2010_info\\heatmaps')
+            jsfile=jsfile.replace('/js-data/rio2013_m','e:\\data\\rio2013_m_info\\heatmaps')
             print jsfile
             js=open(jsfile,'r').read()
         else:
@@ -60,9 +60,6 @@ def expand_html (html, exportmode):
         body=jsfrags[0]+js_txt+jsfrags[1][len(js_end):]
 
     newhtml+=body
-
-    if exportmode=='include':
-        newhtml='\n'.join(newhtml.split('\n')[2:-1])   # skip DOCTYPE, <html> and </html>
 
     return newhtml
 
@@ -215,7 +212,7 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert,publication
         print 'exporting to %s' % export_location
         html=template.render(context)
 
-        newhtml=expand_html (html,'full')
+        newhtml=expand_html (html)
         f=open(export_location,'w')
         f.write(newhtml)
         f.close()
@@ -330,7 +327,7 @@ def save_subsel (infodir, subsel,
         f=open(sel_js,'w')
         f.write('var annotations=[];\n')
 
-    meta="annotations.push({area:[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s],text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
+    meta="annotations.push({area:[[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s]],text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
     f.write(meta)
     f.close()
 

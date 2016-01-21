@@ -38,6 +38,7 @@ function make_heatmap (addmap) {
     
     var data={'cmd':'makemap','add_new_heatmap':addmap};
 
+    console.log("make_heatmap");
     for (var key in defaults) {
     	 if(defaults.hasOwnProperty(key)){    	 	
     	 	ex=$('#'+key).hasClass('expert');

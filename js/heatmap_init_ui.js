@@ -331,7 +331,7 @@ function init_page() {
 
 
     
-    $('#show_annotations').on('click',show_annotations);
+    $('#show_annotations').on('click',toggle_annotations);
     $('#edit_annotations').on('click',edit_annotations);
     $('#close_selection').on('click',cancel_selection);
     $('#cancel_selection').on('click',cancel_selection);
