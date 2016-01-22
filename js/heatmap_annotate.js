@@ -178,31 +178,32 @@ function show_annotation (heatmap, name, a, i){
 */
 
 		textdimensions=MeasureText (a.label, text_width, true, 'Helvetica Neue','14')		
-		chart.append('foreignObject')
-		    .attr("width", 200)
-		    .attr("height", textdimensions[1]+15)
-		    .attr('x', a.text_xpos+10)
-		    .attr('y', a.text_ypos)
-		    .attr('data-annotationid',i)
-		    .attr("class",'annotation_label')
-		    .attr("id",'alabel_'+i)
-   	        .append("xhtml:body")		       	        
-    		.html('<p>'+a.label+'</p>');
+		
 
-    	txt_html='<h5><strong>'+a.label+'</strong></h5><p>'+a.text+'</p>';
+		$('#heatmap_container_0').append('<div id="alabel_'+i+'"><p>'+a.label+'</p></div>');
 
-		textdimensions=MeasureText (txt_html, text_width, false, 'Helvetica Neue','14')
-		textheight=textdimensions[1]
-		chart.append('foreignObject')
-		    .attr("width", text_width)
-		    .attr("height", textheight)
-		    .attr('x', sidebar_text_xpos)
-		    .attr('y', 250)
+		$('#alabel_'+i).css("width", 200)
+		    .css("height", textdimensions[1]+15)
+		    .css("position", 'absolute')
+		    .css("left", a.text_xpos+10)
+		    .css("top", a.text_ypos)
 		    .attr('data-annotationid',i)
-		    .attr("class",'annotation_text')
-		    .attr("id",'atext_'+i)
-   	        .append("xhtml:body")		       	        
-    		.html(txt_html);
+		    .attr("class",'annotation_label');		    	
+
+    	txt_html='<div id="atext_'+i+'" <h5><strong>'+a.label+'</strong></h5><p>'+a.text+'</p></div>';
+
+		textdimensions=MeasureText (txt_html, text_width, false, 'Helvetica Neue','14');
+		textheight=textdimensions[1];
+		$('#heatmap_container_0').append(txt_html);
+		
+		$('#atext_'+i)		
+		    .css("width", text_width)
+		    .css("height", textheight)
+		    .css('left', sidebar_text_xpos)
+		    .css('top', 250)
+		    .attr('data-annotationid',i)
+		    .attr("class",'annotation_text');		    
+    	
 
 		chart.append("line")	
 			.attr('id','annotation_textc_'+i)		
