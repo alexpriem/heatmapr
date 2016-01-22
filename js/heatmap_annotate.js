@@ -11,19 +11,24 @@
 * @param  size   number The size of the text (in pts)
 * @return array         A two element array of the width and height of the text
 */
-function MeasureText(text, bold, font, size)
+
+
+var text_width=200;
+
+function MeasureText(html, textwidth, bold, font, size)
 {
     // This global variable is used to cache repeated calls with the same arguments
-    var str = text + ':' + bold + ':' + font + ':' + size;
+    var str = html + ':' + bold + ':' + font + ':' + size;
     if (typeof(__measuretext_cache__) == 'object' && __measuretext_cache__[str]) {
         return __measuretext_cache__[str];
     }
 
     var div = document.createElement('DIV');
-        div.innerHTML = text;
+        div.innerHTML = html;
         div.style.position = 'absolute';
         div.style.top = '-100px';
         div.style.left = '-100px';
+        div.style.width = textwidth+'px';   //
         div.style.fontFamily = font;
         div.style.fontWeight = bold ? 'bold' : 'normal';
         div.style.fontSize = size + 'pt';
@@ -56,7 +61,7 @@ function toggle_annotations () {
 		annotations_show=false;
 	} else {
 		$('.annotation_label').show();
-		$('.annotation_text').show();
+		$('.annotation_text').hide();
 		$('.annotation_obj').show();
 		$('.annotation_connector').show();
 		annotations_show=true;
@@ -109,6 +114,8 @@ function show_annotation (heatmap, name, a, i){
 
 
 
+
+
 	chart=heatmap.chart;
 	if ('area' in a) { 
 		//handle area
@@ -126,13 +133,13 @@ function show_annotation (heatmap, name, a, i){
 		var width=x1-x0;
 		var height=y0-y1;
 
-		a.text_y_pos=(height+y0)/2;
+		
 
 		console.log('orig x0/y0, x1/y1:',rect[0][0],rect[0][1],rect[1][0],rect[1][1])
 		console.log('x,y:',x0,y0);
 		console.log('w,h:',width,height);
 		chart.append("rect")
-			.attr("id",name)
+			.attr("id",'annotation_obj_'+i)
 			.attr("x",x0)
 			.attr("y",y1)
 			.attr("class","annotation_obj")
@@ -145,54 +152,67 @@ function show_annotation (heatmap, name, a, i){
 			.attr("fill-opacity",opts["fill-opacity"]);
 
 
-		x2=x0+width;
-		y2=y1+height/2;
-		x3=h.opties.imgwidth+150;
+		x2=x0+width;	
+		sidebar_text_xpos=h.opties.imgwidth+150;
 
 		console.log(x0,y0,x1);
 
 		chart.append("line")			
 			.attr("x1", x2)
-			.attr("y1", y2)
-			.attr("x2", x3)
-			.attr("y2", y2)						
+			.attr("y1", a.text_ypos+15)
+			.attr("x2", a.text_xpos)
+			.attr("y2", a.text_ypos+15)						
 			.attr("class","annotation_connector connector_"+i)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"]);
 
+/*
 		chart.append("line")			
-			.attr("x1", x3)
-			.attr("y1", y2)
-			.attr("x2", x3)
-			.attr("y2", y2+25)
+			.attr("x1", a.text_xpos)
+			.attr("y1", a.text_ypos)
+			.attr("x2", a.text_xpos)
+			.attr("y2", a.text_xpos+25)
 			.attr("class","annotation_connector connector_"+i)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"]);			
+*/
 
-		textdimensions=MeasureText (a.label, false, 'Helvetica Neue','14')		
+		textdimensions=MeasureText (a.label, text_width, true, 'Helvetica Neue','14')		
 		chart.append('foreignObject')
 		    .attr("width", 200)
-		    .attr("height", textdimensions[1])
-		    .attr('x', x3+10)
-		    .attr('y', y2)
+		    .attr("height", textdimensions[1]+15)
+		    .attr('x', a.text_xpos+10)
+		    .attr('y', a.text_ypos)
 		    .attr('data-annotationid',i)
 		    .attr("class",'annotation_label')
 		    .attr("id",'alabel_'+i)
    	        .append("xhtml:body")		       	        
     		.html('<p>'+a.label+'</p>');
 
-		textdimensions=MeasureText (a.text, false, 'Helvetica Neue','14')
+    	txt_html='<h5><strong>'+a.label+'</strong></h5><p>'+a.text+'</p>';
+
+		textdimensions=MeasureText (txt_html, text_width, false, 'Helvetica Neue','14')
+		textheight=textdimensions[1]
 		chart.append('foreignObject')
-		    .attr("width", 200)
-		    .attr("height", textdimensions[1])
-		    .attr('x', x3)
+		    .attr("width", text_width)
+		    .attr("height", textheight)
+		    .attr('x', sidebar_text_xpos)
 		    .attr('y', 250)
 		    .attr('data-annotationid',i)
 		    .attr("class",'annotation_text')
 		    .attr("id",'atext_'+i)
    	        .append("xhtml:body")		       	        
-    		.html('<p>'+a.text+'</p>');
-    	
+    		.html(txt_html);
+
+		chart.append("line")	
+			.attr('id','annotation_textc_'+i)		
+			.attr("x1", sidebar_text_xpos)
+			.attr("y1", 250)
+			.attr("x2", sidebar_text_xpos)
+			.attr("y2", 250+textheight*0.65)
+			.attr("class","annotation_text")
+			.attr("stroke",opts.stroke)
+			.attr("stroke-width",opts["stroke-width"]);			    	
 	}
 
 
@@ -363,9 +383,9 @@ function show_annotation (heatmap, name, a, i){
 
 
 	//console.log('heatmap',heatmap);
-	$('#'+name).on('click',heatmap.click_annotation);
+	$('#annotation_obj_'+i).on('click',heatmap.click_annotation);
 //	$('#alabel_'+i).on('click',click_annotation);
-	$('#'+name).on('hover',heatmap.show_area);
+	$('#annotation_obj_'+i).on('hover',heatmap.show_area);
 }
 
 

@@ -8,7 +8,7 @@ import plus.settings as settings
 
 
 
-def expand_html (html):
+def expand_html (html, dataset):
 
 
     module_dir='..\\'
@@ -34,8 +34,8 @@ def expand_html (html):
         newhtml+='\n<script type="text/javascript">\n'
         if ('js-data') in jsfile:
             print jsfile
-            jsfile=jsfile.replace('/js-data/rio2013_m','e:\\data\\rio2013_m_info\\heatmaps')
-            print jsfile
+            jsfile=jsfile.replace('/js-data/'+dataset,'e:\\data\\%s_info\\heatmaps' % dataset)
+
             js=open(jsfile,'r').read()
         else:
             js=open(module_dir+'\\'+jsfile,'r').read()
@@ -208,11 +208,11 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert,publication
         template = loader.get_template('heatmap.html')
 
     if request.POST.get('export') is not None:
-        export_location='f:\\export.html'
+        export_location='f:\\export_%s_%s_%s_%s.html' % (dataset, x_var, y_var, indexnr)
         print 'exporting to %s' % export_location
         html=template.render(context)
 
-        newhtml=expand_html (html)
+        newhtml=expand_html (html, dataset)
         f=open(export_location,'w')
         f.write(newhtml)
         f.close()
@@ -238,6 +238,8 @@ def make_subsel(request, dataset):
     filename=post['filename']
     txt=post['txt']
     label=post['label']
+    text_xpos=post['text_xpos']
+    text_ypos=post['text_ypos']
 
     if ymin>ymax:
         ymax,ymin=ymin,ymax
@@ -250,7 +252,7 @@ def make_subsel(request, dataset):
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
     subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
 
-    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax,filename,txt, label)
+    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax, text_xpos,text_ypos, filename,txt, label)
 
 # bijwerken heatmap-javascript
 
@@ -263,7 +265,7 @@ def make_subsel(request, dataset):
     c=csv.reader(f)
     annotaties={}
     for row in c:
-        filename=row[7]
+        filename=row[9]
         f=open('%s/selections/%s.txt' % (infodir, row[7]))
         txt=f.read()
         f.close()
@@ -293,6 +295,7 @@ def make_subsel(request, dataset):
 def save_subsel (infodir, subsel,
                     xvar,xmin,xmax,
                     yvar,ymin,ymax,
+                    text_xpos,text_ypos,
                     filename,
                     txt, label):
 
@@ -315,7 +318,7 @@ def save_subsel (infodir, subsel,
 
     f=open('%s/selections/meta.csv' % infodir,'ab')
 
-    meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax,filename]
+    meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax,text_xpos,text_ypos,filename]
     c=csv.writer(f)
     c.writerow(meta)
     f.close()
@@ -327,7 +330,7 @@ def save_subsel (infodir, subsel,
         f=open(sel_js,'w')
         f.write('var annotations=[];\n')
 
-    meta="annotations.push({area:[[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s]],text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
+    meta="annotations.push({area:[[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s]],text_xpos:%(text_xpos)s, text_ypos:%(text_ypos)s, text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
     f.write(meta)
     f.close()
 

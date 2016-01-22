@@ -66,19 +66,6 @@ transform_value=function  (val,transform, log_min) {
 		var heatmap_xvar=data[5];
 		var heatmap_yvar=data[6];
 		var heatmap_index=data[7];
-
-		var h=heatmaps[0];	
-
-		var x0=h.world_to_x(sel_xmin);    s
-		var x1=h.world_to_x(sel_xmax);    
-		var y0=h.world_to_y(sel_ymin);		
-		var y1=h.world_to_y(sel_ymax);		
-		var width=x1-x0;
-		var height=y0-y1;		
-
-		
-		var text_ypos=y1+height/2;
-		var text_xpos=h.opties.imgwidth+150;
 		
 
 		var data={dataset:dataset, 
@@ -90,9 +77,7 @@ transform_value=function  (val,transform, log_min) {
 					'xmax':sel_xmax,
 					'yvar':y_var,
 					'ymin':sel_ymin,
-					'ymax':sel_ymax,		
-					'text_xpos':text_xpos,
-					'text_ypos':text_ypos,			
+					'ymax':sel_ymax,					
 					'filename':selectie_filename,
 					'txt':selectie_txt,
 					'label':label_txt
@@ -191,8 +176,8 @@ function heatmap (data, opties, nr) {
     	c.setAttribute("height", imgwidth);
     	_this.ctx = c.getContext('2d');
     	var s=document.getElementById(svg_el);
-    	s.setAttribute("width", imgwidth*2+200);
-    	s.setAttribute("height", imgheight+100);
+    	s.setAttribute("width", imgwidth+400);
+    	s.setAttribute("height", imgheight+100+400);
 
 		_this.chart = d3.select('#'+svg_el);
 
@@ -1221,8 +1206,8 @@ function heatmap (data, opties, nr) {
 		$('.hist_y').remove();
 		$('.pointinfotext').remove();
 
-		var offsetx_hist=125;  //distance between heatmap and side-histograms
-		var offsety_hist=25;   // distance between bottom of screen & side-histograms
+		var offsetx_hist=75;  //distance between heatmap and side-histograms
+		var offsety_hist=imgheight-150+25;   // distance between bottom of screen & side-histograms
 		var offsetspace_hist=-40;   // distance between side-histograms
 		var graphheight=0.25*imgheight;
 
@@ -1239,6 +1224,8 @@ function heatmap (data, opties, nr) {
 
 
 		/* text upper right corner */
+
+		/*
 	 	chart.append("text")
 	    	.attr("class","pointinfotext")
 	        .attr("x", 1.5*imgwidth+100 )
@@ -1269,7 +1256,7 @@ function heatmap (data, opties, nr) {
 	        .attr("font-weight", "bold")
 	        .text('#count:'+val);
 
-
+*/
 
 	/* histogram y */
 
@@ -1291,7 +1278,7 @@ function heatmap (data, opties, nr) {
 		 	color=colormap[val];
 			chart.append("rect")
 				.attr("class","hist_y")
-				.attr("x",imgwidth+offsetx_hist+i)
+				.attr("x",offsetx_hist+i)
 				.attr("y",parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist)
 				.attr("width",1)
 				.attr("height",(val/histy_max)*graphheight)
@@ -1314,7 +1301,7 @@ function heatmap (data, opties, nr) {
 		 	color=colormap[val];
 			chart.append("rect")
 				.attr("class","hist_y")
-				.attr("x",2*imgwidth+offsetx_hist-i)
+				.attr("x",imgwidth+offsetx_hist-i)
 				.attr("y",imgheight-(val/histx_max)*graphheight-graphheight+offsety_hist+offsetspace_hist)
 				.attr("width",1)
 				.attr("height",(val/histx_max)*graphheight)
@@ -1358,7 +1345,7 @@ function heatmap (data, opties, nr) {
 	       .orient("left");
 
 	  //console.log(chart);
-	  offsetx=imgwidth+offsetx_hist;
+	  offsetx=offsetx_hist;
 	  offsetyx=imgheight+offsety_hist
 	  offsetyy=imgheight-2*graphheight+offsety_hist+offsetspace_hist;
 
@@ -1371,7 +1358,7 @@ function heatmap (data, opties, nr) {
 	        .attr("transform","translate("+offsetx+","+offsetyy+")")
 	        .call(yyAxis);
 
-	  offsetx=imgwidth+offsetx_hist;
+	  offsetx=offsetx_hist;
 	  offsetyx=imgheight-graphheight+offsety_hist+offsetspace_hist;
 	  offsetyy=imgheight-graphheight+offsety_hist;
 
@@ -1405,7 +1392,7 @@ function heatmap (data, opties, nr) {
 
 	  chart.append("text")      // text label for the x axis
 	  		.attr("class","xaxis hist_x")
-	        .attr("x",  1.5*imgwidth+offsetx_hist )
+	        .attr("x",  0.5*imgwidth+offsetx_hist )
 	        .attr("y",  imgheight+offsety_hist+35 )
 	        .style("text-anchor", "middle")
 	        .attr("font-family", "Corbel")
@@ -1414,7 +1401,7 @@ function heatmap (data, opties, nr) {
 	        .text(opties.x_label+ '(voor '+opties.y_label+'='+yval+')');
 	  chart.append("text")      // text label for the x axis
 	    	.attr("class","yaxis hist_y")
-	        .attr("x", 1.5*imgwidth+offsetx_hist )
+	        .attr("x", 0.5*imgwidth+offsetx_hist )
 	        .attr("y", imgheight-graphheight+offsety_hist-offsetspace_hist-45 )
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", "16px")
@@ -1430,7 +1417,7 @@ function heatmap (data, opties, nr) {
 	 	.attr("class","hist_x")
 	    .attr("x1", xoffset)
 	    .attr("y1", y+yoffset)
-	    .attr("x2",imgwidth+xoffset)
+	    .attr("x2",xoffset)
 	    .attr("y2", y+yoffset)
 	    .style("stroke", "rgb(8,8,130)");
 
@@ -1440,7 +1427,7 @@ function heatmap (data, opties, nr) {
 	    .attr("x1", x+xoffset)
 	    .attr("y1", 25)
 	    .attr("x2", x+xoffset)
-	    .attr("y2", imgwidth+25)
+	    .attr("y2", 25)
 	    .style("stroke", "rgb(130,8,8)");
 	}
 
