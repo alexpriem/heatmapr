@@ -1,5 +1,5 @@
 
-var prev_selected_annotation=undefined;
+var selected_annotation=undefined;
 
 transform_value=function  (val,transform, log_min) {
 
@@ -1177,8 +1177,8 @@ function heatmap (data, opties, nr) {
 		var colormap=gradient_node.colormap;
 
 		if (annotations_show) {				// select ongedaan  maken.
-			if (prev_selected_annotation!=undefined) {
-				$('#annotation_obj_'+prev_selected_annotation).attr('class','annotation_obj');
+			if (selected_annotation!=undefined) {
+				$('#annotation_obj_'+selected_annotation).attr('class','annotation_obj');
 			}
 			$('.annotation_label').show();
 			$('.annotation_text').hide();
@@ -1755,11 +1755,11 @@ function heatmap (data, opties, nr) {
 
 		a=_this.opties.annotate[nr];
 		
-		if (prev_selected_annotation!=undefined) {
-			$('#annotation_obj_'+prev_selected_annotation).attr('class','annotation_obj');
-			$('#annotation_textc_'+prev_selected_annotation).hide();
+		if (selected_annotation!=undefined) {
+			$('#annotation_obj_'+selected_annotation).attr('class','annotation_obj');
+			$('#annotation_textc_'+selected_annotation).hide();
 		}
-		$('#annotation_obj_'+nr).attr('class','annotation_obj selected_annotation');
+		$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_selected');
 
     	$('.annotation_label').hide();
 		$('.annotation_text').hide();		
@@ -1773,10 +1773,29 @@ function heatmap (data, opties, nr) {
 
 		$('#atext_'+nr).show();
 		$('.connector_'+nr).show();
-		prev_selected_annotation=nr;
+		selected_annotation=nr;
 
 		console.log('ok');
 	}
+
+	this.enter_annotation=function (e) {
+
+		nr=$(this).attr("data-annotationid");
+		console.log('enter_annotation:',nr);
+		$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_hover');
+	}
+
+	this.leave_annotation=function (e) {
+
+		nr=$(this).attr("data-annotationid");
+		if (selected_annotation==nr) {
+			$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_selected');
+		} else {
+			$('#annotation_obj_'+nr).attr('class','annotation_obj');
+		}
+	}
+
+
 
 
 	this.init_annotations=function () {

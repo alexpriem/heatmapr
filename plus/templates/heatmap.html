@@ -45,18 +45,34 @@
     <p id="close_selection"> X </p>
       <h5 id="selectie_header"> <strong>Selectiegegevens: </strong></h5>         
         <table>
+            <tr></tr>
             <tr> <td class="selrow"> <label id="selectie_xvar"> </label> </td>  </tr>            
             <tr> <td class="selrow"> <label> min <label>  <td  class="selrow"> <label> max </label> </tr>
-            <tr> <td class="selrow"> <input type="text" name="xmin" id="selectie_xmin">  </td> <td  class="selrow"> <input type="text" name="xmax" id="selectie_xmax"> </td>  </tr>
+            <tr> <td class="selrow"> <input type="text" name="xmin" id="selectie_xmin">  </td> 
+                 <td  class="selrow"> <input type="text" name="xmax" id="selectie_xmax"> </td>  </tr>
+            <tr></tr>
             <tr> <td class="selrow"> <label id="selectie_yvar"> </label> </td>  </tr>
             <tr> <td class="selrow"> <label> min <label>  <td  class="selrow"> <label> max </label> </td> </tr>
-            <tr> <td class="selrow"> <input type="text" name="ymin" id="selectie_ymin"> </td> <td  class="selrow"> <input type="text" name="ymax" id="selectie_ymax">  </td>  </tr>
-            <tr> <td class="selrow"> <label> File voor beschrijving: <label>  </td>  </tr>
-            <tr> <td class="selrow"> <input type="text" name="filename" id="selectie_filename"> </td>   </tr>
+            <tr> <td class="selrow"> <input type="text" name="ymin" id="selectie_ymin"> </td> 
+                 <td  class="selrow"> <input type="text" name="ymax" id="selectie_ymax">  </td>  </tr>
+            <tr></tr>
+
             <tr> <td class="selrow"> <label> Label: <label>  <td>  </tr>
             <tr> <td class="selrow" colspan=2> <textarea name="txt" id="label_txt" cols=60 rows=1 > </textarea> </td>  </tr>
+
+            <tr> <td class="selrow"> <label id="selectie_yvar"> Labelpositie </label> </td>  </tr>
+            <tr> <td class="selrow"> <input type="text" name="connector_direction" id="connector_direction"> </td>  <td> </td></tr>
+            <tr> <td class="selrow"> <label> xpos <label>  <td  class="selrow"> <label> ypos </label> </td> </tr>
+            <tr> <td class="selrow"> <input type="text" name="text_xpos" id="text_xpos"> </td>
+                 <td  class="selrow"> <input type="text" name="text_ypos" id="text_ypos">  </td>  </tr>
+
+            <tr></tr>                 
+            
+
             <tr> <td class="selrow"> <label> Tekst: <label>  <td>  </tr>
             <tr> <td class="selrow" colspan=2> <textarea name="txt" id="selectie_txt" cols=60 rows=10 > </textarea> </td>  </tr>
+            <tr> <td class="selrow"> <label> File voor beschrijving: <label>  </td>  </tr>
+            <tr> <td class="selrow"> <input type="text" name="filename" id="selectie_filename"> </td>   </tr>
         </table>
 
       <a href="#" id="save_selection"> Opslaan </a>  <a href="#" id="cancel_selection"> Cancel </a>

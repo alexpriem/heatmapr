@@ -48,6 +48,11 @@ function MeasureText(html, textwidth, bold, font, size)
 }
 
 
+function show_area () {
+
+
+}
+
 
 var annotations_show=true;
 
@@ -69,17 +74,13 @@ function toggle_annotations () {
 
 }
 
-function handle_annotation(txt) {
 
-
-}
 
 function handle_options (options) {
 
 	defaults={"stroke":"blue",
 				"stroke-width":2,
-				"fill":"blue",
-				"fill-opacity":0.5};
+				"fill":"blue"};
 
 	var new_options={};
 	for (var o in defaults) {
@@ -148,12 +149,22 @@ function show_annotation (heatmap, name, a, i){
 			.attr("width",width)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
-			.attr("fill",opts.fill)
-			.attr("fill-opacity",opts["fill-opacity"]);
+			.attr("fill",opts.fill);
+			
 
+		if (a.connector_direction=='right') {
+			x2=x0+width;	
+			sidebar_text_xpos=h.opties.imgwidth+150;
+		}
+		if (a.connector_direction=='topright') {
+			x2=x0+0.75*width;	
+			sidebar_text_xpos=h.opties.imgwidth+150;
+		}
+		if (a.connector_direction=='bottomright') {
+			x2=x0+width;	
+			sidebar_text_xpos=h.opties.imgwidth+150;
+		}
 
-		x2=x0+width;	
-		sidebar_text_xpos=h.opties.imgwidth+150;
 
 		console.log(x0,y0,x1);
 
@@ -165,6 +176,29 @@ function show_annotation (heatmap, name, a, i){
 			.attr("class","annotation_connector connector_"+i)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"]);
+
+
+		if (a.connector_direction=='topright') {
+			chart.append("line")			
+				.attr("x1", x2)
+				.attr("y1", a.text_ypos+15)
+				.attr("x2", x2)
+				.attr("y2", y1)						
+				.attr("class","annotation_connector connector_"+i)
+				.attr("stroke",opts.stroke)
+				.attr("stroke-width",opts["stroke-width"]);
+		}
+
+		if (a.connector_direction=='bottomright') {
+			chart.append("line")			
+				.attr("x1", x2)
+				.attr("y1", a.text_ypos+15)
+				.attr("x2", x2)
+				.attr("y2", y0)						
+				.attr("class","annotation_connector connector_"+i)
+				.attr("stroke",opts.stroke)
+				.attr("stroke-width",opts["stroke-width"]);
+		}
 
 /*
 		chart.append("line")			
@@ -237,7 +271,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
-			.attr("fill-opacity",opts["fill-opacity"])
+			//.attr("fill-opacity",opts["fill-opacity"])
 			.attr('marker-end','url(#'+name+'_m)');
 
       	chart.append("svg:path")
@@ -273,7 +307,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
-			.attr("fill-opacity",opts["fill-opacity"])
+			//.attr("fill-opacity",opts["fill-opacity"])
 			.attr('marker-end','url(#'+name+'_m)');
 
       	chart.append("svg:path")
@@ -308,7 +342,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
-			.attr("fill-opacity",opts["fill-opacity"])
+			//.attr("fill-opacity",opts["fill-opacity"])
 			.attr('marker-end','url(#'+name+'_m)');
 
       	chart.append("svg:path")
@@ -343,7 +377,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
-			.attr("fill-opacity",opts["fill-opacity"])
+			//.attr("fill-opacity",opts["fill-opacity"])
 			.attr('marker-end','url(#'+name+'_m)');
 
       	chart.append("svg:path")
@@ -379,14 +413,12 @@ function show_annotation (heatmap, name, a, i){
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
-			.attr("fill-opacity",opts["fill-opacity"]);		
+			//.attr("fill-opacity",opts["fill-opacity"]);		
 	}
 
 
 	//console.log('heatmap',heatmap);
-	$('#annotation_obj_'+i).on('click',heatmap.click_annotation);
-//	$('#alabel_'+i).on('click',click_annotation);
-	$('#annotation_obj_'+i).on('hover',heatmap.show_area);
+	
 }
 
 
@@ -432,4 +464,9 @@ function init_annotations (heatmap, annotations) {
 	  }
 	}
 
+ $('.annotation_label').on('click',heatmap.click_annotation);
+ $('.annotation_obj').on('click',heatmap.click_annotation);
+ $('.annotation_obj').on('mouseenter',heatmap.enter_annotation );
+ $('.annotation_obj').on('mouseleave',heatmap.leave_annotation );
+ 
 }

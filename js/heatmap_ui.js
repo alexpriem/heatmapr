@@ -1,5 +1,5 @@
 
-var prev_selected_annotation=undefined;
+var selected_annotation=undefined;
 
 transform_value=function  (val,transform, log_min) {
 
@@ -55,9 +55,13 @@ transform_value=function  (val,transform, log_min) {
 		sel_xmax=$('#selectie_xmax').val();
 		sel_ymin=$('#selectie_ymin').val();		
 		sel_ymax=$('#selectie_ymax').val();
+		text_xpos=$('#text_xpos').val();		
+		text_ypos=$('#text_ypos').val();
+		connector_direction=$('#connector_direction').val();
 		selectie_filename=$('#selectie_filename').val();
 		selectie_txt=$('#selectie_txt').val();
 		label_txt=$('#label_txt').val();
+
 
 
 		var url=window.location.href;
@@ -69,16 +73,6 @@ transform_value=function  (val,transform, log_min) {
 
 		var h=heatmaps[0];	
 
-		var x0=h.world_to_x(sel_xmin);    s
-		var x1=h.world_to_x(sel_xmax);    
-		var y0=h.world_to_y(sel_ymin);		
-		var y1=h.world_to_y(sel_ymax);		
-		var width=x1-x0;
-		var height=y0-y1;		
-
-		
-		var text_ypos=y1+height/2;
-		var text_xpos=h.opties.imgwidth+150;
 		
 
 		var data={dataset:dataset, 
@@ -92,7 +86,8 @@ transform_value=function  (val,transform, log_min) {
 					'ymin':sel_ymin,
 					'ymax':sel_ymax,		
 					'text_xpos':text_xpos,
-					'text_ypos':text_ypos,			
+					'text_ypos':text_ypos,		
+					'connector_direction':connector_direction,	
 					'filename':selectie_filename,
 					'txt':selectie_txt,
 					'label':label_txt
@@ -1192,8 +1187,8 @@ function heatmap (data, opties, nr) {
 		var colormap=gradient_node.colormap;
 
 		if (annotations_show) {				// select ongedaan  maken.
-			if (prev_selected_annotation!=undefined) {
-				$('#annotation_obj_'+prev_selected_annotation).attr('class','annotation_obj');
+			if (selected_annotation!=undefined) {
+				$('#annotation_obj_'+selected_annotation).attr('class','annotation_obj');
 			}
 			$('.annotation_label').show();
 			$('.annotation_text').hide();
@@ -1521,7 +1516,18 @@ function heatmap (data, opties, nr) {
 		var sel_xmax=_this.x_to_world(x-75).toFixed(2);
 		var sel_ymin=_this.y_to_world(_this.y0).toFixed(2);
 		var sel_ymax=_this.y_to_world(y).toFixed(2);
+
+		var x0=h.world_to_x(sel_xmin);    s
+		var x1=h.world_to_x(sel_xmax);    
+		var y0=h.world_to_y(sel_ymin);		
+		var y1=h.world_to_y(sel_ymax);		
+		var width=x1-x0;
+		var height=y0-y1;		
+
 		
+		var text_ypos=parseInt(y1+height/2);
+		var text_xpos=parseInt(h.opties.imgwidth+150);
+		var connector_direction='right';
 
 	//	$('#selectieform').show();
 		
@@ -1534,6 +1540,11 @@ function heatmap (data, opties, nr) {
 		$('#selectie_xmax').val(sel_xmax);
 		$('#selectie_ymin').val(sel_ymin);		
 		$('#selectie_ymax').val(sel_ymax);
+		$('#text_xpos').val(text_xpos);		
+		$('#text_ypos').val(text_ypos);
+		$('#connector_direction').val(connector_direction);
+		
+
 		$('#selectie_filename').val('selectie_'+selectienr);
 
 		console.log('all done');
@@ -1768,11 +1779,11 @@ function heatmap (data, opties, nr) {
 
 		a=_this.opties.annotate[nr];
 		
-		if (prev_selected_annotation!=undefined) {
-			$('#annotation_obj_'+prev_selected_annotation).attr('class','annotation_obj');
-			$('#annotation_textc_'+prev_selected_annotation).hide();
+		if (selected_annotation!=undefined) {
+			$('#annotation_obj_'+selected_annotation).attr('class','annotation_obj');
+			$('#annotation_textc_'+selected_annotation).hide();
 		}
-		$('#annotation_obj_'+nr).attr('class','annotation_obj selected_annotation');
+		$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_selected');
 
     	$('.annotation_label').hide();
 		$('.annotation_text').hide();		
@@ -1786,10 +1797,29 @@ function heatmap (data, opties, nr) {
 
 		$('#atext_'+nr).show();
 		$('.connector_'+nr).show();
-		prev_selected_annotation=nr;
+		selected_annotation=nr;
 
 		console.log('ok');
 	}
+
+	this.enter_annotation=function (e) {
+
+		nr=$(this).attr("data-annotationid");
+		console.log('enter_annotation:',nr);
+		$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_hover');
+	}
+
+	this.leave_annotation=function (e) {
+
+		nr=$(this).attr("data-annotationid");
+		if (selected_annotation==nr) {
+			$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_selected');
+		} else {
+			$('#annotation_obj_'+nr).attr('class','annotation_obj');
+		}
+	}
+
+
 
 
 	this.init_annotations=function () {

@@ -133,9 +133,18 @@ position: absolute;
 display:none;
 }
 
-.selected_annotation {
+.annotation_obj {
+	fill-opacity:0.3;
+}
+
+.annotation_selected {
 	fill-opacity:0.8;
 }
+
+.annotation_hover {
+	fill-opacity:0.6;
+}
+
 
 
 .annotation_label{
