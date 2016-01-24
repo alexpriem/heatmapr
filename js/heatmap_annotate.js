@@ -168,14 +168,17 @@ function show_annotation (heatmap, name, a, i){
 
 		console.log(x0,y0,x1);
 
-		chart.append("line")			
-			.attr("x1", x2)
-			.attr("y1", a.text_ypos+15)
-			.attr("x2", a.text_xpos)
-			.attr("y2", a.text_ypos+15)						
-			.attr("class","annotation_connector connector_"+i)
-			.attr("stroke",opts.stroke)
-			.attr("stroke-width",opts["stroke-width"]);
+		if ((a.connector_direction=='right') || (a.connector_direction=='bottomright') || (a.connector_direction=='topright')) {
+			chart.append("line")			
+				.attr("x1", x2)
+				.attr("y1", a.text_ypos+15)
+				.attr("x2", a.text_xpos)
+				.attr("y2", a.text_ypos+15)						
+				.attr("class","annotation_connector connector_"+i)
+				.attr("stroke",opts.stroke)
+				.attr("stroke-width",opts["stroke-width"]);
+			}
+
 
 
 		if (a.connector_direction=='topright') {
@@ -212,12 +215,12 @@ function show_annotation (heatmap, name, a, i){
 */
 
 		textdimensions=MeasureText (a.label, text_width, true, 'Helvetica Neue','14')		
-		
+		labelheight=textdimensions[1];
 
 		$('#heatmap_container_0').append('<div id="alabel_'+i+'"><p>'+a.label+'</p></div>');
 
 		$('#alabel_'+i).css("width", 200)
-		    .css("height", textdimensions[1]+15)
+		    .css("height", labelheight+15)
 		    .css("position", 'absolute')
 		    .css("left", a.text_xpos+10)
 		    .css("top", a.text_ypos)
@@ -239,15 +242,22 @@ function show_annotation (heatmap, name, a, i){
 		    .attr("class",'annotation_text');		    
     	
 
-		chart.append("line")	
-			.attr('id','annotation_textc_'+i)		
-			.attr("x1", sidebar_text_xpos)
-			.attr("y1", 250)
-			.attr("x2", sidebar_text_xpos)
-			.attr("y2", 250+textheight*0.65)
-			.attr("class","annotation_text")
-			.attr("stroke",opts.stroke)
-			.attr("stroke-width",opts["stroke-width"]);			    	
+		if ((a.connector_direction=='right') || (a.connector_direction=='bottomright') || (a.connector_direction=='topright')) {
+		
+			var bottom_pos=250+textheight*0.65;
+			if (bottom_pos<a.text_ypos+labelheight) {
+				bottom_pos=a.text_ypos+labelheight;
+			}
+			chart.append("line")	
+				.attr('id','annotation_textc_'+i)		
+				.attr("x1", sidebar_text_xpos)
+				.attr("y1", 250)
+				.attr("x2", sidebar_text_xpos)
+				.attr("y2", bottom_pos)
+				.attr("class","annotation_text")
+				.attr("stroke",opts.stroke)
+				.attr("stroke-width",opts["stroke-width"]);			    	
+		}
 	}
 
 

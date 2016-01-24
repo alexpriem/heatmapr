@@ -158,6 +158,8 @@ border-color:#000;
 position: absolute;
 width:200px;
 height:20px;
+padding-top:4px;
+margin-top:-15px;
 }
 
 #heatmap_div {
