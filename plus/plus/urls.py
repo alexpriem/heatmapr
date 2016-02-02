@@ -58,7 +58,6 @@ urlpatterns = patterns('',
     url(r'^dataset/(?P<dataset>.*)/', view_data.dataset),
 
     url(r'^make_heatmap/$', view_makemap.make_heatmap),
-    url(r'^expertmap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_makemap.make_expert_heatmap),
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/(?P<indexnr>.*)/$', view_makemap.show_heatmap_form),
     url(r'^makemap/(?P<dataset>.*)/(?P<x_var>.*)/(?P<y_var>.*)/$', view_makemap.show_heatmap_form),
     url(r'^editmap/(?P<dataset>.*)/(?P<filename>.*)/$', view_makemap.edit_heatmap),

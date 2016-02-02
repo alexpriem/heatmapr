@@ -32,11 +32,13 @@ function make_heatmap (addmap) {
 
     
 
+    console.log('makemap:expertmode:',expert);
     var url=window.location.href;
     var data=url.split('/');    
     var dataset=data[4];
     
     var data={'cmd':'makemap','add_new_heatmap':addmap};
+
 
     console.log("make_heatmap");
     for (var key in defaults) {
@@ -44,16 +46,22 @@ function make_heatmap (addmap) {
     	 	ex=$('#'+key).hasClass('expert');
     	 	val=$('#'+key).val();
             console.log(key,val,ex);
+            if ((expertmode==false) && (ex==true)) {
+                data[key]=defaults[key];
+                continue;
+            } 
     	 	if (val==undefined) {
     	 		data[key]=defaults[key];
     	 		continue;
     	 	} 
+
             data[key]=val;           
     	 }
     }
 
     data['dataset']=dataset;
-
+    data['expertmode']=expert;
+    //return;
     console.log(data);
 	$.ajax({url:"/make_heatmap/", 
 			type: "POST",
@@ -95,9 +103,11 @@ function toggle_expert () {
  console.log('toggle_expert',expert);
  if (expert) {
  	$('.expert').hide();
+    $('#expertmode_label').html('uit');
  	expert=false;
  } else { 
 	$('.expert').show();
+    $('#expertmode_label').html('aan');
  	expert=true;
  }
 
@@ -112,9 +122,11 @@ function init_page() {
     $('#expertmode').on('click', toggle_expert);
 
     if (expert==false) {
-    	$('.expert').hide();
+    	$('.expert').hide();     
+        $('#expertmode_label').html('uit');   
     } else { 
-	    $('.expert').show();
+	    $('.expert').show();       
+        $('#expertmode_label').html('aan');
 	}
 
     for (var key in defaults) {
