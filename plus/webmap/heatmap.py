@@ -76,7 +76,7 @@ class heatmap:
             ['title','',False],
             ['dump_csv',False,False],
             ['colormap','blue',False],
-            ['missing_color','#ffcccccc',False],
+            ['missing_color','[192,192,192,255]',False],
             ['size','1',False],
             ['transform','linear',False],
             ['log_min',1,False],
@@ -85,15 +85,15 @@ class heatmap:
             ['stats_enabled', True, False],
             ['plot_mean', False, False],
             ['plot_mean_pixelsize',2, False],
-            ['plot_mean_color','#ffff0000', False],
+            ['plot_mean_color','[255,0,0,255]', False],
 
             ['plot_median', False, False],
             ['plot_median_pixelsize',2, False],
-            ['plot_median_color','#ff0000ff', False],
+            ['plot_median_color','[0,0,255,255]', False],
 
             ['info_datafile','',False],
             ['info_pixelsize',2, False],
-            ['info_color','#ff000000', False],
+            ['info_color','[0,0,0,255]', False],
 
             ['dot_color','blue',False],
             ['dot_dotsize',5,False],

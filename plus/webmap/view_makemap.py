@@ -287,7 +287,10 @@ def edit_heatmap (request, dataset, filename):
                                        'add_new_heatmap':True,
                                        'groupcolnames':groupcolnames,
                                        'dataset':dataset,
-                                       'defaults':args,'defaults_json':args_json,
+                                       'defaults_json':args_json,
+                                       'simple_vars':h.simple_vars,
+                                       'no_rebuild':h.no_rebuild,
+                                       'booleans':h.booleans,
                                        'colormapnames':colormapnames})
 
     return HttpResponse(template.render(context))

@@ -546,10 +546,10 @@ function heatmap (data, opties, nr) {
 		    		
 				} else {
 					color=_this.missing_color;
-					mapdata[j] =  color[0]; ;
-		    		mapdata[j+1] = color[1]; ;
-		    		mapdata[j+2] = color[2]; ;
-		    		mapdata[j+3] = 0xff;
+					mapdata[j] =  color[0]; 
+		    		mapdata[j+1] = color[1]; 
+		    		mapdata[j+2] = color[2]; 
+		    		mapdata[j+3] = color[3];
 		    	}
 
 			}
