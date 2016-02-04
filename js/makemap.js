@@ -42,9 +42,20 @@ function make_heatmap (addmap) {
 
     console.log("make_heatmap");
     for (var key in defaults) {
-    	 if(defaults.hasOwnProperty(key)){    	 	
-    	 	ex=$('#'+key).hasClass('expert');
-    	 	val=$('#'+key).val();
+    	 if(defaults.hasOwnProperty(key)){
+            var elname='#'+key;    	 	
+            if ($(elname).length==0) {
+                data[key]=defaults[key];
+                continue;
+            } 
+    	 	ex=$(elname).hasClass('expert');
+
+            // waarde uitlezen
+            if (booleans.indexOf(key)<0) {
+    	 	     val=$(elname).val();
+             } else {
+                val=get_bool_state(elname);
+             }
             console.log(key,val,ex);
             if ((expertmode==false) && (ex==true)) {
                 data[key]=defaults[key];
@@ -114,6 +125,37 @@ function toggle_expert () {
 }
 
 
+function toggle_bool_state () {
+
+    elname='#'+this.id;
+    var state=get_bool_state (elname);
+    if (state==true) {set_bool_state (elname,false);}
+    if (state==false) {set_bool_state (elname,true);}
+}
+
+
+function get_bool_state (elname) {
+
+    if ($(elname).hasClass('fa-check-square')) {
+        return true;
+    }
+    if ($(elname).hasClass('fa-square-o')) {
+        return false;
+    }
+}
+
+function set_bool_state (elname, state) {
+
+    console.log('set_bool_state',elname,state)
+     if (state==true) {
+        $(elname).addClass('fa-check-square').removeClass('fa-square-o');
+    } else {
+        $(elname).addClass('fa-square-o').removeClass('fa-check-square');
+    }
+}
+
+
+
 function init_page() {
 
     $('.combobox').combobox();    
@@ -129,9 +171,18 @@ function init_page() {
         $('#expertmode_label').html('aan');
 	}
 
-    for (var key in defaults) {
-    	 if(defaults.hasOwnProperty(key)){
-    	 	$('#'+key).val(defaults[key]);
+    for (var key in defaults) {         
+    	 if(defaults.hasOwnProperty(key)){            
+            var elname='#'+key
+            if ($(elname).length) {
+                value=defaults[key];
+                if (booleans.indexOf(key)<0) {
+    	 	         $(elname).val(value);
+                 } else  {
+                   set_bool_state (elname,value);
+                   $(elname).on('click',toggle_bool_state);
+                 }
+            }
     	 }
     }
 }

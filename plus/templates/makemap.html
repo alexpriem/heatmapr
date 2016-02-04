@@ -177,6 +177,43 @@
 </tr>
 
 
+<tr>
+    <td>  <label class="xylabel" for="missing_color">kleur missing waardes:</label></td>
+    <td><input class="xyinput " id="missing_color" name="missing_color" type="text" value=""/> </td>
+<tr>
+
+
+
+
+
+<tr>
+    <td><label class="xylabel" for="plot_mean">Gemiddeldes plotten:</label>     </td>
+    <td> <div><i id="plot_mean" class="fa fa-lg"> </i></div> </td>
+<tr>
+<tr>
+    <td>  <label class="xylabel" for="plot_mean_color">Kleur lijn:</label></td>
+    <td><input class="xyinput " id="plot_mean_color" name="plot_mean_color" type="text" value=""/> </td>
+<tr>
+<tr>
+    <td>  <label class="xylabel" for="plot_mean_pixelsize">Dikte lijn:</label></td>
+    <td><input class="xyinput " id="plot_mean_pixelsize" name="plot_mean_pixelsize" type="text" value=""/> </td>
+<tr>
+
+
+<tr>
+    <td>  <label class="xylabel" for="plot_median">Mediaan plotten:</label></td>
+    <td>   <i id="plot_median" class="fa fa-lg"> </i></td>
+<tr>
+<tr>
+    <td>  <label class="xylabel" for="plot_median_color">Kleur lijn:</label></td>
+    <td><input class="xyinput " id="plot_median_color" name="plot_median_color" type="text" value=""/> </td>
+<tr>
+<tr>
+    <td>  <label class="xylabel" for="plot_median_pixelsize">Dikte lijn:</label></td>
+    <td><input class="xyinput " id="plot_median_pixelsize" name="plot_median_pixelsize" type="text" value=""/> </td>
+<tr>
+
+
 
 <tr>
     <td>  <label class="xylabel" for="outfile">Outputfile:</label></td>
@@ -222,7 +259,10 @@
 <div>
  
   <script> 
-  var defaults={{defaults|safe}};
+  var defaults={{defaults_json|safe}};
+  var simple_vars={{simple_vars|safe}};
+  var no_rebuild={{no_rebuild|safe}};
+  var booleans={{booleans|safe}};
   </script>
   <script src="/js/makemap.js"></script>
 </body>

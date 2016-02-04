@@ -20,14 +20,14 @@ class heatmap:
         self.js=''
         self.defaults=[
             ['infodir','',True],
-            ['sep',';',False],
+            ['sep',',',False],
             ['convert_comma',False,False],
 
             ['x_var','',True],
-            ['x_label',None,False],
-            ['x_min','',True],
-            ['x_max','',True],
-            ['x_steps',None,False],
+            ['x_label','',False],
+            ['x_min','perc01',True],
+            ['x_max','max',True],
+            ['x_steps',0,False],
             ['x_fuzz',0,False],
             ['x_fill',0,False],
             ['x_log',False,False],
@@ -38,10 +38,10 @@ class heatmap:
             ['x_relative_max', 100,False],
 
             ['y_var','',True],
-            ['y_label',None,False],
-            ['y_min','',True],
-            ['y_max','',True],
-            ['y_steps',None,False],
+            ['y_label','',False],
+            ['y_min','perc01',True],
+            ['y_max','max',True],
+            ['y_steps',0,False],
             ['y_fuzz',0,False],
             ['y_fill',0,False],
             ['y_log',False,False],
@@ -51,10 +51,10 @@ class heatmap:
             ['y_relative_min', 0,False],
             ['y_relative_max', 100,False],
 
-            ['weight_var',None,False],
+            ['weight_var','',False],
 
-            ['split1_var',None,False],
-            ['split2_var',None,False],
+            ['split1_var','',False],
+            ['split2_var','',False],
 
             ['gradmin',0,False],
             ['gradmax','max',False],
@@ -69,14 +69,14 @@ class heatmap:
             ['outfile','',True],
 
             ['fontsize',16,False],
-            ['numticks',None,False],
+            ['numticks',0,False],
 
 
 
             ['title','',False],
             ['dump_csv',False,False],
             ['colormap','blue',False],
-            ['missing_color','min',False],
+            ['missing_color','#ffcccccc',False],
             ['size','1',False],
             ['transform','linear',False],
             ['log_min',1,False],
@@ -85,15 +85,15 @@ class heatmap:
             ['stats_enabled', True, False],
             ['plot_mean', False, False],
             ['plot_mean_pixelsize',2, False],
-            ['plot_mean_color',[0,0,0,255], False],
+            ['plot_mean_color','#ffff0000', False],
 
             ['plot_median', False, False],
             ['plot_median_pixelsize',2, False],
-            ['plot_median_color',[0,0,255,255], False],
+            ['plot_median_color','#ff0000ff', False],
 
-            ['info_datafile',None,False],
+            ['info_datafile','',False],
             ['info_pixelsize',2, False],
-            ['info_color',[255,0,0,255], False],
+            ['info_color','#ff000000', False],
 
             ['dot_color','blue',False],
             ['dot_dotsize',5,False],
@@ -106,10 +106,6 @@ class heatmap:
             ['weighx',False,False],
             ['weighy',False,False],
 
-
-            ['split1_var',None,False],
-            ['split2_var',None,False],
-
             ['multimap',False,False],
             ['multimap_labels',{},False],
             ['multimap_numcols',4,False],
@@ -118,7 +114,8 @@ class heatmap:
 
             ['heatmap_indexnr',False,False],   # dummyvar
             ['add_new_heatmap',False,False],   # dummyvar
-            ['controltype','notflat', False],
+            ['expertmode',0, False],           # dummyvar
+            ['controltype','notflat', False],   # dummyvar
             ['debuglevel',0, False],
         ]
         self.simple_vars=['x_var','x_label','x_min','x_max','x_steps',
@@ -126,6 +123,20 @@ class heatmap:
                           'colormap','grad_min','grad_max','grad_steps',
                           'weight_var', 'split1_var', 'split2_var',
                           'title']
+
+        self.no_rebuild=['x_label','y_label','title','colormap','missing_color',
+                         'fontsize','numticks',
+                         'plot_mean','plot_mean_color','plot_mean_pixelsize',
+                         'plot_median', 'plot_median_color','plot_median_pixelsize',
+                         'dot_color','dot_dotsize','dot_boxsize']
+
+        self.booleans=['x_log','x_relative',
+                      'y_log','y_relative',
+                      'gradient_invert','gradient_bimodal',
+                      'weighx','weighy',
+                      'text_show_background',
+                      'plot_mean','plot_median']
+
 
 
 
@@ -507,9 +518,10 @@ class heatmap:
                     y=datetime.datetime.strptime(y_txt,y_dateformat)
                     y=self.munge_date(y, y_data_type, ymin_date)
 
-                if self.x_relative== True:
+
+                if self.x_relative==True:
                     x_fullhist[x]=x_fullhist.get(x,0)+val
-                if self.y_relative:                    
+                if self.y_relative==True:
                     y_fullhist[y]=y_fullhist.get(y,0)+val
 
 

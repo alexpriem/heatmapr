@@ -37,6 +37,7 @@ def get_all_colnames (infodir, heatmaptype, col_info):
 @csrf_exempt
 def make_heatmap (request):
 
+    print 'make_heatmap'
     if request.is_ajax()==True:
         args={}
         cmd=request.POST['cmd']
@@ -89,15 +90,21 @@ def make_heatmap (request):
 #            args['y_max']=y_types.get(args['y_max'],args['y_max'])
 
             for key,value in args.items():
-                print key,value
+                if value=='true':
+                    value=True
+                    args[key]=value
+                    continue
+                if value=='false':
+                    value=False
+                    args[key]=value
+                    continue
                 try:
                     value=ast.literal_eval(value)
-                    args[key]=value
                 except:
                     pass
+                args[key]=value
 
             h=heatmap.heatmap()
-            del args['expertmode']
             h.make_heatmap(args)
             data={'msg':msg, 'heatmap_index':indexnr,'x_var':args['x_var'],'y_var':args['y_var']}
         return HttpResponse(cjson.encode(data))
@@ -130,31 +137,14 @@ def show_heatmap_form (request, dataset, x_var=None, y_var=None):
         return HttpResponse(template.render(context))
 
 
-    args=dict(
-            sep=',',
-            x_min='perc01',
-            x_max='max',
-            x_steps=500,
-            x_fuzz=0,
-            x_fill=0,
 
-            y_min='perc01',
-            y_max='max',
-            y_steps=500,
-            y_fuzz=0,
-            y_fill=0,
+    h=heatmap.heatmap()
 
-            split1_var='',
-            split2_var='',
-            gradmin=0,
-            gradmax='max',
-            gradsteps=20,
-            colormap=colormapnames[0],
+    args={}
+    for defaultval in h.defaults:
+        args[defaultval[0]]=defaultval[1]
 
-            displaymode='heatmap',
-            imgwidth=500,
-            imgheight=500
-            )
+
 
     if x_var is None:
         args['x_var']=colnames[0]
@@ -253,12 +243,18 @@ def show_heatmap_form (request, dataset, x_var=None, y_var=None):
     args['heatmap_indexnr']=heatmap_indexnr
 
     args_json=cjson.encode(args)
+    defaults_json=args_json.replace('False','false').replace('True','true')
+
+
     template = loader.get_template('makemap.html')    
     context = RequestContext(request, {'colnames':colnames,
                                        'add_new_heatmap':add_new_heatmap,
                                        'groupcolnames':groupcolnames,
                                        'dataset':dataset,
-                                       'defaults':args,'defaults_json':args_json,
+                                       'defaults_json':args_json,
+                                       'simple_vars':h.simple_vars,
+                                       'no_rebuild':h.no_rebuild,
+                                       'booleans':h.booleans,
                                        'colormapnames':colormapnames})
     return HttpResponse(template.render(context))
 
@@ -281,16 +277,6 @@ def edit_heatmap (request, dataset, filename):
     print '%s/heatmaps/%s_meta.csv' % (infodir, filename)
 
     h=heatmap.heatmap()
-
-    expertmode=False
-    for defaultvalue in h.defaults:
-        varname=defaultvalue[0]
-        if not(varname in h.simple_vars) and args[varname]!=defaultvalue[1]:
-            expertmode=True
-            break
-    args['expertmode']=expertmode
-
-
 
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
     colnames,groupcolnames=get_colnames_for_heatmap (infodir, args.get('displaymode','heatmap'), col_info)
