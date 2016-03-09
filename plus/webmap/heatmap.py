@@ -571,15 +571,20 @@ class heatmap:
 
         fx=open('%s/split/%s.csv' % (self.infodir,xcol))
         fy=open('%s/split/%s.csv' % (self.infodir,ycol))
+        fx.readline()
+        fy.readline()
         fweight=None
         if (weight_var is not None):
             fweight=open('%s/split/%s.csv' % (self.infodir, weight_var))
+            fweight.readline()
         split1file=None
         split2file=None
         if multimap:
             split1file=open('%s/split/%s.csv' % (self.infodir, split1_var))
+            split1file.readline()
             if split2_var!='':
                 split2file=open('%s/split/%s.csv' % (self.infodir, split2_var))
+                split2file.readline()
 
 
         for x_txt, y_txt in zip (fx, fy):
@@ -594,7 +599,7 @@ class heatmap:
                 print linenr
             val=1
             if weight_var is not None:
-                val=fweight.readline().strip()
+                val=float(fweight.readline().strip())
             if split1file is not None:
                 split1_data=split1file.readline().strip()
             if split2file is not None:
@@ -605,7 +610,7 @@ class heatmap:
                 try:
                     x=float(x_txt)
                 except:
-                    xnull=xnullhist.get(x_txt,{})
+                    xnull=xnullhist.get(x_txt,{})                    
                     xnull[y_txt]=xnull.get(y_txt,0)+val
                     xnullhist[x_txt]=xnull
                     x=None
