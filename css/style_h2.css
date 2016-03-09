@@ -122,35 +122,62 @@ position:absolute;
 width:20px;
 }
 
+
+
+
+
 .annotation_text{
-font-family: Arial, Helvetica, sans-serif;
-font-size:15px ;
-background:#fff;
+font-family: Corbel, Arial, Helvetica, sans-serif;
+font-size: 13px;
+color: #333333;
+background-color: rgba(255,255,190,.5);
 border-radius:6px;
-padding-left:8px;
-margin-left:50px;
+padding-left:15px;
+padding-right:15px;
+padding-top:10px;
+margin-left:5px;
 position: absolute;
 display:none;
 }
 
+
+.annotation_connector {
+	stroke: #333333;
+	stroke-width: 1px;
+    stroke-dasharray: 3, 3;
+}
+
+
 .annotation_obj {
-	fill-opacity:0.3;
+	fill-opacity:0;
+	fill: rgb(255,255,190);
+	stroke: #333333;
+	stroke-width: 1px;
+    stroke-dasharray: 3, 3;
 }
 
 .annotation_selected {
 	fill-opacity:0.8;
+	fill-opacity:0;
+	stroke: #af081f;
+	stroke-width: 2px;
+    stroke-dasharray: 0;
 }
 
 .annotation_hover {
 	fill-opacity:0.6;
+	fill-opacity: 0.3;
+	stroke-width: 2px;
+	stroke: #af081f;
+    stroke-opacity: 0.6;
 }
 
 
 
 .annotation_label{
-font-family: Arial, Helvetica, sans-serif;
-font-size:15px ;
-font-weight: bold;
+font-family: Corbel, Arial, Helvetica, sans-serif;
+font-size: 13px ;
+font-weight: normal;
 background:#fff;
 border-radius:6px;
 border-width:2px;

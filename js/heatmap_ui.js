@@ -125,7 +125,7 @@ function draw_legend (legend_labels, legend_colors) {
 	    	.attr("class","title")
 	        .attr("x", legend_x )
 	        .attr("y", 18*i+15)
-	        .attr("font-family", "Corbel")
+	        .attr("font-family", "Calibri")
 	  		.attr("font-size", fontsize+"px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
@@ -817,7 +817,7 @@ function heatmap (data, opties, nr) {
 	        .call(yAxis);
 
 	  chart.selectAll(".tick >text")
-	  		.attr("font-family", "Corbel")
+	  		.attr("font-family", "Calibri")
 	  		.attr("font-weight", "normal")
 	  		.attr('font-size',fontsize+'px');
 
@@ -853,7 +853,7 @@ function heatmap (data, opties, nr) {
 	    	.attr("class","yaxis ylabel_"+_this.nr)
 	        .attr("x", 0 )
 	        .attr("y", 0)
-	        .attr("font-family", "Corbel")
+	        .attr("font-family", "Calibri")
 	  		.attr("font-size", fontsize+"px")
 	  		.attr("font-weight", "bold")
 	        .attr("transform","translate(20,"+(imgheight/2)+")rotate(270)")
@@ -869,7 +869,7 @@ function heatmap (data, opties, nr) {
 	    	.attr("class","title")
 	        .attr("x", imgwidth/2+70 )
 	        .attr("y", 15)
-	        .attr("font-family", "Corbel")
+	        .attr("font-family", "Calibri")
 	  		.attr("font-size", fontsize+"px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
@@ -937,7 +937,7 @@ function heatmap (data, opties, nr) {
 		}
 
 	   chart.selectAll(".txt")
-        .attr("font-family", "Corbel")
+        .attr("font-family", "Calibri")
         .attr("font-weight", "normal")
         .attr('font-size',fontsize+'px');
         if (opties.text_show_background==false) {
