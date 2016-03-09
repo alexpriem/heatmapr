@@ -660,6 +660,7 @@ function heatmap (data, opties, nr) {
 
 	  this.draw_axes=function  () {
 
+	  console.log('draw_axes');
 	  var opties=_this.opties;
 	  var x_log=opties.x_log;
 	  var y_log=opties.y_log;
@@ -735,15 +736,9 @@ function heatmap (data, opties, nr) {
 	  var xAxis=d3.svg.axis();
 	  var yAxis=d3.svg.axis();	
 
-	  if ((multimap) && (smallsize==true)){
-	  		numticks=4;
-
-	  }
-	  //console.log('NUMTICKS:',numticks)
 
 
-	  xAxis.scale(xScale)
-	  		.ticks(numticks)	  		
+	  xAxis.scale(xScale)	  	
 	        .orient("bottom");
 	  if ((x_data_type=='nominal') && (!x_log)) {
 	  	if ((xmax-xmin)>500) {
@@ -764,8 +759,9 @@ function heatmap (data, opties, nr) {
 	  if (x_data_type=='date_day') {
 	  	xAxis.tickFormat(d3.time.format('%e %b %Y'));	
 	  }
-	  yAxis.scale(yScale)
-	  		.ticks(numticks)
+
+
+	  yAxis.scale(yScale)	  		
 	        .orient("left");
 	  if ((y_data_type=='nominal') && (!y_log)) {	  
 		if ((ymax-ymin)>500) {
@@ -787,6 +783,13 @@ function heatmap (data, opties, nr) {
 	  	yAxis.tickFormat(d3.time.format('%e %b %Y'));	
 	  }
 
+
+	  if ((multimap) && (smallsize==true)){
+	  		numticks=4;
+	  		xAxis.ticks(numticks)
+	  	  	yAxis.ticks(numticks)
+	  }
+	  console.log('NUMTICKS:',numticks)
 
 	  fontsize=opties['fontsize'];
 
