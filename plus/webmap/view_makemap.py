@@ -65,8 +65,15 @@ def make_heatmap (request):
             msg='ok'
 
             col_info, coltypes_bycol=helpers.get_col_types(infodir)
-            add_new_heatmap=args['add_new_heatmap']
-            indexnr=0
+            add_new_heatmap=args.get('add_new_heatmap',u'true')
+            if add_new_heatmap==u'true':
+                add_new_heatmap=True
+            else:
+                add_new_heatmap=False
+
+            print 'add new heatmap:', add_new_heatmap, type(add_new_heatmap)
+            indexnr=args.get('heatmap_indexnr','0')
+            print 'INDEXNR',indexnr, type(indexnr)
             args['infodir']=infodir
             if add_new_heatmap:
                 print 'add new heatmap'
