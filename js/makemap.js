@@ -32,12 +32,16 @@ function make_heatmap (addmap) {
 
     
 
-    console.log('makemap:expertmode:',expert);
+    
     var url=window.location.href;
     var data=url.split('/');    
     var dataset=data[4];
-    
-    var data={'cmd':'makemap','add_new_heatmap':addmap};
+    var datainfo=data[5].split('_');
+    var indexnr=datainfo[2];
+
+    console.log('make_heatmap:',expert, addmap, datainfo, indexnr);
+
+    var data={'cmd':'makemap'};
 
 
     console.log("make_heatmap");
@@ -72,7 +76,9 @@ function make_heatmap (addmap) {
 
     data['dataset']=dataset;
     data['expertmode']=expert;
-    //return;
+    data['add_new_heatmap']=addmap;
+    data['heatmap_indexnr']=indexnr;    
+    
     console.log(data);
 	$.ajax({url:"/make_heatmap/", 
 			type: "POST",
@@ -87,7 +93,7 @@ function make_heatmap (addmap) {
 function makemap () {
 
 	addmap=false;
-	$('#makemap_result').html('<div id="resultdiv" class="error">  Wacht op resultaat </div>');
+	$('#makemap_result').html('<div id="resultdiv" class="error"> Wacht op bewerkte heatmap..</div>');
 	$('#add_result').html('');
 	make_heatmap (addmap);    	
 }
@@ -105,7 +111,7 @@ function addmap () {
 	addmap=true;
 	make_heatmap (addmap);    
 	$('#makemap_result').html('');	
-	$('#addmap_result').html('<div id="resultdiv" class="error">  Wacht op resultaat </div>');
+	$('#addmap_result').html('<div id="resultdiv" class="error">  Wacht op nieuwe heatmap.. </div>');
 }
 
 
