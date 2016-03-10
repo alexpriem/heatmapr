@@ -226,8 +226,9 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert,publication
 
 @csrf_exempt
 def make_subsel(request, dataset):
-
+    
     post=request.POST
+    print post
     xvar=post['xvar']
     xmin=float(post['xmin'])
     xmax=float(post['xmax'])
@@ -235,6 +236,8 @@ def make_subsel(request, dataset):
     yvar=post['yvar']
     ymin=float(post['ymin'])
     ymax=float(post['ymax'])
+    indexnr=int(post['heatmap_index'])
+    connector_direction=post['connector_direction']
     filename=post['filename']
     txt=post['txt']
     label=post['label']
@@ -246,19 +249,25 @@ def make_subsel(request, dataset):
 
     print xvar,xmin,xmax
     print yvar,ymin,ymax
-
+    
+    
     infodir=settings.datadir+'/'+dataset+'_info'
 
+    print 'get_col_types'
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
-    selectiedir='%(infodir)s/selections/%(filename)s' % locals()
+    selectiedir='%(infodir)s/selections/%(xvar)s_%(yvar)s_%(indexnr)s' % locals()
 
-    subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
-
-    save_subsel (selectiedir, subsel, xvar,xmin,xmax, yvar,ymin,ymax, text_xpos,text_ypos, filename,txt, label)
+    print 'prepare_subsel'
+    # duurt lang    , aparte optie voor maken om onderscheid tussen dataselectie en ui-selectie te maken
+   # subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
+   
+    subsel=[]   
+    print 'save_subsel'
+    save_subsel (selectiedir, subsel, xvar,xmin,xmax, yvar,ymin,ymax, connector_direction, text_xpos,text_ypos, filename,txt, label)
 
 # bijwerken heatmap-javascript
-
-    infile='%s_%s_%s' % (post['heatmap_xvar'], post['heatmap_yvar'], post['heatmap_index'])
+    print 'bijwerken js'
+    infile='%s_%s_%s' % (xvar, yvar, indexnr)
     h=heatmap.heatmap()
     h.infodir=infodir
     args=h.load_options_from_csv(infile)
@@ -269,14 +278,15 @@ def make_subsel(request, dataset):
     annotaties={}
     for row in c:
         print row
-        f=open('%s/%s.txt' % (selectiedir, row[9]))
+        f=open('%s/%s.txt' % (selectiedir, row[10]))
         txt=f.read()
         f.close()
         ann_meta={'area':[[float(row[2]), float(row[5])],
                           [float(row[3]), float(row[6])]],
                  'text':txt,
-                 'text_xpos':float(row[7]),
-                 'text_ypos':float(row[8])}
+                 'connector_direction':row[7],
+                 'text_xpos':float(row[8]),
+                 'text_ypos':float(row[9])}
         annotaties[filename]=ann_meta
 
     args['annotate']=annotaties
@@ -284,7 +294,7 @@ def make_subsel(request, dataset):
         setattr(h,k,v)
 
     newjs=h.opties_to_js(args)
-    f=open ('%s/heatmaps/%s_meta2.js' %  (infodir, infile), 'w')
+    f=open ('%s/heatmaps/%s_meta.js' %  (infodir, infile), 'w')
     newjs='var opties=[];\n'+newjs
     f.write(newjs)
     f.close()
@@ -301,7 +311,7 @@ def save_subsel (selectiedir,
                     subsel,
                     xvar,xmin,xmax,
                     yvar,ymin,ymax,
-                    text_xpos,text_ypos,
+                    connector_direction,   text_xpos,text_ypos,
                     filename,
                     txt, label):
 
@@ -315,29 +325,30 @@ def save_subsel (selectiedir,
         except:
             selnr=1
 
-    print 'selnr:', selnr
-
-    f=open('%s/sel_%d.csv' % (selectiedir, selnr),'wb')
+    print 'save_subsel, selnr:', selnr    
+    f=open('%s/sel_%d.csv' % (selectiedir, selnr),'wb')    
     for i in subsel:
         f.write('%d\n' % i )
     f.close()
 
     f=open('%s/meta.csv' % selectiedir,'ab')
-    meta=[selnr, xvar, xmin,xmax, yvar,ymin,ymax, text_xpos,text_ypos, filename]
+    meta=[selnr, xvar, xmin,xmax, yvar,ymin,ymax, connector_direction, text_xpos,text_ypos, filename]
     c=csv.writer(f)
     c.writerow(meta)
     f.close()
 
-    sel_js='%s/meta.js' % selectiedir
-    if os.path.isfile(sel_js):
-        f=open(sel_js, 'ab')
-    else:
-        f=open(sel_js,'w')
-        f.write('var annotations=[];\n')
 
-    meta="annotations.push({area:[[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s]],text_xpos:%(text_xpos)s, text_ypos:%(text_ypos)s, text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
-    f.write(meta)
-    f.close()
+
+#    sel_js='%s/meta.js' % selectiedir
+#    if os.path.isfile(sel_js):
+#        f=open(sel_js, 'ab')
+#    else:
+#        f=open(sel_js,'w')
+#        f.write('var annotations=[];\n')
+#
+#    meta="annotations.push({area:[[%(xmin)s, %(ymin)s],[%(xmax)s,%(ymax)s]],text_xpos:%(text_xpos)s, text_ypos:%(text_ypos)s, text:'%(txt)s',xvar:'%(xvar)s', yvar:'%(yvar)s', label:'%(label)s'});\n" % locals()
+#    f.write(meta)
+#    f.close()
 
     f=open('%s/%s.txt' % (selectiedir, filename),'w')
     f.write(txt)

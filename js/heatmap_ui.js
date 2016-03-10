@@ -47,10 +47,7 @@ transform_value=function  (val,transform, log_min) {
 
 
 	function save_selection () {	
-		
-		
-		x_var=$('#selectie_xvar').html().slice(2);
-		y_var=$('#selectie_yvar').html().slice(2);;
+				
 		sel_xmin=$('#selectie_xmin').val();
 		sel_xmax=$('#selectie_xmax').val();
 		sel_ymin=$('#selectie_ymin').val();		
@@ -61,8 +58,6 @@ transform_value=function  (val,transform, log_min) {
 		selectie_filename=$('#selectie_filename').val();
 		selectie_txt=$('#selectie_txt').val();
 		label_txt=$('#label_txt').val();
-
-
 
 		var url=window.location.href;
 		var data=url.split('/');	
@@ -76,15 +71,13 @@ transform_value=function  (val,transform, log_min) {
 		
 
 		var data={dataset:dataset, 
-					'heatmap_xvar':heatmap_xvar,
-					'heatmap_yvar':heatmap_yvar,
-					'heatmap_index':0,
-					'xvar':x_var,
+					'xvar':heatmap_xvar,
 					'xmin':sel_xmin,
 					'xmax':sel_xmax,
-					'yvar':y_var,
+					'yvar':heatmap_yvar,
 					'ymin':sel_ymin,
 					'ymax':sel_ymax,		
+					'heatmap_index':heatmap_index,
 					'text_xpos':text_xpos,
 					'text_ypos':text_ypos,		
 					'connector_direction':connector_direction,	
@@ -1826,6 +1819,7 @@ function heatmap (data, opties, nr) {
 
 
 	this.init_annotations=function () {
+		console.log(_this.opties);
 		init_annotations (_this, _this.opties.annotate);
 	}
 

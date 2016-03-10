@@ -152,6 +152,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("fill",opts.fill);
 			
 
+		sidebar_text_xpos=h.opties.imgwidth+150;
 		if (a.connector_direction=='right') {
 			x2=x0+width;	
 			sidebar_text_xpos=h.opties.imgwidth+150;
@@ -466,6 +467,8 @@ console.log('edit_annotations');
 function init_annotations (heatmap, annotations) {
 
 	var i=0;
+	console.log('init_annotations:', annotations.length);
+	return;
 	for (var a in annotations) {
   		if (annotations.hasOwnProperty(a)) {
   			console.log('init_annotations:',a);

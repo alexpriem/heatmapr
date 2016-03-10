@@ -311,24 +311,24 @@ class heatmap:
         for k in sorted(args.keys()):
             v=getattr(self,k)
             if v is None:
-                optiejs+='"%s":null,\n' % (k)
+                optiejs+='"%s":null,\n' % (str(k))
                 continue
             t=type(v)
 
             if (t==str) or (t==unicode):
                 v=v.replace('\\','/')
-                optiejs+='"%s":"%s",\n' % (k,v)
+                optiejs+='"%s":"%s",\n' % (str(k),v)
                 continue
             if t==bool:
                 if v:
-                    optiejs+='"%s":true,\n' % (k)
+                    optiejs+='"%s":true,\n' % (str(k))
                 else:
-                    optiejs+='"%s":false,\n' % (k)
+                    optiejs+='"%s":false,\n' % (str(k))
                 continue
             if isinstance(v, datetime.date):
-                optiejs+='"%s":new Date("%s")\n,' % (k,v.isoformat())
+                optiejs+='"%s":new Date("%s")\n,' % (str(k),v.isoformat())
                 continue
-            optiejs+='"%s":%s,\n' % (k,v)
+            optiejs+='"%s":%s,\n' % (str(k),str(v))
 
         optiejs=optiejs[:-1]+'});\n\n'
         return optiejs
