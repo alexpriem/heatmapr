@@ -784,7 +784,7 @@ function heatmap (data, opties, nr) {
 	  }
 
 
-	  if ((multimap) && (smallsize==true)){
+	  if ( ((multimap) && (smallsize==true))  || (numticks==parseInt(numticks))) {
 	  		numticks=4;
 	  		xAxis.ticks(numticks)
 	  	  	yAxis.ticks(numticks)

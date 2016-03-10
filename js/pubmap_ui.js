@@ -725,16 +725,13 @@ function heatmap (data, opties, nr) {
 	  var xAxis=d3.svg.axis();
 	  var yAxis=d3.svg.axis();	
 
-	  if ((multimap) && (smallsize==true)){
-	  		numticks=4;
 
-	  }
 	  //console.log('NUMTICKS:',numticks)
 
 
+	  
 	  xAxis.scale(xScale)
-	  		.ticks(numticks)	  		
-	        .orient("bottom");
+	       .orient("bottom");
 	  if ((x_data_type=='nominal') && (!x_log)) {
 	  	if ((xmax-xmin)>500) {
 			xAxis.tickFormat(d3.format(" s"));
@@ -754,8 +751,7 @@ function heatmap (data, opties, nr) {
 	  if (x_data_type=='date_day') {
 	  	xAxis.tickFormat(d3.time.format('%e %b %Y'));	
 	  }
-	  yAxis.scale(yScale)
-	  		.ticks(numticks)
+	  yAxis.scale(yScale)	  		
 	        .orient("left");
 	  if ((y_data_type=='nominal') && (!y_log)) {	  
 		if ((ymax-ymin)>500) {
@@ -775,6 +771,12 @@ function heatmap (data, opties, nr) {
 	  }
 	  if (y_data_type=='date_day') {
 	  	yAxis.tickFormat(d3.time.format('%e %b %Y'));	
+	  }
+
+	  if ( ((multimap) && (smallsize==true))  || (numticks==parseInt(numticks))) {
+	  		numticks=4;
+	  		xAxis.ticks(numticks);	  		
+	  		yAxis.ticks(numticks);
 	  }
 
 

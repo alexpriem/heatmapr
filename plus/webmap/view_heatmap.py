@@ -250,9 +250,11 @@ def make_subsel(request, dataset):
     infodir=settings.datadir+'/'+dataset+'_info'
 
     col_info, coltypes_bycol=helpers.get_col_types(infodir)
+    selectiedir='%(infodir)s/selections/%(filename)s' % locals()
+
     subsel=makehist.prepare_subsel (infodir, coltypes_bycol,  xvar,xmin,xmax, yvar,ymin,ymax)
 
-    save_subsel (infodir, subsel, xvar,xmin,xmax, yvar,ymin,ymax, text_xpos,text_ypos, filename,txt, label)
+    save_subsel (selectiedir, subsel, xvar,xmin,xmax, yvar,ymin,ymax, text_xpos,text_ypos, filename,txt, label)
 
 # bijwerken heatmap-javascript
 
@@ -261,17 +263,20 @@ def make_subsel(request, dataset):
     h.infodir=infodir
     args=h.load_options_from_csv(infile)
 
-    f=open('%s/selections/meta.csv' % infodir,'r')
+
+    f=open('%s/meta.csv' % selectiedir,'r')
     c=csv.reader(f)
     annotaties={}
     for row in c:
-        filename=row[9]
-        f=open('%s/selections/%s.txt' % (infodir, row[7]))
+        print row
+        f=open('%s/%s.txt' % (selectiedir, row[9]))
         txt=f.read()
         f.close()
         ann_meta={'area':[[float(row[2]), float(row[5])],
                           [float(row[3]), float(row[6])]],
-                 'text':txt}
+                 'text':txt,
+                 'text_xpos':float(row[7]),
+                 'text_ypos':float(row[8])}
         annotaties[filename]=ann_meta
 
     args['annotate']=annotaties
@@ -292,38 +297,38 @@ def make_subsel(request, dataset):
 
 
 
-def save_subsel (infodir, subsel,
+def save_subsel (selectiedir,
+                    subsel,
                     xvar,xmin,xmax,
                     yvar,ymin,ymax,
                     text_xpos,text_ypos,
                     filename,
                     txt, label):
 
-    if not os.path.exists(infodir+'/selections'):
-        os.makedirs(infodir+'/selections')
+    if not os.path.exists(selectiedir):
+        os.makedirs(selectiedir)
         selnr=1
     else:
         try:
-            selections=helpers.read_csv_list ('%s/selections/meta.csv' % infodir)
+            selections=helpers.read_csv_list ('%s/meta.csv' % selectiedir)
             selnr=len(selections)+1
         except:
             selnr=1
 
     print 'selnr:', selnr
 
-    f=open('%s/selections/sel_%d.csv' % (infodir, selnr),'wb')
+    f=open('%s/sel_%d.csv' % (selectiedir, selnr),'wb')
     for i in subsel:
         f.write('%d\n' % i )
     f.close()
 
-    f=open('%s/selections/meta.csv' % infodir,'ab')
-
-    meta=[selnr, xvar,xmin,xmax, yvar,ymin,ymax,text_xpos,text_ypos,filename]
+    f=open('%s/meta.csv' % selectiedir,'ab')
+    meta=[selnr, xvar, xmin,xmax, yvar,ymin,ymax, text_xpos,text_ypos, filename]
     c=csv.writer(f)
     c.writerow(meta)
     f.close()
 
-    sel_js='%s/selections/meta.js' % infodir
+    sel_js='%s/meta.js' % selectiedir
     if os.path.isfile(sel_js):
         f=open(sel_js, 'ab')
     else:
@@ -334,9 +339,7 @@ def save_subsel (infodir, subsel,
     f.write(meta)
     f.close()
 
-
-
-    f=open('%s/selections/%s.txt' % (infodir, filename),'w')
+    f=open('%s/%s.txt' % (selectiedir, filename),'w')
     f.write(txt)
     f.close()
 
