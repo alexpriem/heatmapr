@@ -277,21 +277,26 @@ def make_subsel(request, dataset):
     c=csv.reader(f)
     annotaties={}
     for row in c:
-        print row
-        f=open('%s/%s.txt' % (selectiedir, row[10]))
+
+        filename=row[11]
+        f=open('%s/%s.txt' % (selectiedir, filename))
         txt=f.read()
         f.close()
         ann_meta={'area':[[float(row[2]), float(row[5])],
                           [float(row[3]), float(row[6])]],
                  'text':txt,
+                 'label':row[10],
                  'connector_direction':row[7],
                  'text_xpos':float(row[8]),
                  'text_ypos':float(row[9])}
         annotaties[filename]=ann_meta
+    print annotaties
 
     args['annotate']=annotaties
     for k,v in args.items():
         setattr(h,k,v)
+
+
 
     newjs=h.opties_to_js(args)
     f=open ('%s/heatmaps/%s_meta.js' %  (infodir, infile), 'w')
@@ -332,7 +337,7 @@ def save_subsel (selectiedir,
     f.close()
 
     f=open('%s/meta.csv' % selectiedir,'ab')
-    meta=[selnr, xvar, xmin,xmax, yvar,ymin,ymax, connector_direction, text_xpos,text_ypos, filename]
+    meta=[selnr, xvar, xmin,xmax, yvar,ymin,ymax, connector_direction, text_xpos,text_ypos, label, filename]
     c=csv.writer(f)
     c.writerow(meta)
     f.close()

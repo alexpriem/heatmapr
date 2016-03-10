@@ -1,4 +1,4 @@
-import random, os, inspect, json, bisect, csv, cjson, sys
+import random, os, inspect, json, bisect, csv, cjson, sys, ast
 from math import log10
 import datetime #.datetime.strptime as strptime
 import helpers
@@ -295,17 +295,17 @@ class heatmap:
         args={}
         for row in c:
             key,value=row[0],row[1]
+
             try:
                 value=ast.literal_eval(value)
             except:
                 pass
             if value=='':
                 value=None
-
             args[key]=value
         return args
 
-    def opties_to_js (self, args):
+    def opties_to_js (self, args):   # poor mans json encoder with proper formatting
 
         optiejs='opties.push({\n'
         for k in sorted(args.keys()):
@@ -327,6 +327,12 @@ class heatmap:
                 continue
             if isinstance(v, datetime.date):
                 optiejs+='"%s":new Date("%s")\n,' % (str(k),v.isoformat())
+                continue
+            if t==dict:
+                new_v={}
+                for d_k,d_v in v.items():
+                    new_v[str(d_k)]=d_v
+                optiejs+='"%s":%s,\n' % (str(k),str(new_v))
                 continue
             optiejs+='"%s":%s,\n' % (str(k),str(v))
 

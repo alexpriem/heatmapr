@@ -468,7 +468,7 @@ function init_annotations (heatmap, annotations) {
 
 	var i=0;
 	console.log('init_annotations:', annotations.length);
-	return;
+	
 	for (var a in annotations) {
   		if (annotations.hasOwnProperty(a)) {
   			console.log('init_annotations:',a);
