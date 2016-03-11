@@ -143,7 +143,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("id",'annotation_obj_'+i)
 			.attr("x",x0)
 			.attr("y",y1)
-			.attr("class","annotation_obj")
+			.attr("class","annotation annotation_obj")
 			.attr("height",height)
 			.attr("data-annotationid",i)
 			.attr("width",width)
@@ -175,7 +175,7 @@ function show_annotation (heatmap, name, a, i){
 				.attr("y1", a.text_ypos+15)
 				.attr("x2", a.text_xpos)
 				.attr("y2", a.text_ypos+15)						
-				.attr("class","annotation_connector connector_"+i)
+				.attr("class","annotation annotation_connector connector_"+i)
 				.attr("stroke",opts.stroke)
 				.attr("stroke-width",opts["stroke-width"]);
 			}
@@ -188,7 +188,7 @@ function show_annotation (heatmap, name, a, i){
 				.attr("y1", a.text_ypos+15)
 				.attr("x2", x2)
 				.attr("y2", y1)						
-				.attr("class","annotation_connector connector_"+i)
+				.attr("class","annotation annotation_connector connector_"+i)
 				.attr("stroke",opts.stroke)
 				.attr("stroke-width",opts["stroke-width"]);
 		}
@@ -199,7 +199,7 @@ function show_annotation (heatmap, name, a, i){
 				.attr("y1", a.text_ypos+15)
 				.attr("x2", x2)
 				.attr("y2", y0)						
-				.attr("class","annotation_connector connector_"+i)
+				.attr("class","annotation annotation_connector connector_"+i)
 				.attr("stroke",opts.stroke)
 				.attr("stroke-width",opts["stroke-width"]);
 		}
@@ -210,7 +210,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("y1", a.text_ypos)
 			.attr("x2", a.text_xpos)
 			.attr("y2", a.text_xpos+25)
-			.attr("class","annotation_connector connector_"+i)
+			.attr("class","annotation annotation_connector connector_"+i)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"]);			
 */
@@ -226,7 +226,7 @@ function show_annotation (heatmap, name, a, i){
 		    .css("left", a.text_xpos+10)
 		    .css("top", a.text_ypos)
 		    .attr('data-annotationid',i)
-		    .attr("class",'annotation_label');		    	
+		    .attr("class",'annotation annotation_label');		    	
 
     	txt_html='<div id="atext_'+i+'" <h5><strong>'+a.label+'</strong></h5><p>'+a.text+'</p></div>';
 
@@ -240,7 +240,7 @@ function show_annotation (heatmap, name, a, i){
 		    .css('left', sidebar_text_xpos)
 		    .css('top', 250)
 		    .attr('data-annotationid',i)
-		    .attr("class",'annotation_text');		    
+		    .attr("class",'annotation annotation_text');		    
     	
 
 		if ((a.connector_direction=='right') || (a.connector_direction=='bottomright') || (a.connector_direction=='topright')) {
@@ -255,7 +255,7 @@ function show_annotation (heatmap, name, a, i){
 				.attr("y1", 250)
 				.attr("x2", sidebar_text_xpos)
 				.attr("y2", bottom_pos)
-				.attr("class","annotation_text")
+				.attr("class","annotation annotation_text")
 				.attr("stroke",opts.stroke)
 				.attr("stroke-width",opts["stroke-width"]);			    	
 		}
@@ -280,6 +280,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("id",name)
     		.attr("d", "M"+x1+","+y2+"L"+x1+","+y1+"L"+x2+","+y1+"L"+x2+","+y2)
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
 			//.attr("fill-opacity",opts["fill-opacity"])
@@ -288,12 +289,14 @@ function show_annotation (heatmap, name, a, i){
       	chart.append("svg:path")
     		.attr("d", "M"+(x2-5)+","+(y2+5)+"L"+x2+","+(y2)+"L"+(x2+5)+","+(y2+5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 
       	chart.append("svg:path")
     		.attr("d", "M"+(x1-5)+","+(y2+5)+"L"+x1+","+(y2)+"L"+(x1+5)+","+(y2+5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 	}
@@ -316,6 +319,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("id",name)
     		.attr("d", "M"+x1+","+y1+"L"+x1+","+y2+"L"+x2+","+y2+"L"+x2+","+y1)
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
 			//.attr("fill-opacity",opts["fill-opacity"])
@@ -324,12 +328,14 @@ function show_annotation (heatmap, name, a, i){
       	chart.append("svg:path")
     		.attr("d", "M"+(x2-5)+","+(y1-5)+"L"+x2+","+(y1)+"L"+(x2+5)+","+(y1-5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 
       	chart.append("svg:path")
     		.attr("d", "M"+(x1-5)+","+(y1-5)+"L"+x1+","+(y1)+"L"+(x1+5)+","+(y1-5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 	}
@@ -352,6 +358,7 @@ function show_annotation (heatmap, name, a, i){
     		.attr("d", "M"+x2+","+y2+"L"+x1+","+y2+"L"+x1+","+y1+"L"+x2+","+y1)
 			.attr("stroke",opts.stroke)
 			.attr("stroke-width",opts["stroke-width"])
+			.attr("class","annotation")
 			.attr("fill",opts.fill)
 			//.attr("fill-opacity",opts["fill-opacity"])
 			.attr('marker-end','url(#'+name+'_m)');
@@ -359,12 +366,14 @@ function show_annotation (heatmap, name, a, i){
       	chart.append("svg:path")
     		.attr("d", "M"+(x2-5)+","+(y1-5)+"L"+x2+","+(y1)+"L"+(x2-5)+","+(y1+5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 
       	chart.append("svg:path")
     		.attr("d", "M"+(x2-5)+","+(y2-5)+"L"+x2+","+(y2)+"L"+(x2-5)+","+(y2+5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 	}
@@ -386,6 +395,7 @@ function show_annotation (heatmap, name, a, i){
 			.attr("id",name)
     		.attr("d", "M"+x1+","+y2+"L"+x2+","+y2+"L"+x2+","+y1+"L"+x1+","+y1)
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill",opts.fill)
 			//.attr("fill-opacity",opts["fill-opacity"])
@@ -394,12 +404,14 @@ function show_annotation (heatmap, name, a, i){
       	chart.append("svg:path")
     		.attr("d", "M"+(x1+5)+","+(y1-5)+"L"+x1+","+(y1)+"L"+(x1+5)+","+(y1+5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 
       	chart.append("svg:path")
     		.attr("d", "M"+(x1+5)+","+(y2-5)+"L"+x1+","+(y2)+"L"+(x1+5)+","+(y2+5))
 			.attr("stroke",opts.stroke)
+			.attr("class","annotation")
 			.attr("stroke-width",opts["stroke-width"])
 			.attr("fill","none");
 	}

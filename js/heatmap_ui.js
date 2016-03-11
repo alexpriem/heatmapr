@@ -42,6 +42,13 @@ transform_value=function  (val,transform, log_min) {
 			console.log("selectie klaar");
 			//h=new heatmap_histogram ('heatmap_svg_0',500, 250);
 			//this.histogram=h;
+			var h=heatmaps[0];	
+			console.log (result);
+			var annotaties=result.annotaties;
+			$('.annotation').remove();
+			$('#dragrect_0').remove();
+			init_annotations (h, annotaties);
+			
 	}
 
 
@@ -89,9 +96,11 @@ transform_value=function  (val,transform, log_min) {
 			$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
 				type: "POST",
 				'data':data,
+				dataType:'json',
 				success: handle_selection_ajax,
 				error: handle_selection_ajax_error,
 			});
+
 
 		$('#overlay').css('visibility','hidden');
 	}
@@ -1184,7 +1193,7 @@ function heatmap (data, opties, nr) {
 
 		if (annotations_show) {				// select ongedaan  maken.
 			if (selected_annotation!=undefined) {
-				$('#annotation_obj_'+selected_annotation).attr('class','annotation_obj');
+				$('#annotation_obj_'+selected_annotation).attr('class','annotation annotation_obj');
 			}
 			$('.annotation_label').show();
 			$('.annotation_text').hide();
@@ -1776,10 +1785,10 @@ function heatmap (data, opties, nr) {
 		a=_this.opties.annotate[nr];
 		
 		if (selected_annotation!=undefined) {
-			$('#annotation_obj_'+selected_annotation).attr('class','annotation_obj');
+			$('#annotation_obj_'+selected_annotation).attr('class','annotation annotation_obj');
 			$('#annotation_textc_'+selected_annotation).hide();
 		}
-		$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_selected');
+		$('#annotation_obj_'+nr).attr('class','annotation annotation_obj annotation_selected');
 
     	$('.annotation_label').hide();
 		$('.annotation_text').hide();		
@@ -1802,16 +1811,16 @@ function heatmap (data, opties, nr) {
 
 		nr=$(this).attr("data-annotationid");
 		console.log('enter_annotation:',nr);
-		$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_hover');
+		$('#annotation_obj_'+nr).attr('class','annotation annotation_obj annotation_hover');
 	}
 
 	this.leave_annotation=function (e) {
 
 		nr=$(this).attr("data-annotationid");
 		if (selected_annotation==nr) {
-			$('#annotation_obj_'+nr).attr('class','annotation_obj annotation_selected');
+			$('#annotation_obj_'+nr).attr('class','annotation annotation_obj annotation_selected');
 		} else {
-			$('#annotation_obj_'+nr).attr('class','annotation_obj');
+			$('#annotation_obj_'+nr).attr('class','annotation annotation_obj');
 		}
 	}
 
@@ -1819,7 +1828,7 @@ function heatmap (data, opties, nr) {
 
 
 	this.init_annotations=function () {
-		console.log(_this.opties);
+
 		init_annotations (_this, _this.opties.annotate);
 	}
 

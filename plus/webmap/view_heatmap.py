@@ -305,7 +305,7 @@ def make_subsel(request, dataset):
     f.close()
 
     msg='ok'
-    data={'msg':msg}
+    data={'msg':msg,'annotaties':annotaties}
 
     return HttpResponse(cjson.encode(data))
 
