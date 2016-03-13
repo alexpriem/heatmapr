@@ -12,6 +12,10 @@
 * @return array         A two element array of the width and height of the text
 */
 
+var edit_annotations=false;
+if (edit_annotations==true) {
+	$('#edit_annotations').addClass('active');
+}
 
 var text_width=200;
 
@@ -470,9 +474,17 @@ function show_annotations () {
 }
 
 
-function edit_annotations () {
+function toggle_edit_annotations () {
 
 console.log('edit_annotations');	
+
+	if (edit_annotations) {
+		edit_annotations=false;
+		$('#edit_annotations').removeClass('active');
+	} else {
+		edit_annotations=true;
+		$('#edit_annotations').addClass('active');
+	}
 }
 
 

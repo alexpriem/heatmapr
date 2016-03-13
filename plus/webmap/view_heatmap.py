@@ -278,6 +278,7 @@ def make_subsel(request, dataset):
     annotaties={}
     for row in c:
 
+        annotatie_id=row[0]
         filename=row[11]
         f=open('%s/%s.txt' % (selectiedir, filename))
         txt=f.read()
@@ -288,8 +289,9 @@ def make_subsel(request, dataset):
                  'label':row[10],
                  'connector_direction':row[7],
                  'text_xpos':float(row[8]),
+                 'filename':filename,
                  'text_ypos':float(row[9])}
-        annotaties[filename]=ann_meta
+        annotaties[annotatie_id]=ann_meta
     print annotaties
 
     args['annotate']=annotaties

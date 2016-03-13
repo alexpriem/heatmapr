@@ -1782,7 +1782,12 @@ function heatmap (data, opties, nr) {
 		nr=$(this).attr("data-annotationid");
 		console.log('click_annotate, id:',nr);
 
+
 		a=_this.opties.annotate[nr];
+
+		if (edit_annotations) {
+			edit_annotation (_this.opties.annotate,nr)
+		}
 		
 		if (selected_annotation!=undefined) {
 			$('#annotation_obj_'+selected_annotation).attr('class','annotation annotation_obj');

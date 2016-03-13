@@ -330,9 +330,11 @@ class heatmap:
                 continue
             if t==dict:
                 new_v={}
+                dictstr=''
                 for d_k,d_v in v.items():
                     new_v[str(d_k)]=d_v
-                optiejs+='"%s":%s,\n' % (str(k),str(new_v))
+                    dictstr+='%s:%s\n,' % (str(d_k),d_v)
+                optiejs+='"%s":{%s},\n' % (str(k),dictstr)
                 continue
             optiejs+='"%s":%s,\n' % (str(k),str(v))
 

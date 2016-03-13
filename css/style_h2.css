@@ -1,4 +1,14 @@
 
+
+.active  :hover {
+background-color:  #84afd3 ;
+}
+
+.active   {
+background-color:  #84afd3 ;
+}
+
+
 .leftbox {
 	float: left;
 	width:100px;
