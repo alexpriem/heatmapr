@@ -1,4 +1,14 @@
 
+var annotations_show=true;
+var edit_annotations=false;
+if (edit_annotations==true) {
+	$('#edit_annotations').addClass('active');
+}
+
+
+
+
+
 
 /**
 * Measures text by creating a DIV in the document and adding the relevant text to it.
@@ -12,12 +22,9 @@
 * @return array         A two element array of the width and height of the text
 */
 
-var edit_annotations=false;
-if (edit_annotations==true) {
-	$('#edit_annotations').addClass('active');
-}
-
 var text_width=200;
+
+
 
 function MeasureText(html, textwidth, bold, font, size)
 {
@@ -58,7 +65,7 @@ function show_area () {
 }
 
 
-var annotations_show=true;
+
 
 function toggle_annotations () {
 

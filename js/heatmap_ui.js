@@ -54,7 +54,8 @@ transform_value=function  (val,transform, log_min) {
 
 
 	function save_selection () {	
-				
+		
+		sel_id=$('#selectie_id').val();		
 		sel_xmin=$('#selectie_xmin').val();
 		sel_xmax=$('#selectie_xmax').val();
 		sel_ymin=$('#selectie_ymin').val();		
@@ -66,6 +67,8 @@ transform_value=function  (val,transform, log_min) {
 		selectie_txt=$('#selectie_txt').val();
 		label_txt=$('#label_txt').val();
 
+
+
 		var url=window.location.href;
 		var data=url.split('/');	
 		var dataset=data[4];
@@ -73,27 +76,54 @@ transform_value=function  (val,transform, log_min) {
 		var heatmap_yvar=data[6];
 		var heatmap_index=data[7];
 
-		var h=heatmaps[0];	
-
-		
+		var h=heatmaps[0];
+		var annotaties=h.opties.annotate;
+		var num_annotaties=annotaties.length
 
 		var data={dataset:dataset, 
 					'xvar':heatmap_xvar,
-					'xmin':sel_xmin,
-					'xmax':sel_xmax,
 					'yvar':heatmap_yvar,
-					'ymin':sel_ymin,
-					'ymax':sel_ymax,		
 					'heatmap_index':heatmap_index,
-					'text_xpos':text_xpos,
-					'text_ypos':text_ypos,		
-					'connector_direction':connector_direction,	
-					'filename':selectie_filename,
-					'txt':selectie_txt,
-					'label':label_txt
-				};  
-	
-			$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
+					'num_annotaties':num_annotaties
+				};
+
+
+		for (var i in annotaties) {
+		  if (annotaties.hasOwnProperty(i)) {
+		    	a=annotaties[i];
+				data['xmin_'+i]=a.area[0][0];
+				data['xmax_'+i]=a.area[0][1];
+				data['ymin_'+i]=a.area[1][0];
+				data['ymax_'+i]=a.area[1][1];			
+				data['text_xpos_'+i]=a.text_xpos;
+				data['text_ypos_'+i]=a.text_ypos;
+				data['connector_direction_'+i]=a.connector_direction;
+				data['filename_'+i]=a.selectie_filename;
+				data['txt_'+i]=a.selectie_txt;
+				data['label_'+i]=a.label_txt;
+			}
+		}
+
+
+		if (edit_annotations) {   // *en* we zijn een bestaande selectie aan het editten.
+
+		}
+
+		nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
+		data['xmin_'+nr]:sel_xmin,
+		data['xmax_'+nr]:sel_xmax,
+		data['yvar_'+nr]:heatmap_yvar,
+		data['ymin_'_nr]:sel_ymin,
+		data['ymax_'+nr]:sel_ymax,			
+		data['text_xpos_'+nr]:text_xpos,
+		data['text_ypos_'+nr]:text_ypos,		
+		data['connector_direction_'+nr]:connector_direction,	
+		data['filename_'+nr]:selectie_filename,
+		data['txt_'+nr]:selectie_txt,
+		data['label_'+nr]:label_txt
+
+
+		$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
 				type: "POST",
 				'data':data,
 				dataType:'json',
