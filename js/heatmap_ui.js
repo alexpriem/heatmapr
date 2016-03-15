@@ -95,9 +95,9 @@ transform_value=function  (val,transform, log_min) {
 				data['xmax_'+i]=a.area[0][1];
 				data['ymin_'+i]=a.area[1][0];
 				data['ymax_'+i]=a.area[1][1];			
-				data['text_xpos_'+i]=a.text_xpos;
-				data['text_ypos_'+i]=a.text_ypos;
-				data['connector_direction_'+i]=a.connector_direction;
+				data['textxpos_'+i]=a.text_xpos;
+				data['textypos_'+i]=a.text_ypos;
+				data['connectordirection_'+i]=a.connector_direction;
 				data['filename_'+i]=a.selectie_filename;
 				data['txt_'+i]=a.selectie_txt;
 				data['label_'+i]=a.label_txt;
@@ -110,17 +110,17 @@ transform_value=function  (val,transform, log_min) {
 		}
 
 		nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
-		data['xmin_'+nr]:sel_xmin,
-		data['xmax_'+nr]:sel_xmax,
-		data['yvar_'+nr]:heatmap_yvar,
-		data['ymin_'_nr]:sel_ymin,
-		data['ymax_'+nr]:sel_ymax,			
-		data['text_xpos_'+nr]:text_xpos,
-		data['text_ypos_'+nr]:text_ypos,		
-		data['connector_direction_'+nr]:connector_direction,	
-		data['filename_'+nr]:selectie_filename,
-		data['txt_'+nr]:selectie_txt,
-		data['label_'+nr]:label_txt
+		data['xmin_'+nr]=sel_xmin,
+		data['xmax_'+nr]=sel_xmax,
+		data['yvar_'+nr]=heatmap_yvar,
+		data['ymin_'+nr]=sel_ymin,
+		data['ymax_'+nr]=sel_ymax,			
+		data['textxpos_'+nr]=text_xpos,
+		data['textypos_'+nr]=text_ypos,		
+		data['connectordirection_'+nr]=connector_direction,	
+		data['filename_'+nr]=selectie_filename,
+		data['txt_'+nr]=selectie_txt,
+		data['label_'+nr]=label_txt
 
 
 		$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
