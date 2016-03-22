@@ -95,9 +95,9 @@ transform_value=function  (val,transform, log_min) {
 				data['xmax_'+i]=a.area[0][1];
 				data['ymin_'+i]=a.area[1][0];
 				data['ymax_'+i]=a.area[1][1];			
-				data['textxpos_'+i]=a.text_xpos;
-				data['textypos_'+i]=a.text_ypos;
-				data['connectordirection_'+i]=a.connector_direction;
+				data['text_xpos_'+i]=a.text_xpos;
+				data['text_ypos_'+i]=a.text_ypos;
+				data['connector_direction_'+i]=a.connector_direction;
 				data['filename_'+i]=a.selectie_filename;
 				data['txt_'+i]=a.selectie_txt;
 				data['label_'+i]=a.label_txt;
@@ -1805,18 +1805,20 @@ function heatmap (data, opties, nr) {
 	}
 
 
+
 	this.click_annotation=function (e) {
 
     	e.stopPropagation();
 
 		nr=$(this).attr("data-annotationid");
-		console.log('click_annotate, id:',nr);
+		console.log('click_annotate, id/edit:',nr,edit_annotations);
 
 
 		a=_this.opties.annotate[nr];
 
 		if (edit_annotations) {
-			edit_annotation (_this.opties.annotate,nr)
+			annotatie=_this.opties.annotate[nr]		
+			edit_annotation (annotatie);
 		}
 		
 		if (selected_annotation!=undefined) {

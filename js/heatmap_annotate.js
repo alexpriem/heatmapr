@@ -1,6 +1,6 @@
 
 var annotations_show=true;
-var edit_annotations=false;
+var edit_annotations=true;
 if (edit_annotations==true) {
 	$('#edit_annotations').addClass('active');
 }
@@ -64,6 +64,24 @@ function show_area () {
 
 }
 
+
+
+function edit_annotation (a) {
+
+	$('#overlay').css('visibility','visible');   
+
+		//sel_id=$('#selectie_id').val(sel_id);
+	$('#selectie_xmin').val(a.xmin);
+	$('#selectie_xmax').val(a.xmax);
+	$('#selectie_ymin').val(a.ymin);		
+	$('#selectie_ymax').val(a.ymax);
+	$('#text_xpos').val(a.text_xpos);		
+	$('#text_ypos').val(a.text_ypo);
+	$('#connector_direction').val(a.connector_direction);
+	$('#selectie_filename').val(a.filename);
+	$('#selectie_txt').val(a.txt);
+	$('#label_txt').val(a.label);
+}
 
 
 
@@ -138,16 +156,16 @@ function show_annotation (heatmap, name, a, i){
 	
 
 		rect=a.area;
-		var x0=heatmap.world_to_x(rect[0][0]);    s
-		var x1=heatmap.world_to_x(rect[1][0]);    
-		var y0=heatmap.world_to_y(rect[0][1]);		
-		var y1=heatmap.world_to_y(rect[1][1]);		
+		var x0=heatmap.world_to_x(a.xmin);    s
+		var x1=heatmap.world_to_x(a.xmax);    
+		var y0=heatmap.world_to_y(a.ymin);		
+		var y1=heatmap.world_to_y(a.ymax);		
 		var width=x1-x0;
 		var height=y0-y1;
 
 		
 
-		console.log('orig x0/y0, x1/y1:',rect[0][0],rect[0][1],rect[1][0],rect[1][1])
+		console.log('orig x0/y0, x1/y1:',a.xmin, a.ymin, a.xmax, a.ymax)
 		console.log('x,y:',x0,y0);
 		console.log('w,h:',width,height);
 		chart.append("rect")
@@ -277,10 +295,10 @@ function show_annotation (heatmap, name, a, i){
 		opts=handle_options(a);
 
 		rect=a.area_up;
-		var x1=heatmap.world_to_x(rect[0][0]);
-		var x2=heatmap.world_to_x(rect[1][0]);
-		var y1=rect[0][1];
-		var y2=rect[1][1];
+		var x1=heatmap.world_to_x(a.xmin);
+		var x2=heatmap.world_to_x(a.xmax);
+		var y1=a.ymin;
+		var y2=a.ymax;
 		if (y2<y1)  {y1=y2;}
 		
 				var y1=heatmap.world_to_y(y1);
@@ -317,10 +335,10 @@ function show_annotation (heatmap, name, a, i){
 		opts=handle_options(a);
 
 		rect=a.area_down;
-		var x1=heatmap.world_to_x(rect[0][0]);
-		var x2=heatmap.world_to_x(rect[1][0]);
-		var y1=rect[0][1];
-		var y2=rect[1][1];
+		var x1=heatmap.world_to_x(a.xmin);
+		var x2=heatmap.world_to_x(a.xmax);
+		var y1=a.ymin;
+		var y2=a.ymax;
 		if (y2<y1)  {y1=y2;}
 		
 				var y1=heatmap.world_to_y(y1);
@@ -355,10 +373,10 @@ function show_annotation (heatmap, name, a, i){
 		opts=handle_options(a);
 
 		rect=a.area_right;
-		var x1=heatmap.world_to_x(rect[0][0]);
-		var x2=heatmap.world_to_x(rect[1][0]);
-		var y1=rect[0][1];
-		var y2=rect[1][1];
+		var x1=heatmap.world_to_x(a.xmin);
+		var x2=heatmap.world_to_x(a.xmax);
+		var y1=a.ymin;
+		var y2=a.ymax;
 		if (x2<x1)  {x1=x2;}
 		
 		var y1=heatmap.world_to_y(y1);
@@ -393,10 +411,10 @@ function show_annotation (heatmap, name, a, i){
 		opts=handle_options(a);
 
 		rect=a.area_left;
-		var x1=heatmap.world_to_x(rect[0][0]);
-		var x2=heatmap.world_to_x(rect[1][0]);
-		var y1=rect[0][1];
-		var y2=rect[1][1];
+		var x1=heatmap.world_to_x(a.xmin);
+		var x2=heatmap.world_to_x(a.xmax);
+		var y1=a.ymin;
+		var y2=a.ymax;
 		if (x2<x1)  {x1=x2;}
 		
 		var y1=heatmap.world_to_y(y1);
@@ -483,15 +501,17 @@ function show_annotations () {
 
 function toggle_edit_annotations () {
 
-console.log('edit_annotations');	
+
 
 	if (edit_annotations) {
 		edit_annotations=false;
 		$('#edit_annotations').removeClass('active');
+		
 	} else {
 		edit_annotations=true;
 		$('#edit_annotations').addClass('active');
 	}
+	console.log('edit_annotations:',edit_annotations );	
 }
 
 

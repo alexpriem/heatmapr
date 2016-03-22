@@ -1,10 +1,6 @@
 
 
-.active  :hover {
-background-color:  #84afd3 ;
-}
-
-.active   {
+.active, .active:hover   {
 background-color:  #84afd3 ;
 }
 
