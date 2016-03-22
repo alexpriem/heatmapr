@@ -243,21 +243,6 @@ var colormap_qualitative14=function colormap_qualitative14(N){
 
 
 
-blue1:
-blue2: 
-blue3: 
-blue4:
-blue5: 
-
-purple1:'#dddddd','#d66cac','#ae0d7f','#780a57','#333333'
-purple1:'#f9c3e1','#da61ac','#ae0d7f','#780a57','#333333'
-purple2:'#dddddd','#ef6900','#d61349','#91288e','#333333'
-
-redblue1:'#5f0046','#c85195','#dddddd','#4e7aca','#001fcd'
-redblue2:'#8e1200','#fb7039','#dddddd','#40b8e2','#0a5975'
-redblue3:'#c0d329','#f18100','#dddddd','#0090c7','#0058b8'
-rgb1:    '#ae0d7f','#f2722f','#dbbf00','#96c040','#0058b8'
-
 var colormap_blue1=function colormap_blue1(N){
     
 scale=chroma.scale(['#c9d0f8','#6987DE','#0058b8','#003c87','#283150']).correctLightness(true);
