@@ -1,4 +1,4 @@
-import random, os, inspect, json, bisect, csv, cjson, sys, ast
+import random, os, inspect, json, bisect, csv, cjson, sys, ast, operator
 from math import log10
 import datetime #.datetime.strptime as strptime
 import helpers
@@ -307,6 +307,7 @@ class heatmap:
 
     def opties_to_js (self, args):   # poor mans json encoder with proper formatting
 
+        print 'opties_to_js'
         optiejs='opties.push({\n'
         for k in sorted(args.keys()):
             v=getattr(self,k)
@@ -329,13 +330,47 @@ class heatmap:
                 optiejs+='"%s":new Date("%s")\n,' % (str(k),v.isoformat())
                 continue
             if t==dict:
+                print 'dict'
                 new_v={}
                 dictstr=''
-                for d_k,d_v in v.items():
-                    new_v[str(d_k)]=d_v
-                    dictstr+='%s:%s\n,' % (str(d_k),d_v)
+                print k
+                print v
+                print sorted(v.items(), key=operator.itemgetter(0))
+                for d_k,d_v in sorted(v.items(), key=operator.itemgetter(0)):
+                    new_v[str(d_k)]=str(d_v)
+                    dictstr+='%s:%s\n,' % (str(d_k),str(d_v))
+                print dictstr
                 optiejs+='"%s":{%s},\n' % (str(k),dictstr)
                 continue
+            if t==list:
+                print 'list'
+                print v
+                optiejs+='"%s":[' % (str(k))
+                for nr,el in enumerate(v):
+                    eltype=type(el)
+                    if eltype==dict:
+                        s='{'                        
+                        for d_k,d_v in sorted(el.items(), key=operator.itemgetter(0)):                            
+                            if type(d_v)==str or type(d_v)==unicode:
+                                s+='"%s":"%s",' % (str(d_k),str(d_v))
+                            else:
+                                s+='"%s":"%s",' % (str(d_k),d_v)
+                        s=s[:-1]
+                        s+='}'
+                        print s
+                    else:
+                        s=str(el)
+                    if nr==len(v)-1:
+                        optiejs+=s 
+                    else:
+                        if eltype==dict:                        
+                            optiejs+=s+',\n'
+                        else:
+                            optiejs+=s+','
+                
+                optiejs+='],\n'
+                continue
+                        
             optiejs+='"%s":%s,\n' % (str(k),str(v))
 
         optiejs=optiejs[:-1]+'});\n\n'

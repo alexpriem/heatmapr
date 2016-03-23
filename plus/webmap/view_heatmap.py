@@ -238,21 +238,26 @@ def make_subsel(request, dataset):
     annotaties=[]
     for i in range(0,num_annotaties):
         a={}
+        a['xvar']=xvar
         a['xmin']=float(post['xmin_%d' % i])
         a['xmax']=float(post['xmax_%d' % i])
 
+        a['yvar']=yvar
         a['ymin']=float(post['ymin_%d' % i])
         a['ymax']=float(post['ymax_%d' % i])
-        a['connector_direction']=post['connector_direction_' % i]
+
+        a['areatype']=post['areatype_%d' % i]
+        a['indexnr']=int(post['heatmap_index'])
+        a['connector_direction']=post['connector_direction_%d' % i]
         a['text_xpos']=post['text_xpos_%d' % i]
         a['text_ypos']=post['text_ypos_%d' % i]
         a['filename']=post['filename_%d' % i]
         a['txt']=post['txt_%d' % i]
         a['label']=post['label_%d' % i]
-        annotaties.push(a)
+        annotaties.append(a)
 
-    print xvar,xmin,xmax
-    print yvar,ymin,ymax
+    #print xvar,xmin,xmax
+    #print yvar,ymin,ymax
 
     infodir=settings.datadir+'/'+dataset+'_info'
 
@@ -318,8 +323,16 @@ def save_subsel (selectiedir, subsel, annotaties):
     f=open('%s/meta2.csv' % selectiedir,'ab')
     c=csv.writer(f)
     for selnr, a in enumerate(annotaties):
-        meta=[selnr, a['xvar'], a['xmin'],a['xmax'],  a['yvar'],a['ymin'],a['ymax'], a['connector_direction'],a['text_xpos'],a['text_ypos'],a['label'],a['filename']]
+        meta=[selnr, a['xvar'], a['xmin'],a['xmax'],
+                     a['yvar'],a['ymin'],a['ymax'],
+                      a['connector_direction'],
+                      a['text_xpos'],a['text_ypos'],
+                      a['label'],a['filename']]
         c.writerow(meta)
+        g=open('%s/%s.txt' % (selectiedir, a['filename']),'w')
+        g.write(a['txt'])
+        g.close()
+        
     f.close()
 
 
@@ -335,9 +348,6 @@ def save_subsel (selectiedir, subsel, annotaties):
 #    f.write(meta)
 #    f.close()
 
-    f=open('%s/%s.txt' % (selectiedir, filename),'w')
-    f.write(txt)
-    f.close()
 
 
 
