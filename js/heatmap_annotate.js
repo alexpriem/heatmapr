@@ -1,6 +1,7 @@
 
 var annotations_show=true;
 var edit_annotations=true;
+var edit_annotation_flag=false;  // zijn we nu een selectie aan het editten?
 if (edit_annotations==true) {
 	$('#edit_annotations').addClass('active');
 }
@@ -81,6 +82,7 @@ function edit_annotation (a) {
 	$('#selectie_filename').val(a.filename);
 	$('#selectie_txt').val(a.txt);
 	$('#label_txt').val(a.label);
+	edit_annotation_flag=true;
 }
 
 
@@ -147,15 +149,14 @@ function show_annotation (heatmap, name, a, i){
 
 
 	chart=heatmap.chart;
-	if ('area' in a) { 
+	if (a.areatype=='area') { 
 		//handle area
 
 		//console.log(a.area);
 		opts=handle_options(a);
 		console.log('area:',heatmap, name);
 	
-
-		rect=a.area;
+		
 		var x0=heatmap.world_to_x(a.xmin);    s
 		var x1=heatmap.world_to_x(a.xmax);    
 		var y0=heatmap.world_to_y(a.ymin);		
@@ -272,6 +273,7 @@ function show_annotation (heatmap, name, a, i){
 		    .attr("class",'annotation annotation_text');		    
     	
 
+
 		if ((a.connector_direction=='right') || (a.connector_direction=='bottomright') || (a.connector_direction=='topright')) {
 		
 			var bottom_pos=250+textheight*0.65;
@@ -288,13 +290,13 @@ function show_annotation (heatmap, name, a, i){
 				.attr("stroke",opts.stroke)
 				.attr("stroke-width",opts["stroke-width"]);			    	
 		}
+		console.log('done');
 	}
 
 
-	if ('area_up' in a) { 
+	if (a.areatype=='area_up') { 
 		opts=handle_options(a);
-
-		rect=a.area_up;
+		
 		var x1=heatmap.world_to_x(a.xmin);
 		var x2=heatmap.world_to_x(a.xmax);
 		var y1=a.ymin;
@@ -331,10 +333,9 @@ function show_annotation (heatmap, name, a, i){
 	}
 
 
-	if ('area_down' in a) { 
+	if (a.areatype=='area_down') { 
 		opts=handle_options(a);
-
-		rect=a.area_down;
+		
 		var x1=heatmap.world_to_x(a.xmin);
 		var x2=heatmap.world_to_x(a.xmax);
 		var y1=a.ymin;
@@ -369,10 +370,9 @@ function show_annotation (heatmap, name, a, i){
 			.attr("fill","none");
 	}
 
-	if ('area_right' in a) { 
+	if (a.areatype=='area_right') { 
 		opts=handle_options(a);
-
-		rect=a.area_right;
+		
 		var x1=heatmap.world_to_x(a.xmin);
 		var x2=heatmap.world_to_x(a.xmax);
 		var y1=a.ymin;
@@ -407,10 +407,9 @@ function show_annotation (heatmap, name, a, i){
 			.attr("fill","none");
 	}
 
-	if ('area_left' in a) { 
+	if (a.areatype=='area_left') { 
 		opts=handle_options(a);
-
-		rect=a.area_left;
+		
 		var x1=heatmap.world_to_x(a.xmin);
 		var x2=heatmap.world_to_x(a.xmax);
 		var y1=a.ymin;
@@ -446,7 +445,7 @@ function show_annotation (heatmap, name, a, i){
 	}
 
 
-	if ('polygon' in a) {		
+	if (a.areatype=='polygon') {		
 		p=a.polygon;
 		opts=handle_options(a);
 		var d3poly=[];

@@ -66,7 +66,9 @@ transform_value=function  (val,transform, log_min) {
 		selectie_filename=$('#selectie_filename').val();
 		selectie_txt=$('#selectie_txt').val();
 		label_txt=$('#label_txt').val();
-
+		
+		areatype='area';
+		//areatype=$('#areatype').val(); 
 
 
 		var url=window.location.href;
@@ -77,14 +79,18 @@ transform_value=function  (val,transform, log_min) {
 		var heatmap_index=data[7];
 
 		var h=heatmaps[0];
-		var annotaties=h.opties.annotate;
-		var num_annotaties=annotaties.length
+		num_annotaties=0;
+		var annotaties={};
+		if ('annotaties' in h) {
+			var annotaties=h.opties.annotate;
+			var num_annotaties=annotaties.length
+		} 
+		
 
 		var data={dataset:dataset, 
 					'xvar':heatmap_xvar,
 					'yvar':heatmap_yvar,
-					'heatmap_index':heatmap_index,
-					'num_annotaties':num_annotaties
+					'heatmap_index':heatmap_index					
 				};
 
 
@@ -101,27 +107,34 @@ transform_value=function  (val,transform, log_min) {
 				data['filename_'+i]=a.selectie_filename;
 				data['txt_'+i]=a.selectie_txt;
 				data['label_'+i]=a.label_txt;
+				data['areatype'+i]=a.areatype;
 			}
 		}
 
 
-		if (edit_annotations) {   // *en* we zijn een bestaande selectie aan het editten.
-
+		nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
+		if ((edit_annotations) && (edit_annotation_flag)){   // we zijn in editmode en een bestaande selectie aan het editten. 
+						// id van gedditte selectie oppikken
 		}
 
-		nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
-		data['xmin_'+nr]=sel_xmin,
-		data['xmax_'+nr]=sel_xmax,
-		data['yvar_'+nr]=heatmap_yvar,
-		data['ymin_'+nr]=sel_ymin,
-		data['ymax_'+nr]=sel_ymax,			
-		data['textxpos_'+nr]=text_xpos,
-		data['textypos_'+nr]=text_ypos,		
-		data['connectordirection_'+nr]=connector_direction,	
-		data['filename_'+nr]=selectie_filename,
-		data['txt_'+nr]=selectie_txt,
-		data['label_'+nr]=label_txt
+		
+		data['xmin_'+nr]=sel_xmin;
+		data['xmax_'+nr]=sel_xmax;
+		data['yvar_'+nr]=heatmap_yvar;
+		data['ymin_'+nr]=sel_ymin;
+		data['ymax_'+nr]=sel_ymax;			
+		data['text_xpos_'+nr]=text_xpos;
+		data['text_ypos_'+nr]=text_ypos;		
+		data['connector_direction_'+nr]=connector_direction;
+		data['filename_'+nr]=selectie_filename;
+		data['txt_'+nr]=selectie_txt;
+		data['label_'+nr]=label_txt;
+		data['areatype_'+nr]=areatype;
 
+		if ((edit_annotation_flag==false) ) {  // nieuwe annotatie  
+			num_annotaties=num_annotaties+1;
+		}
+		data['num_annotaties']=num_annotaties;
 
 		$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
 				type: "POST",
