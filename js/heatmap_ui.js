@@ -53,7 +53,16 @@ transform_value=function  (val,transform, log_min) {
 
 
 
+	function delete_selection () {	
+		update_selection (mode='delete');
+	}
+
 	function save_selection () {	
+		update_selection (mode='edit');
+	}
+
+	function update_selection  (mode) {	
+
 		
 		sel_id=$('#selectie_nr').val();		
 		sel_xmin=parseFloat($('#selectie_xmin').val());
@@ -111,7 +120,13 @@ transform_value=function  (val,transform, log_min) {
 
 		for (var i in annotaties) {
 		  if (annotaties.hasOwnProperty(i)) {
-		    	a=annotaties[i];
+
+		  		if (mode=='delete') {
+		  			if (i==sel_id) 
+		  				continue;
+		  		}
+
+		    	a=annotaties[i];		    	
 				data['xmin_'+i]=a.xmin;
 				data['xmax_'+i]=a.xmax;
 				data['ymin_'+i]=a.ymin;
@@ -128,35 +143,40 @@ transform_value=function  (val,transform, log_min) {
 		}
 
 
-		nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
-		if ((edit_annotations) && (edit_annotation_flag)){   // we zijn in editmode en een bestaande selectie aan het editten. 
-						// id van gedditte selectie oppikken
-			nr=sel_id;
+		if (mode=='edit') {
+			nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
+			if ((edit_annotations) && (edit_annotation_flag)){   // we zijn in editmode en een bestaande selectie aan het editten. 
+							// id van gedditte selectie oppikken
+				nr=sel_id;
+			}
+
+			
+
+			data['xmin_'+nr]=sel_xmin;
+			data['xmax_'+nr]=sel_xmax;
+			data['yvar_'+nr]=heatmap_yvar;
+			data['ymin_'+nr]=sel_ymin;
+			data['ymax_'+nr]=sel_ymax;
+			//data['nr_'+nr]=nr;			
+			data['text_xpos_'+nr]=text_xpos;
+			data['text_ypos_'+nr]=text_ypos;		
+			data['connector_direction_'+nr]=connector_direction;
+			data['filename_'+nr]=selectie_filename;
+			data['text_'+nr]=selectie_text;
+			data['label_'+nr]=label_text;
+			data['areatype_'+nr]=areatype;
+
+			if ((edit_annotation_flag==false) ) {  // nieuwe annotatie  
+				num_annotaties=num_annotaties+1;
+			}
+
 		}
 
-		
 
-		data['xmin_'+nr]=sel_xmin;
-		data['xmax_'+nr]=sel_xmax;
-		data['yvar_'+nr]=heatmap_yvar;
-		data['ymin_'+nr]=sel_ymin;
-		data['ymax_'+nr]=sel_ymax;
-		//data['nr_'+nr]=nr;			
-		data['text_xpos_'+nr]=text_xpos;
-		data['text_ypos_'+nr]=text_ypos;		
-		data['connector_direction_'+nr]=connector_direction;
-		data['filename_'+nr]=selectie_filename;
-		data['text_'+nr]=selectie_text;
-		data['label_'+nr]=label_text;
-		data['areatype_'+nr]=areatype;
-
-		if ((edit_annotation_flag==false) ) {  // nieuwe annotatie  
-			num_annotaties=num_annotaties+1;
-		}
 		data['num_annotaties']=num_annotaties;
 
 		console.log(data);
-		
+			
 		$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
 				type: "POST",
 				'data':data,

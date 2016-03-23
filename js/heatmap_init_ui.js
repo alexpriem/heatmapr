@@ -336,6 +336,7 @@ function init_page() {
     $('#close_selection').on('click',cancel_selection);
     $('#cancel_selection').on('click',cancel_selection);
     $('#save_selection').on('click',save_selection);
+    $('#delete_selection').on('click',delete_selection);
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
     }
