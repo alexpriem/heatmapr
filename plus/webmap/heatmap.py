@@ -333,18 +333,20 @@ class heatmap:
                 print 'dict'
                 new_v={}
                 dictstr=''
-                print k
-                print v
-                print sorted(v.items(), key=operator.itemgetter(0))
                 for d_k,d_v in sorted(v.items(), key=operator.itemgetter(0)):
-                    new_v[str(d_k)]=str(d_v)
-                    dictstr+='%s:%s\n,' % (str(d_k),str(d_v))
-                print dictstr
+                    if type(d_v)==dict:
+                        s='"%s":{' % str(d_k)
+                        for dd_k,dd_v in sorted(d_v.items(), key=operator.itemgetter(0)):
+                            if type(dd_v)==str or type(dd_v)==unicode:
+                                s+="'%s':'%s'," % (str(dd_k),str(dd_v))
+                            else:
+                                s+="'%s':%s," % (str(dd_k),dd_v)
+                        s+='}'
+                        dictstr+=s
+                        continue
                 optiejs+='"%s":{%s},\n' % (str(k),dictstr)
                 continue
             if t==list:
-                print 'list'
-                print v
                 optiejs+='"%s":[' % (str(k))
                 for nr,el in enumerate(v):
                     eltype=type(el)

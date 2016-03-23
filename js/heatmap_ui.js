@@ -55,18 +55,26 @@ transform_value=function  (val,transform, log_min) {
 
 	function save_selection () {	
 		
-		sel_id=$('#selectie_id').val();		
-		sel_xmin=$('#selectie_xmin').val();
-		sel_xmax=$('#selectie_xmax').val();
-		sel_ymin=$('#selectie_ymin').val();		
-		sel_ymax=$('#selectie_ymax').val();
+		sel_id=$('#selectie_nr').val();		
+		sel_xmin=parseFloat($('#selectie_xmin').val());
+		sel_xmax=parseFloat($('#selectie_xmax').val());
+		sel_ymin=parseFloat($('#selectie_ymin').val());
+		sel_ymax=parseFloat($('#selectie_ymax').val());
 		text_xpos=$('#text_xpos').val();		
 		text_ypos=$('#text_ypos').val();
 		connector_direction=$('#connector_direction').val();
 		selectie_filename=$('#selectie_filename').val();
-		selectie_txt=$('#selectie_txt').val();
-		label_txt=$('#label_txt').val();
+		selectie_text=$('#selectie_txt').val();
+		label_text=$('#label_txt').val();
 		
+
+		if (sel_xmin>sel_xmax) {
+			t=sel_xmax; sel_xmax=sel_xmin; sel_xmin=t;
+		}
+		if (sel_ymin>sel_ymax) {
+			t=sel_ymax; sel_ymax=sel_ymin; sel_ymin=t;
+		}
+
 		areatype='area';
 		//areatype=$('#areatype').val(); 
 
@@ -81,11 +89,18 @@ transform_value=function  (val,transform, log_min) {
 		var h=heatmaps[0];
 		num_annotaties=0;
 		var annotaties={};
-		if ('annotaties' in h) {
+		if ('annotate' in h.opties) {			
 			var annotaties=h.opties.annotate;
-			var num_annotaties=annotaties.length
+			console.log(annotaties);
+
+			if ($.isEmptyObject(annotaties)) {
+				num_annotaties=0;			
+			} else {
+			 	num_annotaties=Object.keys(annotaties).length;
+			}
 		} 
 		
+		console.log('num_annotaties:',num_annotaties);
 
 		var data={dataset:dataset, 
 					'xvar':heatmap_xvar,
@@ -97,17 +112,18 @@ transform_value=function  (val,transform, log_min) {
 		for (var i in annotaties) {
 		  if (annotaties.hasOwnProperty(i)) {
 		    	a=annotaties[i];
-				data['xmin_'+i]=a.area[0][0];
-				data['xmax_'+i]=a.area[0][1];
-				data['ymin_'+i]=a.area[1][0];
-				data['ymax_'+i]=a.area[1][1];			
+				data['xmin_'+i]=a.xmin;
+				data['xmax_'+i]=a.xmax;
+				data['ymin_'+i]=a.ymin;
+				data['ymax_'+i]=a.ymax;
 				data['text_xpos_'+i]=a.text_xpos;
 				data['text_ypos_'+i]=a.text_ypos;
 				data['connector_direction_'+i]=a.connector_direction;
 				data['filename_'+i]=a.selectie_filename;
-				data['txt_'+i]=a.selectie_txt;
-				data['label_'+i]=a.label_txt;
-				data['areatype'+i]=a.areatype;
+				data['text_'+i]=a.selectie_text;
+				data['label_'+i]=a.label_text;
+				data['areatype_'+i]=a.areatype;
+				data['nr_'+i]=a.nr;
 			}
 		}
 
@@ -115,20 +131,23 @@ transform_value=function  (val,transform, log_min) {
 		nr=num_annotaties; // nieuwe selectie: nieuw id aanmaken.
 		if ((edit_annotations) && (edit_annotation_flag)){   // we zijn in editmode en een bestaande selectie aan het editten. 
 						// id van gedditte selectie oppikken
+			nr=sel_id;
 		}
 
 		
+
 		data['xmin_'+nr]=sel_xmin;
 		data['xmax_'+nr]=sel_xmax;
 		data['yvar_'+nr]=heatmap_yvar;
 		data['ymin_'+nr]=sel_ymin;
-		data['ymax_'+nr]=sel_ymax;			
+		data['ymax_'+nr]=sel_ymax;
+		//data['nr_'+nr]=nr;			
 		data['text_xpos_'+nr]=text_xpos;
 		data['text_ypos_'+nr]=text_ypos;		
 		data['connector_direction_'+nr]=connector_direction;
 		data['filename_'+nr]=selectie_filename;
-		data['txt_'+nr]=selectie_txt;
-		data['label_'+nr]=label_txt;
+		data['text_'+nr]=selectie_text;
+		data['label_'+nr]=label_text;
 		data['areatype_'+nr]=areatype;
 
 		if ((edit_annotation_flag==false) ) {  // nieuwe annotatie  
@@ -136,6 +155,8 @@ transform_value=function  (val,transform, log_min) {
 		}
 		data['num_annotaties']=num_annotaties;
 
+		console.log(data);
+		
 		$.ajax({url:"/heatmap_subsel/"+dataset+'/', 
 				type: "POST",
 				'data':data,
@@ -146,6 +167,7 @@ transform_value=function  (val,transform, log_min) {
 
 
 		$('#overlay').css('visibility','hidden');
+		edit_annotation_flag=false;
 	}
 
 

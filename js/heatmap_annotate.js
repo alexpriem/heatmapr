@@ -72,12 +72,13 @@ function edit_annotation (a) {
 	$('#overlay').css('visibility','visible');   
 
 		//sel_id=$('#selectie_id').val(sel_id);
+	$('#selectie_nr').val(a.nr);
 	$('#selectie_xmin').val(a.xmin);
 	$('#selectie_xmax').val(a.xmax);
 	$('#selectie_ymin').val(a.ymin);		
 	$('#selectie_ymax').val(a.ymax);
 	$('#text_xpos').val(a.text_xpos);		
-	$('#text_ypos').val(a.text_ypo);
+	$('#text_ypos').val(a.text_ypos);
 	$('#connector_direction').val(a.connector_direction);
 	$('#selectie_filename').val(a.filename);
 	$('#selectie_txt').val(a.txt);
@@ -151,10 +152,9 @@ function show_annotation (heatmap, name, a, i){
 	chart=heatmap.chart;
 	if (a.areatype=='area') { 
 		//handle area
-
-		//console.log(a.area);
+		
 		opts=handle_options(a);
-		console.log('area:',heatmap, name);
+		console.log('area-annotation:',a);
 	
 		
 		var x0=heatmap.world_to_x(a.xmin);    s
