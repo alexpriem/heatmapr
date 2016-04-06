@@ -43,6 +43,8 @@ def make_heatmap (request):
         cmd=request.POST['cmd']
         dataset=request.POST['dataset']
         infodir=helpers.get_infodir(dataset)
+
+        # overzetten van waardes uit POST naar args-dict.
         for key, val in request.POST.iteritems():
             if key=='cmd' or key=='dataset':
                 continue
@@ -77,7 +79,7 @@ def make_heatmap (request):
             args['infodir']=infodir
             if add_new_heatmap:
                 print 'add new heatmap'
-                filename='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_*meta.js' % args
+                filename='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_meta.js' % args
                 print filename
                 heatmaps=glob.glob(filename)
                 print heatmaps
@@ -86,7 +88,9 @@ def make_heatmap (request):
             print 'indexnr:', indexnr
 
             args['heatmap_indexnr']=indexnr
-            args['outfile']='%(x_var)s_%(y_var)s_%(heatmap_indexnr)s' % args
+            outfile='%(x_var)s_%(y_var)s_%(heatmap_indexnr)s' % args
+            
+            args['outfile']=outfile
             print coltypes_bycol.keys()[:10]
             x_types=coltypes_bycol[args['x_var']]   # info van variabelenaam x-kolom ophalen
             y_types=coltypes_bycol[args['y_var']]
@@ -111,9 +115,46 @@ def make_heatmap (request):
                     pass
                 args[key]=value
 
-            h=heatmap.heatmap()
+
+
+            # kijk of we een nieuwe heatmap moeten uitrekenen
+            data={'msg':msg, 'heatmap_index':indexnr,
+                  'x_var':args['x_var'],'y_var':args['y_var']}
+            
+            do_recalc=True
+            h=heatmap.heatmap(args)
+            if add_new_heatmap==False:
+                
+                csvfile='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_meta.csv' % args
+                old_args=h.load_options_from_csv(csvfile)
+
+                do_not_recalc_args=['x_label', 'y_label',
+                                    'gradmin','gradmax','gradsteps',
+                                    'colormap','title']
+                changed=False
+                do_recalc=False
+
+                new_args=old_args.copy()
+                for k,v in args.items():
+                    new_args[k]=v
+                    if old_args[k]!=args[k]:                        
+                        changed=True
+                        if not(k in do_not_recalc_args):
+                            do_recalc=True                        
+                if not changed:
+                    return HttpResponse(cjson.encode(data))
+                if do_recalc==False:
+                    optiejs=h.opties_to_js(new_args)
+                    f=open(filename+'2','w')
+                    f.write(optiejs)
+                    f.close()
+                    return HttpResponse(cjson.encode(data))
+                
+            args['do_recalc']=do_recalc
+            
             h.make_heatmap(args)
-            data={'msg':msg, 'heatmap_index':indexnr,'x_var':args['x_var'],'y_var':args['y_var']}
+            
+            
         return HttpResponse(cjson.encode(data))
 
     # shouldn't get here

@@ -112,6 +112,7 @@ class heatmap:
 
             ['annotate',{},False],
 
+            ['do_recalc',True,False],   # dummyvar
             ['heatmap_indexnr',False,False],   # dummyvar
             ['add_new_heatmap',False,False],   # dummyvar
             ['expertmode',0, False],           # dummyvar
@@ -290,8 +291,8 @@ class heatmap:
 
     def load_options_from_csv (self, infile):
 
-        optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % infile,'r')
-        c=csv.reader(optiefile,delimiter=',')
+        #optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % infile,'r')
+        c=csv.reader(infile,delimiter=',')
         args={}
         for row in c:
             key,value=row[0],row[1]
@@ -484,7 +485,7 @@ class heatmap:
         if self.x_label is None:
             self.x_label=xcol
         if self.y_label is None:
-            self.y_label=ycol            
+            self.y_label=ycol
 
 
         split1_var=self.split1_var
@@ -534,7 +535,7 @@ class heatmap:
             linenr=0
             for x_txt, y_txt in zip (fx, fy):
                 linenr+=1
-                if linenr % 10000==0:
+                if linenr % 100000==0:
                     print linenr
                 
                 if self.convert_comma:
@@ -640,7 +641,7 @@ class heatmap:
                 x_txt=x_txt.replace(',','.')
                 y_txt=y_txt.replace(',','.')
             linenr+=1
-            if linenr % 10000==0:
+            if linenr % 100000==0:
                 print linenr
             val=1
             if weight_var is not None:
