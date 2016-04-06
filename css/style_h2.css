@@ -1,6 +1,6 @@
 
 
-.active, .active:hover   {
+.active  {
 background-color:  #84afd3 ;
 }
 
@@ -380,4 +380,38 @@ text-align:left;
 	padding:5px;
 	margin-left:25px;
 	color: #fff;
+}
+
+#edit_annotations:hover {
+	background-color:#42a5f5;
+}
+
+
+.navbar  ul {
+	list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+ .navbar li {
+ 	 float: left;
+ 	 display:inline;
+}
+
+.navbar li a {
+    display: block;
+    color: #337ab7;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.hover_active {
+background-color: #333;
+}
+
+.hover_inactive {
+	background-color: #555;
 }

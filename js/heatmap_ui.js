@@ -1,4 +1,38 @@
 
+
+
+var enter_navitem=function  () {
+	elname='#'+this.id
+ if ($(elname).hasClass('active')) {
+ 		$(elname).addClass('hover_active').removeClass('active'); 		
+ 		//console.log ('hover_navbar, active:',this.id);		
+ 		//$('#'+this.id).attr('background-color','#84afd3');
+ } else { 		
+ 		$(elname).addClass('hover_inactive'); 	
+ }
+}
+
+
+var leave_navitem=function  () {
+	elname='#'+this.id
+ if ($(elname).hasClass('hover_active')) {
+ 		$(elname).addClass('active').removeClass('hover_active'); 		
+ } else {
+ 		console.log ('hover_navbar, inactive:',this.id);
+ 		$(elname).removeClass('hover_inactive'); 	
+ }
+}
+
+
+
+var click_navbar=function () {
+
+	console.log('click_navbar:', this.id);
+}
+
+
+
+
 var selected_annotation=undefined;
 
 transform_value=function  (val,transform, log_min) {

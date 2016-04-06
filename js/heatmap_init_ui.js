@@ -12,6 +12,12 @@ var interactive=true;
 var smallsize=false;
 var share_colormap=false;
 
+var annotations_show=true;
+var edit_annotations=true;
+var edit_annotation_flag=false;  // zijn we nu een selectie aan het editten?
+
+
+
 function set_gradient (opties) {
  
     var defaultsettings={
@@ -337,6 +343,14 @@ function init_page() {
     $('#cancel_selection').on('click',cancel_selection);
     $('#save_selection').on('click',save_selection);
     $('#delete_selection').on('click',delete_selection);
+
+    $('.navitem').hover(enter_navitem,leave_navitem);
+
+
+    update_edit_annotations();
+
+
+
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
     }

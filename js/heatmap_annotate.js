@@ -1,10 +1,6 @@
 
-var annotations_show=true;
-var edit_annotations=true;
-var edit_annotation_flag=false;  // zijn we nu een selectie aan het editten?
-if (edit_annotations==true) {
-	$('#edit_annotations').addClass('active');
-}
+
+
 
 
 
@@ -498,18 +494,29 @@ function show_annotations () {
 }
 
 
+
+function update_edit_annotations () {
+	
+	if (edit_annotations) {		
+		$('#edit_annotations').addClass('active');
+	} else {
+		$('#edit_annotations').removeClass('active');
+	}
+}
+
+
+
+
 function toggle_edit_annotations () {
 
 
 
 	if (edit_annotations) {
-		edit_annotations=false;
-		$('#edit_annotations').removeClass('active');
-		
+		edit_annotations=false;				
 	} else {
-		edit_annotations=true;
-		$('#edit_annotations').addClass('active');
+		edit_annotations=true;		
 	}
+	update_edit_annotations ();
 	console.log('edit_annotations:',edit_annotations );	
 }
 
@@ -533,3 +540,4 @@ function init_annotations (heatmap, annotations) {
  $('.annotation_obj').on('mouseleave',heatmap.leave_annotation );
  
 }
+
