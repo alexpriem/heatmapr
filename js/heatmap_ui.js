@@ -95,10 +95,12 @@ transform_value=function  (val,transform, log_min) {
 		update_selection (mode='edit');
 	}
 
+
+
 	function update_selection  (mode) {	
 
 		
-		sel_id=$('#selectie_nr').val();		
+		sel_id=$('#selectie_id').val();		
 		sel_xmin=parseFloat($('#selectie_xmin').val());
 		sel_xmax=parseFloat($('#selectie_xmax').val());
 		sel_ymin=parseFloat($('#selectie_ymin').val());
@@ -106,10 +108,11 @@ transform_value=function  (val,transform, log_min) {
 		text_xpos=$('#text_xpos').val();		
 		text_ypos=$('#text_ypos').val();
 		connector_direction=$('#connector_direction').val();
-		selectie_filename=$('#selectie_filename').val();
-		selectie_text=$('#selectie_txt').val();
-		label_text=$('#label_txt').val();
+		filename=$('#selectie_filename').val();
+		text=$('#selectie_txt').val();
+		label=$('#label_txt').val();
 		
+		console.log('update_selection,sel_id:',sel_id);
 
 		if (sel_xmin>sel_xmax) {
 			t=sel_xmax; sel_xmax=sel_xmin; sel_xmin=t;
@@ -134,7 +137,7 @@ transform_value=function  (val,transform, log_min) {
 		var annotaties={};
 		if ('annotate' in h.opties) {			
 			var annotaties=h.opties.annotate;
-			console.log(annotaties);
+//			console.log(annotaties);
 
 			if ($.isEmptyObject(annotaties)) {
 				num_annotaties=0;			
@@ -168,11 +171,11 @@ transform_value=function  (val,transform, log_min) {
 				data['text_xpos_'+i]=a.text_xpos;
 				data['text_ypos_'+i]=a.text_ypos;
 				data['connector_direction_'+i]=a.connector_direction;
-				data['filename_'+i]=a.selectie_filename;
-				data['text_'+i]=a.selectie_text;
-				data['label_'+i]=a.label_text;
+				data['filename_'+i]=a.filename;
+				data['text_'+i]=a.text;
+				data['label_'+i]=a.label;
 				data['areatype_'+i]=a.areatype;
-				data['nr_'+i]=a.nr;
+				data['selectie_id_'+i]=a.selectie_id;
 			}
 		}
 
@@ -187,18 +190,18 @@ transform_value=function  (val,transform, log_min) {
 			
 
 			data['xmin_'+nr]=sel_xmin;
-			data['xmax_'+nr]=sel_xmax;
-			data['yvar_'+nr]=heatmap_yvar;
+			data['xmax_'+nr]=sel_xmax;			
 			data['ymin_'+nr]=sel_ymin;
 			data['ymax_'+nr]=sel_ymax;
 			//data['nr_'+nr]=nr;			
 			data['text_xpos_'+nr]=text_xpos;
 			data['text_ypos_'+nr]=text_ypos;		
 			data['connector_direction_'+nr]=connector_direction;
-			data['filename_'+nr]=selectie_filename;
-			data['text_'+nr]=selectie_text;
-			data['label_'+nr]=label_text;
+			data['filename_'+nr]=filename;
+			data['text_'+nr]=text;
+			data['label_'+nr]=label;
 			data['areatype_'+nr]=areatype;
+			data['selectie_id_'+nr]=nr;
 
 			if ((edit_annotation_flag==false) ) {  // nieuwe annotatie  
 				num_annotaties=num_annotaties+1;

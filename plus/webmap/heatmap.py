@@ -291,10 +291,14 @@ class heatmap:
 
     def load_options_from_csv (self, infile):
 
+        f=open(infile,'r')
         #optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % infile,'r')
-        c=csv.reader(infile,delimiter=',')
+        c=csv.reader(f,delimiter=',')
         args={}
         for row in c:
+            print len (row), row
+            if len(row)!=2:
+                continue
             key,value=row[0],row[1]
 
             try:
@@ -342,7 +346,7 @@ class heatmap:
                                 s+="'%s':'%s'," % (str(dd_k),str(dd_v))
                             else:
                                 s+="'%s':%s," % (str(dd_k),dd_v)
-                        s+='}'
+                        s+='},\n'
                         dictstr+=s
                         continue
                 optiejs+='"%s":{%s},\n' % (str(k),dictstr)

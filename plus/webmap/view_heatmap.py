@@ -238,7 +238,7 @@ def make_subsel(request, dataset):
     annotaties={}
     for i in range(0,num_annotaties):
         a={}
-        a['nr']=i
+        a['selectie_id']=post['selectie_id_%d' % i]
         a['xvar']=xvar
         a['xmin']=float(post['xmin_%d' % i])
         a['xmax']=float(post['xmax_%d' % i])
@@ -276,11 +276,12 @@ def make_subsel(request, dataset):
 
 # bijwerken heatmap-javascript
     print 'bijwerken js'
-    infile='%s_%s_%s' % (xvar, yvar, indexnr)
+    infile='%(xvar)s_%(yvar)s_%(indexnr)s'% locals()
+    csvfile='%(infodir)s/heatmaps/%(infile)s_meta.csv' % (locals())
     h=heatmap.heatmap()
     h.infodir=infodir
-    args=h.load_options_from_csv(infile)
-
+    args=h.load_options_from_csv(csvfile)
+    print args
 
     args['annotate']=annotaties
     for k,v in args.items():
