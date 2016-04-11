@@ -68,7 +68,10 @@ function edit_annotation (a) {
 	$('#overlay').css('visibility','visible');   
 
 		//sel_id=$('#selectie_id').val(sel_id);
-	$('#selectie_nr').val(a.nr);
+	$('#selectie_xvar').html('X:'+a.x_var);
+	$('#selectie_yvar').html('Y:'+a.y_var);
+
+	$('#selectie_id').val(a.selectie_id);
 	$('#selectie_xmin').val(a.xmin);
 	$('#selectie_xmax').val(a.xmax);
 	$('#selectie_ymin').val(a.ymin);		

@@ -1658,23 +1658,47 @@ function heatmap (data, opties, nr) {
 
 	//	$('#selectieform').show();
 		
-		$('#overlay').css('visibility','visible');
 
-		selectienr=0;
-		$('#selectie_xvar').html('X:'+opties.x_var);
-		$('#selectie_yvar').html('Y:'+opties.y_var);
-		$('#selectie_xmin').val(sel_xmin);
-		$('#selectie_xmax').val(sel_xmax);
-		$('#selectie_ymin').val(sel_ymin);		
-		$('#selectie_ymax').val(sel_ymax);
-		$('#text_xpos').val(text_xpos);		
-		$('#text_ypos').val(text_ypos);
-		$('#connector_direction').val(connector_direction);
-		
 
-		$('#selectie_filename').val('selectie_'+selectienr);
+				// nieuw selectie_id bepalen
+		annotatie_ids=[];
+		annotaties=opties.annotate;
+		for (var annotatie_key in annotaties) {
+ 			   if (annotaties.hasOwnProperty(annotatie_key)) {
+ 			   	annotatie_ids.push(parseInt(annotaties[annotatie_key].selectie_id));
+ 			   }
+    		}
 
+    	if (annotatie_ids.length==0) {
+    		selectie_id=0;
+    	} else {
+    			selectie_id=Math.max.apply(Math, annotatie_ids)+1;
+    	}
+
+
+
+		new_annotation={};
+		new_annotation.xvar=opties.xvar;
+		new_annotation.yvar=opties.yvar;
+
+		new_annotation.xmin=sel_xmin;
+		new_annotation.xmax=sel_xmax;
+		new_annotation.ymin=sel_ymin;
+		new_annotation.ymax=sel_ymax;
+
+		new_annotation.selectie_id=selectie_id;
+		new_annotation.text_xpos=text_xpos;
+		new_annotation.text_ypos=text_ypos;
+		new_annotation.connector_direction=connector_direction;
+		new_annotation.filename='selectie_'+selectie_id;
+		new_annotation.txt='';
+		new_annotation.label='';
+
+
+		edit_annotation (new_annotation);
+//		$('#overlay').css('visibility','visible');
 		console.log('all done');
+		edit_annotation_flag=false;
 	}
 
 
