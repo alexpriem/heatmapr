@@ -68,8 +68,8 @@ function edit_annotation (a) {
 	$('#overlay').css('visibility','visible');   
 
 		//sel_id=$('#selectie_id').val(sel_id);
-	$('#selectie_xvar').html('X:'+a.x_var);
-	$('#selectie_yvar').html('Y:'+a.y_var);
+	$('#selectie_xvar').html('X:'+a.xvar);
+	$('#selectie_yvar').html('Y:'+a.yvar);
 
 	$('#selectie_id').val(a.selectie_id);
 	$('#selectie_xmin').val(a.xmin);

@@ -100,7 +100,7 @@ transform_value=function  (val,transform, log_min) {
 	function update_selection  (mode) {	
 
 		
-		sel_id=$('#selectie_id').val();		
+		sel_id=parseInt($('#selectie_id').val());
 		sel_xmin=parseFloat($('#selectie_xmin').val());
 		sel_xmax=parseFloat($('#selectie_xmax').val());
 		sel_ymin=parseFloat($('#selectie_ymin').val());
@@ -157,13 +157,16 @@ transform_value=function  (val,transform, log_min) {
 
 		for (var i in annotaties) {
 		  if (annotaties.hasOwnProperty(i)) {
+		  		a=annotaties[i];
 
 		  		if (mode=='delete') {
-		  			if (i==sel_id) 
+		  			if (a.selectie_id==sel_id) {
+		  				num_annotaties=num_annotaties-1;
 		  				continue;
+		  			}
 		  		}
 
-		    	a=annotaties[i];		    	
+		    			    	
 				data['xmin_'+i]=a.xmin;
 				data['xmax_'+i]=a.xmax;
 				data['ymin_'+i]=a.ymin;
