@@ -283,7 +283,7 @@ class heatmap:
 
 
     def save_options_to_csv (self, args, outfile):
-        optiefile=open(self.infodir+"/heatmaps/%s_meta.csv" % outfile,'wb')
+        optiefile=open(outfile,'wb')        
         c=csv.writer(optiefile,delimiter=',')
         for k in sorted(args.keys()):
             c.writerow([k,args[k]])
@@ -305,8 +305,8 @@ class heatmap:
                 value=ast.literal_eval(value)
             except:
                 pass
-            if value=='':
-                value=None
+#            if value=='':
+#                value=None
             args[key]=value
         return args
 
@@ -980,8 +980,8 @@ class heatmap:
         self.js=self.js+js
 
 
-
-        self.save_options_to_csv (args, self.outfile)
+        csvfile=self.infodir+"/heatmaps/%s_meta.csv" % self.outfile
+        self.save_options_to_csv (args, csvfile)
 
 
 

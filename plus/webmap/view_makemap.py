@@ -122,22 +122,25 @@ def make_heatmap (request):
                   'x_var':args['x_var'],'y_var':args['y_var']}
             
             do_recalc=True
-            h=heatmap.heatmap(args)
+            h=heatmap.heatmap()
+            h.check_args(args)
             if add_new_heatmap==False:
                 
-                csvfile='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_meta.csv' % args
-                old_args=h.load_options_from_csv(csvfile)
+                csvfile='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_%(heatmap_indexnr)s_meta' % args
+                old_args=h.load_options_from_csv(csvfile+'.csv')
 
                 do_not_recalc_args=['x_label', 'y_label',
                                     'gradmin','gradmax','gradsteps',
-                                    'colormap','title']
+                                    'colormap','title', 'do_recalc']
                 changed=False
                 do_recalc=False
-
+                old_args['do_recalc']=False
                 new_args=old_args.copy()
                 for k,v in args.items():
                     new_args[k]=v
-                    if old_args[k]!=args[k]:                        
+                    if old_args[k]!=args[k]:
+                        new_args[k]=args[k]
+                        print 'veranderd:%s, %s->%s' % ( k,old_args[k],args[k])
                         changed=True
                         if not(k in do_not_recalc_args):
                             do_recalc=True                        
@@ -145,9 +148,12 @@ def make_heatmap (request):
                     return HttpResponse(cjson.encode(data))
                 if do_recalc==False:
                     optiejs=h.opties_to_js(new_args)
-                    f=open(filename+'2','w')
+                    f=open(csvfile+'.js','w')
+                    f.write ('var opties=[];\n');
                     f.write(optiejs)
                     f.close()
+                    
+                    h.save_options_to_csv(new_args, csvfile+'.csv')
                     return HttpResponse(cjson.encode(data))
                 
             args['do_recalc']=do_recalc
