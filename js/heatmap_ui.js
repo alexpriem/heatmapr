@@ -683,6 +683,32 @@ function heatmap (data, opties, nr) {
 		if (opties['plot_mean']==true){
 			//console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
 			color=opties['plot_mean_color'];
+			var chart=_this.chart;
+			var maxx=_this.opties.x_max;
+			var minx=_this.opties.x_min;			
+
+			var xScale=this.xScale;
+			var yScale=this.yScale;
+			var lineFunction = d3.svg.line()
+                       		    .x(function(d) { x=xScale(d.x*1.01+23);  console.log('x=',x); return x; })
+                           		.y(function(d) { y=yScale(d.y*1200)+25;  console.log('y=',y); return y; })
+                          		.interpolate("linear");
+            lineData=[];
+			for (i=0; i<mean_x.length; i++) {				
+				step=(maxx-minx)/mean_x.length;
+				xval=minx+step*i;
+				lineData.push({x:xval, y:mean_x[i]})
+			}
+
+			var lineGraph = chart.append("path")
+							.attr("id","plot_mean")
+							.attr("class","extrainfo")
+                            .attr("d", lineFunction(lineData))
+                            .attr("stroke", "blue")
+                            .attr("stroke-width", 2)
+                            .attr("fill", "none");
+
+
 			for (i=0; i<mean_x.length; i++) {
 				avgval=mean_x[i];
 				ptr=(i*xpix2img+imgwidth*(imgheight-ypix2img*avgval))*4;
@@ -693,6 +719,31 @@ function heatmap (data, opties, nr) {
 			}
 		}
 		if (opties['plot_median']==true){
+			var xScale=this.xScale;
+			var yScale=this.yScale;
+			var chart=_this.chart;
+			var maxx=_this.opties.x_max;
+			var minx=_this.opties.x_min;			
+
+			var lineFunction = d3.svg.line()
+                       		    .x(function(d) { x=xScale(d.x*1.01+15);  console.log('x=',x); return x; })
+                           		.y(function(d) { y=yScale(d.y*200)+25;  console.log('y=',y); return y; })
+                          		.interpolate("linear");
+            lineData=[];
+			for (i=0; i<mean_x.length; i++) {				
+				step=(maxx-minx)/mean_x.length;
+				xval=minx+step*i;
+				lineData.push({x:xval, y:median_x[i]})
+			}
+
+			var lineGraph = chart.append("path")
+							.attr("id","plot_median")
+							.attr("class","extrainfo")
+                            .attr("d", lineFunction(lineData))
+                            .attr("stroke", "blue")
+                            .attr("stroke-width", 2)
+                            .attr("fill", "none");
+
 			color=opties['plot_median_color'];
 			for (i=0; i<median_x.length; i++) {
 				medval=median_x[i];
@@ -859,6 +910,9 @@ function heatmap (data, opties, nr) {
 
 	  xScale.range([0,imgwidth]);
 	  yScale.range([0,imgheight]);
+ 	  _this.xScale=xScale;
+	  _this.yScale=yScale;
+
 
 	  var xAxis=d3.svg.axis();
 	  var yAxis=d3.svg.axis();	
