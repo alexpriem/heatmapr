@@ -131,9 +131,12 @@ def make_heatmap (request):
 
                 do_not_recalc_args=['x_label', 'y_label',
                                     'gradmin','gradmax','gradsteps',
-                                    'colormap','title', 'do_recalc']
+                                    'colormap','title', 'do_recalc',
+                                    'plot_mean', 'plot_mean_pixelsize', 'plot_mean_color',
+                                    'plot_median', 'plot_median_pixelsize', 'plot_median_color']
                 changed=False
                 do_recalc=False
+                print args['plot_mean'], old_args['plot_mean']
                 old_args['do_recalc']=False
                 new_args=old_args.copy()
                 for k,v in args.items():
