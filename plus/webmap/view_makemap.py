@@ -67,13 +67,13 @@ def make_heatmap (request):
             msg='ok'
 
             col_info, coltypes_bycol=helpers.get_col_types(infodir)
-            add_new_heatmap=args.get('add_new_heatmap',u'true')
-            if add_new_heatmap==u'true':
+            new_heatmap=args.get('add_new_heatmap',u'true')            
+            if new_heatmap==u'true':
                 add_new_heatmap=True
             else:
                 add_new_heatmap=False
 
-            print 'add new heatmap:', add_new_heatmap, type(add_new_heatmap)
+            print 'add new heatmap:', new_heatmap, add_new_heatmap
             indexnr=args.get('heatmap_indexnr','0')
             print 'INDEXNR',indexnr, type(indexnr)
             args['infodir']=infodir
@@ -124,6 +124,7 @@ def make_heatmap (request):
             do_recalc=True
             h=heatmap.heatmap()
             h.check_args(args)
+            print add_new_heatmap
             if add_new_heatmap==False:
                 
                 csvfile='%(infodir)s\heatmaps\%(x_var)s_%(y_var)s_%(heatmap_indexnr)s_meta' % args
