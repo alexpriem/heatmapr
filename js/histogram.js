@@ -144,7 +144,7 @@ function plot_single_histogram (chart, histogram){
 	
 	console.log (histogram.colname, data.length, histogram.datatype, histogram.miny, histogram.maxy); 
 
-	xScale=d3.scale.linear();	
+	xScale=d3.scaleLinear();	
 	xScale.domain([histogram.minx,histogram.maxx]);
 
 	if (data.length>1) {
@@ -164,9 +164,9 @@ function plot_single_histogram (chart, histogram){
   		}
   	}
   	if (log==false) {
-		yScale=d3.scale.linear();
+		yScale=d3.scaleLinear();
 	} else {
-		yScale=d3.scale.log();
+		yScale=d3.scaleLog();
 		if (histogram.miny==0) {
 			histogram.miny=1;
 		}
@@ -214,21 +214,27 @@ function plot_single_histogram (chart, histogram){
 		console.log('DATA0',data[0]);
 		filldata[filldata.length-1][1]=0;
 		filldata.push([data[0][0],0]);
-				
-		var linefunction=d3.svg.line()
-                      .x(function(d) { return xScale(d[0]); })
-                      .y(function(d) { return yScale(d[1])-4; })                      					
-					  .interpolate('step-after');
 
+
+
+		var linefunction=d3.line()
+                      .x(function(d) { return xScale(d[0]); })
+                      .y(function(d) { return yScale(d[1])-4; })
+                      .curve(d3.curveStep);
+
+		
 		var lineGraph = chart.append("path")
                             .attr("d", linefunction(filldata))
                             .attr("stroke", "blue")
 	                        .attr("stroke-width", 2)
                             .attr("fill", "blue");
+                            
          }
+
+
 	if ((style=='line') && (histogram.num_keys>=14)) {
 		
-		var linefunction=d3.svg.line()
+		var linefunction=d3.line()
                       .x(function(d) { console.log(d[0],d[1], xScale(d[0])); return xScale(d[0]); })
                       .y(function(d) { return yScale(d[1]); });
 					  
@@ -239,8 +245,9 @@ function plot_single_histogram (chart, histogram){
 	                        .attr("stroke-width", 2);
 		}
 
-  	var xAxis=d3.svg.axis();
-  	var yAxis=d3.svg.axis();
+  	var xAxis=d3.axisBottom(xScale);
+  	var yAxis=d3.axisLeft(yScale);
+  	/*
   	if (data.length>1) {	
   		xAxis.scale(xScale)
   			.ticks(numticks)	  		
@@ -249,14 +256,15 @@ function plot_single_histogram (chart, histogram){
   		xAxis.scale(xScale)
   			.ticks(0)	  		
         	.orient("bottom");		
-	}
+	} */
 
+/*
     xAxis.tickFormat(d3.format("s"));
   	yAxis.scale(yScale)
   		.ticks(numticks)	  		
         .orient("left");
     yAxis.tickFormat(d3.format("s"));
-
+*/
 
 
 	chart.append("g")
@@ -291,7 +299,7 @@ function plot_single_histogram (chart, histogram){
 
     if (stringdata.length>0) {
     	console.log('adding stringdata');    	
-	  	xScale2=d3.scale.linear();	  		  	
+	  	xScale2=d3.scaleLinear();	  		  	
 	  	var range=[];
 	  	var labels=[];
 	  	var values=[];
@@ -319,10 +327,12 @@ function plot_single_histogram (chart, histogram){
 	  	xScale2.range([startpos,startpos+stringdata.length*50]);
 	  	xScale2.domain([0,stringdata.length]);
 
-    	var xAxis2=d3.svg.axis();
+    	var xAxis2=d3.axisBottom(xScale2);
+    	/*
     	xAxis2.scale(xScale2)
   				.ticks(0)	  		
         		.orient("bottom");
+        		*/
 		chart.append("g")
 	        .attr("class","xaxis mainx")
 	        .attr("transform","translate(0,"+(height-yoffset)+")")
