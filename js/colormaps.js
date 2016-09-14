@@ -311,7 +311,7 @@ for (i=0; i<N; i++){
 }
 return cmap;
 }
-var colormap_purple1=function colormap_purle1(N){
+var colormap_purple2=function colormap_purle2(N){
     
 scale=chroma.scale(['#f9c3e1','#da61ac','#ae0d7f','#780a57','#333333']).correctLightness(true);
 cmap=[];
@@ -322,7 +322,7 @@ for (i=0; i<N; i++){
 }
 return cmap;
 }
-var colormap_purple1=function colormap_purle1(N){
+var colormap_purple3=function colormap_purle3(N){
     
 scale=chroma.scale(['#dddddd','#ef6900','#d61349','#91288e','#333333']).correctLightness(true);
 cmap=[];
@@ -404,7 +404,7 @@ var colormaps={
 	'blue5':colormap_blue5,
 	'purple1':colormap_purple1,
 	'purple2':colormap_purple2,
-	'purple3':colormap_purple3,
+	'purple2':colormap_purple2,
 	'redblue1':colormap_redblue1,
 	'redblue2':colormap_redblue2,
 	'rgb1':colormap_rgb1

@@ -1627,7 +1627,21 @@ function heatmap (data, opties, nr) {
 	this.handle_drag=function(evt) {
 		if (_this.dragging==true) {
 
-			var svgEl= document.getElementById("dragrect_"+_this.nr);			
+
+			var svgEl= document.getElementById("dragrect_"+_this.nr);	
+			if (svgEl==null)  {
+				  var chart=_this.chart;
+
+					chart.append("rect")
+							.attr("id",'dragrect_'+_this.nr)
+							.attr("x",0)
+							.attr("y",0)
+							.attr("height",0)
+							.attr("width",0)
+							.attr("stroke",'black')
+							.attr("stroke-width",1)
+							.attr("fill","none");
+			}
 			
 			var x=parseInt(evt.pageX-$(this).position().left);
 			var y=parseInt(evt.pageY-$(this).position().top);

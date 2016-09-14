@@ -99,13 +99,53 @@
 <li id="cat_multiples"> <a href="#" id="toggle_smallmult" class="navitem"> small/large </a></li>
 <li id="cat_sharecolormap"> <a href="#" id="toggle_colormap" class="navitem"> Shared colormap </a></li> 
 <li > <a href="/editmap/{{dataset}}/{{filename}}/" id="edit_params" class="navitem"> Edit parameters </a></li> 
+<li > <a href="#" id="histograms" class="navitem"> Histograms</a></li>
 <li > <a href="#" id="print" class="navitem"> Print</a></li>
 <li > <a href="#" id="html_export" class="navitem"> Export</a></li>
 <li > <a href="#" id="html_export2" class="navitem"> Export2</a></li>
 </ul>
+
+
+<div id="histogram_overlay">
+    <div id ="histograms_close"> X </div>
+    <div id="histogram-selector"> </div>
+</div>
+
+{% verbatim %}
+<script id="histogram-template" type="text/x-handlebars-template">
+
+<ul>
+<li > <a href="#" class='navitem' >  <h3>{{varname}}</h3> </a> </li>
+<li>  <a href="#" class='histadd navitem' id="total" data-query='tot'>  Totaal</a> </li>
+<li>  <a href="#" class='histadd navitem' id="missing_x" data-query='null_x'>  {{x_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="missing_y" data-query='null_y'>  {{y_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="missing_xy" data-query='null_xy'>  {{x_var}} + {{y_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="total_min_missing_x" data-query='tot_min_null_x'>  Totaal min {{x_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="total_min_missing_y" data-query='tot_min_null_y'>  Totaal min {{y_var}}=missing </a> </li>
+{{#selecties}}
+<li>
+  <ul>
+      <li>  <a href="#" class='histadd navitem'> Selectie: <strong>{{label}} </strong> </a> </li>
+      <li>  <a href="#" class='histadd navitem2' id="sel{{@index}}_tot" data-sel="{{@index}}" data-query='area'
+                      data-xmin='{{xmin}}' data-xvar='{{xvar}}' data-xmax='{{xmax}}'
+                      data-ymin='{{ymin}}' data-yvar='{{yvar}}' data-ymax='{{ymax}}'> totaal in gebied </a> </li>
+      <li>  <a href="#" class='histadd navitem2' id="sel{{@index}}_xtot" data-sel="{{@index}}" data-query='x_area' data-min='{{xmin}}' data-var='{{xvar}}' data-max='{{xmax}}'> totaal {{xmin}} < {{xvar}} < {{xmax}}  </a> </li>
+      <li>  <a href="#" class='histadd navitem2' id="sel{{@index}}_ytot" data-sel="{{@index}}" data-query='y_area' data-min='{{ymin}}' data-var='{{yvar}}' data-max='{{ymax}}'> totaal {{ymin}} < {{yvar}} < {{ymax}} </a> </li>
+  </ul>
+</li>
+{{/selecties}}
+</ul>
+</script>
+{% endverbatim %}
+
+
+
+
+
 <h3> <a href="/data/{{dataset}}"> {{dataset}} </a></h3>
 
 <div id="errorbox"></div>
+
 
 
 {% verbatim %}
@@ -296,12 +336,17 @@
   {% else %}
   <script  type="text/javascript"> var print=false;  // {{printing}} </script>
 {% endif %}
-<script  type="text/javascript"> var pub=false; // {{printing}} </script>
+
+<script  type="text/javascript"> 
+    var pub=false; // {{printing}} 
+    var csv_vars={{csv_vars|safe}};
+
+</script>
 </div>
 
 
 
-
+  
   <script  src="/js/heatmap_init_ui.js" type="text/javascript"> </script>
 
 </body>

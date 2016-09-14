@@ -193,6 +193,11 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert,publication
         indexnr='0'
 
     infodir=settings.datadir+'/'+dataset+'_info'
+    sep,cols=helpers.get_cols(settings.datadir, dataset, infodir)
+    #csv_vars=cjson.encode(cols);
+    del cols[cols.index(x_var)]
+    del cols[cols.index(y_var)]
+    csv_vars=cjson.encode(cols);
     filename='%s_%s_%s' % (x_var, y_var, indexnr)
     args={'dataset':dataset,
           'x_var':x_var,
@@ -200,7 +205,9 @@ def view__heatmap (request, dataset, x_var, y_var, indexnr, printert,publication
           'filename':filename,
           'indexnr':indexnr,
           'infodir':infodir,
-          'printing':printert}
+          'printing':printert,
+          'csv_vars':csv_vars}
+    
     context = RequestContext(request, args)
     if publication==True:
         template = loader.get_template('pubmap.html')

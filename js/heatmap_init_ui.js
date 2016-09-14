@@ -259,7 +259,14 @@ function init_resized_page() {
 }
 
 
+function heatmap_histograms_hide () {
+    $('#histogram_overlay').hide();
+}
 
+function heatmap_histograms () {
+    $('#histogram_overlay').show();
+
+}
 
 function init_page() {
   
@@ -336,6 +343,31 @@ function init_page() {
     } 
 
 
+    var source   = $("#histogram-template").html();           
+    var template = Handlebars.compile(source); 
+
+
+    // init histograms
+    histogram_selector=document.getElementById('histogram-selector');
+    
+    o=opties[0];
+
+    as=o.annotate;
+    selecties=[];
+    for(var i in as) { 
+        if (as.hasOwnProperty(i)) {       
+           selecties.push(as[i]);
+        }
+    }
+    histogramdata={'x_var':o.x_var,'y_var':o.y_var, 'selecties':selecties};
+
+    console.log(histogramdata);
+    histogram_selector.innerHTML =template(histogramdata);
+    $('#histograms').on('click',heatmap_histograms);
+    $('#histograms_close').on('click',heatmap_histograms_hide);
+    $('#histogram_overlay').hide();
+    $('.histadd').on('click',click_histogram_add);
+
     
     $('#show_annotations').on('click',toggle_annotations);
     $('#edit_annotations').on('click',toggle_edit_annotations);
@@ -343,13 +375,14 @@ function init_page() {
     $('#cancel_selection').on('click',cancel_selection);
     $('#save_selection').on('click',save_selection);
     $('#delete_selection').on('click',delete_selection);
+    
 
     $('.navitem').hover(enter_navitem,leave_navitem);
 
-
+    
     update_edit_annotations();
 
-
+    heatmap_histograms();
 
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
