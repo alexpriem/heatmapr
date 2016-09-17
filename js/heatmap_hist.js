@@ -67,6 +67,7 @@ function heatmap_histogram (this_chart) {
 
 
 
+
 function click_histogram_add () {
 
 
@@ -119,11 +120,18 @@ function click_histogram_add () {
 	}
 
 
+	
+	min_x=$('#hist_minx').val();
+	max_x=$('#hist_maxx').val();
+	min_y=$('#hist_miny').val();
+	max_y=$('#hist_maxy').val();
+	num_bins=$('#hist_bins').val();
+	
 
     console.log(data);
 	$.ajax({url:"/heatmap_histogram/"+dataset+'/', 
 			type: "POST",
-			'data':{'cmd':data},
+			'data':{'cmd':data,minx:min_x, maxx:max_x, miny:min_y, maxy:max_y,bins:num_bins, num_cmds:data.length},
 			success: hist_handle_ajax,
 			error: hist_handle_ajax_error,
 	});

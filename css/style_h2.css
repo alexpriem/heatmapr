@@ -442,3 +442,51 @@ background-color: #333;
 .navitem2 {
 	padding-left:20px;
 }
+
+
+#histogram_controls {
+	float:right;
+}
+
+
+.hist_row {
+  display: flex; /* equal height of the children */
+}
+
+.hist_col {
+  flex: 1; /* additionally, equal width */
+  
+  padding: 1em;
+ # border: solid;
+  color: #000;
+}
+
+.hist_label {
+	color:000;
+}
+
+.xyinput{	
+	margin-top:10px;
+	display:inline;    
+    height: 24px;
+    width: 100px;
+    padding: 5px 5px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    background-color: #FFF;
+    background-image: none;
+    border: 1px solid #CCC;
+    border-radius: 4px;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+ }
+
+
+.xylabel {
+	display:inline;
+	margin-bottom:-5px;
+	vertical-align:top;
+	color: #333;
+	float:right;
+}

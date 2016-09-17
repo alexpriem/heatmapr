@@ -6,7 +6,7 @@
   <meta content="utf-8" http-equiv="encoding">
 
   <link href="/css/style_h1.css" rel="stylesheet" type="text/css">
-  <link href="/css/style_h2.css" rel="stylesheet" type="text/css">
+  <link href="/css/style_h2.css" rel="stylesheet" type="text/css">  
   <link rel="stylesheet" type="text/css" href="/lib/bootstrap-3.3.4/css/bootstrap.min.css"> 
   <link rel="stylesheet" type="text/css" href="/css/bootstrap-combobox/css/bootstrap-combobox.css">
   
@@ -108,12 +108,13 @@
 
 <div id="histogram_overlay">
     <div id ="histograms_close"> X </div>
-    <div id="histogram-selector"> </div>
+    <div id="histogram-selector" class="hist_row"> </div>
 </div>
 
 {% verbatim %}
 <script id="histogram-template" type="text/x-handlebars-template">
 
+<div id="histogram_sidebar" class="hist_col">
 <ul>
 <li > <a href="#" class='navitem' >  <h3>{{varname}}</h3> </a> </li>
 <li>  <a href="#" class='histadd navitem' id="total" data-query='tot'>  Totaal</a> </li>
@@ -135,6 +136,31 @@
 </li>
 {{/selecties}}
 </ul>
+</div>
+
+<div id="hist_chart" class="hist_col"> 
+
+</div>
+
+
+<div id="histogram_controls" class="hist_col">
+    <ul id="control_ul" >
+    <li> <a href="#" id="stijl">  Barchart </a> </li>
+    <li> <a href="#" id="log">  Log </a> </li>
+    <li> <a href="#" id="autox">  Autoscale X: max </a> </li>
+    <li> <a href="#" id="autoy">  Autoscale Y:  </a> </li>
+    <li id="div_ymin">  <div> <label class="xxylabel" for="miny"> Miny </label>  <input id="hist_miny" type="text" class="xyinput" value=""/> 
+                              <label class="xxylabel" for="maxy"> Maxy </label> <input id="hist_maxy" type="text" class="xyinput" value=""/>  </div></li>
+
+    <li id="div_xmin">  <div><label class="xxylabel"  for="minx"> Minx </label><input id="hist_minx" type="text" class="xyinput" value=""/>  
+                             <label class="xxylabel" for="maxx"> Maxx </label><input id="hist_maxx" type="text" class="xyinput" value=""/>  </div> </li>
+    <li id="div_bins">  <div><label class="xxylabel"  for="bins"> Bins </label><input id="hist_bins" type="text" class="xyinput" value=""/>  </div> </li>    
+    </ul>
+    <ul id="heatmaps">  </ul> 
+</div>
+
+
+
 </script>
 {% endverbatim %}
 

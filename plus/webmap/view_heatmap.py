@@ -383,3 +383,26 @@ def make_histogram (request, dataset):
     return HttpResponse(cjson.encode(data))
 
 
+@csrf_exempt
+def make_histogram (request, dataset):
+
+    num_cmds=request.POST.get('num_cmds')
+
+    cmds=[]
+    for i in range (int(num_cmds)):
+        cmd=request.POST.get('cmd[%d][var]' % i)
+        comp = request.POST.get('cmd[%d][comp]' % i )
+        value = request.POST.get('cmd[%d][val]' % i)
+        cmds.append({'cmd':cmd,'comp':comp,'value':value})
+    minx=request.POST.get('minx')
+    miny=request.POST.get('maxx')
+    maxx=request.POST.get('miny')
+    maxy=request.POST.get('maxy')
+    bins = request.POST.get('bins')
+
+    print 'make_histogram', minx,maxx,miny,maxy
+    print 'make_histogram', cmds
+    msg='ok'
+    data={'msg':msg}
+    return HttpResponse(cjson.encode(data))
+
