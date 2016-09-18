@@ -18,7 +18,7 @@ var leave_navitem=function  () {
  if ($(elname).hasClass('hover_active')) {
  		$(elname).addClass('active').removeClass('hover_active'); 		
  } else {
- 		console.log ('hover_navbar, inactive:',this.id);
+ 	//	console.log ('hover_navbar, inactive:',this.id);
  		$(elname).removeClass('hover_inactive'); 	
  }
 }

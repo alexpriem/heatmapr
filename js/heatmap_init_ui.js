@@ -272,6 +272,7 @@ function heatmap_histograms () {
     $('#hist_miny').val(0);
     $('#hist_maxy').val(2500);
     $('#hist_bins').val(40);
+    $('#hist_var').html('seccoal');
 
    /*
 

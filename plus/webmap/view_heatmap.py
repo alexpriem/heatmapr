@@ -386,7 +386,15 @@ def make_histogram (request, dataset):
 @csrf_exempt
 def make_histogram (request, dataset):
 
+
+#    if request.is_ajax() == True:   // we komen hier alleen als we
+
+
+    infodir = settings.datadir + '/' + dataset + '_info'
     num_cmds=request.POST.get('num_cmds')
+    if not os.path.exists(infodir):
+        os.makedirs(infodir)
+
 
     cmds=[]
     for i in range (int(num_cmds)):
@@ -394,15 +402,67 @@ def make_histogram (request, dataset):
         comp = request.POST.get('cmd[%d][comp]' % i )
         value = request.POST.get('cmd[%d][val]' % i)
         cmds.append({'cmd':cmd,'comp':comp,'value':value})
-    minx=request.POST.get('minx')
-    miny=request.POST.get('maxx')
-    maxx=request.POST.get('miny')
+    minx=request.POST.get('minx')           # deze hebben geen zin voor categoriale histogrammen.
+    maxx=request.POST.get('maxx')
+    miny=request.POST.get('miny')
     maxy=request.POST.get('maxy')
     bins = request.POST.get('bins')
+    variable = request.POST.get('var')
 
-    print 'make_histogram', minx,maxx,miny,maxy
+    col_info, coltypes_bycol = helpers.get_col_types(infodir)
+    rowinfo = coltypes_bycol[variable]
+
+    minx=float(minx)
+    maxx=float(maxx)
+    miny=float(miny)
+    maxy=float(maxy)
+    bins=int(float(bins))
+    # sanity checks
+    if minx > maxx:
+        minx, maxx = maxx, minx
+    if miny > maxy:
+        miny, maxy = maxy, miny
+    if bins < 2:
+        bins = 2
+    if bins > 500:
+        bins = 500
+
+
+    print 'make_histogram x:[%.2f %.2f] y:[%.2f %.2f] in %d bins ' % ( minx, maxx, miny, maxy, bins)
     print 'make_histogram', cmds
-    msg='ok'
-    data={'msg':msg}
+
+    csvdata = makehist.get_data(infodir, variable)
+    bins = makehist.check_binsize(csvdata, minx, maxx, bins)
+    histogram, sorted_hist = makehist.make_hist_from_categorydata (csvdata, minx, maxx, bins)
+
+    #histogram, sorted_hist = makehist.make_hist3 (csvdata, minx, maxx, bins)
+
+    data={}
+
+    data['labels'] = histogram   # classificatie
+    data['stringdata'] = histogram   # classificatie
+
+    data['data'] = histogram   # geordende data
+    data['minx'] = minx
+    data['maxx'] = maxx
+    data['miny'] = miny
+    data['maxy'] = maxy
+    data['maxy1']=sorted_hist[-1]
+    data['maxy2'] = sorted_hist[-2]
+    data['maxy3'] = sorted_hist[-3]
+    data['bins'] = bins
+    data['num_keys']=rowinfo['num_keys']
+
+
     return HttpResponse(cjson.encode(data))
+
+
+
+
+
+
+
+
+
+
 

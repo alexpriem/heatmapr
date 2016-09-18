@@ -171,6 +171,26 @@ def make_hist3 (data, minx, maxx, bins):
 
 
 
+
+def make_hist_from_categorydata (data, minx, maxx, bins):
+
+    binsize=(maxx-minx)/(bins*1.0)
+    histogram={}
+    for row in data:
+        x,num=row[0],row[1]
+        try:
+            histogram[x]+=num
+        except:
+            histogram[x] = num
+    hist=[]
+    for key in sorted(histogram.iterkeys()):
+        hist.append([key, histogram[key]])
+
+    sorted_hist=histogram.values()
+    return hist, sorted_hist
+
+
+
 def check_binsize(data,minx,maxx,bins):
 
     num_keys=0
