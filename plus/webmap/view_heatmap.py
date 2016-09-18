@@ -433,7 +433,11 @@ def make_histogram (request, dataset):
 
     csvdata = makehist.get_data(infodir, variable)
     bins = makehist.check_binsize(csvdata, minx, maxx, bins)
-    histogram, sorted_hist = makehist.make_hist_from_categorydata (csvdata, minx, maxx, bins)
+
+
+    filter=build_filter_from_cmds (cmds, coltypes_bycol)
+
+    histogram, sorted_hist = makehist.make_hist_from_categorydata (csvdata, filter)
 
     #histogram, sorted_hist = makehist.make_hist3 (csvdata, minx, maxx, bins)
 

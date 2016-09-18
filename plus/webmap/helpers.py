@@ -59,6 +59,8 @@ def read_csv_list(filename, skipheader=False):   #  eerste waarde van csv-file i
 
 # read csvfile, convert it to int/floats
 
+
+
 def read_and_convert_csvfile (infodir, varname, datatype):
 
     f=open('%s/split/%s.csv' % (infodir,varname))
@@ -80,7 +82,7 @@ def read_and_convert_csvfile (infodir, varname, datatype):
     return vals
 
 
-def read_csv_file(filename):   #  eerste waarde van csv-file inlezen
+def read_csv_file(filename):
     f=None
     try:
         f=open(filename)

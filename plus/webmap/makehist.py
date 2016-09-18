@@ -147,6 +147,23 @@ def get_data(infodir, variabele):
     return data
 
 
+def get_raw_data(infodir, variabele):
+
+    f=open(infodir+'/split/%s.csv' % variabele)
+    f.readline()
+    c=csv.reader(f, delimiter=',')
+    data=[]
+    for row in c:
+        try:
+            row=float(row)
+            if row.is_integer():
+                row=int(row)
+        except:
+            pass
+        data.append(row)
+    return data
+
+
 
 
 def make_hist3 (data, minx, maxx, bins):
@@ -172,9 +189,8 @@ def make_hist3 (data, minx, maxx, bins):
 
 
 
-def make_hist_from_categorydata (data, minx, maxx, bins):
+def make_hist_from_categorydata2 (data):
 
-    binsize=(maxx-minx)/(bins*1.0)
     histogram={}
     for row in data:
         x,num=row[0],row[1]
@@ -189,6 +205,47 @@ def make_hist_from_categorydata (data, minx, maxx, bins):
     sorted_hist=histogram.values()
     return hist, sorted_hist
 
+
+
+def make_hist_from_categorydata (data, filter):
+
+    histogram={}
+    for val,filterval in zip (data,filter):
+        if (filterval==0):
+            continue
+        try:
+            histogram[x]+=1
+        except:
+            histogram[x]=1
+    hist=[]
+    for key in sorted(histogram.iterkeys()):
+        hist.append([key, histogram[key]])
+
+    sorted_hist=histogram.values()
+    return hist, sorted_hist
+
+
+
+
+def build_filter_from_cmds(infodir, cmds, coltypes_bycol)
+
+    filter = []
+    for cmd in cmds:
+        varname = cmd['var']
+        subquery = cmd['comp'] + cmd['value']
+        filename = '%s/split/%s.csv' % (infodir, varname))
+        csvdata = helpers.read_csv_list(filename)
+        if filter == []:
+            filter = [True] * len(csvdata)
+        for val, filterval in zip(csvdata, filter)
+        newfilterval=True
+        if filterval == True:
+            if
+        eval(line + subquery)) == False
+        newfilterval = False
+        newFilter.append(newfilterval)
+        filter = newFilter
+    return filter
 
 
 def check_binsize(data,minx,maxx,bins):
