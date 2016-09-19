@@ -147,21 +147,6 @@ def get_data(infodir, variabele):
     return data
 
 
-def get_raw_data(infodir, variabele):
-
-    f=open(infodir+'/split/%s.csv' % variabele)
-    f.readline()
-    c=csv.reader(f, delimiter=',')
-    data=[]
-    for row in c:
-        try:
-            row=float(row)
-            if row.is_integer():
-                row=int(row)
-        except:
-            pass
-        data.append(row)
-    return data
 
 
 
@@ -207,16 +192,17 @@ def make_hist_from_categorydata2 (data):
 
 
 
-def make_hist_from_categorydata (data, filter):
+def make_hist_from_categorydata (data, datafilter):
 
     histogram={}
-    for val,filterval in zip (data,filter):
-        if (filterval==0):
+    for val,filterval in zip (data,datafilter):
+        if filterval==False:
             continue
         try:
-            histogram[x]+=1
+            histogram[val]+=1
         except:
-            histogram[x]=1
+            print histogram, val
+            histogram[val]=1
     hist=[]
     for key in sorted(histogram.iterkeys()):
         hist.append([key, histogram[key]])
@@ -227,25 +213,32 @@ def make_hist_from_categorydata (data, filter):
 
 
 
-def build_filter_from_cmds(infodir, cmds, coltypes_bycol)
+def build_filter_from_cmds(infodir, cmds, coltypes_bycol):
 
-    filter = []
+    datafilter = []
     for cmd in cmds:
         varname = cmd['var']
+        
+        
+        filename = '%s/split/%s.csv' % (infodir, varname)
+        
+        csvdata = helpers.read_raw_csv_list(filename, skipheader=True)
+        if datafilter == []:
+            datafilter = [True] * len(csvdata)
+        if cmd['comp']=='':
+            continue
         subquery = cmd['comp'] + cmd['value']
-        filename = '%s/split/%s.csv' % (infodir, varname))
-        csvdata = helpers.read_csv_list(filename)
-        if filter == []:
-            filter = [True] * len(csvdata)
-        for val, filterval in zip(csvdata, filter)
-        newfilterval=True
-        if filterval == True:
-            if
-        eval(line + subquery)) == False
-        newfilterval = False
-        newFilter.append(newfilterval)
-        filter = newFilter
-    return filter
+        
+        new_datafilter=[]
+        for val, filterval in zip(csvdata, datafilter):
+            newfilterval=True
+            if filterval == True:                
+                if eval(val + subquery) == False:
+                    newfilterval = False
+            new_datafilter.append(newfilterval)
+        datafilter=new_datafilter
+        #print 'datafilter:', datafilter
+    return datafilter
 
 
 def check_binsize(data,minx,maxx,bins):

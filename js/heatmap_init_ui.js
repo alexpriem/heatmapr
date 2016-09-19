@@ -263,26 +263,6 @@ function heatmap_histograms_hide () {
     $('#histogram_overlay').hide();
 }
 
-function heatmap_histograms () {
-    $('#histogram_overlay').show();
-   
-
-    $('#hist_minx').val(0);
-    $('#hist_maxx').val(100);
-    $('#hist_miny').val(0);
-    $('#hist_maxy').val(2500);
-    $('#hist_bins').val(40);
-    $('#hist_var').html('seccoal');
-
-   /*
-
-    $('#hist_minx').val(histogram.minx);
-    $('#hist_maxx').val(histogram.maxx);
-    $('#hist_miny').val(histogram.miny);
-    $('#hist_maxy').val(histogram.maxy);
-    $('#hist_bins').val(histogram.bins);
-*/
-}
 
 function init_page() {
   

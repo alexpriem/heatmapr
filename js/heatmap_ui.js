@@ -334,7 +334,7 @@ function heatmap (data, opties, nr) {
 
 		}
 
-		var imgsize=imgwidth*imgheight
+		var imgsize=imgwidth*imgheight;
 		try {
 		    _this.backbuffer= new Uint32Array  (imgsize);
 		    if (multimap){

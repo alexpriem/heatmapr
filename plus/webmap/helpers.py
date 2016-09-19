@@ -57,6 +57,17 @@ def read_csv_list(filename, skipheader=False):   #  eerste waarde van csv-file i
 
 
 
+def read_raw_csv_list(filename, skipheader=False):  
+    f=open(filename)
+    if skipheader:
+        f.readline()    
+    data=[d.strip() for d in f.readlines()]
+    f.close()
+    return data
+
+    
+
+
 # read csvfile, convert it to int/floats
 
 

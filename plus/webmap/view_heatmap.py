@@ -8,6 +8,7 @@ import plus.settings as settings
 
 
 
+
 def expand_html (html, dataset):
 
 
@@ -398,14 +399,15 @@ def make_histogram (request, dataset):
 
     cmds=[]
     for i in range (int(num_cmds)):
-        cmd=request.POST.get('cmd[%d][var]' % i)
+        varname=request.POST.get('cmd[%d][var]' % i)
         comp = request.POST.get('cmd[%d][comp]' % i )
         value = request.POST.get('cmd[%d][val]' % i)
-        cmds.append({'cmd':cmd,'comp':comp,'value':value})
+        cmds.append({'var':varname,'comp':comp,'value':value})
     minx=request.POST.get('minx')           # deze hebben geen zin voor categoriale histogrammen.
     maxx=request.POST.get('maxx')
     miny=request.POST.get('miny')
     maxy=request.POST.get('maxy')
+    queryid=request.POST.get('queryid')
     bins = request.POST.get('bins')
     variable = request.POST.get('var')
 
@@ -431,18 +433,21 @@ def make_histogram (request, dataset):
     print 'make_histogram x:[%.2f %.2f] y:[%.2f %.2f] in %d bins ' % ( minx, maxx, miny, maxy, bins)
     print 'make_histogram', cmds
 
-    csvdata = makehist.get_data(infodir, variable)
-    bins = makehist.check_binsize(csvdata, minx, maxx, bins)
+
+    filename = '%s/split/%s.csv' % (infodir, variable)
+    csvdata = helpers.read_raw_csv_list(filename)
+    #bins = makehist.check_binsize(csvdata, minx, maxx, bins)
 
 
-    filter=build_filter_from_cmds (cmds, coltypes_bycol)
+    datafilter=makehist.build_filter_from_cmds (infodir, cmds, coltypes_bycol)
 
-    histogram, sorted_hist = makehist.make_hist_from_categorydata (csvdata, filter)
+    histogram, sorted_hist = makehist.make_hist_from_categorydata (csvdata, datafilter)
 
     #histogram, sorted_hist = makehist.make_hist3 (csvdata, minx, maxx, bins)
 
     data={}
 
+    data['queryid'] = queryid   # classificatie
     data['labels'] = histogram   # classificatie
     data['stringdata'] = histogram   # classificatie
 
@@ -451,9 +456,10 @@ def make_histogram (request, dataset):
     data['maxx'] = maxx
     data['miny'] = miny
     data['maxy'] = maxy
-    data['maxy1']=sorted_hist[-1]
-    data['maxy2'] = sorted_hist[-2]
-    data['maxy3'] = sorted_hist[-3]
+    if (len(sorted_hist))>3:
+        data['maxy1']=sorted_hist[-1]
+        data['maxy2'] = sorted_hist[-2]
+        data['maxy3'] = sorted_hist[-3]
     data['bins'] = bins
     data['num_keys']=rowinfo['num_keys']
 

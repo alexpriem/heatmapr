@@ -5,8 +5,9 @@ var style='filled';
 
 var current_histogram=null;
 
-
-
+global_miny=0;
+global_maxy=2500;
+histograms={};
 
 
 hist_handle_ajax_error=function (result) {
@@ -22,16 +23,34 @@ hist_handle_ajax=function (result) {
 console.log("hist: hist_handle_ajax");
 r=JSON.parse(result);
 console.log (r);
-init_histogram (r);
+
+
+add_histogram (r);
+init_histogram (histogram_list);
 
 console.log("histo klaar");
 }
 
 
+function add_histogram (histogram) {
+
+		// need to make a list with all queryids on a page for indexing.
+
+	histograms[histogram.queryid]=histogram;
+
+	histogram_list=[];
+	for (var key in histograms) {
+  		if (histograms.hasOwnProperty(key)) {
+    		histogram_list.push(histograms[key])
+  		}
+	}
+}
 
 
-function init_histogram (histogram) {
 
+function init_histogram (histogram_list) {
+
+	var histogram=histogram_list[0];
 	current_histogram=histogram;
 	//console.log(histogram);	
 	data_div=document.getElementById('histogram_container');
@@ -39,6 +58,8 @@ function init_histogram (histogram) {
         
 	s+='<svg class="chart" id="chart_0" data-dataset="'+histogram.colname+'"></svg>\n';
 	
+
+
 	data_div.innerHTML =s;
 
 	var extrawidth=0;
@@ -51,7 +72,11 @@ function init_histogram (histogram) {
 					.attr("height", height+200);	
 	//svg=plot_histograms(chart, [histogram, histogram]);
 	//svg=plot_histograms(chart, [histogram, histogram, histogram]);
-	svg=plot_histograms(chart, [histogram, histogram, histogram, histogram]);
+
+	
+
+
+	svg=plot_histograms(chart, histogram_list);
 
 	//$('#chart_0').on('click',click_histogram);
 }
@@ -195,7 +220,8 @@ function plot_histogram (chart, num_histograms, nr, histogram_info, histogram) {
 	  	for (i=0; i<stringdata.length;i++) {
 	  		range.push(i);
 	  		var key=stringdata[i][0];
-	  		values.push(stringdata[i][1]);	  		
+	  		values.push(stringdata[i][1]);	
+	  		console.log (histogram);
 	  		if (key in histogram.labels) {
 	  			labels.push(histogram.labels[key]);
 	  		} else {
@@ -359,28 +385,29 @@ function click_histogram_add () {
 	var y_var=data[6];
 
 	query=$(this).attr('data-query');
-	console.log('data-query:',query);
+	selectionnr=$(this).attr('data-sel');
+	console.log('data-query:',query, selectionnr);
 
 	if (query=='tot') {
-		data=[[]];
+		data=[{'var':x_var,'comp':'', 'val':''}];		
 	}
 	if (query=='null_x') {
-		data=[{'var':x_var,'comp':'=', 'val':'null'}];		
+		data=[{'var':x_var,'comp':'==', 'val':"''"}];		
 	}
 	if (query=='null_y') {
-		data=[{'var':y_var,'comp':'=', 'val':'null'}];	
+		data=[{'var':y_var,'comp':'==', 'val':"''"}];	
 	}
 
 	if (query=='tot_min_null_x') {
-		data=[{'var':x_var,'comp':'!=', 'val':'null'}];		
+		data=[{'var':x_var,'comp':'!=', 'val':"''"}];		
 	}
 	if (query=='tot_min_null_y') {
-		data=[{'var':y_var,'comp':'!=', 'val':'null'}];	
+		data=[{'var':y_var,'comp':'!=', 'val':"''"}];	
 	}
 
 	if (query=='null_xy') {
-		data=[{'var':x_var,'comp':'=', 'val':'null'},
-			  {'var':y_var,'comp':'=', 'val':'null'}];
+		data=[{'var':x_var,'comp':'==', 'val':"''"},
+			  {'var':y_var,'comp':'==', 'val':"''"}];
 	}
 	if (query=='area') {
 		xmin=$(this).attr('data-xmin');
@@ -414,13 +441,74 @@ function click_histogram_add () {
 	max_y=$('#hist_maxy').val();
 	num_bins=$('#hist_bins').val();
 	varname=$('#hist_var').html();
+	queryid=query+'_'+selectionnr;
 
     console.log('data:',data);
 	$.ajax({url:"/heatmap_histogram/"+dataset+'/', 
 			type: "POST",
-			'data':{'cmd':data,'var':varname, minx:min_x, maxx:max_x, miny:min_y, maxy:max_y,bins:num_bins, num_cmds:data.length},
+			'data':{'cmd':data, 'query':query, 'queryid':queryid, 'var':varname, minx:min_x, maxx:max_x, miny:min_y, maxy:max_y,bins:num_bins, num_cmds:data.length},
 			success: hist_handle_ajax,
 			error: hist_handle_ajax_error,
 	});
 
+}
+
+
+function update_display () {
+
+
+
+}
+
+
+function resize() {
+
+	// opnieuw data opvragen met andere binsizes.
+}
+
+var checkresize=function (e) {
+
+	if (e.keyCode==13) {
+		console.log('resize');
+		el=this.id;
+		if ((el=='hist_miny') || (el=='hist_maxy')) {
+			var miny=$('#miny').val()
+			var maxy=$('#maxy').val()
+			global_miny=miny;
+			global_maxy=maxy;			
+			redraw_histograms();  
+			//resize();
+		} else {
+			resize();
+		}
+	}
+}
+
+function heatmap_histograms () {
+	console.log('heatmap_histograms');
+    $('#histogram_overlay').show();
+   
+
+    $('#hist_minx').val(0);
+    $('#hist_maxx').val(100);
+    $('#hist_miny').val(0);
+    $('#hist_maxy').val(2500);
+    $('#hist_bins').val(40);
+    $('#hist_var').html('seccoal');
+
+    
+	$('#div_xmin').hide();
+	$('#div_xmax').hide();
+	$('#div_bins').hide();
+
+	$('.xyinput').on('keyup',checkresize);
+
+   /*
+
+    $('#hist_minx').val(histogram.minx);
+    $('#hist_maxx').val(histogram.maxx);
+    $('#hist_miny').val(histogram.miny);
+    $('#hist_maxy').val(histogram.maxy);
+    $('#hist_bins').val(histogram.bins);
+*/
 }
