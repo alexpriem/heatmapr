@@ -116,7 +116,18 @@
 
 <div id="histogram_sidebar" class="hist_col">
 <ul>
-<li > <a href="#" class='navitem' >  <h3  id="hist_var">{{varname}}</h3> </a> </li>
+<li > <a href="#" class='navitem' > 
+        <div  id="form_hist_var" >
+            <label for="hist_var">Variabele :</label>
+            <select class="xyinput2 combobox">
+                {{#each csv_vars}}
+                 <option value="{{this}}"> {{this}} </option>
+                {{/each}}                
+            </select>  
+        </div>
+</li>
+
+
 <li>  <a href="#" class='histadd navitem' id="total" data-sel="" data-query='tot'>  Totaal</a> </li>
 <li>  <a href="#" class='histadd navitem' id="missing_x" data-sel="" data-query='null_x'>  {{x_var}}=missing </a> </li>
 <li>  <a href="#" class='histadd navitem' id="missing_y" data-sel="" data-query='null_y'>  {{y_var}}=missing </a> </li>

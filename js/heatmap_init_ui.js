@@ -355,7 +355,7 @@ function init_page() {
            selecties.push(as[i]);
         }
     }
-    histogramdata={'x_var':o.x_var,'y_var':o.y_var, 'selecties':selecties};
+    histogramdata={'x_var':o.x_var,'y_var':o.y_var, 'selecties':selecties, 'csv_vars':csv_vars};
 
     console.log(histogramdata);
     histogram_selector.innerHTML =template(histogramdata);
