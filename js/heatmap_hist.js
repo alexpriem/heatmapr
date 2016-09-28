@@ -384,6 +384,18 @@ function click_histogram_add () {
 	var x_var=data[5];
 	var y_var=data[6];
 
+
+	console.log($(this).hasClass('active'));
+
+	if ($(this).hasClass('active')) {
+		console.log('remove data');
+		$(this).removeClass('active'); 
+			// FIXME:data verwijderen
+		return;
+	}
+	$(this).addClass('active');
+	
+
 	query=$(this).attr('data-query');
 	selectionnr=$(this).attr('data-sel');
 	console.log('data-query:',query, selectionnr);
@@ -440,10 +452,11 @@ function click_histogram_add () {
 	min_y=$('#hist_miny').val();
 	max_y=$('#hist_maxy').val();
 	num_bins=$('#hist_bins').val();
-	varname=$('#hist_var').html();
+	varname=$('#hist_var').val();
 	queryid=query+'_'+selectionnr;
 
     console.log('data:',data);
+    
 	$.ajax({url:"/heatmap_histogram/"+dataset+'/', 
 			type: "POST",
 			'data':{'cmd':data, 'query':query, 'queryid':queryid, 'var':varname, minx:min_x, maxx:max_x, miny:min_y, maxy:max_y,bins:num_bins, num_cmds:data.length},
@@ -494,7 +507,7 @@ function heatmap_histograms () {
     $('#hist_miny').val(0);
     $('#hist_maxy').val(2500);
     $('#hist_bins').val(40);
-    $('#hist_var').html('seccoal');
+    $('#hist_var').val('seccoal');
 
     
 	$('#div_xmin').hide();

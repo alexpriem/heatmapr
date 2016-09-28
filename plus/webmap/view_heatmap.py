@@ -411,6 +411,7 @@ def make_histogram (request, dataset):
     bins = request.POST.get('bins')
     variable = request.POST.get('var')
 
+    print 'var=',variable
     col_info, coltypes_bycol = helpers.get_col_types(infodir)
     rowinfo = coltypes_bycol[variable]
 

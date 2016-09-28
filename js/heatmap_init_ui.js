@@ -359,7 +359,7 @@ function init_page() {
 
     console.log(histogramdata);
     histogram_selector.innerHTML =template(histogramdata);
-    $('#histograms').on('click',heatmap_histograms);
+   // $('#histograms').on('click',heatmap_histograms);
     $('#histograms_close').on('click',heatmap_histograms_hide);
     $('#histogram_overlay').hide();
     $('.histadd').on('click',click_histogram_add);
