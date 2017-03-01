@@ -681,17 +681,24 @@ function heatmap (data, opties, nr) {
 
 			}
 		if (opties['plot_mean']==true){
-			//console.log('plot_mean:',xstep,xpix2img, ystep, ypix2img);
-			color=opties['plot_mean_color'];
-			var chart=_this.chart;
 			var maxx=_this.opties.x_max;
-			var minx=_this.opties.x_min;			
+			var minx=_this.opties.x_min;
+			var maxy=_this.opties.y_max;
+			var miny=_this.opties.y_min;
 
-			var xScale=this.xScale;
-			var yScale=this.yScale;
+
+			var meanScaleX=d3.scale.linear();
+			meanScaleX.domain([minx,maxx]);
+			meanScaleX.range([75,imgwidth+75]);
+
+			var meanScaleY=d3.scale.linear();
+			meanScaleY.domain([miny,maxy]);
+			meanScaleY.range([25+imgheight,25]);
+			var chart=_this.chart;
+
 			var lineFunction = d3.svg.line()
-                       		    .x(function(d) { x=xScale(d.x*1.01+23);  console.log('x=',x); return x; })
-                           		.y(function(d) { y=yScale(d.y*1200)+25;  console.log('y=',y); return y; })
+                       		    .x(function(d) { x=meanScaleX(d.x);  console.log('x=',x); return x; })
+                           		.y(function(d) { y=meanScaleY(d.y);  console.log('y=',y); return y; })
                           		.interpolate("linear");
             lineData=[];
 			for (i=0; i<mean_x.length; i++) {				
@@ -707,28 +714,22 @@ function heatmap (data, opties, nr) {
                             .attr("stroke", "blue")
                             .attr("stroke-width", 2)
                             .attr("fill", "none");
-
-
-			for (i=0; i<mean_x.length; i++) {
-				avgval=mean_x[i];
-				ptr=(i*xpix2img+imgwidth*(imgheight-ypix2img*avgval))*4;
-				mapdata[ptr]=color[0];
-				mapdata[ptr+1]=color[1];
-				mapdata[ptr+2]=color[2];
-				mapdata[ptr+3]=color[3];
-			}
 		}
 		if (opties['plot_median']==true){
+			var maxx=_this.opties.x_max;
+			var minx=_this.opties.x_min;
+			var maxy=_this.opties.y_max;
+			var miny=_this.opties.y_min;
+
+
 			var medianScaleX=d3.scale.linear();
-			medianScaleX.domain([0,imgwidth]);
+			medianScaleX.domain([minx,maxx]);
 			medianScaleX.range([75,imgwidth+75]);
 
 			var medianScaleY=d3.scale.linear();
-			medianScaleY.domain([0,imgheight]);
+			medianScaleY.domain([miny,maxy]);
 			medianScaleY.range([25+imgheight,25]);
 			var chart=_this.chart;
-			var maxx=_this.opties.x_max;
-			var minx=_this.opties.x_min;
 
 
 
@@ -737,8 +738,8 @@ function heatmap (data, opties, nr) {
                            		.y(function(d) { y=medianScaleY(d.y);  console.log('y=',y); return y; })
                           		.interpolate("linear");
             lineData=[];
-			for (i=0; i<mean_x.length; i++) {				
-				step=(maxx-minx)/mean_x.length;
+			for (i=0; i<median_x.length; i++) {				
+				step=(maxx-minx)/median_x.length;
 				xval=minx+step*i;
 				lineData.push({x:xval, y:median_x[i]})
 			}
@@ -750,16 +751,6 @@ function heatmap (data, opties, nr) {
                             .attr("stroke", "blue")
                             .attr("stroke-width", 2)
                             .attr("fill", "none");
-
-			color=opties['plot_median_color'];
-			for (i=0; i<median_x.length; i++) {
-				medval=median_x[i];
-				ptr=(i*xstep+ystep*imgwidth*(imgheight-medval))*4;
-				mapdata[ptr]=color[0];
-				mapdata[ptr+1]=color[1];
-				mapdata[ptr+2]=color[2];
-				mapdata[ptr+3]=color[3];
-			}
 		}
 
 		info_datafile=opties['info_datafile'];
