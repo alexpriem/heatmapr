@@ -76,6 +76,12 @@ def example_simple(f):
             for k in range(0,val):
                 f.write('%.1f,%d\n' % (i/10.0,j*10))
 
+def example_linedata(f):
+    f.write('x,y\n')
+    for i in range(0,500):        
+        val=2000+i*2-0.01*i*i;
+        f.write('%.1f,%d\n' % (i/10.0,val))
+
 def example_weight(f):
     f.write('x,y,num\n')
     for i in range(0,500):
@@ -127,13 +133,24 @@ def example_xy_date_YMD(f):
             f.write('%s,%s,%d\n' % (s,s2,val))
 
 
+
+def test_clickpos(f):
+    f.write('x,y,num\n')
+    for i in range(0,501):
+        for j in range(0,501):
+            val=i*10000+j
+            f.write('%d,%d,%d\n' % (i,j,val))
+
+
 funcs=[example_fixed,
        example_split1,
        example_xy_date_YMD,
        example_x_date_YMD,        
        example_x_date_year,
        example_simple,
-       example_weight,        
+       example_linedata,
+       example_weight,
+       test_clickpos
         ]
 
 for f in funcs:

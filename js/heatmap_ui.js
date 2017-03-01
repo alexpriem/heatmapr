@@ -719,15 +719,22 @@ function heatmap (data, opties, nr) {
 			}
 		}
 		if (opties['plot_median']==true){
-			var xScale=this.xScale;
-			var yScale=this.yScale;
+			var medianScaleX=d3.scale.linear();
+			medianScaleX.domain([0,imgwidth]);
+			medianScaleX.range([75,imgwidth+75]);
+
+			var medianScaleY=d3.scale.linear();
+			medianScaleY.domain([0,imgheight]);
+			medianScaleY.range([25+imgheight,25]);
 			var chart=_this.chart;
 			var maxx=_this.opties.x_max;
-			var minx=_this.opties.x_min;			
+			var minx=_this.opties.x_min;
+
+
 
 			var lineFunction = d3.svg.line()
-                       		    .x(function(d) { x=xScale(d.x*1.01+15);  console.log('x=',x); return x; })
-                           		.y(function(d) { y=yScale(d.y*200)+25;  console.log('y=',y); return y; })
+                       		    .x(function(d) { x=medianScaleX(d.x);  console.log('x=',x); return x; })
+                           		.y(function(d) { y=medianScaleY(d.y);  console.log('y=',y); return y; })
                           		.interpolate("linear");
             lineData=[];
 			for (i=0; i<mean_x.length; i++) {				
@@ -758,15 +765,48 @@ function heatmap (data, opties, nr) {
 		info_datafile=opties['info_datafile'];
 		if ((info_datafile!=null) && (info_datafile!='')) {
 			color=opties['info_color'];
-			for (i=0; i<extradata.length; i++) {
-				i=extradata[i][0];
-				j=i=extradata[i][1];
-				ptr=(i*size+size*imgwidth*(imgheight-j))*4;
+			console.log(linedata);
+			for (var i=0; i<linedata.length; i++) {
+				u=linedata[i][0];
+				v=linedata[i][1];
+				var ptr=(u*size+size*imgwidth*(imgheight-v))*4;
 				mapdata[ptr]=color[0];
 				mapdata[ptr+1]=color[1];
 				mapdata[ptr+2]=color[2];
 				mapdata[ptr+3]=color[3];
 			}
+
+			var chart=_this.chart;
+			var maxx=_this.opties.x_max;
+			var minx=_this.opties.x_min;			
+
+			var lineScaleX=d3.scale.linear();
+			lineScaleX.domain([0,imgwidth]);
+			lineScaleX.range([75,imgwidth+75]);
+
+			var lineScaleY=d3.scale.linear();
+			lineScaleY.domain([0,imgheight]);
+			lineScaleY.range([25+imgheight,25]);
+
+
+			var lineFunction = d3.svg.line()
+                       		    .x(function(d) { x=lineScaleX(d.x);  return x; })
+                           		.y(function(d) { y=lineScaleY(d.y);   return y; })
+                          		.interpolate("linear");
+            lineData=[];
+			for (i=0; i<mean_x.length; i++) {				
+				lineData.push({x:linedata[i][0], y:linedata[i][1]})
+			}
+
+			var lineGraph = chart.append("path")
+							.attr("id","plot_median")
+							.attr("class","extrainfo")
+                            .attr("d", lineFunction(lineData))
+                            .attr("stroke", "blue")
+                            .attr("stroke-width", 2)
+                            .attr("fill", "none");
+
+
 		}
 		//console.log('putdata');
 		_this.ctx.putImageData(_this.imgData, 0, 0);
@@ -1330,8 +1370,7 @@ function heatmap (data, opties, nr) {
 		var ymax=opties.y_max+1;   // off by one, again.
 		var ymin=opties.y_min;
 		var delta=(ymax-ymin);
-		var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
-		var val=(((imgheight-y)+25)/imgheight)*delta+ymin;
+		var val=((imgheight-y)/imgheight)*delta+ymin;		
 
 		return val;
 	}
@@ -1383,16 +1422,14 @@ function heatmap (data, opties, nr) {
 
 		var xoffset=75;
 		var yoffset=25;
+
 		x=parseInt(evt.pageX-$(this).position().left)-xoffset;
 		y=parseInt(evt.pageY-$(this).position().top)-yoffset;
-		console.log(x, y);
-
+		console.log('x,y:',x, y);
 		
-		if ((x<xoffset) || (y<0) || (x>imgwidth+xoffset) || (y>imgheight)) {
-			if ((x>imgwidth) && (x<imgwidth+100) && (y<150)) {
-				//toggle_gradcontrols();
-			}
-			console.log('false');
+		
+		if ((x<0) || (y<0) || (x>imgwidth) || (y>imgheight)) {
+			console.log ('exit: x,y',x,y);
 			return false;
 		}
 
@@ -1408,16 +1445,19 @@ function heatmap (data, opties, nr) {
 		var xval=_this.x_to_world(x);
 		var yval=_this.y_to_world(y);
 
-		
-		console.log(xval, typeof(xval));
-		if (xval>1000){
-			xval=Math.round(xval);
-		} else {
-			xval=Math.round(xval*100)/100;
-		}
+		var deltax=(xmax-xmin)/opties.x_steps;
+		var deltay=(ymax-ymin)/opties.y_steps;
+		var x_val=parseInt(Math.floor((xval-xmin)/deltax) * deltax + xmin);
+		var y_val=parseInt(Math.floor((yval-ymin)/deltay) * deltay + ymin);
 
+		console.log('x,y',xval, yval)
+		
+		console.log('x**',(xval-xmin), (xval-xmin)/deltax, Math.floor((xval-xmin)/deltax))
+		console.log('x_,y_',x_val, y_val)
 
 		/* text upper right corner */
+
+		/*
 	 	chart.append("text")
 	    	.attr("class","pointinfotext")
 	        .attr("x", 1.5*imgwidth+100 )
@@ -1446,7 +1486,7 @@ function heatmap (data, opties, nr) {
 	        .attr("font-family", "Corbel")
 	        .attr("font-size", "15px")
 	        .attr("font-weight", "bold")
-	        .text('#count:'+val);
+	        .text('#count:'+val);  */
 
 
 
@@ -1455,25 +1495,31 @@ function heatmap (data, opties, nr) {
 	
 
 		histy_max=0;
-		for (i=0; i<imgwidth; i++) {
-			val=backbuffer[y*imgheight+i];
-			if (val>histy_max) histy_max=val;
+		for (i=0; i<imgwidth-1; i++) {
+			val=backbuffer[y*imgheight+i];	
+			//console.log('x:',y*imgwidth+i, val);		
+			if (val>histy_max) histy_max=val;		
 		}
+		
 
-
-		//console.log(histy_max);
-
-
-		for (i=0; i<imgwidth; i++) {
+		for (i=0; i<imgwidth-1; i++) {
 		 	val=backbuffer[y*imgheight+i];
 		//	console.log('x,y:', imgwidth+offsetx_hist+i, parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist );
 		 	color=colormap[val];
+		 	if (histy_max==0)  {
+		 		bin_height=0;
+		 		height=0;
+		 	} else {
+		 		bin_height=parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist;
+		 		height=(val/histy_max)*graphheight;
+		 	}		 	
+
 			chart.append("rect")
 				.attr("class","hist_y")
 				.attr("x",imgwidth+offsetx_hist+i)
-				.attr("y",parseInt(imgheight-(val/histy_max)*graphheight)+offsety_hist)
+				.attr("y",bin_height)
 				.attr("width",1)
-				.attr("height",(val/histy_max)*graphheight)
+				.attr("height",height)
 				.style("fill","rgb(8,8,0)")
 				.style("stroke","rgb(8,8,0)")
 				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
@@ -1483,25 +1529,34 @@ function heatmap (data, opties, nr) {
 
 
 	histx_max=0;
-	for (i=0; i<imgheight; i++) {
-		 	val=backbuffer[i*imgwidth+x];
+	for (i=0; i<imgheight-1; i++) {
+		 	val=backbuffer[i*imgwidth+x];	
+//		 	console.log('y:',i*imgwidth+x, val);	 	
 		 	if (val>histx_max) histx_max=val;
 		 }
 
-	for (i=0; i<imgheight; i++) {
+
+// histogram x
+
+	for (i=0; i<imgheight-1; i++) {
 		 	val=backbuffer[i*imgwidth+x];
+		 	if (histx_max==0)  {
+		 		bin_height=0;
+		 		height=0;
+		 	} else {
+		 		bin_height=parseInt(imgheight-(val/histx_max)*graphheight-graphheight+offsety_hist+offsetspace_hist);
+		 		height=(val/histx_max)*graphheight;
+		 	}		 	
+
 		 	color=colormap[val];
 			chart.append("rect")
 				.attr("class","hist_y")
 				.attr("x",2*imgwidth+offsetx_hist-i)
-				.attr("y",imgheight-(val/histx_max)*graphheight-graphheight+offsety_hist+offsetspace_hist)
+				.attr("y",bin_height)
 				.attr("width",1)
-				.attr("height",(val/histx_max)*graphheight)
+				.attr("height",height)
 				.style("fill","rgb(130,8,8)")
 				.style("stroke","rgb(130,8,8)")
-
-				//.style("fill","rgb("+color[0]+","+color[1]+","+color[2]+")")
-				//.style("stroke","rgb("+color[0]+","+color[1]+","+color[2]+")")
 				.style("stroke-width","1px");
 			 }
 
@@ -1585,21 +1640,22 @@ function heatmap (data, opties, nr) {
 	  chart.append("text")      // text label for the x axis
 	  		.attr("class","xaxis hist_x")
 	        .attr("x",  1.5*imgwidth+offsetx_hist )
-	        .attr("y",  imgheight+offsety_hist+35 )
+	        .attr("y",  imgheight-graphheight+offsety_hist-offsetspace_hist -45   )
 	        .style("text-anchor", "middle")
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", "16px")
 	  		.attr("font-weight", "bold")
-	        .text(opties.x_label+ '(voor '+opties.y_label+'='+yval+')');
+	        .text(opties.x_label+ '(voor '+opties.y_label+'='+y_val+' +/- '+deltay.toFixed(1)+')');
+
 	  chart.append("text")      // text label for the x axis
 	    	.attr("class","yaxis hist_y")
 	        .attr("x", 1.5*imgwidth+offsetx_hist )
-	        .attr("y", imgheight-graphheight+offsety_hist-offsetspace_hist-45 )
+	        .attr("y", imgheight- (2*graphheight +offsetspace_hist +offsety_hist +50)) 
 	        .attr("font-family", "Corbel")
 	  		.attr("font-size", "16px")
 	  		.attr("font-weight", "bold")
 	        .style("text-anchor", "middle")
-	        .text(opties.y_label+ '(voor '+opties.x_label+'='+xval+')');
+	        .text(opties.y_label+ '(voor '+opties.x_label+'='+x_val+' +/- '+ deltax.toFixed(0)+')');
 
 
 	  draw_legend(labels_histxy, colors_histxy);
@@ -1677,7 +1733,7 @@ function heatmap (data, opties, nr) {
 	}
 
 	this.init_dragging=function (evt) {
-		_this.dragging=true;
+		_this.dragging=false;
 		console.clear();
 		console.log('init_drag');
 		
@@ -2003,11 +2059,11 @@ function heatmap (data, opties, nr) {
 
 		a=_this.opties.annotate[nr];
 
-		if (edit_annotations) {
+/*		if (edit_annotations) {
 			annotatie=_this.opties.annotate[nr]		
 			edit_annotation (annotatie);
 		}
-		
+*/		
 		if (selected_annotation!=undefined) {
 			$('#annotation_obj_'+selected_annotation).attr('class','annotation annotation_obj');
 			$('#annotation_textc_'+selected_annotation).hide();

@@ -1,25 +1,39 @@
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
   <meta content="utf-8" http-equiv="encoding">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible" />
-
-  <link rel="stylesheet" type="text/css" href="css/style.css">
-  <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.3.4/css/bootstrap.min.css"> 
   
-  <script src="js/console.js"></script>
-  <script src="lib/jquery-2.1.3.min.js"  type="text/javascript"> </script>
-  <script src="lib/d3.min.js"  type="text/javascript"> </script>
-  <script src="lib/chroma.min.js"  type="text/javascript"> </script>
-  <script src="lib/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+  <link href="css/style_h1.css" rel="stylesheet" type="text/css">
+  <link href="css/style_h2.css" rel="stylesheet" type="text/css">  
+  <link rel="stylesheet" type="text/css" href="lib/bootstrap-3.3.4/css/bootstrap.min.css"> 
+  <link rel="stylesheet" type="text/css" href="css/bootstrap-combobox/css/bootstrap-combobox.css">
 
+  
+  <script src="js/console.js"  type="text/javascript"></script>
+
+  <script src="lib/jquery-2.1.3.min.js"  type="text/javascript"> </script>
+  <script src="lib/d3-3.5.16.min.js"  type="text/javascript"> </script>
+  <script src="lib/chroma.min.js"  type="text/javascript"> </script>
+
+  <script src="lib/jquery.bpopup.min.js"></script> 
+  <script src="lib/bootstrap-3.3.4/js/bootstrap.min.js"></script>
+  <script src="lib/bootstrap-combobox/js/bootstrap-combobox.js"></script>
+
+  <link rel="stylesheet" href="css/font-awesome-4.3.0/css/font-awesome.min.css">
+
+  
+  
   <script src="lib/handlebars-v2.0.0.js"></script>
   <script src="lib/colormapr.js"></script>
+  
+  <script src="js/data.js"> </script>
+  <script src="js/datastuff.js"> </script>
 
-  <script src="js/data.js" type="text/javascript"> </script>
-  <script src="js/ui.js" type="text/javascript"> </script>
-  <script src="js/annotate.js" type="text/javascript"> </script>
+  <script src="js/heatmap_hist.js" type="text/javascript"> </script>
+  <script src="js/heatmap_ui.js" type="text/javascript"> </script>
+  <script src="js/heatmap_annotate.js" type="text/javascript"> </script>
 </head>
 
 
@@ -27,6 +41,128 @@
 <body>
 
 <div id="errorbox"> </div>
+
+
+<div id="overlay"> 
+  <div>
+    <p id="close_selection"> X </p>
+      <h5 id="selectie_header"> <strong>Selectiegegevens: </strong></h5>         
+        <table>
+            <tr></tr>
+            <tr> <td class="selrow"> <label for="selectie_id" id="nr">nr </label> </td>  </tr>     
+            <tr> <td class="selrow"> <input type="text" name="nr" id="selectie_id">  </td> 
+            <tr> <td class="selrow"> <label for="selectie_xvar" id="label_xvar"> </label> </td>  </tr>            
+            <tr> <td class="selrow"> <label> min <label>  <td  class="selrow"> <label> max </label> </tr>
+            <tr> <td class="selrow"> <input type="text" name="xmin" id="selectie_xmin">  </td> 
+                 <td  class="selrow"> <input type="text" name="xmax" id="selectie_xmax"> </td>  </tr>
+            <tr></tr>
+            <tr> <td class="selrow"> <label for="selectie_yvar" id="label_yvar"> </label> </td>  </tr>
+            <tr> <td class="selrow"> <label for="ymin"> min <label>  <td  class="selrow"> <label  for="ymax"> max </label> </td> </tr>
+            <tr> <td class="selrow"> <input type="text" name="ymin" id="selectie_ymin"> </td> 
+                 <td  class="selrow"> <input type="text" name="ymax" id="selectie_ymax">  </td>  </tr>
+            <tr></tr>
+
+            <tr> <td class="selrow"> <label for="label_txt"> Label: <label>  <td>  </tr>
+            <tr> <td class="selrow" colspan=2> <textarea name="txt" id="label_txt" cols=60 rows=1 > </textarea> </td>  </tr>
+
+            <tr> <td class="selrow"> <label for="connector_direction"> Labelpositie </label> </td>  </tr>
+            <tr> <td class="selrow">  <select id="connector_direction">                                                                             
+                                      <option value="topright"> Topright</option>
+                                      <option value="right"> Right</option>
+                                      <option value="bottomright"> Bottomright</option>                                      
+                                      </select>              
+                  </td>  <td> </td>
+            </tr>
+            <tr> <td class="selrow"> <label for="text_xpos"> xpos <label>  <td  class="selrow"> <label  for="text_ypos"> ypos </label> </td> </tr>
+            <tr> <td class="selrow"> <input type="text" name="text_xpos" id="text_xpos"> </td>
+                 <td class="selrow"> <input type="text" name="text_ypos" id="text_ypos"> </td>
+            </tr>
+
+            <tr></tr>                 
+            
+
+            <tr> <td class="selrow"> <label> Tekst: <label>  <td>  </tr>
+            <tr> <td class="selrow" colspan=2> <textarea name="txt" id="selectie_txt" cols=60 rows=10 > </textarea> </td>  </tr>
+            <tr> <td class="selrow"> <label> File voor beschrijving: <label>  </td>  </tr>
+            <tr> <td class="selrow"> <input type="text" name="filename" id="selectie_filename"> </td>   </tr>
+        </table>
+
+      <a href="#" id="save_selection"> Opslaan </a>
+      <a href="#" id="delete_selection"> Verwijderen </a> 
+      <a href="#" id="cancel_selection"> Cancel </a>
+      
+  </div>
+</div>
+
+
+
+
+
+
+<script id="histogram-template" type="text/x-handlebars-template">
+
+<div id="histogram_sidebar" class="hist_col">
+<ul>
+<li > <a href="#" class='navitem' > 
+        <div  id="form_hist_var" >
+            <label for="hist_var">Variabele :</label>
+            <select class="xyinput2 combobox" id="hist_var">
+                {{#each csv_vars}}
+                 <option value="{{this}}"> {{this}} </option>
+                {{/each}}                
+            </select>  
+        </div>
+</li>
+
+
+<li>  <a href="#" class='histadd navitem' id="total" data-sel="" data-query='tot'>  Totaal</a> </li>
+<li>  <a href="#" class='histadd navitem' id="missing_x" data-sel="" data-query='null_x'>  {{x_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="missing_y" data-sel="" data-query='null_y'>  {{y_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="missing_xy" data-sel="" data-query='null_xy'>  {{x_var}} + {{y_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="total_min_missing_x" data-sel="" data-query='tot_min_null_x'>  Totaal min {{x_var}}=missing </a> </li>
+<li>  <a href="#" class='histadd navitem' id="total_min_missing_y" data-sel="" data-query='tot_min_null_y'>  Totaal min {{y_var}}=missing </a> </li>
+{{#selecties}}
+<li>
+  <ul>
+      <li>  <a href="#" class='histadd navitem'> Selectie: <strong>{{label}} </strong> </a> </li>
+      <li>  <a href="#" class='histadd navitem2' id="sel{{@index}}_tot" data-sel="{{@index}}" data-query='area'
+                      data-xmin='{{xmin}}' data-xvar='{{xvar}}' data-xmax='{{xmax}}'
+                      data-ymin='{{ymin}}' data-yvar='{{yvar}}' data-ymax='{{ymax}}'> totaal in gebied </a> </li>
+      <li>  <a href="#" class='histadd navitem2' id="sel{{@index}}_xtot" data-sel="{{@index}}" data-query='x_area' data-min='{{xmin}}' data-var='{{xvar}}' data-max='{{xmax}}'> totaal {{xmin}} < {{xvar}} < {{xmax}}  </a> </li>
+      <li>  <a href="#" class='histadd navitem2' id="sel{{@index}}_ytot" data-sel="{{@index}}" data-query='y_area' data-min='{{ymin}}' data-var='{{yvar}}' data-max='{{ymax}}'> totaal {{ymin}} < {{yvar}} < {{ymax}} </a> </li>
+  </ul>
+</li>
+{{/selecties}}
+</ul>
+</div>
+
+<div id="histogram_container" class="hist_col"> 
+
+</div>
+
+
+<div id="histogram_controls" class="hist_col">
+    <ul id="control_ul" >
+    <li> <a href="#" id="stijl">  Barchart </a> </li>
+    <li> <a href="#" id="log">  Log </a> </li>
+    <li> <a href="#" id="autox">  Autoscale X: max </a> </li>
+    <li> <a href="#" id="autoy">  Autoscale Y:  </a> </li>
+    <li id="div_ymin">  <div> <label class="xxylabel" for="miny"> Miny </label>  <input id="hist_miny" type="text" class="xyinput" value=""/> 
+                              <label class="xxylabel" for="maxy"> Maxy </label> <input id="hist_maxy" type="text" class="xyinput" value=""/>  </div></li>
+
+    <li id="div_xmin">  <div><label class="xxylabel"  for="minx"> Minx </label><input id="hist_minx" type="text" class="xyinput" value=""/>  
+                             <label class="xxylabel" for="maxx"> Maxx </label><input id="hist_maxx" type="text" class="xyinput" value=""/>  </div> </li>
+    <li id="div_bins">  <div><label class="xxylabel"  for="bins"> Bins </label><input id="hist_bins" type="text" class="xyinput" value=""/>  </div> </li>    
+    </ul>
+    <ul id="heatmaps">  </ul> 
+</div>
+
+
+
+</script>
+
+
+
 
 <script id="entry-template" type="text/x-handlebars-template">
     <ul id="sel_colormap_{{widget_id}}" class="selbox">
@@ -210,10 +346,6 @@
 
 
 
-    <ul class="nav nav-pills">
-        <li class="active"><a id="tab_heatmap" href="#heatmap_div" data-toggle="tab" >Heatmap</a></li>
-        <li><a id="tab_data"  href="#data_div" data-toggle="tab" >Data</a></li>       
-    </ul>
     <div class="tab-content rightbox">
 
 		<div id="heatmap_div" class="tab-pane fade in  "> </div>
@@ -228,8 +360,11 @@
   <div id="printdiv">
   	<pre id="printcode"> </pre>
   </div>
-
-  <script  src="js/init_ui.js" type="text/javascript"> </script>
+  <script  type="text/javascript"> 
+     var pub=false; // {{printing}} 
+     var csv_vars=[]; // {{csv_vars|safe}};
+  </script>
+  <script  src="js/heatmap_init_ui2.js" type="text/javascript"> </script>
 
 </body>
 </html>

@@ -13,7 +13,7 @@ var smallsize=false;
 var share_colormap=false;
 
 var annotations_show=true;
-var edit_annotations=true;
+var edit_annotations=false;
 var edit_annotation_flag=false;  // zijn we nu een selectie aan het editten?
 
 
@@ -359,10 +359,11 @@ function init_page() {
 
     console.log(histogramdata);
     histogram_selector.innerHTML =template(histogramdata);
-   // $('#histograms').on('click',heatmap_histograms);
+    // $('#histograms').on('click',heatmap_histograms);
+    $('.histadd').on('click',click_histogram_add);
     $('#histograms_close').on('click',heatmap_histograms_hide);
     $('#histogram_overlay').hide();
-    $('.histadd').on('click',click_histogram_add);
+    
 
     
     $('#show_annotations').on('click',toggle_annotations);
@@ -378,12 +379,12 @@ function init_page() {
     
     update_edit_annotations();
 
-    heatmap_histograms();
+/*    heatmap_histograms(); */
 
     if (typeof (init_interactive) == 'function') { 
         init_interactive(); 
     }
-    
+
 }
 
 $( document ).ready(init_page);

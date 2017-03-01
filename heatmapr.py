@@ -693,7 +693,7 @@ class heatmap:
                     continue
                 xpixel=int((x-xmin)/xfactor) 
                 ypixel=int((y-ymin)/yfactor)                
-            extradata.append([xpixel,ypixel])
+                extradata.append([xpixel,ypixel])
 
         nonzerocount=0
         xsum=[0]*xpixels
@@ -899,8 +899,8 @@ class heatmap:
 
         if self.info_datafile:
             if self.multi_nr==0:
-                js+='var extradata=[];\n'
-            js+='extradata.push(['
+                js+='var linedata=[];\n'
+            js+='linedata.push('
             txt=''
             nr=0
             for xpixel,ypixel in extradata:
@@ -910,7 +910,7 @@ class heatmap:
                 nr+=1
                 txt+='[%d,%d],' % (xpixel, ypixel)
                 
-            js+=txt[:-1]+']);\n'
+            js+=txt[:-1]+');\n'
 
         
                     

@@ -1,5 +1,5 @@
 import sys
-sys.path.insert(0,'h:\\src\\heatmapr')
+sys.path.insert(0,'h:\\src\\heatmapr-master')
 import heatmapr
 
 
@@ -29,7 +29,9 @@ args=dict(infile='data\\example_simple.csv',
           colormap='hot2',          
           size='1',
           transform='linear',
-          dump_html=True,
+
+          #dump_html=False,
+          dump_html=False,
           imgwidth=500,
           imgheight=500
           )
